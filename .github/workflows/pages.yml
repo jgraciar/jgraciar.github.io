@@ -1,4 +1,4 @@
-# Publicación desde jgraciar/jgraciar.github.io, con código fuente en electrotecnia.
+# Publicación de Circuit JGR desde su propio código fuente, separado del laboratorio.
 # Publica Circuit JGR 1.0 en https://jgraciar.github.io/circuitjgr.html.
 # El proyecto original y el laboratorio no se modifican.
 name: Publicar Circuit JGR 1.0
@@ -22,12 +22,9 @@ jobs:
     name: Compilar Circuit JGR con entrada propia
     runs-on: ubuntu-24.04
     steps:
-      - name: Obtener adaptación Circuit JGR
+      - name: Obtener el código fuente propio de Circuit JGR
         uses: actions/checkout@v4
         with:
-          repository: jgraciar/electrotecnia
-          # Compilación de la revisión que ha superado las pruebas de 22 idiomas.
-          ref: abbaf90a08f34fc3a0d5119e311f5e868a679324
           path: adaptacion
           persist-credentials: false
 

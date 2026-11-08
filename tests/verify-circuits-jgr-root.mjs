@@ -40,6 +40,9 @@ try{
  const files=await page.locator('#circuits-jgr-identity a').evaluateAll(
   nodes=>nodes.map(n=>n.getAttribute("href")));
  assert(files.includes("../LICENSE-GPLv3.txt"));
+ assert(files.includes("https://github.com/jgraciar/jgraciar.github.io"));
+ assert(!files.some(x=>x?.includes("jgraciar/electrotecnia")),
+  "Créditos de Circuit JGR enlazan erróneamente con el laboratorio");
 
  // Comprobar la ventana real (no solo los diccionarios) en los 22 idiomas.
  // Prioridad: inglés, valenciano; después el resto, sin omitir créditos legales.
@@ -63,6 +66,10 @@ try{
     finalNotice:original[15]?.textContent?.trim(),
     legalHref:document.querySelector("#circuits-jgr-identity a")?.getAttribute("href"),
     upstream:!!document.querySelector('a[href="https://github.com/pfalstad/circuitjs1"]'),
+    sourceHref:document.querySelector('#circuits-jgr-identity a[href*="github.com/jgraciar/"]')?.href,
+    improvementsTitle:document.querySelector("#jgr-improvements-title")?.textContent?.trim(),
+    improvements:[...document.querySelectorAll("#jgr-improvements-list li")]
+      .map(x=>x.textContent?.trim()),
     documentLanguage:document.documentElement.lang
    };
   });
@@ -78,6 +85,22 @@ try{
   for(const name of ["Edward Calver","Colin Howell","Pablo Sanz Martin"])
    assert(data.credits.includes(name),language+": crédito omitido: "+name);
   assert(data.upstream,language+": falta el enlace al código original");
+  assert.equal(data.sourceHref,"https://github.com/jgraciar/jgraciar.github.io",
+    language+": el código fuente debe estar separado del laboratorio");
+  assert(data.improvementsTitle?.includes("CircuitJS1 5.0.4ts"),
+    language+": falta encabezado de mejoras");
+  assert.equal(data.improvements.length,6,language+": faltan mejoras implementadas");
+  for(const item of data.improvements)
+    assert(item?.length>30,language+": falta descripción de alguna mejora");
+  if(language!=="en"){
+    assert.notEqual(data.improvementsTitle,"Improvements over CircuitJS1 5.0.4ts",
+      language+": mejoras sin traducir");
+    assert(!data.improvements[0].startsWith("Extended wattmeter:"),
+      language+": descripción de mejoras sin traducir");
+  }
+  if(language!=="es")
+    assert(!data.authors.includes(" y colaboradores"),
+      language+": autores conservan la conjunción española");
   assert.equal(data.legalHref,"../LICENSE-GPLv3.txt");
   assert.equal(data.documentLanguage,language==="ca-es-valencia"?"ca-ES-valencia":
    language==="csx"?"cs":language==="kr"?"ko":language);
@@ -94,11 +117,14 @@ try{
     language+": denominación de colaboradores en inglés");
   }
   if(language==="en"){
+   assert.equal(data.improvementsTitle,"Improvements over CircuitJS1 5.0.4ts");
    assert.equal(data.development,"Development and adaptation");
    assert.equal(data.versions,"Original CircuitJS1, version");
    assert(data.authors.includes("and contributors"));
   }
   if(language==="ca-es-valencia"){
+   assert.equal(data.improvementsTitle,"Millores respecte de CircuitJS1 5.0.4ts");
+   assert(data.improvements[0].startsWith("Vatímetre ampliat:"));
    assert.equal(data.development,"Desenvolupament i adaptació");
    assert.equal(data.versions,"CircuitJS1 original, versió");
    assert(data.authors.includes("i col·laboradors"));
