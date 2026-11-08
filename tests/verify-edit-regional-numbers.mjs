@@ -34,12 +34,17 @@ assert(formatter.includes("labRegionalFormat")&&formatter.includes("labGroupingS
 // Evitar doble conversión en parseUnits: el punto canónico 1.5 NO es
 // un punto de miles del formato europeo. Es obligatorio usar una única
 // conversión tanto para campos sin unidad como para campos con prefijo SI.
-assert(!source.includes("const decimal=NumberFormat.decimalSeparator;"),
- "EditDialog no debe volver a interpretar el número canónico con separadores");
+const parseStart=source.indexOf("static parseUnits(s: string): number {");
+const parseEnd=source.indexOf("    apply(): boolean",parseStart);
+assert(parseStart>=0&&parseEnd>parseStart,"No se encuentra el analizador SI");
+const parseSource=source.slice(parseStart,parseEnd);
+assert(!parseSource.includes("NumberFormat.decimalSeparator")&&
+ !parseSource.includes("NumberFormat.groupingSeparator"),
+ "EditDialog.parseUnits no debe volver a interpretar el número canónico con separadores");
 assert(!source.includes("NumberFormat.localizedInput(noCommaFormat"),
  "La presentación regional debe aplicarse una sola vez, incluso a enteros");
-assert(source.includes('static parseUnits(s: string): number {\\n')===false || !source.includes('const grouping=NumberFormat.groupingSeparator;'),
- "No se debe mezclar el normalizador con el analizador SI");
+assert(parseSource.includes('return parseFloatStrict(s) * mult * rmsMult;'),
+ "El análisis final debe utilizar la notación numérica canónica de CircuitJS");
 
 
 const storage=values=>({getItem:key=>values[key]??null});
