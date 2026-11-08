@@ -27,6 +27,11 @@ try{
  }
 
  async function editOnce(tag,xmlAttr,initial,typed,expected){
+  // El editor está acoplado al elemento activo del motor. Cada ensayo usa
+  // una sesión limpia para no heredar el estado de selección del anterior.
+  await page.reload({waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>!!window.CircuitJS1?.getElements,
+   null,{timeout:90000});
   const model=tag==="FilteredBridge"?
    '<FilteredBridge x="256 304 352 304" f="0" r="'+initial+'" c="0.00047" rs="2.2"/>':
    '<r x="256 304 352 304" f="0" r="'+initial+'"/>';
