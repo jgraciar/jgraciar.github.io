@@ -1,0 +1,435 @@
+import {uiSpanish,uiValencian} from "./LabTranslationsMenus.ts";
+import {nativeMenuExtensions} from "./LabTranslationsNativeMenus.ts";
+import {circuitJsSupplementKeys,circuitJsSupplement} from "./CircuitJsSupplementalUi.ts";
+import {circuitJsUiCompletenessKeys,circuitJsUiCompleteness} from "./CircuitJsUiCompleteness.ts";
+import {scopeOptionKeys,scopeOptionTranslations} from "./CircuitJsScopeOptions.ts";
+import {generalOptionKeys,generalOptionTranslations} from "./CircuitJsGeneralOptions.ts";
+import {componentEditDialogLabels} from "./CircuitJsEditDialogTitles.ts";
+// Traducciones añadidas para los componentes propios del Laboratorio.
+// Las claves originales de CircuitJS se conservan en sus catálogos oficiales.
+// Catálogos adicionales incorporados directamente para compatibilidad con Node y TypeScript.
+// Se respeta el orden y los códigos de los 16 idiomas reales de CircuitJS.
+export const labLanguageCodes = ["csx","da","de","en","es","fi","fr","it","nb","pl","pt","ru","zh","zh-tw","ja","kr","ca","ca-es-valencia","gl","eu","nl","sv"] as const;
+const baseCodes = ["en","es","fr","de","it","pt","nl","pl"] as const;
+const extraEuropean: Record<string,string[]> = {
+"csx": ["Fotovoltaický střídač (AC)","Fotovoltaický střídač","Přidat impedanci Z (AC, sériové RLC)","Nelineární zátěž: můstkový usměrňovač s filtrem C","Nelineární zátěž: můstek s filtrem C","Jednofázový můstkový usměrňovač s kapacitním filtrem","Zatěžovací odpor R (Ω)","Filtrační kondenzátor C (F)","Typ střídače","Připojení k síti (automatické U/f)","Ostrovní fotovoltaický systém","Jmenovitý činný výkon Pn (W)","Maximální zdánlivý výkon Smax (VA)","Aktuální činný výkon FV P (W)","Výstupní efektivní napětí U (V, fáze–N)","Výstupní frekvence (Hz)","Zobrazení proudu","Efektivní hodnota RMS (výchozí)","Okamžitá hodnota i(t)","Pokročilá regulace cos φ (výchozí 1)","Požadované cos φ","Směr jalového výkonu","Induktivní","Kapacitní","Fotovoltaický střídač připojený k síti","Ostrovní FV střídač (zdroj napětí)","Impedance Z (pouze AC)","Impedance Z · pouze AC · sériové zapojení","Velikost |Z| a argument φ","Odpor R a reaktance X","Fyzické součástky R, L a C","Frekvence AC zjištěná ze zdroje","(automaticky)","Referenční frekvence AC (Hz; bez jednoznačného zdroje)","Velikost |Z| (Ω)","Argument φ (°)","Odpor R (Ω)","Reaktance X (Ω), +L / −C","Indukčnost L (H), 0 = vynechat","Kapacita C (F), 0 = vynechat","Zobrazení hodnot ve schématu","Algebraický tvar impedance R ± jX (výchozí)","Součástky R, L a C","Druh proudu","Automaticky (detekovat)","Stejnosměrný (DC)","Střídavý (AC)","Zobrazení výkonu P","Okamžitý výkon p(t)","Špičkový Pmax","Efektivní PRMS","Střední činný výkon P","Okamžitá hodnota","Absolutní špička","Efektivní hodnota RMS","Střední hodnota","Časové okno pro výpočet U, I a p(t)","1 zjištěná perioda","3 zjištěné periody","Činný výkon P (W)","Jalový výkon Q (VAr) – základní harmonická","Zdánlivý výkon S (VA)","Zobrazit napětí na wattmetru","Zobrazení napětí U","Zobrazit proud na wattmetru","Zobrazit cos φ (základní harmonická)","Zobrazit skutečný účiník (P/S)","Zobrazit THD napětí (%)","Zobrazit THD proudu (%)","Zobrazit zbytkový nefundamentální D* (VA)","Počet desetinných míst (0 až 10)","Desetinný oddělovač","Oddělovač tisíců","Čárka (,)","Tečka (.)","Žádný","Impedance Z je dostupná pouze pro střídavý proud","Impedance Z vyžaduje zdroj AC (obvody pouze DC nejsou podporovány)","Zobrazení proudu I","Jmenovité S =","Výstupní U =","Výstupní f =","P a cos φ určují zátěže; nejsou předepsány","Dodávaný P =","Aktuální S =","Výsledné Q =","Síť:","Síť AC nezjištěna: dodávka vypnuta","Omezeno jmenovitým P nebo maximálním S","Síťové f =","f0 (referenční) =","Z (AC, sériové RLC)"],
+"da": ["Solcelleinverter (AC)","Solcelleinverter","Tilføj impedans Z (AC, serie-RLC)","Ikke-lineær belastning: broensretter med C-filter","Ikke-lineær belastning: bro med C-filter","Enfaset broensretter med kondensatorfilter","Belastningsmodstand R (Ω)","Filterkondensator C (F)","Invertertype","Nettilsluttet (automatisk U/f)","Ødrift med solceller","Nominel aktiv effekt Pn (W)","Maksimal tilsyneladende effekt Smax (VA)","Aktuel aktiv solcelleeffekt P (W)","Udgangsspænding U RMS (V, fase-N)","Udgangsfrekvens (Hz)","Strømvisning","Effektivværdi RMS (standard)","Øjebliksværdi i(t)","Avanceret cos φ-regulering (standard 1)","Indstillet cos φ","Retning for reaktiv effekt","Induktiv","Kapacitiv","Nettilsluttet solcelleinverter","Solcelleinverter i ødrift (spændingskilde)","Impedans Z (kun AC)","Impedans Z · kun AC · serieforbindelse","Størrelse |Z| og fasevinkel φ","Modstand R og reaktans X","Fysiske komponenter R, L og C","AC-frekvens registreret fra kilden","(automatisk)","Referencefrekvens for AC (Hz; ingen entydig kilde)","Størrelse |Z| (Ω)","Fasevinkel φ (°)","Modstand R (Ω)","Reaktans X (Ω), +L / −C","Induktans L (H), 0 = udelad","Kapacitans C (F), 0 = udelad","Vis værdier på diagrammet","Rektangulær impedans R ± jX (standard)","Komponenterne R, L og C","Strømtype","Automatisk (registrér)","Jævnstrøm (DC)","Vekselstrøm (AC)","Visning af effekt P","Øjeblikkelig p(t)","Spidsværdi Pmax","Effektivværdi PRMS","Middel aktiv effekt P","Øjebliksværdi","Absolut spidsværdi","Effektivværdi RMS","Middelværdi","Beregningsvindue for U, I og p(t)","1 registreret periode","3 registrerede perioder","Aktiv effekt P (W)","Reaktiv effekt Q (VAr) – grundtone","Tilsyneladende effekt S (VA)","Vis spænding på wattmeter","Spændingsvisning U","Vis strøm på wattmeter","Vis cos φ (grundtone)","Vis faktisk effektfaktor (P/S)","Vis spændings-THD (%)","Vis strøm-THD (%)","Vis ikke-fundamental rest D* (VA)","Generelle decimaler (0 til 10)","Decimaltegn","Tusindtalsseparator","Komma (,)","Punktum (.)","Ingen","Impedans Z findes kun for vekselstrøm","Impedans Z kræver en AC-kilde (kun DC-kredsløb understøttes ikke)","Strømvisning I","Nominel S =","Udgangs-U =","Udgangs-f =","P og cos φ bestemmes af belastningerne; de påtvinges ikke","Indfødet P =","Aktuel S =","Resulterende Q =","Net:","AC-net ikke registreret: indfødning deaktiveret","Begrænset af nominel P eller maksimal S","Netfrekvens =","f0 (reference) =","Z (AC, serie-RLC)"],
+"fi": ["Aurinkosähköinvertteri (AC)","Aurinkosähköinvertteri","Lisää impedanssi Z (AC, RLC-sarja)","Epälineaarinen kuorma: tasasuuntaussilta ja C-suodatin","Epälineaarinen kuorma: silta ja C-suodatin","Yksivaiheinen tasasuuntaussilta kondensaattorisuodattimella","Kuormitusvastus R (Ω)","Suodatinkondensaattori C (F)","Invertterin tyyppi","Verkkoon kytketty (automaattinen U/f)","Saarekekäytön aurinkosähkö","Nimellinen pätöteho Pn (W)","Suurin näennäisteho Smax (VA)","Aurinkosähkön nykyinen pätöteho P (W)","Lähdön tehollisjännite U (V, vaihe-N)","Lähtötaajuus (Hz)","Virran näyttötapa","Tehollisarvo RMS (oletus)","Hetkellinen i(t)","Edistynyt cos φ -säätö (oletus 1)","cos φ -asetusarvo","Loistehon suunta","Induktiivinen","Kapasitiivinen","Verkkoon kytketty aurinkosähköinvertteri","Saarekeinvertteri (jännitelähde)","Impedanssi Z (vain AC)","Impedanssi Z · vain AC · sarjakytkentä","Itseisarvo |Z| ja vaihekulma φ","Resistanssi R ja reaktanssi X","Fyysiset komponentit R, L ja C","Lähteestä havaittu AC-taajuus","(automaattinen)","AC-viitetaajuus (Hz; ei yksiselitteistä lähdettä)","Itseisarvo |Z| (Ω)","Vaihekulma φ (°)","Resistanssi R (Ω)","Reaktanssi X (Ω), +L / −C","Induktanssi L (H), 0 = jätä pois","Kapasitanssi C (F), 0 = jätä pois","Näytä arvot kytkentäkaaviossa","Impedanssin suorakulmainen muoto R ± jX (oletus)","Komponentit R, L ja C","Virran tyyppi","Automaattinen (tunnista)","Tasavirta (DC)","Vaihtovirta (AC)","Tehon P näyttötapa","Hetkellinen p(t)","Huippuarvo Pmax","Tehollisarvo PRMS","Keskimääräinen pätöteho P","Hetkellinen","Itseisarvon huippu","Tehollisarvo RMS","Keskiarvo","U:n, I:n ja p(t):n laskentaikkuna","1 havaittu jakso","3 havaittua jaksoa","Pätöteho P (W)","Loisteho Q (VAr) – perustaajuus","Näennäisteho S (VA)","Näytä jännite wattimittarissa","Jännitteen U näyttötapa","Näytä virta wattimittarissa","Näytä cos φ (perustaajuus)","Näytä todellinen tehokerroin (P/S)","Näytä jännitteen THD (%)","Näytä virran THD (%)","Näytä ei-perustaajuinen jäännös D* (VA)","Desimaalien määrä (0–10)","Desimaalierotin","Tuhaterotin","Pilkku (,)","Piste (.)","Ei mitään","Impedanssi Z on käytettävissä vain vaihtovirralla","Impedanssi Z vaatii AC-lähteen (pelkkää DC-piiriä ei tueta)","Virran I näyttötapa","Nimellinen S =","Lähtö-U =","Lähtö-f =","P ja cos φ määräytyvät kuormista; niitä ei määrätä","Verkkoon syötetty P =","Nykyinen S =","Tuloksena oleva Q =","Verkko:","AC-verkkoa ei havaittu: syöttö poistettu käytöstä","Nimellisen P:n tai suurimman S:n rajoittama","Verkon f =","f0 (viite) =","Z (AC, RLC-sarja)"],
+"nb": ["Solcellevekselretter (AC)","Solcellevekselretter","Legg til impedans Z (AC, serie-RLC)","Ikke-lineær last: brolikeretter med C-filter","Ikke-lineær last: bro med C-filter","Enfaset brolikeretter med kondensatorfilter","Lastmotstand R (Ω)","Filterkondensator C (F)","Type vekselretter","Nettilkoblet (automatisk U/f)","Frittstående solcelleanlegg","Nominell aktiv effekt Pn (W)","Maksimal tilsynelatende effekt Smax (VA)","Aktuell aktiv solcelleeffekt P (W)","Utgangsspenning U RMS (V, fase-N)","Utgangsfrekvens (Hz)","Strømvisning","Effektivverdi RMS (standard)","Øyeblikksverdi i(t)","Avansert cos φ-regulering (standard 1)","Ønsket cos φ","Retning for reaktiv effekt","Induktiv","Kapasitiv","Nettilkoblet solcellevekselretter","Frittstående solcellevekselretter (spenningskilde)","Impedans Z (bare AC)","Impedans Z · bare AC · seriekobling","Beløp |Z| og fasevinkel φ","Motstand R og reaktans X","Fysiske komponenter R, L og C","AC-frekvens registrert fra kilden","(automatisk)","AC-referansefrekvens (Hz; ingen entydig kilde)","Beløp |Z| (Ω)","Fasevinkel φ (°)","Motstand R (Ω)","Reaktans X (Ω), +L / −C","Induktans L (H), 0 = utelat","Kapasitans C (F), 0 = utelat","Vis verdier i koblingsskjemaet","Rektangulær impedans R ± jX (standard)","Komponenter R, L og C","Strømtype","Automatisk (registrer)","Likestrøm (DC)","Vekselstrøm (AC)","Visning av effekt P","Øyeblikkelig p(t)","Toppverdi Pmax","Effektivverdi PRMS","Gjennomsnittlig aktiv effekt P","Øyeblikksverdi","Absolutt toppverdi","Effektivverdi RMS","Gjennomsnitt","Beregningsvindu for U, I og p(t)","1 registrert periode","3 registrerte perioder","Aktiv effekt P (W)","Reaktiv effekt Q (VAr) – grunnharmonisk","Tilsynelatende effekt S (VA)","Vis spenning på wattmeter","Spenningsvisning U","Vis strøm på wattmeter","Vis cos φ (grunnharmonisk)","Vis reell effektfaktor (P/S)","Vis spennings-THD (%)","Vis strøm-THD (%)","Vis ikke-grunnharmonisk rest D* (VA)","Antall desimaler (0 til 10)","Desimalskilletegn","Tusenskilletegn","Komma (,)","Punktum (.)","Ingen","Impedans Z er bare tilgjengelig med vekselstrøm","Impedans Z krever en AC-kilde (kun DC-kretser støttes ikke)","Strømvisning I","Nominell S =","Utgangs-U =","Utgangs-f =","P og cos φ bestemmes av lastene; de er ikke pålagt","Injisert P =","Gjeldende S =","Resulterende Q =","Nett:","AC-nett ikke funnet: injeksjon deaktivert","Begrenset av nominell P eller maksimal S","Nettfrekvens =","f0 (referanse) =","Z (AC, serie-RLC)"],
+"sv": ["Solcellsväxelriktare (AC)","Solcellsväxelriktare","Lägg till impedans Z (AC, RLC i serie)","Ickelinjär last: brygglikriktare med C-filter","Ickelinjär last: brygga med C-filter","Enfasig brygglikriktare med kapacitivt filter","Lastresistans R (Ω)","Filterkondensator C (F)","Typ av växelriktare","Nätanslutning (automatisk U/f)","Fristående solcellssystem","Nominell aktiv effekt Pn (W)","Maximal skenbar effekt Smax (VA)","Aktuell aktiv soleffekt P (W)","Utspänning U RMS (V, fas–N)","Utfrekvens (Hz)","Visning av ström","Effektivvärde RMS (standard)","Momentanvärde i(t)","Avancerad reglering av cos φ (standard 1)","Önskat cos φ","Riktning för reaktiv effekt","Induktiv","Kapacitiv","Nätansluten solcellsväxelriktare","Fristående solcellsväxelriktare (spänningskälla)","Impedans Z (endast AC)","Impedans Z · endast AC · seriekoppling","Belopp |Z| och fasvinkel φ","Resistans R och reaktans X","Fysiska komponenter R, L och C","AC-frekvens identifierad från källan","(automatisk)","Referensfrekvens för AC (Hz; ingen entydig källa)","Belopp |Z| (Ω)","Fasvinkel φ (°)","Resistans R (Ω)","Reaktans X (Ω), +L / −C","Induktans L (H), 0 = utelämna","Kapacitans C (F), 0 = utelämna","Visa värden i kopplingsschemat","Impedans i rektangulär form R ± jX (standard)","Komponenter R, L och C","Strömtyp","Automatiskt (identifiera)","Likström (DC)","Växelström (AC)","Visning av P","Momentaneffekt p(t)","Toppvärde Pmax","Effektivvärde PRMS","Medelvärde för aktiv effekt P","Momentanvärde","Absolut toppvärde","Effektivvärde RMS","Medelvärde","Beräkningsfönster för U, I och p(t)","1 identifierad period","3 identifierade perioder","Aktiv effekt P (W)","Reaktiv effekt Q (VAr) – grundton","Skenbar effekt S (VA)","Visa spänning på wattmetern","Visning av spänning U","Visa ström på wattmetern","Visa cos φ (grundton)","Visa verklig effektfaktor (P/S)","Visa spänningens THD (%)","Visa strömmens THD (%)","Visa återstående icke-grundtonskomponent D* (VA)","Antal decimaler (0 till 10)","Decimalavskiljare","Tusentalsavskiljare","Komma (,)","Punkt (.)","Ingen","Impedans Z är endast tillgänglig för växelström","Impedans Z kräver en växelspänningskälla (kretsar med enbart DC stöds inte)","Visning av ström I","Nominell S =","Utspänning U =","Utfrekvens f =","P och cos φ bestäms av lasterna och kan inte anges","Inmatad P =","Aktuell S =","Resulterande Q =","Nät:","Inget växelströmsnät identifierat: inmatning avaktiverad","Begränsad av nominell P eller maximal S","Nätfrekvens f =","f0 (referens) =","Z (AC, RLC i serie)"]
+};
+
+const extraEurasian: Record<string,string[]> = {
+"ru": ["Фотоэлектрический инвертор (переменный ток)","Фотоэлектрический инвертор","Добавить импеданс Z (переменный ток, последовательная RLC)","Нелинейная нагрузка: мостовой выпрямитель с C-фильтром","Нелинейная нагрузка: мост с C-фильтром","Однофазный мостовой выпрямитель с ёмкостным фильтром","Сопротивление нагрузки R (Ω)","Фильтрующий конденсатор C (Ф)","Тип инвертора","Подключение к сети (U/f автоматически)","Автономная фотоэлектрическая система","Номинальная активная мощность Pn (Вт)","Максимальная полная мощность Smax (ВА)","Текущая активная мощность ФЭ P (Вт)","Выходное действующее напряжение U (В, фаза-N)","Выходная частота (Гц)","Отображение тока","Действующее значение RMS (по умолчанию)","Мгновенное значение i(t)","Расширенная регулировка cos φ (по умолчанию 1)","Заданное cos φ","Направление реактивной мощности","Индуктивная","Ёмкостная","Сетевой фотоэлектрический инвертор","Автономный ФЭ-инвертор (источник напряжения)","Импеданс Z (только переменный ток)","Импеданс Z · только переменный ток · последовательное соединение","Модуль |Z| и угол φ","Сопротивление R и реактивное сопротивление X","Физические компоненты R, L и C","Частота переменного тока определена по источнику","(автоматически)","Опорная частота переменного тока (Гц; источник неоднозначен)","Модуль |Z| (Ω)","Фазовый угол φ (°)","Сопротивление R (Ω)","Реактивное сопротивление X (Ω), +L / −C","Индуктивность L (Гн), 0 = пропустить","Ёмкость C (Ф), 0 = пропустить","Отображение значений на схеме","Алгебраическая форма импеданса R ± jX (по умолчанию)","Компоненты R, L и C","Тип тока","Автоматически (определить)","Постоянный ток (DC)","Переменный ток (AC)","Отображение мощности P","Мгновенная мощность p(t)","Пиковая мощность Pmax","Действующее значение PRMS","Средняя активная мощность P","Мгновенное значение","Абсолютный пик","Действующее значение RMS","Среднее значение","Окно расчёта U, I и p(t)","1 обнаруженный период","3 обнаруженных периода","Активная мощность P (Вт)","Реактивная мощность Q (вар) — основная гармоника","Полная мощность S (ВА)","Показывать напряжение на ваттметре","Отображение напряжения U","Показывать ток на ваттметре","Показывать cos φ (основная гармоника)","Показывать истинный коэффициент мощности (P/S)","Показывать THD напряжения (%)","Показывать THD тока (%)","Показывать остаточную несинусоидальную мощность D* (ВА)","Количество знаков после запятой (0–10)","Десятичный разделитель","Разделитель тысяч","Запятая (,)","Точка (.)","Нет","Импеданс Z доступен только в цепях переменного тока","Для импеданса Z нужен источник переменного тока (цепи только DC не поддерживаются)","Отображение тока I","Номинальная S =","Выходное U =","Выходная f =","P и cos φ определяются нагрузками и не задаются","Отдаваемая P =","Текущая S =","Результирующая Q =","Сеть:","Сеть переменного тока не обнаружена: отдача отключена","Ограничено номинальной P или максимальной S","Частота сети =","f0 (опорная) =","Z (переменный ток, последовательная RLC)"],
+"zh": ["光伏逆变器（交流）","光伏逆变器","添加阻抗 Z（交流，串联 RLC）","非线性负载：带电容滤波的桥式整流器","非线性负载：带电容滤波的整流桥","带电容滤波器的单相桥式整流器","负载电阻 R (Ω)","滤波电容 C (F)","逆变器类型","并网（U/f 自动跟随）","离网光伏","额定有功功率 Pn (W)","最大视在功率 Smax (VA)","当前光伏有功功率 P (W)","输出有效值电压 U（V，相线-N）","输出频率 (Hz)","电流读数","有效值 RMS（默认）","瞬时值 i(t)","高级 cos φ 调节（默认 1）","设定 cos φ","无功功率方向","感性","容性","并网光伏逆变器","离网光伏逆变器（电压源）","阻抗 Z（仅交流）","阻抗 Z · 仅交流 · 串联连接","模值 |Z| 与相角 φ","电阻 R 与电抗 X","物理元件 R、L 和 C","从电源检测到的交流频率","（自动）","交流参考频率（Hz；无唯一电源）","模值 |Z| (Ω)","相角 φ (°)","电阻 R (Ω)","电抗 X (Ω)，+L / −C","电感 L（H，0 = 省略）","电容 C（F，0 = 省略）","在电路图中显示数值","阻抗代数式 R ± jX（默认）","元件 R、L 和 C","电流类型","自动（检测）","直流（DC）","交流（AC）","功率 P 读数","瞬时功率 p(t)","峰值 Pmax","有效值 PRMS","平均有功功率 P","瞬时值","绝对峰值","有效值 RMS","平均值","U、I 和 p(t) 的计算窗口","检测到 1 个周期","检测到 3 个周期","有功功率 P (W)","无功功率 Q (VAr) — 基波","视在功率 S (VA)","在功率表上显示电压","电压 U 读数","在功率表上显示电流","显示 cos φ（基波）","显示真实功率因数（P/S）","显示电压总谐波失真 THD (%)","显示电流总谐波失真 THD (%)","显示非基波残余 D* (VA)","常规小数位数（0 至 10）","小数分隔符","千位分隔符","逗号 (,)","句点 (.)","无","阻抗 Z 仅适用于交流电","阻抗 Z 需要交流电源（不支持纯直流电路）","电流 I 读数","额定 S =","输出 U =","输出 f =","P 和 cos φ 由负载决定，不能强制设定","注入功率 P =","当前 S =","计算得到的 Q =","电网：","未检测到交流电网：已停止注入","受额定 P 或最大 S 限制","电网频率 =","f0（参考）=","Z（交流，串联 RLC）"],
+"zh-tw": ["太陽光電逆變器（交流）","太陽光電逆變器","新增阻抗 Z（交流，串聯 RLC）","非線性負載：附電容濾波的橋式整流器","非線性負載：附電容濾波的整流橋","附電容濾波器的單相橋式整流器","負載電阻 R (Ω)","濾波電容 C (F)","逆變器類型","併網（U/f 自動跟隨）","離網太陽光電","額定實功率 Pn (W)","最大視在功率 Smax (VA)","目前光電實功率 P (W)","輸出有效值電壓 U（V，相線-N）","輸出頻率 (Hz)","電流讀值","有效值 RMS（預設）","瞬時值 i(t)","進階 cos φ 調整（預設 1）","設定 cos φ","虛功率方向","感性","容性","併網太陽光電逆變器","離網太陽光電逆變器（電壓源）","阻抗 Z（僅交流）","阻抗 Z · 僅交流 · 串聯連接","模值 |Z| 與相角 φ","電阻 R 與電抗 X","實體元件 R、L 和 C","從電源偵測到的交流頻率","（自動）","交流參考頻率（Hz；無唯一電源）","模值 |Z| (Ω)","相角 φ (°)","電阻 R (Ω)","電抗 X (Ω)，+L / −C","電感 L（H，0 = 略過）","電容 C（F，0 = 略過）","在電路圖中顯示數值","阻抗代數式 R ± jX（預設）","元件 R、L 和 C","電流類型","自動（偵測）","直流（DC）","交流（AC）","功率 P 讀值","瞬時功率 p(t)","峰值 Pmax","有效值 PRMS","平均實功率 P","瞬時值","絕對峰值","有效值 RMS","平均值","U、I 和 p(t) 的計算視窗","偵測到 1 個週期","偵測到 3 個週期","實功率 P (W)","虛功率 Q (VAr) — 基波","視在功率 S (VA)","在功率表上顯示電壓","電壓 U 讀值","在功率表上顯示電流","顯示 cos φ（基波）","顯示實際功率因數（P/S）","顯示電壓總諧波失真 THD (%)","顯示電流總諧波失真 THD (%)","顯示非基波殘餘 D* (VA)","一般小數位數（0 至 10）","小數分隔符號","千位分隔符號","逗號 (,)","句點 (.)","無","阻抗 Z 僅適用於交流電","阻抗 Z 需要交流電源（不支援純直流電路）","電流 I 讀值","額定 S =","輸出 U =","輸出 f =","P 和 cos φ 由負載決定，不能強制設定","注入功率 P =","目前 S =","計算得到的 Q =","電網：","未偵測到交流電網：已停止注入","受額定 P 或最大 S 限制","電網頻率 =","f0（參考）=","Z（交流，串聯 RLC）"]
+};
+
+const extraEastAsian: Record<string,string[]> = {
+"ja": ["太陽光発電インバーター（交流）","太陽光発電インバーター","インピーダンス Z を追加（交流、直列 RLC）","非線形負荷：コンデンサーフィルター付きブリッジ整流器","非線形負荷：C フィルター付きブリッジ","コンデンサーフィルター付き単相ブリッジ整流器","負荷抵抗 R (Ω)","平滑コンデンサー C (F)","インバーターの種類","系統連系（U/f 自動追従）","独立型太陽光発電","定格有効電力 Pn (W)","最大皮相電力 Smax (VA)","現在の太陽光発電有効電力 P (W)","出力実効電圧 U（V、相-N）","出力周波数 (Hz)","電流の表示","実効値 RMS（既定）","瞬時値 i(t)","高度な cos φ 制御（既定値 1）","目標 cos φ","無効電力の方向","誘導性","容量性","系統連系太陽光発電インバーター","独立型太陽光発電インバーター（電圧源）","インピーダンス Z（交流のみ）","インピーダンス Z · 交流のみ · 直列接続","絶対値 |Z| と位相角 φ","抵抗 R とリアクタンス X","物理素子 R、L、C","電源から検出した交流周波数","（自動）","交流基準周波数（Hz、電源を一意に特定できません）","絶対値 |Z| (Ω)","位相角 φ (°)","抵抗 R (Ω)","リアクタンス X (Ω)、+L / −C","インダクタンス L（H、0 = 省略）","静電容量 C（F、0 = 省略）","回路図に値を表示","インピーダンスの直交形式 R ± jX（既定）","素子 R、L、C","電流の種類","自動（検出）","直流（DC）","交流（AC）","電力 P の表示","瞬時電力 p(t)","ピーク値 Pmax","実効値 PRMS","平均有効電力 P","瞬時値","絶対ピーク値","実効値 RMS","平均値","U、I、p(t) の計算時間窓","検出した 1 周期","検出した 3 周期","有効電力 P (W)","無効電力 Q (VAr) — 基本波","皮相電力 S (VA)","電力計に電圧を表示","電圧 U の表示","電力計に電流を表示","cos φ を表示（基本波）","真の力率（P/S）を表示","電圧の THD を表示 (%)","電流の THD を表示 (%)","非基本波の残差 D* を表示 (VA)","小数点以下の桁数（0 ～ 10）","小数点記号","桁区切り記号","コンマ (,)","ピリオド (.)","なし","インピーダンス Z は交流回路でのみ使用できます","インピーダンス Z には交流電源が必要です（直流のみの回路は非対応）","電流 I の表示","定格 S =","出力 U =","出力 f =","P と cos φ は負荷で決まり、指定されません","注入電力 P =","現在の S =","結果の Q =","系統：","交流系統が見つかりません：注入を停止","定格 P または最大 S により制限","系統周波数 =","f0（基準）=","Z（交流、直列 RLC）"],
+"kr": ["태양광 인버터 (교류)","태양광 인버터","임피던스 Z 추가 (교류, 직렬 RLC)","비선형 부하: C 필터가 있는 브리지 정류기","비선형 부하: C 필터가 있는 브리지","커패시터 필터가 있는 단상 브리지 정류기","부하 저항 R (Ω)","필터 커패시터 C (F)","인버터 종류","계통 연계 (U/f 자동 추종)","독립형 태양광 발전","정격 유효전력 Pn (W)","최대 피상전력 Smax (VA)","현재 태양광 유효전력 P (W)","출력 실효 전압 U (V, 상-N)","출력 주파수 (Hz)","전류 표시","실효값 RMS (기본값)","순간값 i(t)","고급 cos φ 제어 (기본값 1)","목표 cos φ","무효전력 방향","유도성","용량성","계통 연계 태양광 인버터","독립형 태양광 인버터 (전압원)","임피던스 Z (교류 전용)","임피던스 Z · 교류 전용 · 직렬 연결","크기 |Z| 및 위상각 φ","저항 R 및 리액턴스 X","물리 소자 R, L, C","전원에서 감지한 교류 주파수","(자동)","교류 기준 주파수 (Hz, 단일 전원 없음)","크기 |Z| (Ω)","위상각 φ (°)","저항 R (Ω)","리액턴스 X (Ω), +L / −C","인덕턴스 L (H), 0 = 생략","커패시턴스 C (F), 0 = 생략","회로도에 값 표시","임피던스의 직교형 R ± jX (기본값)","소자 R, L, C","전류 종류","자동 (감지)","직류 (DC)","교류 (AC)","전력 P 표시","순간 전력 p(t)","최댓값 Pmax","실효값 PRMS","평균 유효전력 P","순간값","절대 최댓값","실효값 RMS","평균값","U, I, p(t) 계산 구간","감지한 1주기","감지한 3주기","유효전력 P (W)","무효전력 Q (VAr) — 기본파","피상전력 S (VA)","전력계에 전압 표시","전압 U 표시","전력계에 전류 표시","cos φ 표시 (기본파)","실제 역률 (P/S) 표시","전압 THD 표시 (%)","전류 THD 표시 (%)","비기본파 잔여 D* 표시 (VA)","소수 자릿수 (0~10)","소수 구분 기호","천 단위 구분 기호","쉼표 (,)","마침표 (.)","없음","임피던스 Z는 교류에서만 사용할 수 있습니다","임피던스 Z에는 교류 전원이 필요합니다 (직류 전용 회로는 지원 안 됨)","전류 I 표시","정격 S =","출력 U =","출력 f =","P와 cos φ는 부하에 따라 결정되며 강제하지 않습니다","계통 주입 P =","현재 S =","결과 Q =","계통:","교류 계통 감지 안 됨: 주입 중지","정격 P 또는 최대 S로 제한","계통 주파수 =","f0 (기준) =","Z (교류, 직렬 RLC)"]
+};
+const extraSpain: Record<string,string[]> = {
+"ca": ["Inversor fotovoltaic (CA)","Inversor fotovoltaic","Afegir impedància Z (CA, RLC en sèrie)","Càrrega no lineal: pont rectificador amb filtre C","Càrrega no lineal: pont amb filtre C","Pont rectificador monofàsic amb filtre capacitiu","Resistència de càrrega R (Ω)","Condensador de filtratge C (F)","Tipus d'inversor","Connexió a la xarxa (U/f automàtiques)","Fotovoltaica aïllada","Potència activa nominal Pn (W)","Potència aparent màxima Smax (VA)","Potència FV activa actual P (W)","Tensió de sortida U RMS (V, fase-N)","Freqüència de sortida (Hz)","Lectura d'intensitat","Valor eficaç RMS (predeterminat)","Instantània i(t)","Regulació avançada de cos φ (predeterminat 1)","Cos φ de consigna","Sentit de la potència reactiva","Inductiu","Capacitiu","Inversor FV connectat a la xarxa","Inversor FV aïllat (font de tensió)","Impedància Z (només CA)","Impedància Z · només CA · connexió en sèrie","Mòdul |Z| i argument φ","Resistència R i reactància X","Components físics R, L i C","Freqüència de CA detectada a la font","(automàtica)","Freqüència de referència de CA (Hz; sense font única)","Mòdul |Z| (Ω)","Argument φ (°)","Resistència R (Ω)","Reactància X (Ω), +L / −C","Inductància L (H), 0 = ometre","Capacitat C (F), 0 = ometre","Visualització de valors a l'esquema","Impedància binòmica R ± jX (predeterminada)","Components R, L i C","Tipus de corrent","Automàtica (detectar)","Continu (CC)","Altern (CA)","Lectura de P","Instantània p(t)","Pic Pmax","Valor eficaç PRMS","Potència activa mitjana P","Instantània","Pic absolut","Valor eficaç RMS","Mitjana","Finestra de càlcul d'U, I i p(t)","1 període detectat","3 períodes detectats","Potència activa P (W)","Potència reactiva Q (VAr) - fonamental","Potència aparent S (VA)","Mostrar la tensió al wattímetre","Lectura de tensió U","Mostrar la intensitat al wattímetre","Mostrar cos φ (fonamental)","Mostrar el factor de potència real (P/S)","Mostrar la THD de tensió (%)","Mostrar la THD de corrent (%)","Mostrar el residual no fonamental D* (VA)","Decimals generals (0 a 10)","Separador decimal","Separador de milers","Coma (,)","Punt (.)","Cap","La impedància Z només està disponible en corrent altern","La impedància Z necessita una font de CA (no admet circuits alimentats només amb CC)","Lectura d'intensitat I","S nominal =","U de sortida =","f de sortida =","P i cos φ depenen de les càrregues; no s'imposen","P injectada =","S actual =","Q resultant =","Xarxa:","Xarxa CA no detectada: injecció desactivada","Limitada per P nominal o S màxima","f de xarxa =","f0 (referència) =","Z (CA, RLC en sèrie)"],
+"ca-es-valencia": ["Inversor fotovoltaic (CA)","Inversor fotovoltaic","Afegir impedància Z (CA, RLC en sèrie)","Càrrega no lineal: pont rectificador amb filtre C","Càrrega no lineal: pont amb filtre C","Pont rectificador monofàsic amb filtre capacitiu","Resistència de càrrega R (Ω)","Condensador de filtratge C (F)","Tipus d'inversor","Connexió a la xarxa (U/f automàtiques)","Fotovoltaica aïllada","Potència activa nominal Pn (W)","Potència aparent màxima Smax (VA)","Potència FV activa actual P (W)","Tensió d'eixida U RMS (V, fase-N)","Freqüència d'eixida (Hz)","Lectura d'intensitat","Valor eficaç RMS (per defecte)","Instantània i(t)","Regulació avançada de cos φ (per defecte 1)","Cos φ de consigna","Sentit de la potència reactiva","Inductiu","Capacitiu","Inversor FV connectat a la xarxa","Inversor FV aïllat (font de tensió)","Impedància Z (només CA)","Impedància Z · només CA · connexió en sèrie","Mòdul |Z| i argument φ","Resistència R i reactància X","Components físics R, L i C","Freqüència de CA detectada en la font","(automàtica)","Freqüència de referència de CA (Hz; sense una font única)","Mòdul |Z| (Ω)","Argument φ (°)","Resistència R (Ω)","Reactància X (Ω), +L / −C","Inductància L (H), 0 = ometre","Capacitat C (F), 0 = ometre","Visualització de valors en l'esquema","Impedància binòmica R ± jX (per defecte)","Components R, L i C","Tipus de corrent","Automàtica (detectar)","Continu (CC)","Altern (CA)","Lectura de P","Instantània p(t)","Pic Pmax","Valor eficaç PRMS","Potència activa mitjana P","Instantània","Pic absolut","Valor eficaç RMS","Mitjana","Finestra de càlcul d'U, I i p(t)","1 període detectat","3 períodes detectats","Potència activa P (W)","Potència reactiva Q (VAr) - fonamental","Potència aparent S (VA)","Mostrar la tensió en el wattímetre","Lectura de tensió U","Mostrar la intensitat en el wattímetre","Mostrar cos φ (fonamental)","Mostrar el factor de potència real (P/S)","Mostrar la THD de tensió (%)","Mostrar la THD de corrent (%)","Mostrar el residual no fonamental D* (VA)","Decimals generals (0 a 10)","Separador decimal","Separador de milers","Coma (,)","Punt (.)","Cap","La impedància Z només està disponible en corrent altern","La impedància Z necessita una font de CA (no admet circuits alimentats només amb CC)","Lectura d'intensitat I","S nominal =","U d'eixida =","f d'eixida =","P i cos φ depenen de les càrregues; no s'imposen","P injectada =","S actual =","Q resultant =","Xarxa:","Xarxa CA no detectada: injecció desactivada","Limitada per P nominal o S màxima","f de xarxa =","f0 (referència) =","Z (CA, RLC en sèrie)"],
+"gl": ["Inversor fotovoltaico (CA)","Inversor fotovoltaico","Engadir impedancia Z (CA, RLC en serie)","Carga non lineal: ponte rectificadora con filtro C","Carga non lineal: ponte con filtro C","Ponte rectificadora monofásica con filtro capacitivo","Resistencia de carga R (Ω)","Condensador de filtraxe C (F)","Tipo de inversor","Conexión á rede (U/f automáticas)","Fotovoltaica illada","Potencia activa nominal Pn (W)","Potencia aparente máxima Smax (VA)","Potencia FV activa actual P (W)","Tensión de saída U RMS (V, fase-N)","Frecuencia de saída (Hz)","Lectura da intensidade","Valor eficaz RMS (predeterminado)","Instantánea i(t)","Regulación avanzada de cos φ (predeterminado 1)","Cos φ de consigna","Sentido da potencia reactiva","Indutivo","Capacitivo","Inversor FV conectado á rede","Inversor FV illado (fonte de tensión)","Impedancia Z (só CA)","Impedancia Z · só CA · conexión en serie","Módulo |Z| e argumento φ","Resistencia R e reactancia X","Compoñentes físicos R, L e C","Frecuencia de CA detectada na fonte","(automática)","Frecuencia de referencia de CA (Hz; sen fonte única)","Módulo |Z| (Ω)","Argumento φ (°)","Resistencia R (Ω)","Reactancia X (Ω), +L / −C","Indutancia L (H), 0 = omitir","Capacidade C (F), 0 = omitir","Visualización de valores no esquema","Impedancia binómica R ± jX (predeterminada)","Compoñentes R, L e C","Tipo de corrente","Automática (detectar)","Continua (CC)","Alterna (CA)","Lectura de P","Instantánea p(t)","Pico Pmax","Valor eficaz PRMS","Potencia activa media P","Instantánea","Pico absoluto","Valor eficaz RMS","Media","Xanela de cálculo de U, I e p(t)","1 período detectado","3 períodos detectados","Potencia activa P (W)","Potencia reactiva Q (VAr) - fundamental","Potencia aparente S (VA)","Mostrar a tensión no vatímetro","Lectura da tensión U","Mostrar a intensidade no vatímetro","Mostrar cos φ (fundamental)","Mostrar o factor de potencia real (P/S)","Mostrar a THD da tensión (%)","Mostrar a THD da corrente (%)","Mostrar o residual non fundamental D* (VA)","Decimais xerais (0 a 10)","Separador decimal","Separador de milleiros","Coma (,)","Punto (.)","Ningún","A impedancia Z só está dispoñible en corrente alterna","A impedancia Z necesita unha fonte de CA (non admite circuítos alimentados só con CC)","Lectura da intensidade I","S nominal =","U de saída =","f de saída =","P e cos φ dependen das cargas; non se impoñen","P inxectada =","S actual =","Q resultante =","Rede:","Rede CA non detectada: inxección desactivada","Limitada por P nominal ou S máxima","f de rede =","f0 (referencia) =","Z (CA, RLC en serie)"],
+"eu": ["Inbertsore fotovoltaikoa (AC)","Inbertsore fotovoltaikoa","Gehitu Z inpedantzia (AC, serieko RLC)","Karga ez-lineala: zubi zuzentzailea C iragazkiarekin","Karga ez-lineala: zubia C iragazkiarekin","Fase bakarreko zubi zuzentzailea iragazki kapazitiboarekin","Karga-erresistentzia R (Ω)","Iragazki-kondentsadorea C (F)","Inbertsore mota","Sarera konektatua (U/f automatikoak)","Saretik isolatutako sistema fotovoltaikoa","Potentzia aktibo nominala Pn (W)","Itxurazko potentzia maximoa Smax (VA)","Egungo potentzia aktibo fotovoltaikoa P (W)","Irteerako tentsio eraginkorra U (V, fase-N)","Irteerako maiztasuna (Hz)","Korrontearen irakurketa","Balio eraginkorra RMS (lehenetsia)","Uneko balioa i(t)","cos φ-ren erregulazio aurreratua (lehenetsia 1)","Helburuko cos φ","Potentzia erreaktiboaren noranzkoa","Induktiboa","Kapazitiboa","Sarera konektatutako inbertsore fotovoltaikoa","Inbertsore fotovoltaiko isolatua (tentsio-iturria)","Z inpedantzia (AC bakarrik)","Z inpedantzia · AC bakarrik · serieko konexioa","|Z| modulua eta φ argumentua","R erresistentzia eta X erreaktantzia","R, L eta C osagai fisikoak","Iturrian detektatutako AC maiztasuna","(automatikoa)","AC erreferentzia-maiztasuna (Hz; iturri bakarrik ez)","|Z| modulua (Ω)","φ argumentua (°)","R erresistentzia (Ω)","X erreaktantzia (Ω), +L / −C","L induktantzia (H), 0 = ez gehitu","C kapazitantzia (F), 0 = ez gehitu","Eskeman balioak bistaratzea","R ± jX inpedantzia binomikoa (lehenetsia)","R, L eta C osagaiak","Korronte mota","Automatikoa (detektatu)","Korronte zuzena (DC)","Korronte alternoa (AC)","P potentziaren irakurketa","Uneko potentzia p(t)","Pmax gailurra","PRMS balio eraginkorra","Batez besteko potentzia aktiboa P","Uneko balioa","Gailur absolutua","RMS balio eraginkorra","Batez bestekoa","U, I eta p(t) kalkulatzeko leihoa","Detektatutako periodo 1","Detektatutako 3 periodo","Potentzia aktiboa P (W)","Potentzia erreaktiboa Q (VAr) - oinarrizkoa","Itxurazko potentzia S (VA)","Erakutsi tentsioa wattmetroan","U tentsioaren irakurketa","Erakutsi korrontea wattmetroan","Erakutsi cos φ (oinarrizkoa)","Erakutsi benetako potentzia-faktorea (P/S)","Erakutsi tentsioaren THD (%)","Erakutsi korrontearen THD (%)","Erakutsi oinarrizkoa ez den D* hondarra (VA)","Hamartar kopurua (0tik 10era)","Hamartar-bereizlea","Milakoen bereizlea","Koma (,)","Puntua (.)","Bat ere ez","Z inpedantzia korronte alternoan bakarrik dago erabilgarri","Z inpedantziak AC iturri bat behar du (DC hutseko zirkuituak ez dira onartzen)","I korrontearen irakurketa","S nominala =","Irteerako U =","Irteerako f =","P eta cos φ kargen araberakoak dira; ez dira ezartzen","Injektatutako P =","Egungo S =","Lortutako Q =","Sarea:","AC sarerik ez da detektatu: injekzioa desaktibatuta","P nominalak edo S maximoak mugatuta","Sareko f =","f0 (erreferentzia) =","Z (AC, serieko RLC)"]
+};
+const supplements: Record<string,string[]> =
+ Object.assign({},extraEuropean,extraEurasian,extraEastAsian,extraSpain);
+export type LabLanguage = typeof labLanguageCodes[number];
+const rows: string[][] = [["Inversor fotovoltaico FV (CA)","PV inverter (AC)","Onduleur photovoltaïque (CA)","PV-Wechselrichter (AC)","Inverter fotovoltaico (CA)","Inversor fotovoltaico (CA)","PV-omvormer (AC)","Falownik fotowoltaiczny (AC)"],["Inversor fotovoltaico FV","PV inverter","Onduleur photovoltaïque","PV-Wechselrichter","Inverter fotovoltaico","Inversor fotovoltaico","PV-omvormer","Falownik fotowoltaiczny"],["Añadir impedancia Z (CA, RLC serie)","Add impedance Z (AC, series RLC)","Ajouter une impédance Z (CA, RLC série)","Impedanz Z hinzufügen (AC, RLC in Reihe)","Aggiungi impedenza Z (CA, RLC serie)","Adicionar impedância Z (CA, RLC série)","Impedantie Z toevoegen (AC, RLC in serie)","Dodaj impedancję Z (AC, szeregowe RLC)"],["Carga no lineal: puente rectificador con filtro C","Nonlinear load: bridge rectifier with C filter","Charge non linéaire : pont redresseur avec filtre C","Nichtlineare Last: Brückengleichrichter mit C-Filter","Carico non lineare: ponte raddrizzatore con filtro C","Carga não linear: ponte retificadora com filtro C","Niet-lineaire belasting: bruggelijkrichter met C-filter","Obciążenie nieliniowe: mostek prostowniczy z filtrem C"],["Carga no lineal: puente con filtro C","Nonlinear load: bridge with C filter","Charge non linéaire : pont avec filtre C","Nichtlineare Last: Brücke mit C-Filter","Carico non lineare: ponte con filtro C","Carga não linear: ponte com filtro C","Niet-lineaire belasting: brug met C-filter","Obciążenie nieliniowe: mostek z filtrem C"],["Puente rectificador monofásico con filtro capacitivo","Single-phase bridge rectifier with capacitor filter","Pont redresseur monophasé avec filtre capacitif","Einphasen-Brückengleichrichter mit Kondensatorfilter","Ponte raddrizzatore monofase con filtro capacitivo","Ponte retificadora monofásica com filtro capacitivo","Eenfasige bruggelijkrichter met condensatorfilter","Jednofazowy mostek prostowniczy z filtrem pojemnościowym"],["Resistencia de carga R (Ω)","Load resistance R (Ω)","Résistance de charge R (Ω)","Lastwiderstand R (Ω)","Resistenza di carico R (Ω)","Resistência de carga R (Ω)","Belastingsweerstand R (Ω)","Rezystancja obciążenia R (Ω)"],["Condensador de filtrado C (F)","Filter capacitor C (F)","Condensateur de filtrage C (F)","Siebkondensator C (F)","Condensatore di filtro C (F)","Condensador de filtragem C (F)","Filtercondensator C (F)","Kondensator filtrujący C (F)"],["Tipo de inversor","Inverter type","Type d’onduleur","Wechselrichtertyp","Tipo di inverter","Tipo de inversor","Omvormertype","Typ falownika"],["Conexión a red (U/f automáticas)","Grid-connected (automatic V/f)","Raccordé au réseau (U/f automatiques)","Netzgekoppelt (U/f automatisch)","Connesso alla rete (U/f automatiche)","Ligado à rede (U/f automáticas)","Netgekoppeld (U/f automatisch)","Sieciowy (U/f automatyczne)"],["Fotovoltaica aislada","Off-grid photovoltaic","Photovoltaïque autonome","PV-Inselbetrieb","Fotovoltaico isolato","Fotovoltaico isolado","Off-grid fotovoltaïsch","Fotowoltaika wyspowa"],["Potencia activa nominal Pn (W)","Rated active power Pn (W)","Puissance active nominale Pn (W)","Nennwirkleistung Pn (W)","Potenza attiva nominale Pn (W)","Potência ativa nominal Pn (W)","Nominaal actief vermogen Pn (W)","Znamionowa moc czynna Pn (W)"],["Potencia aparente máxima Smax (VA)","Maximum apparent power Smax (VA)","Puissance apparente maximale Smax (VA)","Maximale Scheinleistung Smax (VA)","Potenza apparente massima Smax (VA)","Potência aparente máxima Smax (VA)","Maximaal schijnbaar vermogen Smax (VA)","Maksymalna moc pozorna Smax (VA)"],["Potencia FV activa actual P (W)","Actual PV active power P (W)","Puissance active PV actuelle P (W)","Aktuelle PV-Wirkleistung P (W)","Potenza attiva FV attuale P (W)","Potência ativa FV atual P (W)","Actueel actief PV-vermogen P (W)","Aktualna moc czynna PV P (W)"],["Tensión de salida U RMS (V, fase-N)","Output RMS voltage U (V, phase-N)","Tension efficace de sortie U (V, phase-N)","Ausgangsspannung U effektiv (V, Phase-N)","Tensione di uscita U RMS (V, fase-N)","Tensão de saída U RMS (V, fase-N)","Effectieve uitgangsspanning U (V, fase-N)","Napięcie wyjściowe U RMS (V, faza-N)"],["Frecuencia de salida (Hz)","Output frequency (Hz)","Fréquence de sortie (Hz)","Ausgangsfrequenz (Hz)","Frequenza di uscita (Hz)","Frequência de saída (Hz)","Uitgangsfrequentie (Hz)","Częstotliwość wyjściowa (Hz)"],["Lectura de intensidad","Current reading","Lecture du courant","Stromanzeige","Lettura della corrente","Leitura da corrente","Stroomwaarde","Odczyt natężenia prądu"],["Eficaz RMS (por defecto)","RMS (default)","Efficace RMS (par défaut)","Effektivwert RMS (Standard)","Efficace RMS (predefinito)","Eficaz RMS (predefinido)","Effectieve waarde RMS (standaard)","Wartość skuteczna RMS (domyślnie)"],["Instantánea i(t)","Instantaneous i(t)","Instantanée i(t)","Momentanwert i(t)","Istantanea i(t)","Instantânea i(t)","Momentane waarde i(t)","Chwilowa i(t)"],["Regulación avanzada de cos φ (por defecto 1)","Advanced cos φ control (default 1)","Réglage avancé du cos φ (1 par défaut)","Erweiterte cos-φ-Regelung (Standard 1)","Regolazione avanzata cos φ (predefinito 1)","Regulação avançada de cos φ (predefinição 1)","Geavanceerde cos φ-regeling (standaard 1)","Zaawansowana regulacja cos φ (domyślnie 1)"],["cos φ de consigna","Target cos φ","Consigne de cos φ","Sollwert cos φ","Valore impostato cos φ","Referência de cos φ","Gewenste cos φ","Nastawa cos φ"],["Sentido de potencia reactiva","Reactive power direction","Sens de la puissance réactive","Blindleistungsrichtung","Verso della potenza reattiva","Sentido da potência reativa","Richting blindvermogen","Kierunek mocy biernej"],["Inductivo","Inductive","Inductif","Induktiv","Induttivo","Indutivo","Inductief","Indukcyjny"],["Capacitivo","Capacitive","Capacitif","Kapazitiv","Capacitivo","Capacitivo","Capacitief","Pojemnościowy"],["Inversor FV conectado a red","Grid-connected PV inverter","Onduleur PV raccordé au réseau","Netzgekoppelter PV-Wechselrichter","Inverter FV connesso alla rete","Inversor FV ligado à rede","Netgekoppelde PV-omvormer","Falownik PV podłączony do sieci"],["Inversor FV aislado (fuente de tensión)","Off-grid PV inverter (voltage source)","Onduleur PV autonome (source de tension)","PV-Inselwechselrichter (Spannungsquelle)","Inverter FV isolato (sorgente di tensione)","Inversor FV isolado (fonte de tensão)","PV-eilandomvormer (spanningsbron)","Falownik wyspowy PV (źródło napięcia)"],["Impedancia Z (solo CA)","Impedance Z (AC only)","Impédance Z (CA uniquement)","Impedanz Z (nur AC)","Impedenza Z (solo CA)","Impedância Z (apenas CA)","Impedantie Z (alleen AC)","Impedancja Z (tylko AC)"],["Impedancia Z · solo CA · conexión en serie","Impedance Z · AC only · series connection","Impédance Z · CA uniquement · montage en série","Impedanz Z · nur AC · Reihenschaltung","Impedenza Z · solo CA · collegamento in serie","Impedância Z · apenas CA · ligação em série","Impedantie Z · alleen AC · serieschakeling","Impedancja Z · tylko AC · połączenie szeregowe"],["Módulo |Z| y argumento φ","Magnitude |Z| and phase φ","Module |Z| et argument φ","Betrag |Z| und Winkel φ","Modulo |Z| e argomento φ","Módulo |Z| e argumento φ","Grootte |Z| en fasehoek φ","Moduł |Z| i argument φ"],["Resistencia R y reactancia X","Resistance R and reactance X","Résistance R et réactance X","Widerstand R und Reaktanz X","Resistenza R e reattanza X","Resistência R e reatância X","Weerstand R en reactantie X","Rezystancja R i reaktancja X"],["Componentes físicos R, L y C","Physical components R, L and C","Composants physiques R, L et C","Bauteile R, L und C","Componenti fisici R, L e C","Componentes físicos R, L e C","Fysieke componenten R, L en C","Elementy fizyczne R, L i C"],["Frecuencia de CA detectada en la fuente","AC frequency detected from source","Fréquence CA détectée à la source","An der Quelle erkannte AC-Frequenz","Frequenza CA rilevata dalla sorgente","Frequência CA detetada na fonte","AC-frequentie gedetecteerd bij bron","Częstotliwość AC wykryta ze źródła"],[" (automática)"," (automatic)"," (automatique)"," (automatisch)"," (automatica)"," (automática)"," (automatisch)"," (automatyczna)"],["Frecuencia de referencia de CA (Hz; sin fuente única)","Reference AC frequency (Hz; no unique source)","Fréquence CA de référence (Hz ; source non unique)","AC-Referenzfrequenz (Hz; keine eindeutige Quelle)","Frequenza CA di riferimento (Hz; sorgente non univoca)","Frequência CA de referência (Hz; sem fonte única)","Referentie-AC-frequentie (Hz; geen eenduidige bron)","Częstotliwość odniesienia AC (Hz; brak jednoznacznego źródła)"],["Módulo |Z| (Ω)","Magnitude |Z| (Ω)","Module |Z| (Ω)","Betrag |Z| (Ω)","Modulo |Z| (Ω)","Módulo |Z| (Ω)","Grootte |Z| (Ω)","Moduł |Z| (Ω)"],["Argumento φ (°)","Phase angle φ (°)","Argument φ (°)","Phasenwinkel φ (°)","Angolo di fase φ (°)","Argumento φ (°)","Fasehoek φ (°)","Kąt fazowy φ (°)"],["Resistencia R (Ω)","Resistance R (Ω)","Résistance R (Ω)","Widerstand R (Ω)","Resistenza R (Ω)","Resistência R (Ω)","Weerstand R (Ω)","Rezystancja R (Ω)"],["Reactancia X (Ω), +L / −C","Reactance X (Ω), +L / −C","Réactance X (Ω), +L / −C","Reaktanz X (Ω), +L / −C","Reattanza X (Ω), +L / −C","Reatância X (Ω), +L / −C","Reactantie X (Ω), +L / −C","Reaktancja X (Ω), +L / −C"],["Inductancia L (H), 0 = omitir","Inductance L (H), 0 = omit","Inductance L (H), 0 = ignorer","Induktivität L (H), 0 = weglassen","Induttanza L (H), 0 = omettere","Indutância L (H), 0 = omitir","Inductantie L (H), 0 = weglaten","Indukcyjność L (H), 0 = pomiń"],["Capacidad C (F), 0 = omitir","Capacitance C (F), 0 = omit","Capacité C (F), 0 = ignorer","Kapazität C (F), 0 = weglassen","Capacità C (F), 0 = omettere","Capacidade C (F), 0 = omitir","Capaciteit C (F), 0 = weglaten","Pojemność C (F), 0 = pomiń"],["Visualización de valores en el esquema","Display values in schematic","Afficher les valeurs sur le schéma","Werte im Schaltbild anzeigen","Visualizza valori nello schema","Mostrar valores no esquema","Waarden in schema tonen","Wyświetlanie wartości na schemacie"],["Impedancia binómica R ± jX (predeterminada)","Rectangular impedance R ± jX (default)","Impédance rectangulaire R ± jX (par défaut)","Kartesische Impedanz R ± jX (Standard)","Impedenza cartesiana R ± jX (predefinita)","Impedância cartesiana R ± jX (predefinição)","Rechthoekige impedantie R ± jX (standaard)","Impedancja w postaci algebraicznej R ± jX (domyślnie)"],["Componentes R, L y C","Components R, L and C","Composants R, L et C","Bauelemente R, L und C","Componenti R, L e C","Componentes R, L e C","Componenten R, L en C","Elementy R, L i C"],["Tipo de corriente","Current type","Type de courant","Stromart","Tipo di corrente","Tipo de corrente","Stroomsoort","Rodzaj prądu"],["Automatica (detectar)","Automatic (detect)","Automatique (détection)","Automatisch (erkennen)","Automatica (rileva)","Automática (detetar)","Automatisch (detecteren)","Automatyczny (wykryj)"],["Continua (CC)","Direct current (DC)","Continu (CC)","Gleichstrom (DC)","Continua (CC)","Contínua (CC)","Gelijkstroom (DC)","Prąd stały (DC)"],["Alterna (CA)","Alternating current (AC)","Alternatif (CA)","Wechselstrom (AC)","Alternata (CA)","Alternada (CA)","Wisselstroom (AC)","Prąd przemienny (AC)"],["Lectura de P","Power P reading","Lecture de puissance P","Leistungsanzeige P","Lettura della potenza P","Leitura da potência P","Vermogenswaarde P","Odczyt mocy P"],["Instantanea p(t)","Instantaneous p(t)","Instantanée p(t)","Momentanwert p(t)","Istantanea p(t)","Instantânea p(t)","Momentaan p(t)","Chwilowa p(t)"],["Pico Pmax","Peak Pmax","Crête Pmax","Spitzenwert Pmax","Picco Pmax","Pico Pmax","Piek Pmax","Szczyt Pmax"],["Eficaz PRMS","RMS PRMS","Efficace PRMS","Effektivwert PRMS","Efficace PRMS","Eficaz PRMS","Effectief PRMS","Skuteczna PRMS"],["Activa media P","Average active power P","Puissance active moyenne P","Mittlere Wirkleistung P","Potenza attiva media P","Potência ativa média P","Gemiddeld actief vermogen P","Średnia moc czynna P"],["Instantanea","Instantaneous","Instantanée","Momentanwert","Istantanea","Instantânea","Momentaan","Chwilowa"],["Pico absoluto","Absolute peak","Crête absolue","Absoluter Spitzenwert","Picco assoluto","Pico absoluto","Absolute piek","Szczyt bezwzględny"],["Eficaz RMS","RMS","Efficace RMS","Effektivwert RMS","Efficace RMS","Eficaz RMS","Effectief RMS","Skuteczna RMS"],["Media","Mean","Moyenne","Mittelwert","Media","Média","Gemiddelde","Średnia"],["Ventana de cálculo de U, I y p(t)","Measurement window for U, I and p(t)","Fenêtre de calcul U, I et p(t)","Messfenster für U, I und p(t)","Finestra di calcolo U, I e p(t)","Janela de cálculo de U, I e p(t)","Meetvenster voor U, I en p(t)","Okno obliczeń U, I i p(t)"],["1 periodo detectado","1 detected period","1 période détectée","1 erkannte Periode","1 periodo rilevato","1 período detetado","1 gedetecteerde periode","1 wykryty okres"],["3 periodos detectados","3 detected periods","3 périodes détectées","3 erkannte Perioden","3 periodi rilevati","3 períodos detetados","3 gedetecteerde perioden","3 wykryte okresy"],["Potencia activa P (W)","Active power P (W)","Puissance active P (W)","Wirkleistung P (W)","Potenza attiva P (W)","Potência ativa P (W)","Actief vermogen P (W)","Moc czynna P (W)"],["Potencia reactiva Q (VAr) - fundamental","Reactive power Q (VAr) - fundamental","Puissance réactive Q (VAr) - fondamentale","Blindleistung Q (VAr) - Grundschwingung","Potenza reattiva Q (VAr) - fondamentale","Potência reativa Q (VAr) - fundamental","Blindvermogen Q (VAr) - grondgolf","Moc bierna Q (VAr) - podstawowa"],["Potencia aparente S (VA)","Apparent power S (VA)","Puissance apparente S (VA)","Scheinleistung S (VA)","Potenza apparente S (VA)","Potência aparente S (VA)","Schijnbaar vermogen S (VA)","Moc pozorna S (VA)"],["Mostrar tensión en el vatímetro","Show voltage on wattmeter","Afficher la tension sur le wattmètre","Spannung am Wattmeter anzeigen","Mostra tensione nel wattmetro","Mostrar tensão no wattímetro","Spanning op wattmeter tonen","Pokaż napięcie na watomierzu"],["Lectura de tensión U","Voltage U reading","Lecture de tension U","Spannungsanzeige U","Lettura della tensione U","Leitura da tensão U","Spanningswaarde U","Odczyt napięcia U"],["Mostrar intensidad en el vatímetro","Show current on wattmeter","Afficher le courant sur le wattmètre","Strom am Wattmeter anzeigen","Mostra corrente nel wattmetro","Mostrar corrente no wattímetro","Stroom op wattmeter tonen","Pokaż natężenie prądu na watomierzu"],["Mostrar cos φ (fundamental)","Show cos φ (fundamental)","Afficher cos φ (fondamentale)","cos φ (Grundschwingung) anzeigen","Mostra cos φ (fondamentale)","Mostrar cos φ (fundamental)","cos φ (grondgolf) tonen","Pokaż cos φ (podstawowa)"],["Mostrar f.d.p. real (P/S)","Show true power factor (P/S)","Afficher facteur de puissance réel (P/S)","Tatsächlichen Leistungsfaktor (P/S) anzeigen","Mostra fattore di potenza reale (P/S)","Mostrar fator de potência real (P/S)","Werkelijke arbeidsfactor (P/S) tonen","Pokaż rzeczywisty współczynnik mocy (P/S)"],["Mostrar THD tension (%)","Show voltage THD (%)","Afficher THD tension (%)","Spannungs-THD (%) anzeigen","Mostra THD tensione (%)","Mostrar THD da tensão (%)","Spannings-THD (%) tonen","Pokaż THD napięcia (%)"],["Mostrar THD corriente (%)","Show current THD (%)","Afficher THD courant (%)","Strom-THD (%) anzeigen","Mostra THD corrente (%)","Mostrar THD da corrente (%)","Stroom-THD (%) tonen","Pokaż THD prądu (%)"],["Mostrar D* residual no fundamental (VA)","Show non-fundamental residual D* (VA)","Afficher D* résiduel non fondamental (VA)","Nichtgrundschwingungs-Rest D* (VA) anzeigen","Mostra D* residuo non fondamentale (VA)","Mostrar D* residual não fundamental (VA)","Niet-grondgolfrest D* (VA) tonen","Pokaż resztę D* niepodstawową (VA)"],["Decimales generales (0 a 10)","General decimal places (0 to 10)","Décimales générales (0 à 10)","Allgemeine Dezimalstellen (0 bis 10)","Decimali generali (da 0 a 10)","Casas decimais gerais (0 a 10)","Algemene decimalen (0 tot 10)","Ogólna liczba miejsc po przecinku (0–10)"],["Separador decimal","Decimal separator","Séparateur décimal","Dezimaltrennzeichen","Separatore decimale","Separador decimal","Decimaalteken","Separator dziesiętny"],["Separador de miles","Thousands separator","Séparateur de milliers","Tausendertrennzeichen","Separatore delle migliaia","Separador de milhares","Duizendtalscheiding","Separator tysięcy"],["Coma (,)","Comma (,)","Virgule (,)","Komma (,)","Virgola (,)","Vírgula (,)","Komma (,)","Przecinek (,)"],["Punto (.)","Period (.)","Point (.)","Punkt (.)","Punto (.)","Ponto (.)","Punt (.)","Kropka (.)"],["Ninguno","None","Aucun","Keine","Nessuno","Nenhum","Geen","Brak"],["La impedancia Z solo está disponible en corriente alterna","Impedance Z is only available in AC","L’impédance Z n’est disponible qu’en CA","Impedanz Z ist nur bei Wechselstrom verfügbar","L’impedenza Z è disponibile solo in CA","A impedância Z só está disponível em CA","Impedantie Z is alleen beschikbaar bij AC","Impedancja Z jest dostępna tylko w AC"],["La impedancia Z necesita una fuente de CA (no admite circuitos alimentados solo con CC)","Impedance Z requires an AC source (DC-only circuits are not supported)","L’impédance Z nécessite une source CA (circuits CC seuls non admis)","Impedanz Z benötigt eine AC-Quelle (reine DC-Stromkreise nicht unterstützt)","L’impedenza Z richiede una sorgente CA (non solo CC)","A impedância Z requer uma fonte CA (não admite apenas CC)","Impedantie Z vereist een AC-bron (uitsluitend DC wordt niet ondersteund)","Impedancja Z wymaga źródła AC (nie obsługuje obwodów tylko DC)"],["Lectura de intensidad I","Current I reading","Lecture du courant I","Stromanzeige I","Lettura della corrente I","Leitura da corrente I","Stroomwaarde I","Odczyt natężenia I"],["S nominal = ","Rated S = ","S nominale = ","Nenn-S = ","S nominale = ","S nominal = ","Nominale S = ","S znamionowa = "],["U salida = ","Output U = ","U sortie = ","Ausgangs-U = ","U uscita = ","U saída = ","Uitgangs-U = ","U wyjściowe = "],["f salida = ","Output f = ","f sortie = ","Ausgangs-f = ","f uscita = ","f saída = ","Uitgangs-f = ","f wyjściowa = "],["P y cos φ resultan de las cargas; no se imponen","P and cos φ are determined by the loads; they are not imposed","P et cos φ sont déterminés par les charges ; ils ne sont pas imposés","P und cos φ ergeben sich aus den Lasten; sie werden nicht vorgegeben","P e cos φ dipendono dai carichi; non sono imposti","P e cos φ dependem das cargas; não são impostos","P en cos φ volgen uit de belastingen; ze worden niet opgelegd","P i cos φ wynikają z obciążeń; nie są narzucane"],["P inyectada = ","Injected P = ","P injectée = ","Eingespeiste P = ","P immessa = ","P injetada = ","Teruggeleverde P = ","P oddawana = "],["S actual = ","Current S = ","S actuelle = ","Aktuelle S = ","S attuale = ","S atual = ","Actuele S = ","S aktualna = "],["Q resultante = ","Resulting Q = ","Q résultante = ","Resultierende Q = ","Q risultante = ","Q resultante = ","Resulterende Q = ","Q wynikowa = "],["Red: ","Grid: ","Réseau : ","Netz: ","Rete: ","Rede: ","Net: ","Sieć: "],["Red CA no detectada: inyección desactivada","AC grid not detected: injection disabled","Réseau CA non détecté : injection désactivée","AC-Netz nicht erkannt: Einspeisung deaktiviert","Rete CA non rilevata: immissione disattivata","Rede CA não detetada: injeção desativada","AC-net niet gedetecteerd: teruglevering uitgeschakeld","Nie wykryto sieci AC: oddawanie wyłączone"],["Limitada por P nominal o S máxima","Limited by rated P or maximum S","Limitée par P nominale ou S maximale","Durch Nenn-P oder maximale S begrenzt","Limitata da P nominale o S massima","Limitada por P nominal ou S máxima","Beperkt door nominaal P of maximaal S","Ograniczona przez P znamionową lub S maksymalną"],["f de red = ","Grid f = ","f réseau = ","Netz-f = ","f rete = ","f rede = ","Net-f = ","f sieci = "],["f0 (referencia) = ","f0 (reference) = ","f0 (référence) = ","f0 (Referenz) = ","f0 (riferimento) = ","f0 (referência) = ","f0 (referentie) = ","f0 (odniesienie) = "],["Z (CA, serie RLC)","Z (AC, series RLC)","Z (CA, RLC série)","Z (AC, RLC in Reihe)","Z (CA, RLC serie)","Z (CA, RLC série)","Z (AC, RLC in serie)","Z (AC, szeregowe RLC)"]];
+const dictionaries: Record<string,Map<string,string>> = Object.fromEntries(
+ [...labLanguageCodes,"nl"].map(code=>[code,new Map<string,string>()]));
+for(const row of rows){
+ const original=row[0];
+ for(let index=0;index<baseCodes.length;index++){
+  const code=baseCodes[index];
+  dictionaries[code].set(original,index===1?original:row[index===0?1:index]);
+ }
+}
+for(const [code,values] of Object.entries(supplements)){
+ if(values.length!==rows.length)
+  throw Error("Número incorrecto de traducciones en "+code+": "+values.length);
+ values.forEach((value,index)=>{
+  if(!value||!value.trim())throw Error("Traducción vacía: "+code+" "+index);
+  // Mantener espacios funcionales de sufijos y prefijos del panel informativo.
+  const key=rows[index][0];
+  const formatted=index===32?" "+value.trim():
+   key.endsWith(" = ")||key==="Red: "?value.trim()+" ":value.trim();
+  dictionaries[code].set(key,formatted);
+ });
+}
+// Strings of the original CircuitJS menus that changed format in the TS port.
+const nativeMenu:Record<string,string[]>={
+ "Inputs and Sources":["Inputs and Sources","Entradas y fuentes","Entrées et sources","Eingänge und Quellen","Ingressi e sorgenti","Entradas e fontes","Ingangen en bronnen","Wejścia i źródła"],
+ "Passive Components":["Passive Components","Componentes pasivos","Composants passifs","Passive Bauelemente","Componenti passivi","Componentes passivos","Passieve componenten","Elementy pasywne"],
+ "Outputs and Labels":["Outputs and Labels","Salidas y etiquetas","Sorties et étiquettes","Ausgänge und Beschriftungen","Uscite ed etichette","Saídas e etiquetas","Uitgangen en labels","Wyjścia i etykiety"],
+ "Active Building Blocks":["Active Building Blocks","Bloques funcionales activos","Blocs fonctionnels actifs","Aktive Funktionsblöcke","Blocchi funzionali attivi","Blocos funcionais ativos","Actieve bouwblokken","Aktywne bloki funkcjonalne"],
+ "Logic Gates, Input and Output":["Logic Gates, Input and Output","Puertas lógicas, entradas y salidas","Portes logiques, entrées et sorties","Logikgatter, Ein- und Ausgänge","Porte logiche, ingressi e uscite","Portas lógicas, entradas e saídas","Logische poorten, in- en uitgangen","Bramki logiczne, wejścia i wyjścia"],
+ "Digital Chips":["Digital Chips","Circuitos integrados digitales","Circuits intégrés numériques","Digitale Bausteine","Circuiti integrati digitali","Circuitos integrados digitais","Digitale IC's","Układy scalone cyfrowe"],
+ "Analog and Hybrid Chips":["Analog and Hybrid Chips","Circuitos integrados analógicos e híbridos","Circuits intégrés analogiques et hybrides","Analoge und hybride Bausteine","Circuiti integrati analogici e ibridi","Circuitos integrados analógicos e híbridos","Analoge en hybride IC's","Układy scalone analogowe i hybrydowe"],
+ "Subcircuits":["Subcircuits","Subcircuitos","Sous-circuits","Teilschaltungen","Sottocircuiti","Subcircuitos","Subcircuits","Podobwody"],
+ "Drag":["Drag","Arrastrar","Déplacer","Ziehen","Trascina","Arrastar","Slepen","Przeciąganie"],
+ "Show Ω Unit":["Show Ω Unit","Mostrar unidad Ω","Afficher l’unité Ω","Ω-Einheit anzeigen","Mostra unità Ω","Mostrar unidade Ω","Ω-eenheid tonen","Pokaż jednostkę Ω"],
+ "Active Components":["Active Components","Componentes activos","Composants actifs","Aktive Bauelemente","Componenti attivi","Componentes ativos","Actieve componenten","Elementy aktywne"],
+ "Options":["Options","Opciones","Options","Optionen","Opzioni","Opções","Opties","Opcje"]
+};
+// Encabezados de los menús de CircuitJS, en el orden de nativeMenu.
+const extraNative:Record<string,string[]> = {
+ csx:["Vstupy a zdroje","Pasivní součástky","Výstupy a popisky","Aktivní funkční bloky","Logická hradla, vstupy a výstupy","Digitální integrované obvody","Analogové a hybridní obvody","Podobvody","Přetáhnout","Zobrazit jednotku Ω","Aktivní součástky","Možnosti"],
+ da:["Indgange og kilder","Passive komponenter","Udgange og etiketter","Aktive funktionsblokke","Logiske porte, ind- og udgange","Digitale kredse","Analoge og hybride kredse","Delkredsløb","Træk","Vis Ω-enhed","Aktive komponenter","Indstillinger"],
+ fi:["Tulot ja lähteet","Passiiviset komponentit","Lähdöt ja merkinnät","Aktiiviset toimilohkot","Logiikkaportit, tulot ja lähdöt","Digitaaliset piirit","Analogiset ja hybridipiirit","Alipiirit","Vedä","Näytä Ω-yksikkö","Aktiiviset komponentit","Asetukset"],
+ nb:["Innganger og kilder","Passive komponenter","Utganger og etiketter","Aktive funksjonsblokker","Logiske porter, inn- og utganger","Digitale kretser","Analoge og hybride kretser","Delkretser","Dra","Vis Ω-enhet","Aktive komponenter","Alternativer"],
+ ca:["Entrades i fonts","Components passius","Sortides i etiquetes","Blocs funcionals actius","Portes lògiques, entrades i sortides","Circuits integrats digitals","Circuits integrats analògics i híbrids","Subcircuits","Arrossegar","Mostrar la unitat Ω","Components actius","Opcions"],
+ "ca-es-valencia":["Entrades i fonts","Components passius","Eixides i etiquetes","Blocs funcionals actius","Portes lògiques, entrades i eixides","Circuits integrats digitals","Circuits integrats analògics i híbrids","Subcircuits","Arrossegar","Mostrar la unitat Ω","Components actius","Opcions"],
+ gl:["Entradas e fontes","Compoñentes pasivos","Saídas e etiquetas","Bloques funcionais activos","Portas lóxicas, entradas e saídas","Circuítos integrados dixitais","Circuítos integrados analóxicos e híbridos","Subcircuítos","Arrastrar","Mostrar a unidade Ω","Compoñentes activos","Opcións"],
+ eu:["Sarrerak eta iturriak","Osagai pasiboak","Irteerak eta etiketak","Bloke funtzional aktiboak","Ate logikoak, sarrerak eta irteerak","Zirkuitu integratu digitalak","Zirkuitu integratu analogiko eta hibridoak","Azpizirkuituak","Arrastatu","Erakutsi Ω unitatea","Osagai aktiboak","Aukerak"],
+ ru:["Входы и источники","Пассивные компоненты","Выходы и метки","Активные функциональные блоки","Логические элементы, входы и выходы","Цифровые микросхемы","Аналоговые и гибридные микросхемы","Подсхемы","Перетащить","Показывать единицу Ω","Активные компоненты","Настройки"],
+ zh:["输入与电源","无源元件","输出与标签","有源功能模块","逻辑门、输入与输出","数字芯片","模拟与混合芯片","子电路","拖动","显示 Ω 单位","有源元件","选项"],
+ "zh-tw":["輸入與電源","被動元件","輸出與標籤","主動功能模組","邏輯閘、輸入與輸出","數位晶片","類比與混合晶片","子電路","拖曳","顯示 Ω 單位","主動元件","選項"],
+ ja:["入力と電源","受動部品","出力とラベル","能動機能ブロック","論理ゲート、入力と出力","デジタル IC","アナログ・ハイブリッド IC","サブ回路","ドラッグ","Ω 単位を表示","能動部品","オプション"],
+ kr:["입력 및 전원","수동 소자","출력 및 레이블","능동 기능 블록","논리 게이트, 입력 및 출력","디지털 IC","아날로그 및 하이브리드 IC","하위 회로","끌기","Ω 단위 표시","능동 소자","옵션"],
+ sv:["Ingångar och källor","Passiva komponenter","Utgångar och etiketter","Aktiva funktionsblock","Logiska grindar, ingångar och utgångar","Digitala integrerade kretsar","Analoga och hybrida integrerade kretsar","Delkretsar","Dra","Visa enheten Ω","Aktiva komponenter","Alternativ"]
+};
+const nativeKeys=Object.keys(nativeMenu);
+for(const [key,translations] of Object.entries(nativeMenu))
+ for(let index=0;index<baseCodes.length;index++)
+  dictionaries[baseCodes[index]].set(key,translations[index]);
+for(const [code,translations] of Object.entries(extraNative)){
+ if(translations.length!==nativeKeys.length)
+  throw Error("Submenús incompletos: "+code);
+ translations.forEach((value,index)=>dictionaries[code].set(nativeKeys[index],value));
+}
+// Priorizar las etiquetas revisadas sobre los catálogos heredados.
+for(const [code,overrides] of [["es",uiSpanish],["ca-es-valencia",uiValencian]] as const)
+ for(const [key,value] of Object.entries(overrides)){
+  if(!value.trim())throw Error("Traducción vacía: "+code+" "+key);
+  dictionaries[code].set(key,value);
+ }
+// Añadir exclusivamente los comandos no cubiertos por los catálogos de CircuitJS.
+for(const [code,translations] of Object.entries(nativeMenuExtensions))
+ for(const [key,value] of Object.entries(translations)){
+  if(!value.trim())throw Error("Texto nativo sin traducir: "+code+" "+key);
+  dictionaries[code].set(key,value);
+ }
+// Controles de presentación que los catálogos originales no incluyen en las
+// lenguas añadidas. No confundir formato de números con simbología IEC.
+const displayOptions: Record<string,Record<string,string>> = {
+ ca: {
+  "European Resistors":"Símbols europeus per a resistències",
+  "IEC Gates":"Portes lògiques IEC",
+  "Show Ω Unit":"Mostra la unitat Ω",
+  "# of Decimal Digits (short format)":"Nombre de decimals (format curt)",
+  "# of Decimal Digits (long format)":"Nombre de decimals (format llarg)"
+ },
+ gl: {
+  "European Resistors":"Símbolos europeos para resistencias",
+  "IEC Gates":"Portas lóxicas IEC",
+  "Show Ω Unit":"Mostrar a unidade Ω",
+  "# of Decimal Digits (short format)":"Número de decimais (formato curto)",
+  "# of Decimal Digits (long format)":"Número de decimais (formato longo)"
+ },
+ eu: {
+  "European Resistors":"Erresistentzien Europako sinboloak",
+  "IEC Gates":"IEC ate logikoak",
+  "Show Ω Unit":"Erakutsi Ω unitatea",
+  "# of Decimal Digits (short format)":"Dezimal kopurua (formatu laburra)",
+  "# of Decimal Digits (long format)":"Dezimal kopurua (formatu luzea)"
+ },
+ nl: {
+  "European Resistors":"Europese weerstandssymbolen",
+  "IEC Gates":"IEC-logische poorten",
+  "Show Ω Unit":"Ω-eenheid weergeven",
+  "# of Decimal Digits (short format)":"Aantal decimalen (kort formaat)",
+  "# of Decimal Digits (long format)":"Aantal decimalen (lang formaat)"
+ },
+ sv: {
+  "European Resistors":"Europeiska resistorsymboler",
+  "IEC Gates":"IEC-logikgrindar",
+  "Show Ω Unit":"Visa enheten Ω",
+  "# of Decimal Digits (short format)":"Antal decimaler (kort format)",
+  "# of Decimal Digits (long format)":"Antal decimaler (långt format)"
+ }
+};
+for (const [code,translations] of Object.entries(displayOptions))
+ for (const [key,value] of Object.entries(translations))
+  dictionaries[code].set(key,value);
+// Textos añadidos junto a los campos numéricos. Se guardan como frases
+// completas para respetar el orden gramatical de cada idioma.
+const numericHintKeys = [
+ "European number format","Anglo-American number format","Custom number format",
+ "Decimal digits: integer from 0 to 10","Decimal and grouping separators must differ"
+];
+const numericHints: Record<string,string[]> = {
+ "en": [
+  "European number format",
+  "Anglo-American number format",
+  "Custom number format",
+  "Decimal digits: integer from 0 to 10",
+  "Decimal and grouping separators must differ"
+ ],
+ "es": [
+  "formato europeo",
+  "formato anglosajón",
+  "formato personalizado",
+  "Decimales: número entero entre 0 y 10",
+  "Los separadores decimal y de miles deben ser distintos"
+ ],
+ "ca-es-valencia": [
+  "format europeu",
+  "format anglosaxó",
+  "format personalitzat",
+  "Decimals: nombre enter entre 0 i 10",
+  "Els separadors decimal i de milers han de ser diferents"
+ ],
+ "ca": [
+  "format europeu",
+  "format anglosaxó",
+  "format personalitzat",
+  "Decimals: nombre enter entre 0 i 10",
+  "Els separadors decimal i de milers han de ser diferents"
+ ],
+ "gl": [
+  "formato europeo",
+  "formato anglosaxón",
+  "formato personalizado",
+  "Decimais: número enteiro entre 0 e 10",
+  "Os separadores decimal e de milleiros deben ser distintos"
+ ],
+ "eu": [
+  "Europako formatua",
+  "formatu angloamerikarra",
+  "formatu pertsonalizatua",
+  "Hamartarrak: 0 eta 10 arteko zenbaki osoa",
+  "Hamartarren eta milakoen bereizleek desberdinak izan behar dute"
+ ],
+ "fr": [
+  "format européen",
+  "format anglo-américain",
+  "format personnalisé",
+  "Décimales : entier compris entre 0 et 10",
+  "Les séparateurs décimal et des milliers doivent être différents"
+ ],
+ "de": [
+  "europäisches Zahlenformat",
+  "angloamerikanisches Zahlenformat",
+  "benutzerdefiniertes Zahlenformat",
+  "Dezimalstellen: Ganzzahl zwischen 0 und 10",
+  "Dezimal- und Tausendertrennzeichen müssen unterschiedlich sein"
+ ],
+ "it": [
+  "formato europeo",
+  "formato angloamericano",
+  "formato personalizzato",
+  "Cifre decimali: numero intero da 0 a 10",
+  "I separatori decimale e delle migliaia devono essere diversi"
+ ],
+ "pt": [
+  "formato europeu",
+  "formato anglo-americano",
+  "formato personalizado",
+  "Casas decimais: número inteiro entre 0 e 10",
+  "Os separadores decimal e dos milhares têm de ser diferentes"
+ ],
+ "nl": [
+  "Europees getalformaat",
+  "Anglo-Amerikaans getalformaat",
+  "aangepast getalformaat",
+  "Decimalen: geheel getal van 0 tot 10",
+  "Decimaal- en duizendtalscheidingsteken moeten verschillen"
+ ],
+ "pl": [
+  "europejski format liczb",
+  "angloamerykański format liczb",
+  "niestandardowy format liczb",
+  "Miejsca po przecinku: liczba całkowita od 0 do 10",
+  "Separatory dziesiętny i tysięcy muszą być różne"
+ ],
+ "csx": [
+  "evropský formát čísel",
+  "angloamerický formát čísel",
+  "vlastní formát čísel",
+  "Desetinná místa: celé číslo od 0 do 10",
+  "Oddělovače desetinných míst a tisíců se musí lišit"
+ ],
+ "da": [
+  "europæisk talformat",
+  "angloamerikansk talformat",
+  "brugerdefineret talformat",
+  "Decimaler: heltal fra 0 til 10",
+  "Decimal- og tusindtalsseparator skal være forskellige"
+ ],
+ "fi": [
+  "eurooppalainen lukumuoto",
+  "angloamerikkalainen lukumuoto",
+  "mukautettu lukumuoto",
+  "Desimaalit: kokonaisluku väliltä 0–10",
+  "Desimaali- ja tuhaterottimien on oltava erilaiset"
+ ],
+ "nb": [
+  "europeisk tallformat",
+  "angloamerikansk tallformat",
+  "egendefinert tallformat",
+  "Desimaler: heltall fra 0 til 10",
+  "Desimal- og tusenskilletegn må være forskjellige"
+ ],
+ "sv": [
+  "europeiskt talformat",
+  "angloamerikanskt talformat",
+  "anpassat talformat",
+  "Decimaler: heltal mellan 0 och 10",
+  "Decimal- och tusentalsavgränsare måste vara olika"
+ ],
+ "ru": [
+  "европейский числовой формат",
+  "англо-американский числовой формат",
+  "пользовательский числовой формат",
+  "Десятичные разряды: целое число от 0 до 10",
+  "Десятичный разделитель и разделитель тысяч должны различаться"
+ ],
+ "ja": [
+  "ヨーロッパ式の数値形式",
+  "英米式の数値形式",
+  "カスタム数値形式",
+  "小数点以下の桁数: 0～10の整数",
+  "小数点記号と桁区切り記号は異なるものを指定してください"
+ ],
+ "kr": [
+  "유럽식 숫자 형식",
+  "영미식 숫자 형식",
+  "사용자 지정 숫자 형식",
+  "소수 자릿수: 0에서 10 사이의 정수",
+  "소수점 구분 기호와 천 단위 구분 기호는 달라야 합니다"
+ ],
+ "zh": [
+  "欧洲数字格式",
+  "英美数字格式",
+  "自定义数字格式",
+  "小数位数：0 到 10 之间的整数",
+  "小数分隔符和千位分隔符必须不同"
+ ],
+ "zh-tw": [
+  "歐洲數字格式",
+  "英美數字格式",
+  "自訂數字格式",
+  "小數位數：0 至 10 的整數",
+  "小數分隔符與千分位符號不得相同"
+ ]
+};
+for(const language of labLanguageCodes){
+ const translated=numericHints[language];
+ if(!translated||translated.length!==numericHintKeys.length)
+  throw Error("Formato numérico sin traducción: "+language);
+ numericHintKeys.forEach((key,index)=>dictionaries[language].set(key,translated[index]));
+}
+// Las claves del menú de ejemplos se toman literalmente de setuplist.txt;
+// no modificar filenames ni identificadores, solo las etiquetas mostradas.
+// Los textos Run/Stop se consultan en cada cambio del estado de simulación.
+for (const code of labLanguageCodes) {
+ const translations=circuitJsSupplement[code];
+ if(!translations||translations.length!==circuitJsSupplementKeys.length)
+  throw Error("Traducciones CCS/CVS y marcha/parada incompletas: "+code);
+ circuitJsSupplementKeys.forEach((key,index)=>dictionaries[code].set(key,translations[index]));
+}
+// Completar las entradas ausentes en los catálogos originales de ejemplos.
+// Se mantienen intactos los nombres de archivo y las traducciones oficiales.
+const originalExampleGaps: Record<string,Record<string,string>> = {
+ es: {"LRC Circuit":"Circuito RLC"},
+ ca: {"LRC Circuit":"Circuit RLC"},
+ "ca-es-valencia": {"LRC Circuit":"Circuit RLC"},
+ gl: {"LRC Circuit":"Circuíto RLC"},
+ eu: {"LRC Circuit":"RLC zirkuitua"},
+ da: {"Phase-Sequence Network":"Fasefølgenetværk"},
+ kr: {"Gray Code Counter":"그레이 코드 카운터"}
+};
+for(const [code,values] of Object.entries(originalExampleGaps))
+ for(const [key,value] of Object.entries(values))dictionaries[code].set(key,value);
+
+// Completar etiquetas visibles en opciones, menús y osciloscopios.
+for(const code of labLanguageCodes){
+ const row=circuitJsUiCompleteness[code];
+ if(!row||row.length!==circuitJsUiCompletenessKeys.length)
+  throw Error("Interfaz incompleta: "+code);
+ circuitJsUiCompletenessKeys.forEach((key,index)=>dictionaries[code].set(key,row[index]));
+}
+// Revisar todas las etiquetas de osciloscopios y Opciones en las seis
+// lenguas añadidas. Para estos paneles no se permite respaldo en español.
+for(const [source,keys] of [
+ [scopeOptionTranslations,scopeOptionKeys],
+ [generalOptionTranslations,generalOptionKeys]
+] as const){
+ for(const [code,row] of Object.entries(source)){
+  if(!dictionaries[code]||row.length!==keys.length)
+   throw Error("Faltan traducciones de controles CircuitJS: "+code);
+  keys.forEach((key,index)=>dictionaries[code].set(key,row[index]));
+ }
+}
+// Corregir anglicismos de los catálogos oficiales en los paneles de opciones
+// y osciloscopios. Se mantienen las siglas técnicas y los nombres propios.
+const reviewedNativeLabels:Record<string,Record<string,string>>={
+ da:{"Trigger":"Udløsning","Plots":"Grafer","Plot X/Y":"Tegn X/Y","Auto":"Automatisk"},
+ de:{"Trigger":"Auslöser","Plots":"Diagramme","Auto":"Automatisch","Free Run":"Freilauf","Reset":"Zurücksetzen"},
+ es:{"Auto":"Automático"},
+ fi:{"Auto":"Automaattinen","Manual":"Manuaalinen"},
+ fr:{"Auto":"Automatique","Reset":"Réinitialiser"},
+ it:{"Trigger":"Attivazione","Auto":"Automatico","Free Run":"Funzionamento libero","Reset":"Ripristina"},
+ nb:{"Trigger":"Utløser","Auto":"Automatisk"},
+ pl:{"Auto":"Automatycznie"},
+ pt:{"Auto":"Automático"},
+ ru:{"Reset":"Сброс"}
+};
+for(const [code,labels] of Object.entries(reviewedNativeLabels))
+ for(const [key,value] of Object.entries(labels))dictionaries[code].set(key,value);
+// Cadenas nativas rusas que permanecían literalmente en inglés.
+// No alterar identificadores eléctricos, nombres de componentes ni teclas.
+const russianSourceCorrections:Record<string,string>={
+  "Need to ground transmission line!": "Необходимо заземлить линию передачи!",
+  "Transmission line delay too large!": "Слишком большая задержка линии передачи!",
+  "Capacitor loop with no resistance!": "Контур конденсаторов без сопротивления!",
+  "Center": "Центр",
+  "control": "управление",
+  "Convergence failed!": "Не удалось добиться сходимости!",
+  "Crossbar Memory": "Матричная память",
+  "Crossover": "Разделительный фильтр",
+  "Singular matrix!": "Вырожденная матрица!",
+  "Termination": "Согласование",
+  "(off)": "(выкл.)",
+  "(on)": "(вкл.)",
+  "high": "высокий уровень",
+  "high ": "высокий уровень ",
+  "low": "низкий уровень",
+  "low ": "низкий уровень ",
+  "wire loop detected": "Обнаружен замкнутый контур проводников",
+  "Operational Transconductance Amplifier (OTA)": "Операционный усилитель крутизны (OTA)",
+  "reset": "сброс",
+  "off": "выкл.",
+  "on": "вкл.",
+  "End": "Конец",
+  // Cuadros que el catálogo oficial ruso de CircuitJS no incluye.
+  "Can't delete subcircuits in use in the current circuit: ": "Нельзя удалить подсхемы, используемые в текущей схеме: ",
+  "Share Slider: ": "Совместное использование ползунка: ",
+  "Export Image": "Экспорт изображения",
+  "Transparent Background": "Прозрачный фон",
+  "Type a command...": "Введите команду...",
+  "Recent": "Последние команды"
+};
+for(const [key,value]of Object.entries(russianSourceCorrections))
+ dictionaries.ru.set(key,value);
+// Cabeceras y tipos de componentes: las seis lenguas añadidas carecen de
+// catálogo oficial, así que no deben heredar nombres castellanos o ingleses.
+for(const [code,labels] of Object.entries(componentEditDialogLabels)){
+ for(const [key,value] of Object.entries(labels))dictionaries[code].set(key,value);
+}
+export function labTranslation(language:string,key:string):string|null{
+ const normalized=language.toLowerCase().replace(/_/g,"-");
+ const base=normalized.split("-")[0];
+ const code=normalized.startsWith("ca-es-valencia")||
+  normalized==="ca-valencia"?"ca-es-valencia":
+  ["zh-tw","zh-hk","zh-mo","zh-hant"].some(x=>normalized.startsWith(x))?"zh-tw":
+  base==="cs"?"csx":
+  base==="ko"?"kr":
+  base==="no"||base==="nn"?"nb":base;
+ return dictionaries[code]?.get(key)??null;
+}
+export function labKeys():string[]{return rows.map(row=>row[0]);}
