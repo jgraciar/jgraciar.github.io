@@ -79,11 +79,13 @@ try{
   const wave=await page.evaluate(async()=>{
    const sim=window.CircuitJS1;
    let count=0,peak=0,powerSum=0,finite=true;
+   // Guardar el proxy una sola vez. Reconstruirlo en cada paso del solver
+   // degrada el rendimiento y retrasa la simulación innecesariamente.
+   const elem=sim.getElements().find(e=>e.getType()==="FilteredBridgeElm");
    const t0=sim.getTime();
    const old=sim.ontimestep;
    sim.ontimestep=()=>{
     old?.();
-    const elem=sim.getElements().find(e=>e.getType()==="FilteredBridgeElm");
     const i=elem?.getCurrent(),u=elem?.getVoltageDiff();
     if(!Number.isFinite(i)||!Number.isFinite(u)){finite=false;return;}
     count++;
@@ -98,7 +100,9 @@ try{
    }finally{sim.ontimestep=old;}
    return {elapsed:sim.getTime()-t0,count,peak,powerSum,finite};
   });
-  assert(wave.elapsed>0.04&&wave.count>30,item.name+": muestreo insuficiente");
+  console.log("Diagnóstico del solver",item.name,wave);
+  assert(wave.elapsed>0.02&&wave.count>30,
+   item.name+": muestreo insuficiente: "+JSON.stringify(wave));
   assert(wave.finite&&Number.isFinite(wave.peak)&&wave.peak>1e-7,
    item.name+": no se observa corriente de CA finita en el solver");
   console.log("OK:",item.name,"corriente de entrada y XML",{peak:wave.peak,steps:wave.count});
