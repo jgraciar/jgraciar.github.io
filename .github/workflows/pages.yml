@@ -26,7 +26,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: jgraciar/electrotecnia
-          ref: circuits-jgr-1.0
+          # Compilación de la revisión que ha superado las pruebas de 22 idiomas.
+          ref: abbaf90a08f34fc3a0d5119e311f5e868a679324
           path: adaptacion
           persist-credentials: false
 
@@ -53,6 +54,7 @@ jobs:
           node adaptacion/scripts/prepare-circuits-jgr.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-edit-regional-numbers.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-edit-dialog-titles.mjs circuitjs-src/ts
+          node --experimental-strip-types adaptacion/tests/verify-about-and-draw-locales.mjs circuitjs-src/ts
 
       - name: Compilar circuitjgr.html como entrada real
         working-directory: circuitjs-src/ts
