@@ -31,6 +31,7 @@ try{
    '<FilteredBridge x="256 304 352 304" f="0" r="'+initial+'" c="0.00047" rs="2.2"/>':
    '<r x="256 304 352 304" f="0" r="'+initial+'"/>';
   await page.evaluate(text=>window.CircuitJS1.importCircuit(text,false),header+model+tail);
+  await page.waitForFunction(()=>window.CircuitJS1?.getElements?.().length===1,null,{timeout:30000});
   // Abrir el editor de la pieza visible. Las coordenadas de CircuitJS son
   // relativas al área de dibujo: probar puntos de la línea y de su centro.
   const probe=await page.evaluate(()=>{
@@ -81,7 +82,7 @@ try{
  for(const [typed,expected] of [["1,5",1.5],["1.234,5",1234.5],["2,2k",2200]])
   await editOnce("FilteredBridge","r",100,typed,expected);
  for(const [typed,expected] of [["1,5",1.5],["1.234,5",1234.5]])
-  await editOnce("ResistorElm","r",100,typed,expected);
+  await editOnce("r","r",100,typed,expected);
 
  await setMode(".",",");
  for(const [typed,expected] of [["1.5",1.5],["1,234.5",1234.5],["2.2k",2200]])

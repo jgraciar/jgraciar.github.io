@@ -99,6 +99,7 @@ jobs:
           node adaptacion/tests/verify-circuitjgr-elements.mjs
           node adaptacion/tests/verify-nonlinear-presets-ui.mjs
           node adaptacion/tests/verify-nonlinear-units-ui.mjs
+          node adaptacion/tests/verify-edit-regional-ui.mjs
 
       - name: Preparar GitHub Pages
         uses: actions/configure-pages@v5
