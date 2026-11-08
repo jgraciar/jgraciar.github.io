@@ -19,6 +19,8 @@ export class FilteredBridgeElm extends CompositeElm {
     resistance:number=200;
     capacitance:number=0.002;
     seriesResistance:number=0;
+    units:number=1; // N unidades idénticas en paralelo; R, C y Rs son por unidad
+    private static readonly maxUnits=10000;
     profile:number=0; // 0=manual; 1=LED sin PFC; 2=PSU sin PFC
     private pendingPresetSwitch:boolean=false;
     private static readonly presets=[
@@ -51,6 +53,19 @@ export class FilteredBridgeElm extends CompositeElm {
            !Number.isFinite(this.capacitance)||this.capacitance<=0||
            !Number.isFinite(this.seriesResistance)||this.seriesResistance<0)
             throw Error("R y C deben ser positivas y Rs no negativa");
+        if(!Number.isInteger(this.units)||this.units<1||this.units>FilteredBridgeElm.maxUnits)
+            throw Error("Número de unidades fuera de rango");
+        // Equivalente agrupado de N puentes idénticos conectados en paralelo.
+        // Se mantienen intactos los valores R, C y Rs POR UNIDAD y los datos
+        // XML; el motor usa R/N, N*C y Rs/N. Un único puente de diodos
+        // representa las N ramas (aproximación a la característica de diodos).
+        const equivalentLoadR=this.resistance/this.units;
+        const equivalentCapacitance=this.capacitance*this.units;
+        const equivalentSeriesR=this.seriesResistance/this.units;
+        if(!Number.isFinite(equivalentLoadR)||equivalentLoadR<=0||
+           !Number.isFinite(equivalentCapacitance)||equivalentCapacitance<=0||
+           !Number.isFinite(equivalentSeriesR)||equivalentSeriesR<0)
+            throw Error("Parámetros equivalentes fuera de rango");
         const withRs=this.seriesResistance>0;
         // Rs se incorpora a un conductor de CA antes de los diodos.
         // Rs=0 conserva exactamente el modelo legado de seis componentes.
@@ -68,9 +83,9 @@ export class FilteredBridgeElm extends CompositeElm {
         for(let k=0;k<this.compElmList.length;k++){
             const elm=this.compElmList[k];
             if(elm instanceof ResistorElm)
-                elm.resistance=withRs&&k===0?this.seriesResistance:this.resistance;
+                elm.resistance=withRs&&k===0?equivalentSeriesR:equivalentLoadR;
             if(elm instanceof CapacitorElm){
-                elm.capacitance=this.capacitance;
+                elm.capacitance=equivalentCapacitance;
                 elm.seriesResistance=0;
             }
         }
@@ -122,11 +137,14 @@ export class FilteredBridgeElm extends CompositeElm {
             CircuitXMLSerializer.dumpAttr(elem,"rs",this.seriesResistance);
         if(this.profile>0)
             CircuitXMLSerializer.dumpAttr(elem,"profile",this.profile);
+        if(this.units!==1)
+            CircuitXMLSerializer.dumpAttr(elem,"units",this.units);
     }
     undumpXml(xml:CircuitXMLDeserializer):void{
         this.resistance=xml.parseDoubleAttr("r",this.resistance);
         this.capacitance=xml.parseDoubleAttr("c",this.capacitance);
         this.seriesResistance=xml.parseDoubleAttr("rs",0);
+        this.units=xml.parseIntAttr("units",1); // XML antiguos: exactamente una unidad
         const value=xml.parseIntAttr("profile",0);
         this.profile=value===1||value===2?value:0;
         this.rebuild();
@@ -140,6 +158,8 @@ export class FilteredBridgeElm extends CompositeElm {
         arr[5]="Rs = "+CircuitElm.getUnitText(this.seriesResistance,"Ω");
         arr[6]=Locale.LS("Perfil = ")+Locale.LS(FilteredBridgeElm.profileName(this.profile));
         arr[7]=Locale.LS("Modelo aproximado de puente con filtro C, no de un equipo comercial");
+        arr[8]=Locale.LS("Unidades = ")+this.units;
+        arr[9]=Locale.LS("R, C y Rs son valores por unidad");
     }
     getEditInfo(n:number):EditInfo|null{
         if(n===0){
@@ -155,6 +175,8 @@ export class FilteredBridgeElm extends CompositeElm {
         if(n===1)return new EditInfo(Locale.LS("Resistencia de carga R (Ω)"),this.resistance,0,0);
         if(n===2)return new EditInfo(Locale.LS("Condensador de filtrado C (F)"),this.capacitance,0,0);
         if(n===3)return new EditInfo(Locale.LS("Resistencia serie de entrada Rs (Ω)"),this.seriesResistance,0,0);
+        if(n===4)return new EditInfo(Locale.LS("Número de unidades (en paralelo)"),
+            this.units,1,FilteredBridgeElm.maxUnits).setInteger().setPositive().disallowSliders();
         return null;
     }
     setEditValue(n:number,ei:EditInfo):void{
@@ -173,6 +195,18 @@ export class FilteredBridgeElm extends CompositeElm {
             // antes de recrearlos; no deben sobrescribir los valores del perfil.
             this.pendingPresetSwitch=true;
             ei.newDialog=true;
+            return;
+        }
+        if(n===4){
+            if(this.pendingPresetSwitch)return;
+            const count=ei.value;
+            if(!Number.isInteger(count)||count<1||count>FilteredBridgeElm.maxUnits){
+                ei.setError(Locale.LS("Número de unidades: entero entre 1 y 10000"));
+                return;
+            }
+            if(count===this.units)return;
+            this.units=count;
+            this.rebuild();
             return;
         }
         if(n>=1&&n<=3){
