@@ -20,6 +20,7 @@ export class FilteredBridgeElm extends CompositeElm {
     capacitance:number=0.002;
     seriesResistance:number=0;
     profile:number=0; // 0=manual; 1=LED sin PFC; 2=PSU sin PFC
+    private pendingPresetSwitch:boolean=false;
     private static readonly presets=[
         {r:200,c:0.002,rs:0},
         {r:6800,c:0.000010,rs:10},
@@ -142,6 +143,8 @@ export class FilteredBridgeElm extends CompositeElm {
     }
     getEditInfo(n:number):EditInfo|null{
         if(n===0){
+            // Reiniciar al reconstruir el diálogo, después del cambio de perfil.
+            this.pendingPresetSwitch=false;
             const ei=new EditInfo(Locale.LS("Perfil de carga no lineal"),0,-1,-1);
             ei.choice=new Choice();
             for(let k=0;k<3;k++)
@@ -166,15 +169,21 @@ export class FilteredBridgeElm extends CompositeElm {
             }
             this.profile=profile;
             this.rebuild();
+            // EditDialog aplica de nuevo los campos NUMÉRICOS antiguos justo
+            // antes de recrearlos; no deben sobrescribir los valores del perfil.
+            this.pendingPresetSwitch=true;
             ei.newDialog=true;
             return;
         }
         if(n>=1&&n<=3){
+            if(this.pendingPresetSwitch)return;
             const v=ei.value;
             if(!Number.isFinite(v)||(n!==3&&v<=0)||(n===3&&v<0)){
                 ei.setError(Locale.LS("R y C deben ser positivas y Rs no negativa"));
                 return;
             }
+            const previous=n===1?this.resistance:n===2?this.capacitance:this.seriesResistance;
+            if(v===previous)return;
             if(n===1)this.resistance=v;
             if(n===2)this.capacitance=v;
             if(n===3)this.seriesResistance=v;
