@@ -15,14 +15,22 @@ export function getCircuitEditFormat(
     const read = (key: string): string | null => {
         try { return storage?.getItem(key) ?? null; } catch { return null; }
     };
+    // El editor «Opciones generales» puede modificar los separadores
+    // después de la configuración inicial. Los ajustes actuales prevalecen
+    // sobre labRegionalFormat (que describe la selección de inicio).
+    const currentDecimal = read("labDecimalSeparator");
+    const currentGroup = read("labGroupingSeparator");
+    if ((currentDecimal === "." || currentDecimal === ",") &&
+        (currentGroup === "." || currentGroup === "," || currentGroup === "") &&
+        currentDecimal !== currentGroup)
+        return {decimal: currentDecimal, group: currentGroup};
     const regional = read("labRegionalFormat") ||
         (language.toLowerCase().startsWith("en") ? "uk" : "eu");
     if (regional === "uk") return {decimal: ".", group: ","};
     if (regional !== "custom") return {decimal: ",", group: "."};
-    const decimal: "." | "," = read("labDecimalSeparator") === "." ? "." : ",";
-    const configured = read("labGroupingSeparator");
-    const group: "." | "," | "" = configured === "." || configured === ","
-        ? configured : "";
+    const decimal: "." | "," = currentDecimal === "." ? "." : ",";
+    const group: "." | "," | "" = currentGroup === "." || currentGroup === ","
+        ? currentGroup : "";
     return {decimal, group: group === decimal ? "" : group};
 }
 

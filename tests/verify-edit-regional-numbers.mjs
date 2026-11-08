@@ -31,6 +31,16 @@ for(const fragment of [
  'this.errorLabel.style.display = "none"'
 ])assert(source.includes(fragment),"El editor no utiliza la conversión regional: "+fragment);
 assert(formatter.includes("labRegionalFormat")&&formatter.includes("labGroupingSeparator"));
+// Evitar doble conversión en parseUnits: el punto canónico 1.5 NO es
+// un punto de miles del formato europeo. Es obligatorio usar una única
+// conversión tanto para campos sin unidad como para campos con prefijo SI.
+assert(!source.includes("const decimal=NumberFormat.decimalSeparator;"),
+ "EditDialog no debe volver a interpretar el número canónico con separadores");
+assert(!source.includes("NumberFormat.localizedInput(noCommaFormat"),
+ "La presentación regional debe aplicarse una sola vez, incluso a enteros");
+assert(source.includes('static parseUnits(s: string): number {\\n')===false || !source.includes('const grouping=NumberFormat.groupingSeparator;'),
+ "No se debe mezclar el normalizador con el analizador SI");
+
 
 const storage=values=>({getItem:key=>values[key]??null});
 const eu={decimal:",",group:"."};
@@ -50,6 +60,16 @@ assert.deepEqual(getCircuitEditFormat("es",storage({
 assert.deepEqual(getCircuitEditFormat("es",storage({
  labRegionalFormat:"custom",labDecimalSeparator:",",labGroupingSeparator:","
 })),custom);
+assert.deepEqual(getCircuitEditFormat("es",storage({
+ labRegionalFormat:"eu",labDecimalSeparator:".",labGroupingSeparator:","
+})),uk,"Cambio de separadores desde Opciones generales");
+assert.deepEqual(getCircuitEditFormat("en",storage({
+ labRegionalFormat:"uk",labDecimalSeparator:",",labGroupingSeparator:"."
+})),eu,"El formato europeo debe mantenerse al cambiar el idioma");
+assert.deepEqual(getCircuitEditFormat("es",storage({
+ labRegionalFormat:"eu",labDecimalSeparator:",",labGroupingSeparator:""
+})),custom,"Formato personalizado sin separador de miles");
+
 
 for(const [source,expected] of [
  ["1234567.89","1.234.567,89"],["1.25k","1,25k"],
@@ -88,6 +108,26 @@ for(const value of ["1.5","12.34,5","1,23,45","1.234.56","abc","1,2k3",
 for(const value of ["1,5","1,2,3","1,234.5.6"])
  assert.throws(()=>normalizeCircuitEditInput(value,"en",uk));
 assert.throws(()=>normalizeCircuitEditInput("1.234,56","es",custom));
+// Campos reales afectados: resistencias R y Rs, capacidades, inductancias,
+// frecuencia, tensión, ángulo, potencia y campos enteros sin unidad.
+for(const [input,result] of [
+ ["1,5","1.5"],["1.234,5","1234.5"],["4,7k","4.7k"],
+ ["6,8k","6.8k"],["470,25u","470.25u"],["2,5e-3","2.5e-3"],
+ ["0,86","0.86"],["-30,5","-30.5"],["1.000","1000"],
+ ["10","10"],["50,25","50.25"],["230,5rms","230.5rms"]
+]){
+ assert.equal(normalizeCircuitEditInput(input,"es",eu),result,
+  "Editor común: error en "+input);
+ assert.equal(formatCircuitEditValue(result,"es",eu),input,
+  "Editor común: error de visualización de "+result);
+}
+for(const [input,result] of [
+ ["2.5","2.5"],["1,234.5","1234.5"],["6.8k","6.8k"],
+ ["470.25u","470.25u"],["50.25","50.25"]
+]){
+ assert.equal(normalizeCircuitEditInput(input,"en",uk),result);
+ assert.equal(formatCircuitEditValue(result,"en",uk),input);
+}
 for(const code of labLanguageCodes)
  assert(circuitEditNumberError(code).trim(),"Mensaje sin traducir: "+code);
 console.log("OK: entradas numéricas de CircuitJS, EU/anglosajón/personalizado; "+

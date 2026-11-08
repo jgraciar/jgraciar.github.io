@@ -141,30 +141,9 @@ console.log("Opciones generales: cuatro decimales y separadores numéricos");
 const editDialog=join(dir,"EditDialog.ts");
 replaceOnce(editDialog,'import { parseFloatStrict } from "./NumberParse";',
 'import { parseFloatStrict } from "./NumberParse";\nimport { NumberFormat } from "./NumberFormat";');
-replaceOnce(editDialog,'    static parseUnits(s: string): number {\n        s = s.trim();',
-`    static parseUnits(s: string): number {
-        s = s.trim();
-        const decimal=NumberFormat.decimalSeparator;
-        const grouping=NumberFormat.groupingSeparator;
-        // Aceptar exclusivamente el agrupamiento regional correcto.
-        // No alterar los valores internos, XML ni los sufijos de ingeniería.
-        const numeric=s.match(/^([+-]?(?:[0-9][0-9.,]*|[.,][0-9]+))(.*)$/);
-        if(numeric){
-            let value=numeric[1];
-            const suffix=numeric[2];
-            if(grouping && value.includes(grouping)){
-                const groups=value.split(decimal)[0].split(grouping);
-                if(groups.length>1 && !(groups[0].length>=1 && groups[0].length<=3 &&
-                    groups.slice(1).every(g=>/^\\d{3}$/.test(g))))
-                    throw Error("Agrupación de miles incorrecta");
-                value=value.split(grouping).join("");
-            }
-            if(decimal!==".") value=value.replace(decimal,".");
-            if((value.match(/\\./g)||[]).length>1 || !/^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)$/.test(value))
-                throw Error("Número no válido para los separadores elegidos");
-            s=value+suffix;
-        }`);
-console.log("Entrada regional: separadores decimales y de miles");
+// Solo CircuitJsEditNumbers normaliza el texto del usuario antes del análisis SI/RMS.
+// NO convertir de nuevo los separadores en EditDialog.parseUnits: hacerlo
+// interpretaría como miles el punto canónico de 1.5 obtenido a partir de 1,5.
 
 replaceOnce(editDialog,'                    this.activeCol.appendChild(this.makeValueStepperRow(ei));',
 `                    this.activeCol.appendChild(this.makeValueStepperRow(ei));
@@ -182,24 +161,8 @@ replaceOnce(editDialog,'                    this.activeCol.appendChild(this.make
                     hint.textContent="; "+regional+
                         (!european&&!anglo?" ("+example+")":"");
                     label.appendChild(hint);`);
-replaceOnce(editDialog,'        if (ei !== null && ei.dimensionless) return noCommaFormat(v);',
-'        if (ei !== null && ei.dimensionless) return NumberFormat.localizedInput(noCommaFormat(v));');
-const numberFormatInput=join(dir,"NumberFormat.ts");
-replaceOnce(numberFormatInput,'    private static localized(raw:string):string {',
-`    static localizedInput(raw:string):string {
-        const parts=raw.split(".");
-        if(NumberFormat.groupingSeparator && !/[eE]/.test(raw))
-            parts[0]=parts[0].replace(/\\B(?=(\\d{3})+(?!\\d))/g,NumberFormat.groupingSeparator);
-        return parts.join(NumberFormat.decimalSeparator);
-    }
-    private static localized(raw:string):string {`);
-replaceOnce(editDialog,'        if (va < 1e-12) return noCommaFormat(v * 1e15) + "f";',
-'        if (va < 1e-12) return NumberFormat.localizedInput(noCommaFormat(v * 1e15)) + "f";');
-for(const [a,b] of [[1e-9,1e12,"p"],[1e-6,1e9,"n"],[1e-3,1e6,"u"],[1,1e3,"m"],[1e3,null,""],[1e6,1e-3,"k"],[1e9,1e-6,"M"]].map(x=>[x[0],x[1],x[2]])){
-    const old=a===1e3?'        if (va < 1e3)   return noCommaFormat(v);':a===1?'        if (va < 1)     return noCommaFormat(v * 1e3)  + "m";':null;
-    if(old) replaceOnce(editDialog,old,old.replace("noCommaFormat(v"+(a===1?" * 1e3":"")+")","NumberFormat.localizedInput(noCommaFormat(v"+(a===1?" * 1e3":"")+"))"));
-}
-console.log("Editor: ejemplo de formato regional junto a cada entrada numérica");
+// EditDialog.unitStringVal mantiene el punto interno; SOLO formatCircuitEditValue
+// aplica la presentación regional, incluso en controles dimensionless y enteros.
 
 // Añadir las traducciones propias sin sustituir el catálogo original.
 const spanishCatalog=join(dir,"public","locale","locale_es.txt");
