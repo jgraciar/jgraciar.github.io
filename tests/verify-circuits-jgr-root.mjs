@@ -90,8 +90,12 @@ try{
   assert(data.improvementsTitle?.includes("CircuitJS1 5.0.4ts"),
     language+": falta encabezado de mejoras");
   assert.equal(data.improvements.length,6,language+": faltan mejoras implementadas");
+  // Las escrituras china, japonesa y coreana expresan la misma información
+  // con menos caracteres que los alfabetos occidentales.
+  const minChars=["zh","zh-tw","ja","kr"].includes(language)?9:25;
   for(const item of data.improvements)
-    assert(item?.length>30,language+": falta descripción de alguna mejora");
+    assert(item?.length>=minChars,
+      language+": falta descripción de alguna mejora");
   if(language!=="en"){
     assert.notEqual(data.improvementsTitle,"Improvements over CircuitJS1 5.0.4ts",
       language+": mejoras sin traducir");
