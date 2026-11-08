@@ -40,23 +40,32 @@ try{
      .sort((a,b)=>b.width*b.height-a.width*a.height)[0];
    if(!canvas)return {error:"no canvas"};
    const r=canvas.getBoundingClientRect();
-   let opened=null;
+   // La importación centra/escala los elementos; no suponer que la posición
+   // lógica de CircuitJS coincide con los píxeles del lienzo.
+   const candidateX=[304,500,650,800,400,200,1000,1120];
+   const candidateY=[304,400,220,500,120,600];
    const attempts=[];
-   for(const [x,y] of [[304,304],[288,304],[320,304],[304,290],[304,319],
-                         [304,275],[280,300],[330,300]]){
-    const existing=document.querySelector("dialog.circuitDialog[open]");
-    if(existing)break;
-    for(const type of ["mousemove","mousedown","mouseup","click","dblclick"]){
-     canvas.dispatchEvent(new MouseEvent(type,{bubbles:true,cancelable:true,
-      clientX:r.x+x,clientY:r.y+y,view:window,
-      button:0,buttons:type==="mousedown"?1:0,detail:type==="dblclick"?2:1}));
-    }
+   const tryPoint=(x,y)=>{
+    canvas.dispatchEvent(new MouseEvent("mousemove",{bubbles:true,cancelable:true,
+      clientX:r.x+x,clientY:r.y+y,view:window}));
+    canvas.dispatchEvent(new MouseEvent("dblclick",{bubbles:true,cancelable:true,
+      clientX:r.x+x,clientY:r.y+y,view:window,button:0,detail:2}));
     const dialog=document.querySelector("dialog.circuitDialog[open]");
-    attempts.push({x,y,opened:!!dialog,heading:dialog?.querySelector("h3")?.textContent});
-    if(dialog){opened=dialog.querySelector("h3")?.textContent;break;}
-   }
-   return {opened,attempts,canvas:{width:canvas.width,height:canvas.height,
-     x:r.x,y:r.y}};
+    if(dialog)return {opened:dialog.querySelector("h3")?.textContent,x,y};
+    return null;
+   };
+   for(const y of candidateY)
+    for(const x of candidateX){
+     const found=tryPoint(x,y);
+     if(found)return {...found,canvas:{width:canvas.width,height:canvas.height}};
+    }
+   for(let y=40;y<Math.min(r.height-35,650);y+=16)
+    for(let x=35;x<Math.min(r.width-35,1200);x+=16){
+     const found=tryPoint(x,y);
+     if(found)return {...found,canvas:{width:canvas.width,height:canvas.height}};
+    }
+   return {opened:null,attempts,canvas:{width:canvas.width,height:canvas.height,
+     x:r.x,y:r.y},circuitCount:window.CircuitJS1.getElements().length};
   });
   assert(probe.opened,"No se abrió editor para "+tag+": "+JSON.stringify(probe));
   const dialog=page.locator("dialog.circuitDialog[open]");
