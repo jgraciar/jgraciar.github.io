@@ -60,6 +60,7 @@ try{
      }
     return {error:"No se encontró un editor para la pieza",width:r.width,height:r.height};
    });
+   console.log("Diagnóstico apertura editor",type,format,JSON.stringify(opened));
    assert(opened.title,type+": "+JSON.stringify(opened));
    const dialog=page.locator("dialog.circuitDialog[open]");
    const input=dialog.locator('input[type="text"]').first();
@@ -91,7 +92,7 @@ try{
   [["1,5",1.5],["1.234,5",1234.5],["2,2k",2200]]);
  await testEditor("r","eu",
   [["1,5",1.5],["1.234,5",1234.5]]);
- await testEditor("FilteredBridge","uk",
+ await testEditor("r","uk",
   [["1.5",1.5],["1,234.5",1234.5],["2.2k",2200]]);
  assert.equal(tested.length,8);
  console.log("OK: ocho entradas numéricas aplicadas mediante los editores "+
