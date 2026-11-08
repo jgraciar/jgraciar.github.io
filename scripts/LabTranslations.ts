@@ -5,6 +5,7 @@ import {circuitJsUiCompletenessKeys,circuitJsUiCompleteness} from "./CircuitJsUi
 import {scopeOptionKeys,scopeOptionTranslations} from "./CircuitJsScopeOptions.ts";
 import {generalOptionKeys,generalOptionTranslations} from "./CircuitJsGeneralOptions.ts";
 import {componentEditDialogLabels} from "./CircuitJsEditDialogTitles.ts";
+import {nonlinearPresetKeys,nonlinearPresetTranslations} from "./CircuitJsNonlinearPresets.ts";
 // Traducciones añadidas para los componentes propios del Laboratorio.
 // Las claves originales de CircuitJS se conservan en sus catálogos oficiales.
 // Catálogos adicionales incorporados directamente para compatibilidad con Node y TypeScript.
@@ -420,6 +421,12 @@ for(const [key,value]of Object.entries(russianSourceCorrections))
 // catálogo oficial, así que no deben heredar nombres castellanos o ingleses.
 for(const [code,labels] of Object.entries(componentEditDialogLabels)){
  for(const [key,value] of Object.entries(labels))dictionaries[code].set(key,value);
+}
+for(const code of labLanguageCodes){
+  const text=nonlinearPresetTranslations[code];
+  if(!text||text.length!==nonlinearPresetKeys.length)
+    throw Error("Traducciones incompletas de cargas no lineales: "+code);
+  nonlinearPresetKeys.forEach((key,index)=>dictionaries[code].set(key,text[index]));
 }
 export function labTranslation(language:string,key:string):string|null{
  const normalized=language.toLowerCase().replace(/_/g,"-");

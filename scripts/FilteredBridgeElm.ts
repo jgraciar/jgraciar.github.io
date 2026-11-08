@@ -179,7 +179,7 @@ export class FilteredBridgeElm extends CompositeElm {
             if(this.pendingPresetSwitch)return;
             const v=ei.value;
             if(!Number.isFinite(v)||(n!==3&&v<=0)||(n===3&&v<0)){
-                ei.setError(Locale.LS("R y C deben ser positivas y Rs no negativa"));
+                ei.setError(n===3?Locale.LS("must be >= 0"):Locale.LS("must be > 0"));
                 return;
             }
             const previous=n===1?this.resistance:n===2?this.capacitance:this.seriesResistance;
