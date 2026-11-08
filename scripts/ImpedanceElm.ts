@@ -1,0 +1,406 @@
+// Impedancia pasiva exclusiva de corriente alterna.
+// Un único símbolo Z encapsula una serie R-L-C real de CircuitJS.
+// |Z|/ángulo y R/X se especifican a la frecuencia de referencia f0;
+// R/L/C mantiene los componentes físicos cuando cambia la frecuencia.
+// El elemento local tiene XML <Impedance>; para CircuitJS externo es
+// necesario descomponerlo en r/l/c, porque el tipo Z no existe upstream.
+import { CircuitElm } from "./CircuitElm";
+import { CompositeElm } from "./CompositeElm";
+import { ResistorElm } from "./ResistorElm";
+import { InductorElm } from "./InductorElm";
+import { CapacitorElm } from "./CapacitorElm";
+import { VoltageElm } from "./VoltageElm";
+import { CurrentElm } from "./CurrentElm";
+import { CircuitXMLSerializer } from "./CircuitXMLSerializer";
+import { CircuitXMLDeserializer } from "./CircuitXMLDeserializer";
+import { EditInfo } from "./EditInfo";
+import { Locale } from "./Locale";
+import { Choice } from "./Choice";
+import { Font } from "./Font";
+import { Graphics } from "./Graphics";
+import { Point } from "./Point";
+import { StringTokenizer } from "./StringTokenizer";
+import type { RLCValues } from "./LabImpedance";
+import { atFrequency, fromPolar, fromRectangular, validateFrequency, validateRLC } from "./LabImpedance";
+
+export class ImpedanceElm extends CompositeElm {
+    // 0 polar, 1 rectangular, 2 R/L/C; todos referidos a CA.
+    entryMode:number = 0;
+    // 0 R+jX (por defecto), 1 módulo∠argumento, 2 R/X etiquetados, 3 R/L/C.
+    displayMode:number = 0;
+    referenceFrequency:number = 50;
+    resistance:number = 10;
+    inductance:number = 0;
+    capacitance:number = 0;
+    private ignoreOldDialog:boolean = false;
+
+    constructor(xx:number, yy:number);
+    constructor(xa:number, ya:number, xb:number, yb:number, f:number, st:StringTokenizer);
+    constructor(xa:number, ya:number, xb?:number, yb?:number, f?:number, st?:StringTokenizer) {
+        if (xb === undefined) super(xa,ya);
+        else super(xa,ya,xb,yb!,f!);
+        // Permitir orientación libre, incluida la diagonal, como elemento de dos bornes.
+        this.noDiagonal=false;
+        // Un nuevo elemento arranca como resistencia de 10 Ω a 50 Hz,
+        // siempre dentro del editor de impedancia para CA.
+        if (st !== undefined) {
+            this.entryMode=Math.max(0,Math.min(2,Number(st.nextToken())));
+            this.referenceFrequency=Number(st.nextToken());
+            this.resistance=Number(st.nextToken());
+            this.inductance=Number(st.nextToken());
+            this.capacitance=Number(st.nextToken());
+        }
+        this.rebuild();
+    }
+
+    getDumpType():number { return 1553; }
+    getXmlDumpType():string { return "Impedance"; }
+    getElmType():string { return Locale.LS("Impedancia Z (solo CA)"); }
+    // La tecla z minúscula ya pertenece al diodo Zener; Z es Mayús+Z.
+    getShortcut():number { return 'Z'.charCodeAt(0); }
+
+    // Si todas las fuentes de CA del circuito tienen una frecuencia base
+    // común (con posibles armónicos enteros), utilizarla para leer Z.
+    // Sin fuente identificable o con frecuencias incompatibles, mantener f0.
+    private sourceFrequency():number | null {
+        const sources=(CircuitElm.app?.elmList ?? [])
+            .filter(e=>e instanceof VoltageElm &&
+                e.waveform !== VoltageElm.WF_DC &&
+                e.waveform !== VoltageElm.WF_VAR &&
+                e.waveform !== VoltageElm.WF_NOISE &&
+                Number.isFinite(e.frequency) && e.frequency>0) as VoltageElm[];
+        if(!sources.length) return null;
+        const base=Math.min(...sources.map(e=>e.frequency));
+        return sources.every(e=>{
+            const ratio=e.frequency/base;
+            return Math.abs(ratio-Math.round(ratio))<1e-6;
+        }) ? base : null;
+    }
+
+    private activeFrequency():number {
+        return this.sourceFrequency() ?? this.referenceFrequency;
+    }
+
+    private values():RLCValues {
+        return {r:this.resistance,l:this.inductance,c:this.capacitance};
+    }
+
+    // CircuitJS calcula de verdad R, L y C en el dominio temporal.
+    // No se estampa una impedancia compleja constante como resistencia.
+    private rebuild():void {
+        const values=this.values();
+        validateRLC(values);
+        validateFrequency(this.referenceFrequency);
+        const children:string[]=[];
+        if (values.r>0) children.push("ResistorElm");
+        if (values.l>0) children.push("InductorElm");
+        if (values.c>0) children.push("CapacitorElm");
+        const model=children.map((type,n)=>
+            type+" "+(n===0?1:n+2)+" "+(n===children.length-1?2:n+3)).join("\r");
+        this.loadComposite(null,model,[1,2]);
+        for(const ce of this.compElmList) {
+            if(ce instanceof ResistorElm) ce.resistance=values.r;
+            if(ce instanceof InductorElm) {
+                ce.inductance=values.l;
+                ce.seriesResistance=0;
+                ce.saturationCurrent=0;
+                ce.ind.setup(ce.inductance,ce.current,ce.flags,0);
+            }
+            if(ce instanceof CapacitorElm) {
+                ce.capacitance=values.c;
+                ce.seriesResistance=0;
+            }
+        }
+        this.setPoints();
+    }
+
+    setPoints():void {
+        super.setPoints();
+        // Igual que una resistencia: los conductores terminan en las caras del símbolo.
+        this.calcLeads(32);
+        if(this.posts?.length===2) {
+            this.setPost(0,this.point1);
+            this.setPost(1,this.point2);
+        }
+    }
+
+    draw(g:Graphics):void {
+        this.setBbox(this.point1,this.point2,8);
+        this.draw2Leads(g);
+        this.setPowerColor(g,false);
+        g.save();
+        const cx=(this.point1.x+this.point2.x)/2;
+        const cy=(this.point1.y+this.point2.y)/2;
+        g.context.translate(cx,cy);
+        g.context.rotate(Math.atan2(this.dy,this.dx));
+        // Contorno con el mismo grosor de trazo que el símbolo de resistencia.
+        g.context.lineWidth=2;
+        g.context.strokeRect(-16,-6,32,12);
+        g.setFont(new Font("SansSerif",0,12));
+        g.context.textBaseline="middle";
+        g.context.textAlign="center";
+        g.drawString("Z",0,0);
+        g.restore();
+        // La corriente se calcula en el RLC interno; sincronizar la animación
+        // del elemento exterior y dibujarla también dentro del símbolo Z.
+        this.current = this.getCurrent();
+        this.updateDotCount();
+        this.drawDots(g,this.point1,this.point2,this.curcount);
+        this.drawPosts(g);
+        if(this.showValues()) {
+            const z=atFrequency(this.values(),this.activeFrequency());
+            // Usar el mismo formato SI automático que en la ficha del elemento.
+            // La fase angular permanece en grados, sin prefijos.
+            const number=(v:number)=>CircuitElm.showFormat.format(v);
+            const scale=typeof localStorage!=="undefined" ?
+                (localStorage.getItem("labDisplayUnitScale")??"auto") : "auto";
+            const factors:{[key:string]:number}={micro:1e6,milli:1e3,base:1,kilo:1e-3};
+            const prefixes:{[key:string]:string}={micro:"µ",milli:"m",base:"",kilo:"k"};
+            const automatic=(value:number)=>{
+                const magnitude=Math.abs(value);
+                return magnitude<1e-9?{factor:1e12,prefix:"p"}:
+                    magnitude<1e-6?{factor:1e9,prefix:"n"}:
+                    magnitude<1e-3?{factor:1e6,prefix:"µ"}:
+                    magnitude<1?{factor:1e3,prefix:"m"}:
+                    magnitude<1e3?{factor:1,prefix:""}:
+                    magnitude<1e6?{factor:1e-3,prefix:"k"}:
+                    magnitude<1e9?{factor:1e-6,prefix:"M"}:{factor:1e-9,prefix:"G"};
+            };
+            const scaled=(value:number,unit:string)=>{
+                const selected=automatic(value);
+                const factor=factors[scale]??selected.factor;
+                const prefix=prefixes[scale]??selected.prefix;
+                return number(value*factor)+" "+prefix+unit;
+            };
+            // En forma binómica R y X comparten el mismo prefijo para
+            // conservar la unidad de toda la expresión compleja.
+            const selected=automatic(Math.max(Math.abs(z.r),Math.abs(z.x)));
+            const factor=factors[scale]??selected.factor;
+            const prefix=prefixes[scale]??selected.prefix;
+            const rectangular="("+number(z.r*factor)+(z.x<0?" − j":" + j")+
+                number(Math.abs(z.x)*factor)+") "+prefix+"Ω";
+            const shown=this.displayMode===0 ? rectangular :
+                this.displayMode===1 ? scaled(z.modulus,"Ω")+" ∠ "+number(z.argument)+"°" :
+                this.displayMode===2 ? "R="+scaled(z.r,"Ω")+"  X="+scaled(z.x,"Ω") :
+                "R="+scaled(this.resistance,"Ω")+"  L="+scaled(this.inductance,"H")+
+                    "  C="+scaled(this.capacitance,"F");
+            this.drawValues(g,shown,16);
+        }
+    }
+
+    // CompositeElm calcula la intensidad en sus elementos internos, pero
+    // no actualiza this.current. El doDots() heredado debe avanzar con la
+    // intensidad instantánea real del primer elemento de la serie RLC.
+    // Se conservan el trazado de punto1 a punto2 y el signo de la corriente
+    // tanto para Z horizontal como vertical, también en ramas en paralelo.
+    updateDotCount():void {
+        this.curcount=this.updateDotCountImpl(this.getCurrent(),this.curcount);
+    }
+
+    getCurrent():number {
+        return this.compElmList[0]?.getCurrent() ?? 0;
+    }
+
+    getConnection(n1:number,n2:number):boolean {
+        return n1!==n2 && n1<2 && n2<2;
+    }
+
+    // El análisis exclusivo de punto de trabajo de CC no admite este elemento.
+    // En simulación temporal, el comportamiento de L/C ante transitorios
+    // sigue siendo físico; no se falsean los cálculos en presencia de armónicos.
+    preStamp():void {
+        if (this.doDcAnalysis()) {
+            CircuitElm.sim.stop(Locale.LS("La impedancia Z solo está disponible en corriente alterna"),this);
+            return;
+        }
+        // Se rechazan circuitos excitados exclusivamente con fuentes de CC,
+        // pero se permite añadir el elemento antes de colocar la fuente CA.
+        // Si coexisten CA y CC, se respeta la simulación temporal de R/L/C.
+        const others=CircuitElm.sim.elmList;
+        const allVoltage=others.filter(e=>e instanceof VoltageElm) as VoltageElm[];
+        const hasAC=allVoltage.some(e=>
+            e.waveform !== VoltageElm.WF_DC &&
+            e.waveform !== VoltageElm.WF_VAR &&
+            e.frequency > 0);
+        const hasDCSource=allVoltage.length>0 ||
+            others.some(e=>e instanceof CurrentElm);
+        if (hasDCSource && !hasAC) {
+            CircuitElm.sim.stop(Locale.LS("La impedancia Z necesita una fuente de CA (no admite circuitos alimentados solo con CC)"),this);
+            return;
+        }
+        super.preStamp();
+    }
+
+    dumpXml(doc:Document,elem:Element):void {
+        super.dumpXml(doc,elem);
+        CircuitXMLSerializer.dumpAttr(elem,"mode",this.entryMode);
+        CircuitXMLSerializer.dumpAttr(elem,"displayMode",this.displayMode);
+        CircuitXMLSerializer.dumpAttr(elem,"f0",this.referenceFrequency);
+        CircuitXMLSerializer.dumpAttr(elem,"r",this.resistance);
+        CircuitXMLSerializer.dumpAttr(elem,"l",this.inductance);
+        CircuitXMLSerializer.dumpAttr(elem,"c",this.capacitance);
+    }
+
+    undumpXml(xml:CircuitXMLDeserializer):void {
+        // Primero cargar los parámetros, reconstruir los componentes, después
+        // recuperar su estado dinámico (corriente de L / tensión de C).
+        const mode=xml.parseIntAttr("mode",this.entryMode);
+        const displayMode=xml.parseIntAttr("displayMode",this.displayMode);
+        const f0=xml.parseDoubleAttr("f0",this.referenceFrequency);
+        const r=xml.parseDoubleAttr("r",this.resistance);
+        const l=xml.parseDoubleAttr("l",this.inductance);
+        const c=xml.parseDoubleAttr("c",this.capacitance);
+        validateFrequency(f0);
+        validateRLC({r,l,c});
+        if(!Number.isInteger(mode)||mode<0||mode>2)
+            throw Error("Modo de impedancia de CA no válido");
+        if(!Number.isInteger(displayMode)||displayMode<0||displayMode>3)
+            throw Error("Modo de visualización de impedancia no válido");
+        this.entryMode=mode;
+        this.displayMode=displayMode;
+        this.referenceFrequency=f0;
+        this.resistance=r;
+        this.inductance=l;
+        this.capacitance=c;
+        this.rebuild();
+        super.undumpXml(xml);
+    }
+
+    getInfo(arr:string[]):void {
+        const z=atFrequency(this.values(),this.activeFrequency());
+        arr[0]=Locale.LS("Impedancia Z (solo CA)");
+        this.getBasicInfo(arr);
+        arr[3]="|Z| = "+CircuitElm.getUnitText(z.modulus,"Ω");
+        arr[4]="φ = "+CircuitElm.showFormat.format(z.argument)+"°";
+        arr[5]="R = "+CircuitElm.getUnitText(z.r,"Ω");
+        arr[6]="X = "+CircuitElm.getUnitText(z.x,"Ω");
+        arr[7]="L = "+CircuitElm.getUnitText(this.inductance,"H");
+        arr[8]="C = "+CircuitElm.getUnitText(this.capacitance,"F");
+        const auto=this.sourceFrequency();
+        arr[9]=(auto!==null ? Locale.LS("f de red = ") : Locale.LS("f0 (referencia) = ")) +
+            CircuitElm.getUnitText(this.activeFrequency(),"Hz");
+    }
+
+    getScopeText(v:number):string {
+        return Locale.LS("Z (CA, serie RLC)");
+    }
+    canViewInScope():boolean { return true; }
+
+    getEditInfo(n:number):EditInfo | null {
+        if(n===0) {
+            this.ignoreOldDialog=false; // tras reconstruir el editor
+            const ei=new EditInfo(Locale.LS("Impedancia Z · solo CA · conexión en serie"),0,-1,-1);
+            ei.choice=new Choice();
+            ei.choice.add(Locale.LS("Módulo |Z| y argumento φ"));
+            ei.choice.add(Locale.LS("Resistencia R y reactancia X"));
+            ei.choice.add(Locale.LS("Componentes físicos R, L y C"));
+            ei.choice.select(this.entryMode);
+            ei.newDialog=true;
+            return ei;
+        }
+        if(n===1) {
+            const auto=this.sourceFrequency();
+            if(auto!==null) {
+                // Campo informativo de solo lectura; no se cambia el origen
+                // de la frecuencia mediante el editor de la carga.
+                const ei=new EditInfo(Locale.LS("Frecuencia de CA detectada en la fuente"),0,-1,-1);
+                ei.choice=new Choice();
+                ei.choice.add(CircuitElm.getUnitText(auto,"Hz") + Locale.LS(" (automática)"));
+                ei.choice.select(0);
+                return ei;
+            }
+            return new EditInfo(Locale.LS("Frecuencia de referencia de CA (Hz; sin fuente única)"),
+                this.referenceFrequency,0,0);
+        }
+        const z=atFrequency(this.values(),this.activeFrequency());
+        if(this.entryMode===0) {
+            if(n===2)return new EditInfo(Locale.LS("Módulo |Z| (Ω)"),z.modulus,0,0);
+            if(n===3)return new EditInfo(Locale.LS("Argumento φ (°)"),z.argument,-90,90);
+        }
+        if(this.entryMode===1) {
+            if(n===2)return new EditInfo(Locale.LS("Resistencia R (Ω)"),this.resistance,0,0);
+            if(n===3)return new EditInfo(Locale.LS("Reactancia X (Ω), +L / −C"),z.x,-1e12,1e12);
+        }
+        if(this.entryMode===2) {
+            if(n===2)return new EditInfo(Locale.LS("Resistencia R (Ω)"),this.resistance,0,0);
+            if(n===3)return new EditInfo(Locale.LS("Inductancia L (H), 0 = omitir"),this.inductance,0,0);
+            if(n===4)return new EditInfo(Locale.LS("Capacidad C (F), 0 = omitir"),this.capacitance,0,0);
+        }
+        if(n===(this.entryMode===2?5:4)) {
+            const ei=new EditInfo(Locale.LS("Visualización de valores en el esquema"),0,-1,-1);
+            ei.choice=new Choice();
+            ei.choice.add(Locale.LS("Impedancia binómica R ± jX (predeterminada)"));
+            ei.choice.add(Locale.LS("Módulo |Z| y argumento φ"));
+            ei.choice.add(Locale.LS("Resistencia R y reactancia X"));
+            ei.choice.add(Locale.LS("Componentes R, L y C"));
+            ei.choice.select(this.displayMode);
+            return ei;
+        }
+        return null;
+    }
+
+    setEditValue(n:number,ei:EditInfo):void {
+        if(n===0) {
+            const next=ei.choice!.getSelectedIndex();
+            if(next!==this.entryMode) {
+                this.entryMode=next;
+                this.ignoreOldDialog=true;
+            }
+            return;
+        }
+        if(this.ignoreOldDialog) return;
+        if(n===(this.entryMode===2?5:4)) {
+            this.displayMode=ei.choice!.getSelectedIndex();
+            return;
+        }
+        try {
+            if(n===1) {
+                if(this.sourceFrequency()!==null) return; // valor automático de la red
+                validateFrequency(ei.value);
+                const x=atFrequency(this.values(),this.referenceFrequency).x;
+                if(this.entryMode!==2) {
+                    const v=fromRectangular(this.resistance,x,ei.value);
+                    this.resistance=v.r;
+                    this.inductance=v.l;
+                    this.capacitance=v.c;
+                    this.rebuild();
+                }
+                this.referenceFrequency=ei.value;
+                return;
+            }
+            if(this.entryMode===0 && (n===2 || n===3)) {
+                const freq=this.activeFrequency();
+                const z=atFrequency(this.values(),freq);
+                const magnitude=n===2?ei.value:z.modulus;
+                const angle=n===3?ei.value:z.argument;
+                const v=fromPolar(magnitude,angle,freq);
+                this.referenceFrequency=freq;
+                this.resistance=v.r;
+                this.inductance=v.l;
+                this.capacitance=v.c;
+                this.rebuild();
+            } else if(this.entryMode===1 && (n===2 || n===3)) {
+                const freq=this.activeFrequency();
+                const z=atFrequency(this.values(),freq);
+                const v=fromRectangular(n===2?ei.value:this.resistance,
+                    n===3?ei.value:z.x,freq);
+                this.referenceFrequency=freq;
+                this.resistance=v.r;
+                this.inductance=v.l;
+                this.capacitance=v.c;
+                this.rebuild();
+            } else if(this.entryMode===2 && n>=2 && n<=4) {
+                const v={r:n===2?ei.value:this.resistance,
+                    l:n===3?ei.value:this.inductance,
+                    c:n===4?ei.value:this.capacitance};
+                validateRLC(v);
+                this.resistance=v.r;
+                this.inductance=v.l;
+                this.capacitance=v.c;
+                this.rebuild();
+            }
+        } catch(error) {
+            ei.setError(error instanceof Error?error.message:String(error));
+        }
+    }
+}
