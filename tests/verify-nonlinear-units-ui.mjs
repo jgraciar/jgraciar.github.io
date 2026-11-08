@@ -33,6 +33,10 @@ try{
    const proxy=sim.getElements().find(e=>e.getType()==="FilteredBridgeElm");
    const samples={n:0,dt:0,i2:0,p:0,finite:true};
    const t0=sim.getTime();
+   // Tomar dos periodos completos de 50 Hz desde el siguiente cruce
+   // de fase: comparar ventanas parciales daría cocientes RMS falsos.
+   const start=Math.ceil((t0+0.000001)*50)/50;
+   const end=start+0.04;
    let prev=t0;
    const old=sim.ontimestep;
    sim.ontimestep=()=>{
@@ -40,7 +44,7 @@ try{
     const t=sim.getTime();
     const dt=t-prev;
     prev=t;
-    if(!(dt>0&&dt<0.002))return;
+    if(!(dt>0&&dt<0.002)||t<start||t>end)return;
     const i=proxy.getCurrent(),u=proxy.getVoltageDiff();
     if(!Number.isFinite(i)||!Number.isFinite(u)){samples.finite=false;return;}
     samples.n++;
@@ -49,21 +53,22 @@ try{
     samples.p+=dt*u*i;
    };
    try{
-    for(let k=0;k<230;k++){
+    for(let k=0;k<550;k++){
      await new Promise(resolve=>setTimeout(resolve,12));
-     if(sim.getTime()-t0>0.10)break;
+     if(sim.getTime()>=end+0.005)break;
     }
    }finally{sim.ontimestep=old;}
    const tag=new DOMParser().parseFromString(sim.exportCircuit(),"application/xml")
     .querySelector("FilteredBridge");
    return {count:sim.getElements().filter(e=>e.getType()==="FilteredBridgeElm").length,
     time:sim.getTime()-t0,steps:samples.n,valid:samples.finite,
+    start,end,
     duration:samples.dt,irms:Math.sqrt(samples.i2/samples.dt),
     p:samples.p/samples.dt,info:proxy.getInfo(),
     attrs:tag?Object.fromEntries([...tag.attributes].map(x=>[x.name,x.value])):null};
   });
   assert.equal(current.count,1,"No debe crear un elemento visible por unidad");
-  assert(current.valid&&current.steps>150&&current.duration>0.06,
+  assert(current.valid&&current.steps>150&&current.duration>0.038,
    "Adquisición insuficiente con N="+units+": "+JSON.stringify(current));
   assert(Number.isFinite(current.irms)&&current.irms>0,
    "Intensidad RMS inválida con N="+units);
