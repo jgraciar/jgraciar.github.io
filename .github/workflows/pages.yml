@@ -41,6 +41,20 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Pruebas numéricas de los componentes propios
+        run: |
+          node --experimental-strip-types adaptacion/tests/lab-power-measurement.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-impedance.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-pv-inverter.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-pv-catalog-inverter.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-pv-current-display.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-filtered-bridge.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-filtered-bridge-power.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-filtered-bridge-convergence.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-nonlinear-load.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-harmonics.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-power-factor-rectifier.test.mjs
+
       - name: Preparar motor, componentes, traducciones e identidad
         run: |
           node adaptacion/scripts/embed-default-aron.mjs circuitjs-src/ts/CirSim.ts adaptacion/tests/fixtures/sistema-iii-n-startup.xml
@@ -81,6 +95,7 @@ jobs:
           python3 -m http.server 8767 --directory site-root >/tmp/circuitjgr-http.log 2>&1 &
           sleep 2
           node adaptacion/tests/verify-circuits-jgr-root.mjs site-root
+          node adaptacion/tests/verify-circuitjgr-elements.mjs
 
       - name: Preparar GitHub Pages
         uses: actions/configure-pages@v5
