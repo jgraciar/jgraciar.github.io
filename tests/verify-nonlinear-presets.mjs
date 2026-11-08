@@ -28,6 +28,20 @@ assert(source.includes('this.seriesResistance=xml.parseDoubleAttr("rs",0);'),
 assert(source.includes('this.profile=value===1||value===2?value:0;'));
 assert(source.includes("ResistorElm 1 5"),
  "La resistencia de entrada debe estar incluida en el circuito físico");
+assert(source.includes("this.units=xml.parseIntAttr(\"units\",1);"),
+ "XML antiguos deben emplear una sola carga por defecto");
+assert(source.includes('CircuitXMLSerializer.dumpAttr(elem,"units",this.units)'),
+ "El atributo units debe conservarse en el XML");
+for(const expression of [
+ "const equivalentLoadR=this.resistance/this.units;",
+ "const equivalentCapacitance=this.capacitance*this.units;",
+ "const equivalentSeriesR=this.seriesResistance/this.units;"
+])assert(source.includes(expression),"Escalado físico ausente: "+expression);
+assert(source.includes("Number.isInteger(count)")&&
+ source.includes("count>FilteredBridgeElm.maxUnits"),
+ "El número de unidades debe ser entero dentro de un intervalo limitado");
+assert(source.includes('this.units,1,FilteredBridgeElm.maxUnits).setInteger().setPositive()'),
+ "El editor debe exigir unidades enteras positivas");
 assert(source.includes("if(this.pendingPresetSwitch)return;"),
  "Un cambio de perfil no debe ser sobrescrito por los campos viejos");
 const registrations=readFileSync(join(dir,"registerElements.ts"),"utf8");

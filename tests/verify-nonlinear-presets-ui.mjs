@@ -40,7 +40,7 @@ try{
    return {count:sim.getElements().filter(e=>e.getType()==="FilteredBridgeElm").length,
     posts:proxy?.getPostCount(),current:proxy?.getCurrent(),info:proxy?.getInfo(),
     r:Number(tag?.getAttribute("r")),c:Number(tag?.getAttribute("c")),
-    rs:tag?.getAttribute("rs"),profile:tag?.getAttribute("profile")};
+    rs:tag?.getAttribute("rs"),profile:tag?.getAttribute("profile"),units:tag?.getAttribute("units")};
   });
   assert.equal(data.count,1,item.name+": falta elemento filtrado");
   assert.equal(data.posts,2,item.name+": número de bornes incorrecto");
@@ -49,6 +49,7 @@ try{
   assert.equal(data.c,item.c);
   assert.equal(data.rs,item.rs>0?String(item.rs):null);
   assert.equal(data.profile,item.profile>0?String(item.profile):null);
+  assert.equal(data.units,null,item.name+": los XML heredados deben equivaler a N=1");
   assert(data.info?.some(s=>String(s).startsWith("Rs = ")),
    item.name+": no se muestra la resistencia serie");
   const expectedText=item.profile===1?"Ejemplo LED sin PFC":
