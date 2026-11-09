@@ -80,9 +80,11 @@ export class SixPulseBridgeElm extends CompositeElm {
         super.setPoints();
         // Desplazamiento perpendicular en píxeles; sirve para orientar el
         // componente horizontal o verticalmente y mantener bornes separados.
+        // interpPoint usa una perpendicular negativa para desplazar ABAJO
+        // al arrastrar de izquierda a derecha; (1-phase) deja L1 arriba.
         for(let phase=0;phase<3;phase++)
             this.setPost(phase,
-                this.interpPoint(this.point1,this.point2,0,(phase-1)*32));
+                this.interpPoint(this.point1,this.point2,0,(1-phase)*32));
     }
     draw(g:Graphics):void{
         this.setBbox(this.point1,this.point2,56);
@@ -90,7 +92,7 @@ export class SixPulseBridgeElm extends CompositeElm {
         const center=this.interpPoint(this.point1,this.point2,0.5);
         for(let phase=0;phase<3;phase++){
             const terminal=this.getPost(phase);
-            const end=this.interpPoint(this.point1,this.point2,0.3,(phase-1)*32);
+            const end=this.interpPoint(this.point1,this.point2,0.3,(1-phase)*32);
             CircuitElm.drawThickLine(g,terminal,end);
         }
         g.save();
