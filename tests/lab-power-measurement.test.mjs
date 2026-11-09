@@ -315,3 +315,36 @@ assert(Math.abs(cancellationMeter.q-cancellationMeterA.q-cancellationMeterB.q)<.
 assert(Math.abs(cancellationMeter.powerFactor-cancellationMeter.cosPhi)<.01,
     "Con tensión y corriente totales sinusoidales FP y cosφ₁ deben coincidir");
 console.log("OK: cancelación de armónicos de quinto orden entre cargas distintas.");
+
+
+// Compensación de Q₁ con condensadores en paralelo a una carga R-L no lineal.
+// Para una red ideal sinusoidal, el condensador no absorbe armónicos de corriente
+// de la carga: mejora el desplazamiento fundamental, pero no elimina su THD.
+const supplyV=230,loadFundamental=10,loadPhi=Math.acos(.8);
+const capacitorIrms=loadFundamental*Math.sin(loadPhi); // Qc = -U·Ic
+const distortedLoad=t=>loadFundamental*sin(t,-loadPhi)
+    +3*Math.SQRT2*Math.sin(5*omega*t);
+const capacitorCurrent=t=>capacitorIrms*sin(t,Math.PI/2);
+const uncompensated=measure(t=>supplyV*sin(t),distortedLoad);
+const compensated=measure(t=>supplyV*sin(t),t=>distortedLoad(t)+capacitorCurrent(t));
+const expectedActive=supplyV*loadFundamental*.8;
+const expectedApparent=supplyV*Math.hypot(loadFundamental*.8,3);
+approx("Compensación: P permanece",compensated.p,expectedActive,.01);
+assert(Math.abs(compensated.p-uncompensated.p)<.5,
+    "El condensador ideal no consume potencia activa media");
+assert(Math.abs(uncompensated.q-supplyV*capacitorIrms)<3,
+    "La carga debe presentar Q₁ inductiva antes de compensar");
+assert(Math.abs(compensated.q)<3,
+    "La batería debe anular Q₁ de la fundamental");
+approx("Compensación: S con quinto armónico",compensated.s,expectedApparent,.01);
+assert(Math.abs(compensated.cosPhi-1)<.01,
+    "La corriente fundamental compensada debe estar en fase con la tensión");
+assert(Math.abs(compensated.powerFactor-8/Math.hypot(8,3))<.012,
+    "Aunque Q₁ sea nula, FP debe permanecer por debajo de 1 debido al quinto armónico");
+assert(compensated.powerFactor<compensated.cosPhi-.05,
+    "No se debe confundir la compensación de cosφ con la eliminación de armónicos");
+assert(compensated.thdCurrent>uncompensated.thdCurrent,
+    "La THD relativa aumenta al reducir I₁ sin filtrar I₅");
+assert(Math.abs(compensated.harmonicPower)<1,
+    "Con tensión sinusoidal el quinto armónico no aporta potencia activa");
+console.log("OK: batería de condensadores, Q₁ compensada, FP real y THD residual.");
