@@ -348,3 +348,28 @@ assert(compensated.thdCurrent>uncompensated.thdCurrent,
 assert(Math.abs(compensated.harmonicPower)<1,
     "Con tensión sinusoidal el quinto armónico no aporta potencia activa");
 console.log("OK: batería de condensadores, Q₁ compensada, FP real y THD residual.");
+
+
+// Con tensión de quinto armónico, una batería ideal SÍ absorbe corriente
+// armónica: I_C,h = h·ω·C·U_h. El modelo anterior de fuente sinusoidal
+// no debe extrapolarse a una red con tensión distorsionada.
+const fifthVoltageRms=23;
+const capacitance=capacitorIrms/(omega*supplyV);
+const harmonicVoltage=t=>supplyV*sin(t)
+    +fifthVoltageRms*Math.SQRT2*Math.sin(5*omega*t);
+const harmonicCapacitor=t=>capacitorIrms*sin(t,Math.PI/2)
+    +5*omega*capacitance*fifthVoltageRms*Math.SQRT2
+        *Math.sin(5*omega*t+Math.PI/2);
+const harmonicCapReading=measure(harmonicVoltage,harmonicCapacitor);
+const fifthCapCurrent=5*omega*capacitance*fifthVoltageRms;
+assert(Math.abs(harmonicCapReading.thdVoltage-fifthVoltageRms/supplyV)<.01,
+    "La tensión distorsionada debe conservar el quinto armónico");
+assert(Math.abs(harmonicCapReading.thdCurrent-fifthCapCurrent/capacitorIrms)<.02,
+    "La THD del condensador debe incluir el factor de frecuencia h=5");
+assert(Math.abs(harmonicCapReading.p)<1,
+    "Un condensador ideal no consume potencia activa ni a frecuencia armónica");
+assert(Math.abs(harmonicCapReading.q+supplyV*capacitorIrms)<3,
+    "Q₁ del condensador se refiere exclusivamente a la fundamental");
+assert(Math.abs(harmonicCapReading.harmonicPower)<1,
+    "La corriente capacitiva del quinto armónico está en cuadratura con U₅");
+console.log("OK: condensador con tensión armónica, I₅=5ωCU₅ y Q₁ fundamental.");
