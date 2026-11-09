@@ -17,10 +17,22 @@ try{
    segments:els.find(e=>e.getType()==='SevenSegElm')?.getInfo(),
    current:els.filter(e=>e.getType()==='ResistorElm').map(e=>e.getCurrent()),time:api.getTime(),running:api.isRunning()};
  });
- const advance=async dt=>{const t=(await read()).time;await page.waitForFunction(t=>window.CircuitJS1.getTime()>t,t+dt,{timeout:30000});};
- await advance(.8);
+ const advance=async dt=>{
+  await page.evaluate(dt=>{
+   const api=window.CircuitJS1,target=api.getTime()+dt;
+   window.cd4026TargetReached=false;
+   api.ontimestep=()=>{
+    if(api.getTime()>=target){
+     api.setSimRunning(false);api.ontimestep=null;window.cd4026TargetReached=true;
+    }
+   };
+   api.setSimRunning(true);
+  },dt);
+  await page.waitForFunction(()=>window.cd4026TargetReached,null,{timeout:30000});
+ };
+ await advance(.03);
  let d=await read();assert.equal(d.count,0);assert.equal(d.volts[15],12);
- const pulse=async key=>{await page.keyboard.down(key);await advance(.05);await page.keyboard.up(key);await advance(.8);};
+ const pulse=async key=>{await page.keyboard.down(key);await advance(.03);await page.keyboard.up(key);await advance(.03);};
  for(let n=1;n<=12;n++){
   await pulse('c');d=await read();assert.equal(d.count,n%10,'Count button '+n);
   assert(d.current.every(Number.isFinite));
@@ -29,16 +41,17 @@ try{
  }
  await pulse('r');assert.equal((await read()).count,0);
  await pulse('c');assert.equal((await read()).count,1);
- await page.keyboard.down('c');await advance(.05);
+ await page.keyboard.down('c');await advance(.03);
  assert.equal((await read()).count,2);
- await page.keyboard.up('c');await advance(.01);
- await page.keyboard.down('c');await advance(.05);
+ await advance(.2);assert.equal((await read()).count,2,'A held button must count once');
+ await page.keyboard.up('c');await advance(.001);
+ await page.keyboard.down('c');await advance(.03);
  assert.equal((await read()).count,2,'RC and Schmitt suppress a short release/bounce');
- await page.keyboard.up('c');await advance(.8);
+ await page.keyboard.up('c');await advance(.03);
  await pulse('r');await pulse('c');
  const xml=await page.evaluate(()=>window.CircuitJS1.exportCircuit());
  await page.evaluate(xml=>(window.CircuitJS1.importCircuit(xml,false),window.CircuitJS1.setSimRunning(true)),xml);await advance(.1);
  assert.equal((await read()).count,1,'XML roundtrip');
  await page.screenshot({path:process.env.CD4026_SCREENSHOT||'/tmp/cd4026-practice.png'});
- assert.deepEqual(errors,[]);console.log('OK CD4026 practice: 12 button presses, 9→0, reset, LED currents and XML roundtrip');
+ assert.deepEqual(errors,[]);console.log('OK CD4026 practice: 12 rapid button presses, 1 ms bounce rejection, 9→0, reset, LED currents and XML roundtrip');
 }finally{await browser.close();}

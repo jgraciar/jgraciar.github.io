@@ -20,8 +20,9 @@ replace('registerElements.ts','    CirSim.theApp.register("CounterElm", new Coun
 replace('Menus.ts','            "Add Counter",              "CounterElm",',
  '            "Add Counter",              "CounterElm",\n            "Add CD4026 decade counter", "CD4026Elm",');
 const list=join(dir,'public/setuplist.txt');
-writeFileSync(list,readFileSync(list,'utf8')+'\n+Circuit JGR\ncd4026-practice.xml CD4026: push-button counter and common-cathode display\n-\n');
+writeFileSync(list,readFileSync(list,'utf8')+'\n+Circuit JGR\ncd4026-practice.xml CD4026: push-button counter and common-cathode display\ncd4026-practice-textbook.xml CD4026: original textbook circuit (47 uF)\n-\n');
 copyFileSync(join(here,'../tests/fixtures/cd4026-practice.xml'),join(dir,'public/circuits/cd4026-practice.xml'));
+copyFileSync(join(here,'../tests/fixtures/cd4026-practice-textbook.xml'),join(dir,'public/circuits/cd4026-practice-textbook.xml'));
 const es=join(dir,'public/locale/locale_es.txt');
-writeFileSync(es,readFileSync(es,'utf8')+'\n"Add CD4026 decade counter"="Añadir contador decimal CD4026"\n"CD4026: push-button counter and common-cathode display"="CD4026: contador con pulsador y display de cátodo común"\n');
+writeFileSync(es,readFileSync(es,'utf8')+'\n"Add CD4026 decade counter"="Añadir contador decimal CD4026"\n"CD4026: push-button counter and common-cathode display"="CD4026: contador con pulsador y display de cátodo común"\n"CD4026: original textbook circuit (47 uF)"="CD4026: circuito original del libro (47 µF)"\n');
 console.log('CD4026B registered with powered outputs and common-cathode practice');
