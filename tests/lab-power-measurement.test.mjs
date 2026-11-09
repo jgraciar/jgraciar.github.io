@@ -292,3 +292,26 @@ assert(meterTotal.q>0 && meterB.q<0,
 assert(meterTotal.thdCurrent>0.05,
     "La corriente armónica de la segunda carga debe aparecer en la medida conjunta");
 console.log("OK: superposición de cargas R-L, capacitiva y armónica; P/Q₁ aditivas, S no aditiva.");
+
+
+// Dos cargas con quintos armónicos opuestos pueden cancelar su corriente
+// distorsionante en el punto común de conexión. La THD individual no es
+// aditiva y la THD conjunta debe calcularse sobre la corriente resultante.
+const cancellationA=t=>6*sin(t,-Math.PI/6)
+    +2*Math.SQRT2*Math.sin(5*omega*t);
+const cancellationB=t=>4*sin(t,Math.PI/6)
+    -2*Math.SQRT2*Math.sin(5*omega*t);
+const cancellationMeterA=measure(t=>230*sin(t),cancellationA);
+const cancellationMeterB=measure(t=>230*sin(t),cancellationB);
+const cancellationMeter=measure(t=>230*sin(t),t=>cancellationA(t)+cancellationB(t));
+assert(cancellationMeterA.thdCurrent>.2 && cancellationMeterB.thdCurrent>.2,
+    "Ambas cargas deben presentar distorsión armónica individual");
+assert(cancellationMeter.thdCurrent<.01,
+    "Los quintos armónicos opuestos deben cancelarse en la acometida");
+assert(Math.abs(cancellationMeter.p-cancellationMeterA.p-cancellationMeterB.p)<.2,
+    "La cancelación de armónicos no altera la aditividad de P");
+assert(Math.abs(cancellationMeter.q-cancellationMeterA.q-cancellationMeterB.q)<.2,
+    "La reactiva fundamental total debe ser suma algebraica de Q₁");
+assert(Math.abs(cancellationMeter.powerFactor-cancellationMeter.cosPhi)<.01,
+    "Con tensión y corriente totales sinusoidales FP y cosφ₁ deben coincidir");
+console.log("OK: cancelación de armónicos de quinto orden entre cargas distintas.");
