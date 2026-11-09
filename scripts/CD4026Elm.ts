@@ -21,6 +21,9 @@ export class CD4026Elm extends ChipElm {
     getVoltageSourceCount():number{return 0;}
     isDigitalChip():boolean{return false;}
     showPropertiesOnCreate():boolean{return false;}
+    // Match the small-grid CD4026 used by the supplied practice fixture (f=1).
+    // ChipElm otherwise inserts new chips at twice this scale.
+    useSmallGrid():boolean{return true;}
     setupPins():void {
         this.sizeX=5;this.sizeY=10;
         this.pins=new Array(16);
