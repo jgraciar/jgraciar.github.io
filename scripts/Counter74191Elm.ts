@@ -4,16 +4,15 @@ export class Counter74191Elm extends ChipElm {
  getChipName():string{return "74191";}
  getDumpType():number{return 1558;}
  getXmlDumpType():string{return "Counter74191";}
- getPostCount():number{return 15;}
+ getPostCount():number{return 14;}
  getVoltageSourceCount():number{return 6;}
  useSmallGrid():boolean{return true;}
  showPropertiesOnCreate():boolean{return false;}
  setupPins():void {
- this.sizeX=5;this.sizeY=9;this.pins=new Array(15);
+ this.sizeX=5;this.sizeY=9;this.pins=new Array(14);
  const add=(i:number,pos:number,side:number,name:string)=>this.pins[i]=new Pin(this,pos,side,name);
  ["L1","L2","L3","L4","CK","U/D","LD","EN"].forEach((n,i)=>add(i,i,ChipElm.SIDE_W,n));
  ["QA","QB","QC","QD","C","R"].forEach((n,i)=>{add(8+i,i,ChipElm.SIDE_E,n);this.pins[8+i].output=true;});
- add(14,8,ChipElm.SIDE_E,"NC");
  }
  execute():void {
  const clock=this.pins[4].value;
