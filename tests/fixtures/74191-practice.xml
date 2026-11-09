@@ -1,0 +1,5 @@
+<cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11">
+<Counter74191 x="480 192 560 192" f="1"/>
+<x x="80 48 80 48" f="0" si="20" te="74191 - contador binario sincrono ascendente/descendente"/>
+<x x="80 80 80 80" f="0" si="14" te="LD y EN activos a nivel bajo. U/D: 0 ascendente, 1 descendente. L1-L4: carga paralela."/>
+</cir>
