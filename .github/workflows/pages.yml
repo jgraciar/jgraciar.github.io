@@ -88,6 +88,9 @@ jobs:
           test -s site-root/circuitjs/about.html
           test -s site-root/LICENSE-GPLv3.txt
           test -s site-root/COPYING-CircuitJS.txt
+          test -s site-root/circuits/cd4026-practice.xml
+          ! test -e site-root/circuits/cd4026-practice-textbook.xml
+          ! grep -q 'cd4026-practice-textbook.xml' site-root/setuplist.txt
 
       - name: Instalar Chromium para prueba funcional
         working-directory: adaptacion/tests
