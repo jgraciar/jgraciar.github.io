@@ -18,7 +18,9 @@ export class Counter7493Elm extends ChipElm {
  execute():void {
  const a=this.pins[0].value,b=this.pins[1].value;
  if(this.pins[2].value&&this.pins[3].value)this.count=0;
- else {if(this.prevA&&!a)this.count^=1;if(this.prevB&&!b)this.count=(this.count&1)|(((((this.count>>1)+1)&7)<<1));}
+ else {if(this.prevA&&!a)this.count^=1;
+ // CK2 controla la cadena de tres biestables; QA puede realimentarlo externamente.
+ if(this.prevB&&!b)this.count=(this.count&1)|(((((this.count>>1)+1)&7)<<1));}
  this.prevA=a;this.prevB=b;
  for(let i=0;i<4;i++)this.pins[i+4].value=!!(this.count&(1<<i));
  }
