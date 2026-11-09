@@ -18,9 +18,15 @@ function advance(t,y){
   return y.map((x,j)=>x+dt*(a[j]+2*b[j]+2*c[j]+d[j])/6);
 }
 let state=[0,0],sumV=0,sumGrid=0,sumCap=0,sumSource=0,count=0;
+let suppliedEnergy=0,resistiveLoss=0;
 for(let n=0;n<Math.round(tEnd/dt);n++){
   const t=n*dt;
+  const previous=state;
   state=advance(t,state);
+  const tNext=t+dt;
+  // Integración trapezoidal del balance de energía desde el arranque.
+  suppliedEnergy+=dt*(previous[1]*source(t)+state[1]*source(tNext))/2;
+  resistiveLoss+=dt*R*(previous[0]**2+state[0]**2)/2;
   if(t>=tEnd-.04){
     const [i,v]=state;
     const ic=source(t)-i;
@@ -48,3 +54,11 @@ close("Corriente condensador",rms(sumCap),expectedCap);
 assert.ok(rms(sumGrid)>I && rms(sumCap)>I,
   "La resonancia debe amplificar las corrientes de ambas ramas");
 console.log("OK: integración temporal RK4 del nudo R-L/C a 250 Hz.");
+
+const storedEnergy=.5*L*state[0]**2+.5*C*state[1]**2;
+const energyResidual=suppliedEnergy-resistiveLoss-storedEnergy;
+assert.ok(Math.abs(energyResidual)<Math.max(.02,Math.abs(suppliedEnergy)*.003),
+  `Balance energético R-L-C incorrecto: residual ${energyResidual} J`);
+assert.ok(suppliedEnergy>0 && resistiveLoss>0,
+  "La fuente debe aportar energía y la resistencia disiparla");
+console.log("OK: conservación de energía en transitorio R-L-C (fuente, pérdidas y almacenamiento).");
