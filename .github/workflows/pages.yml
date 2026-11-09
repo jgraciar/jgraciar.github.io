@@ -67,6 +67,7 @@ jobs:
           node --experimental-strip-types adaptacion/tests/verify-edit-dialog-titles.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-about-and-draw-locales.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-nonlinear-presets.mjs circuitjs-src/ts
+          node --experimental-strip-types adaptacion/tests/verify-six-pulse-static.mjs circuitjs-src/ts
 
       - name: Compilar circuitjgr.html como entrada real
         working-directory: circuitjs-src/ts
@@ -99,6 +100,7 @@ jobs:
           node adaptacion/tests/verify-circuitjgr-elements.mjs
           node adaptacion/tests/verify-nonlinear-presets-ui.mjs
           node adaptacion/tests/verify-nonlinear-units-ui.mjs
+          node adaptacion/tests/verify-six-pulse-ui.mjs
           node adaptacion/tests/verify-edit-regional-ui.mjs
 
       - name: Preparar GitHub Pages
