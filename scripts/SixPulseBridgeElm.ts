@@ -43,24 +43,25 @@ export class SixPulseBridgeElm extends CompositeElm {
     private rebuild():void{
         if(!Number.isFinite(this.resistance)||this.resistance<=0||
            !Number.isFinite(this.capacitance)||this.capacitance<=0||
-           !Number.isFinite(this.seriesResistance)||this.seriesResistance<0||
+           !Number.isFinite(this.seriesResistance)||this.seriesResistance<=0||
            !Number.isInteger(this.units)||this.units<1||this.units>SixPulseBridgeElm.maxUnits)
             throw Error("Parámetros no válidos del rectificador trifásico");
         const r=this.resistance/this.units;
         const c=this.capacitance*this.units;
         const rs=this.seriesResistance/this.units;
         if(!(Number.isFinite(r)&&r>0&&Number.isFinite(c)&&c>0&&
-             Number.isFinite(rs)&&rs>=0))
+             Number.isFinite(rs)&&rs>0))
             throw Error("Parámetros equivalentes fuera de rango");
 
         // Nodos 1/2/3: entradas L1/L2/L3; 4: DC+; 5: DC-.
         // Diodos superiores fase->DC+; inferiores DC-->fase.
         // Rs en cada fase, nunca una resistencia común en el bus CC.
-        const withRs=this.seriesResistance>0;
-        const phases=withRs?[6,7,8]:[1,2,3];
+        // Siempre hay impedancia de entrada en las tres fases. Con Rs=0
+        // las fuentes ideales pueden causar singularidades numéricas y
+        // tensiones no físicas en el condensador del bus CC.
+        const phases=[6,7,8];
         const entries:string[]=[];
-        if(withRs)
-            for(let k=0;k<3;k++)entries.push("ResistorElm "+(k+1)+" "+phases[k]);
+        for(let k=0;k<3;k++)entries.push("ResistorElm "+(k+1)+" "+phases[k]);
         for(const phase of phases)entries.push("DiodeElm "+phase+" 4");
         for(const phase of phases)entries.push("DiodeElm 5 "+phase);
         entries.push("CapacitorElm 4 5","ResistorElm 4 5");
@@ -68,7 +69,7 @@ export class SixPulseBridgeElm extends CompositeElm {
         for(let k=0;k<this.compElmList.length;k++){
             const elm=this.compElmList[k];
             if(elm instanceof ResistorElm)
-                elm.resistance=withRs&&k<3?rs:r;
+                elm.resistance=k<3?rs:r;
             if(elm instanceof CapacitorElm){
                 elm.capacitance=c;
                 elm.seriesResistance=0;
@@ -111,11 +112,8 @@ export class SixPulseBridgeElm extends CompositeElm {
     }
     private phaseCurrent(phase:number):number{
         if(phase<0||phase>2)return 0;
-        if(this.seriesResistance>0)
-            return this.compElmList[phase]?.getCurrent()??0;
-        // I = corriente hacia el bus positivo menos la que retorna del bus negativo.
-        return (this.compElmList[phase]?.getCurrent()??0)-
-               (this.compElmList[phase+3]?.getCurrent()??0);
+        // Los tres primeros componentes son las resistencias de entrada.
+        return this.compElmList[phase]?.getCurrent()??0;
     }
     getCurrent():number{return this.phaseCurrent(0);}
     // Métodos de medición de la API pública, sin exponer la estructura interna
@@ -165,7 +163,7 @@ export class SixPulseBridgeElm extends CompositeElm {
     getEditInfo(n:number):EditInfo|null{
         if(n===0)return new EditInfo(Locale.LS("Resistencia de carga R (Ω)"),this.resistance,0,0);
         if(n===1)return new EditInfo(Locale.LS("Condensador de filtrado C (F)"),this.capacitance,0,0);
-        if(n===2)return new EditInfo(Locale.LS("Resistencia serie de entrada Rs (Ω)"),this.seriesResistance,0,0);
+        if(n===2)return new EditInfo(Locale.LS("Resistencia serie de entrada Rs (Ω)"),this.seriesResistance,0,0).setPositive();
         if(n===3)return new EditInfo(Locale.LS("Número de unidades (en paralelo)"),
             this.units,1,SixPulseBridgeElm.maxUnits).setInteger().setPositive().disallowSliders();
         return null;
@@ -180,8 +178,8 @@ export class SixPulseBridgeElm extends CompositeElm {
             if(value===this.units)return;
             this.units=value;
         }else{
-            if(!Number.isFinite(value)||value<0||(n!==2&&value===0)){
-                ei.setError(Locale.LS(n===2?"must be >= 0":"must be > 0"));return;
+            if(!Number.isFinite(value)||value<=0){
+                ei.setError(Locale.LS("must be > 0"));return;
             }
             const old=[this.resistance,this.capacitance,this.seriesResistance][n];
             if(value===old)return;

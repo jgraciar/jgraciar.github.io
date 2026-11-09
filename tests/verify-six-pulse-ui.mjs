@@ -160,7 +160,8 @@ try{
   "La potencia trifásica no escala con N: "+powerRatio);
  console.log("OK N=4: relación de corriente",currentRatio,
   "relación de potencia",powerRatio);
- // Probar topología sin resistencias Rs de las fases.
- await runCase({units:1,rs:0});
+ // Comprobar la estabilidad de la topología con resistencia de fase pequeña.
+ // Rs=0 se rechaza por producir una red ideal numéricamente singular.
+ await runCase({units:1,rs:0.1});
  assert.deepEqual(errors,[],"Errores JavaScript: "+errors.join("; "));
 }finally{await browser.close();}
