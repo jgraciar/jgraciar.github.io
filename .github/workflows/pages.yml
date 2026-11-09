@@ -44,6 +44,7 @@ jobs:
       - name: Pruebas numéricas de los componentes propios
         run: |
           node --experimental-strip-types adaptacion/tests/lab-power-measurement.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-cd4026.test.mjs
           node adaptacion/tests/lab-resonance-transient.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-impedance.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-pv-inverter.test.mjs
@@ -62,6 +63,7 @@ jobs:
           node adaptacion/scripts/patch-wattmeter-powers.mjs circuitjs-src/ts/WattmeterTrueElm.ts adaptacion/scripts/LabPowerMeasurement.ts
           node adaptacion/scripts/patch-impedance.mjs circuitjs-src/ts adaptacion/scripts/ImpedanceElm.ts adaptacion/scripts/LabImpedance.ts
           node adaptacion/scripts/patch-pv-inverter.mjs circuitjs-src/ts adaptacion/scripts/PVInverterElm.ts adaptacion/scripts/LabPVInverter.ts
+          node adaptacion/scripts/patch-cd4026.mjs circuitjs-src/ts
           node adaptacion/scripts/patch-lab-localization.mjs circuitjs-src/ts adaptacion/scripts/LabTranslations.ts
           node adaptacion/scripts/prepare-circuits-jgr.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-edit-regional-numbers.mjs circuitjs-src/ts
@@ -104,6 +106,7 @@ jobs:
           node adaptacion/tests/verify-nonlinear-units-ui.mjs
           node adaptacion/tests/verify-six-pulse-ui.mjs
           node adaptacion/tests/verify-wattmeter-ui.mjs
+          node adaptacion/tests/verify-cd4026-ui.mjs
 
       - name: Preparar GitHub Pages
         uses: actions/configure-pages@v5
