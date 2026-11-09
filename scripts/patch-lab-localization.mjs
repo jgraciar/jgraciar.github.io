@@ -16,6 +16,7 @@ copyFileSync(join(dirname(translations),"CircuitJsGeneralOptions.ts"),join(dir,"
 copyFileSync(join(dirname(translations),"CircuitJsEditDialogTitles.ts"),join(dir,"CircuitJsEditDialogTitles.ts"));
 copyFileSync(join(dirname(translations),"CircuitJsEditNumbers.ts"),join(dir,"CircuitJsEditNumbers.ts"));
 copyFileSync(join(dirname(translations),"CircuitJsNonlinearPresets.ts"),join(dir,"CircuitJsNonlinearPresets.ts"));
+copyFileSync(join(dirname(translations),"CircuitJsSixPulseTranslations.ts"),join(dir,"CircuitJsSixPulseTranslations.ts"));
 function once(path,oldText,newText){
  const src=readFileSync(path,"utf8");
  if(src.split(oldText).length!==2)

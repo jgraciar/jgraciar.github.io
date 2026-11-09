@@ -14,23 +14,25 @@ const replaceOnce=(path,oldValue,newValue)=>{
 copyFileSync(elmSource,join(dir,"ImpedanceElm.ts"));
 copyFileSync(mathSource,join(dir,"LabImpedance.ts"));
 copyFileSync(join(elmSource,"..","FilteredBridgeElm.ts"),join(dir,"FilteredBridgeElm.ts"));
+copyFileSync(join(elmSource,"..","SixPulseBridgeElm.ts"),join(dir,"SixPulseBridgeElm.ts"));
 const registry=join(dir,"registerElements.ts");
 replaceOnce(registry,'import { ResistorElm } from "./ResistorElm";',
-    'import { ResistorElm } from "./ResistorElm";\nimport { ImpedanceElm } from "./ImpedanceElm";\nimport { FilteredBridgeElm } from "./FilteredBridgeElm";');
+    'import { ResistorElm } from "./ResistorElm";\nimport { ImpedanceElm } from "./ImpedanceElm";\nimport { FilteredBridgeElm } from "./FilteredBridgeElm";\nimport { SixPulseBridgeElm } from "./SixPulseBridgeElm";');
 replaceOnce(registry,
     '    ElementFactory.registerClass("ResistorElm", ResistorElm as any);',
     '    ElementFactory.registerClass("ResistorElm", ResistorElm as any);\n'+
-    '    ElementFactory.registerClass("ImpedanceElm", ImpedanceElm as any);\n    ElementFactory.registerClass("FilteredBridgeElm", FilteredBridgeElm as any);');
+    '    ElementFactory.registerClass("ImpedanceElm", ImpedanceElm as any);\n    ElementFactory.registerClass("FilteredBridgeElm", FilteredBridgeElm as any);\n    ElementFactory.registerClass("SixPulseBridgeElm", SixPulseBridgeElm as any);');
 replaceOnce(registry,
     '    CirSim.theApp.register("ResistorElm", new ResistorElm(0, 0));',
     '    CirSim.theApp.register("ResistorElm", new ResistorElm(0, 0));\n'+
-    '    CirSim.theApp.register("ImpedanceElm", new ImpedanceElm(0, 0));\n    CirSim.theApp.register("FilteredBridgeElm", new FilteredBridgeElm(0, 0));');
+    '    CirSim.theApp.register("ImpedanceElm", new ImpedanceElm(0, 0));\n    CirSim.theApp.register("FilteredBridgeElm", new FilteredBridgeElm(0, 0));\n    CirSim.theApp.register("SixPulseBridgeElm", new SixPulseBridgeElm(0, 0));');
 const menus=join(dir,"Menus.ts");
 replaceOnce(menus,
     '            "Add Inductor",                 "InductorElm",',
     '            "Add Inductor",                 "InductorElm",\n'+
     '            "Añadir impedancia Z (CA, RLC serie)", "ImpedanceElm",\n'+
-    '            "Carga no lineal: puente rectificador con filtro C", "FilteredBridgeElm",');
+    '            "Carga no lineal: puente rectificador con filtro C", "FilteredBridgeElm",\n'+
+    '            "Carga no lineal: rectificador trifásico de 6 pulsos", "SixPulseBridgeElm",');
 // Un error por alimentación exclusivamente CC detiene el motor de CircuitJS.
 // Al importar otro circuito, reanudar únicamente si la parada fue provocada
 // por nuestra Z: nunca ocultar paradas del resto de elementos.

@@ -6,6 +6,7 @@ import {scopeOptionKeys,scopeOptionTranslations} from "./CircuitJsScopeOptions.t
 import {generalOptionKeys,generalOptionTranslations} from "./CircuitJsGeneralOptions.ts";
 import {componentEditDialogLabels} from "./CircuitJsEditDialogTitles.ts";
 import {nonlinearPresetKeys,nonlinearPresetTranslations} from "./CircuitJsNonlinearPresets.ts";
+import {sixPulseKeys,sixPulseTranslations} from "./CircuitJsSixPulseTranslations.ts";
 // Traducciones añadidas para los componentes propios del Laboratorio.
 // Las claves originales de CircuitJS se conservan en sus catálogos oficiales.
 // Catálogos adicionales incorporados directamente para compatibilidad con Node y TypeScript.
@@ -427,6 +428,12 @@ for(const code of labLanguageCodes){
   if(!text||text.length!==nonlinearPresetKeys.length)
     throw Error("Traducciones incompletas de cargas no lineales: "+code);
   nonlinearPresetKeys.forEach((key,index)=>dictionaries[code].set(key,text[index]));
+}
+for(const code of labLanguageCodes){
+ const values=sixPulseTranslations[code];
+ if(!values||values.length!==sixPulseKeys.length)
+  throw Error("Traducciones de rectificador trifásico incompletas: "+code);
+ sixPulseKeys.forEach((key,index)=>dictionaries[code].set(key,values[index]));
 }
 export function labTranslation(language:string,key:string):string|null{
  const normalized=language.toLowerCase().replace(/_/g,"-");
