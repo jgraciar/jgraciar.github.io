@@ -268,3 +268,27 @@ assert(Math.abs(parallelUnits.s**2-parallelUnits.p**2-parallelUnits.q**2
     -parallelUnits.distortionResidual**2)<parallelUnits.s**2*0.002,
     "El residual de distorsión debe cerrar el balance cuadrático S²=P²+Q₁²+D*²");
 console.log("OK: escalado de 7 cargas armónicas en paralelo y balance P/Q₁/S/D*.");
+
+
+// Superposición de cargas DIFERENTES en un mismo punto de medida.
+// P y Q₁ son aditivas; S no lo es en general porque depende de la
+// corriente eficaz de la suma y no de la suma de valores eficaces.
+const loadA=t=>8*sin(t,-Math.PI/4);
+const loadB=t=>3*sin(t,Math.PI/3)+2*Math.SQRT2*Math.sin(5*omega*t);
+const meterA=measure(t=>230*sin(t),loadA);
+const meterB=measure(t=>230*sin(t),loadB);
+const meterTotal=measure(t=>230*sin(t),t=>loadA(t)+loadB(t));
+for(const field of ["p","q","harmonicPower"]){
+    const expected=meterA[field]+meterB[field];
+    assert(Math.abs(meterTotal[field]-expected)<Math.max(.1,Math.abs(expected)*.003),
+        field+": la lectura de cargas distintas debe sumar algebraicamente");
+}
+assert(meterTotal.s < meterA.s+meterB.s-1,
+    "No se deben sumar potencias aparentes escalares de cargas diferentes");
+assert(Math.abs(meterTotal.powerFactor-meterTotal.p/meterTotal.s)<1e-9,
+    "El FP conjunto debe calcularse desde las potencias conjuntas");
+assert(meterTotal.q>0 && meterB.q<0,
+    "La reactiva capacitiva debe compensar parcialmente la inductiva");
+assert(meterTotal.thdCurrent>0.05,
+    "La corriente armónica de la segunda carga debe aparecer en la medida conjunta");
+console.log("OK: superposición de cargas R-L, capacitiva y armónica; P/Q₁ aditivas, S no aditiva.");
