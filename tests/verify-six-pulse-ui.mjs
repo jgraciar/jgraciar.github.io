@@ -47,7 +47,8 @@ try{
    const begin=sim.getTime();
    const start=Math.ceil((begin+1e-5)*50)/50;
    const end=start+0.06; // tres periodos completos
-   const data={count:0,duration:0,i2:[0,0,0],p:0,udc:0,
+   const data={count:0,duration:0,i2:[0,0,0],v2:[0,0,0],
+     cross:[[0,0,0],[0,0,0],[0,0,0]],p:0,udc:0,
      maxKcl:0,maxI:0,finite:true,onePhase:[]};
    let prev=begin;
    const original=sim.ontimestep;
@@ -60,7 +61,11 @@ try{
     const udc=bridge.getDcVoltage();
     if(![...i,...v,udc].every(Number.isFinite)){data.finite=false;return;}
     data.count++;data.duration+=dt;
-    for(let k=0;k<3;k++)data.i2[k]+=dt*i[k]*i[k];
+    for(let k=0;k<3;k++){
+      data.i2[k]+=dt*i[k]*i[k];
+      data.v2[k]+=dt*v[k]*v[k];
+      for(let m=0;m<3;m++)data.cross[k][m]+=dt*v[k]*i[m];
+    }
     data.p+=dt*i.reduce((sum,x,k)=>sum+x*v[k],0);
     data.udc+=dt*udc;
     const sum=i.reduce((a,b)=>a+b,0);
@@ -81,6 +86,8 @@ try{
    const result={
     phases:bridge.getPostCount(),count:data.count,valid:data.finite,
     duration:data.duration,iRms:data.i2.map(x=>Math.sqrt(x/data.duration)),
+    vRms:data.v2.map(x=>Math.sqrt(x/data.duration)),
+    cross:data.cross.map(row=>row.map(x=>x/data.duration)),
     power:data.p/data.duration,udc:data.udc/data.duration,
     kcl:data.maxKcl,imax:data.maxI,attrs,info,
     postExport:sim.exportCircuit(),
@@ -112,6 +119,10 @@ try{
    "La suma instantánea de corrientes trifásicas no es cero: "+JSON.stringify(res));
   assert(Number.isFinite(res.udc)&&res.udc>350&&res.udc<610,
    "Tensión del bus CC fuera del intervalo físico: "+JSON.stringify(res));
+  console.log("Diagnóstico potencia trifásica",JSON.stringify({
+   units,rs,p:res.power,vrms:res.vRms,
+   correlations:res.cross,udc:res.udc,iRms:res.iRms,
+   pDcEstimated:res.udc*res.udc/(470/units)}));
   assert(Number.isFinite(res.power)&&Math.abs(res.power)>100,
    "Potencia trifásica demasiado pequeña: "+JSON.stringify(res));
   assert(res.h1>res.h3&&res.h1>res.h5&&res.h1>res.h7,
