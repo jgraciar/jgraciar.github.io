@@ -447,3 +447,31 @@ const resonancePeak=[...Array(81)].map((_,k)=>1+k*.1)
 assert(resonancePeak.h>4.5 && resonancePeak.h<5.5,
     "El máximo amortiguado debe quedar próximo al quinto armónico");
 console.log("OK: KCL fasorial de la resonancia y desplazamiento de frecuencia por desintonización.");
+
+
+// Contraste en dominio temporal de la solución fasorial de resonancia.
+// Se reconstruyen las ondas de U₅ e I₅ de cada rama y se pasan por el
+// mismo motor de medidas del vatímetro (LabPowerMeasurement). No sustituye
+// una prueba transitoria del solver R-L-C de CircuitJS.
+const harmonicSignal=(phasor,t)=>Math.SQRT2*
+    (phasor.re*Math.cos(5*omega*t)-phasor.im*Math.sin(5*omega*t));
+const gridPhasor=multiplyComplex(v5,yGrid);
+const capacitorPhasor=multiplyComplex(v5,yCap);
+const gridWave=measure(t=>harmonicSignal(v5,t),
+    t=>harmonicSignal(gridPhasor,t),.75,"ac");
+const capacitorWave=measure(t=>harmonicSignal(v5,t),
+    t=>harmonicSignal(capacitorPhasor,t),.75,"ac");
+const injectedWave=measure(t=>harmonicSignal(v5,t),
+    t=>harmonicSignal(injected,t),.75,"ac");
+assert.equal(gridWave.kind,"ac");
+assert.equal(capacitorWave.kind,"ac");
+assert.equal(injectedWave.kind,"ac");
+assert(Math.abs(gridWave.p-gridR*absComplex(gridPhasor)**2)<1,
+    "La potencia disipada en la resistencia de red debe ser R·I²");
+assert(Math.abs(capacitorWave.p)<1,
+    "La potencia activa del condensador ideal debe ser cero");
+assert(Math.abs(gridWave.p+capacitorWave.p-injectedWave.p)<1,
+    "El balance temporal de potencia activa debe cumplir Kirchhoff");
+assert(Math.abs(gridWave.q+capacitorWave.q-injectedWave.q)<1,
+    "El balance temporal de potencia reactiva debe cumplir Kirchhoff a 250 Hz");
+console.log("OK: contraste temporal de ramas R-L/C con medidas P y Q del vatímetro.");
