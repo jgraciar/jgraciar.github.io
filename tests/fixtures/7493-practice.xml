@@ -1,5 +1,16 @@
 <cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11">
 <Counter7493 x="480 192 544 192" f="1"/>
+<R x="320 192 288 192" f="0" wf="0" maxv="5"/>
+<w x="320 192 480 192" f="0"/>
+<w x="560 192 624 192" f="0"/>
+<w x="624 192 624 320" f="0"/>
+<w x="624 320 448 320" f="0"/>
+<w x="448 320 448 224" f="0"/>
+<w x="448 224 480 224" f="0"/>
+<g x="448 256 448 272" f="0"/>
+<w x="448 256 480 256" f="0"/>
+<w x="448 256 448 288" f="0"/>
+<w x="448 288 480 272" f="0"/>
 <x x="80 48 80 48" f="0" si="20" te="7493 - contador binario asincrono de 4 bits"/>
-<x x="80 80 80 80" f="0" si="14" te="CK1: reloj de entrada; conectar QA a CK2 para contar de 0 a 15. R1 y R2 a nivel alto: puesta a cero."/>
+<x x="80 80 80 80" f="0" si="14" te="Reloj CK1, QA conectado a CK2. R1 y R2 a nivel bajo. Salidas QA-QD de 0 a 15."/>
 </cir>
