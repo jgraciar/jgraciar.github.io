@@ -406,3 +406,44 @@ assert(gridFifthCurrent>injectedFifthRms &&
     "En resonancia pueden circular corrientes de rama mayores que la inyectada");
 assert(Math.abs(nodeFifthRms-z5*injectedFifthRms)<1e-10);
 console.log("OK: referencia de resonancia paralelo R-L de red / C, quinto armónico.");
+
+
+// Validación fasorial independiente de las ramas R-L y C del nudo.
+// La ley de Kirchhoff se aplica a fasores COMPLEJOS: sumar únicamente
+// los módulos de las intensidades daría un resultado incorrecto.
+const complex=(re,im)=>({re,im});
+const addComplex=(a,b)=>complex(a.re+b.re,a.im+b.im);
+const multiplyComplex=(a,b)=>complex(a.re*b.re-a.im*b.im,a.re*b.im+a.im*b.re);
+const absComplex=a=>Math.hypot(a.re,a.im);
+const nodalAdmittance=(h,c)=>{
+    const x=h*omega*gridL,denom=gridR**2+x**2;
+    return complex(gridR/denom,h*omega*c-x/denom);
+};
+const injected=complex(injectedFifthRms,0);
+const y5=nodalAdmittance(5,gridC);
+const v5=complex(
+    injectedFifthRms*y5.re/(absComplex(y5)**2),
+    -injectedFifthRms*y5.im/(absComplex(y5)**2));
+const yGrid=complex(gridR/(gridR**2+(5*omega*gridL)**2),
+    -5*omega*gridL/(gridR**2+(5*omega*gridL)**2));
+const yCap=complex(0,5*omega*gridC);
+const branchSum=addComplex(multiplyComplex(v5,yGrid),multiplyComplex(v5,yCap));
+assert(absComplex(complex(branchSum.re-injected.re,branchSum.im-injected.im))<1e-10,
+    "Las corrientes fasoriales de red y condensador deben satisfacer KCL");
+assert(Math.abs(absComplex(v5)-nodeFifthRms)<1e-10,
+    "La solución fasorial y la impedancia nodal deben coincidir");
+
+// Un banco desintonizado debe desplazar el pico de impedancia fuera de h=5.
+// La desintonización NO implica por sí sola una instalación segura: hay que
+// comprobar el espectro real y los límites térmicos de los componentes.
+const detunedC=gridC*.65;
+const detunedImpedance=h=>1/absComplex(nodalAdmittance(h,detunedC));
+const detunedFifth=detunedImpedance(5);
+assert(detunedFifth<z5*.35,
+    "Al desplazar la resonancia debe reducirse la impedancia en 250 Hz");
+const resonancePeak=[...Array(81)].map((_,k)=>1+k*.1)
+    .reduce((best,h)=>nodeImpedance(h)>best.z?{h,z:nodeImpedance(h)}:best,
+        {h:0,z:0});
+assert(resonancePeak.h>4.5 && resonancePeak.h<5.5,
+    "El máximo amortiguado debe quedar próximo al quinto armónico");
+console.log("OK: KCL fasorial de la resonancia y desplazamiento de frecuencia por desintonización.");
