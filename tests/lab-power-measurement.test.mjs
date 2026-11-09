@@ -242,3 +242,29 @@ assert(Math.abs(halfWave.powerFactor-1/Math.SQRT2)<.03,
 assert(halfWave.powerFactor<halfWave.cosPhi-.2,
     "No se debe confundir cosφ₁ con el factor de potencia real");
 console.log("OK: referencia analítica de carga no lineal, rectificador ideal de media onda.");
+
+
+// Regresión de instalaciones con N equipos no lineales idénticos en paralelo:
+// las corrientes y potencias extensivas se multiplican por N, mientras que
+// THD, cosφ₁ y factor de potencia permanecen invariantes.
+const nonlinearUnits=7;
+const unitCurrent=t=>5*sin(t,-Math.PI/6)
+    +2*Math.SQRT2*Math.sin(5*omega*t)
+    +Math.SQRT2*Math.sin(7*omega*t);
+const singleUnit=measure(t=>230*sin(t),unitCurrent);
+const parallelUnits=measure(t=>230*sin(t),t=>nonlinearUnits*unitCurrent(t));
+for(const field of ["p","q","s","harmonicPower","distortionResidual"]){
+    const expected=nonlinearUnits*singleUnit[field];
+    assert(Math.abs(parallelUnits[field]-expected)<Math.max(0.05,Math.abs(expected)*0.002),
+        field+": el escalado de "+nonlinearUnits+" equipos debe ser lineal");
+}
+for(const field of ["cosPhi","powerFactor","thdCurrent","thdVoltage"]){
+    assert(Math.abs(parallelUnits[field]-singleUnit[field])<0.002,
+        field+": magnitud adimensional no debe cambiar al duplicar equipos idénticos");
+}
+assert(Math.abs(parallelUnits.powerFactor-parallelUnits.p/parallelUnits.s)<1e-9,
+    "El factor de potencia real debe ser P/S también con varias unidades");
+assert(Math.abs(parallelUnits.s**2-parallelUnits.p**2-parallelUnits.q**2
+    -parallelUnits.distortionResidual**2)<parallelUnits.s**2*0.002,
+    "El residual de distorsión debe cerrar el balance cuadrático S²=P²+Q₁²+D*²");
+console.log("OK: escalado de 7 cargas armónicas en paralelo y balance P/Q₁/S/D*.");
