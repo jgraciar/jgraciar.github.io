@@ -44,6 +44,7 @@ jobs:
       - name: Pruebas numéricas de los componentes propios
         run: |
           node --experimental-strip-types adaptacion/tests/lab-power-measurement.test.mjs
+          node adaptacion/tests/lab-resonance-transient.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-impedance.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-pv-inverter.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-pv-catalog-inverter.test.mjs
