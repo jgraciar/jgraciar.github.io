@@ -24,6 +24,8 @@ assert.equal(labTranslation("ca-es-valencia",sixPulseKeys[0]),
  "Càrrega no lineal: rectificador trifàsic de 6 polsos");
 assert(source.includes('getXmlDumpType():string{return "SixPulseBridge";}'));
 assert(source.includes("getDumpType():number{return 1555;}"));
+assert(source.includes("!Number.isFinite(this.seriesResistance)||this.seriesResistance<=0"),
+ "Rs debe ser estrictamente positiva para evitar una conexión ideal inestable");
 assert(source.includes('this.loadComposite(null,entries.join("\\r"),[1,2,3])'),
  "El modelo debe tener exactamente tres fases de entrada");
 for(const fragment of [

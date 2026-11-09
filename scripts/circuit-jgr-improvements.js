@@ -210,13 +210,38 @@
       "시뮬레이터 시작 시 교육용 3상 회로를 불러옵니다."
     ]
   };
+  const nonlinearImprovements = {
+    "en": "Nonlinear loads: configurable single-phase bridge with LED and computer power-supply examples without PFC, unit multiplier and three-phase six-pulse rectifier for drive input stages (without inverter or motor).",
+    "es": "Cargas no lineales: puente monofásico configurable con ejemplos de LED y fuentes de ordenador sin PFC, multiplicador de unidades y rectificador trifásico de seis pulsos para la entrada de variadores (sin inversor ni motor).",
+    "ca-es-valencia": "Càrregues no lineals: pont monofàsic configurable amb exemples de LED i fonts d'alimentació d'ordinador sense PFC, multiplicador d'unitats i rectificador trifàsic de sis polsos per a l'entrada dels variadors (sense inversor ni motor).",
+    "ca": "Càrregues no lineals: pont monofàsic configurable amb exemples de LED i fonts d'alimentació d'ordinador sense PFC, multiplicador d'unitats i rectificador trifàsic de sis polsos per a l'entrada dels variadors (sense inversor ni motor).",
+    "gl": "Cargas non lineais: ponte monofásica configurable con exemplos LED e fontes de ordenador sen PFC, multiplicador de unidades e rectificador trifásico de seis pulsos para a entrada dos variadores (sen inversor nin motor).",
+    "eu": "Karga ez-linealak: PFCrik gabeko LED eta ordenagailu-iturrien adibideak dituen zubi monofasiko konfiguragarria, unitate-biderkatzailea eta sei pultsuko zuzentzaile trifasikoa eragingailuen sarreran (inbertsorerik eta motorrik gabe).",
+    "de": "Nichtlineare Lasten: konfigurierbare einphasige Gleichrichterbrücke mit LED- und PC-Netzteilbeispielen ohne PFC, Gerätemultiplikator und dreiphasiger Sechspuls-Gleichrichter als Eingangsstufe von Antrieben (ohne Wechselrichter und Motor).",
+    "fr": "Charges non linéaires : pont monophasé configurable avec exemples de LED et alimentations d'ordinateur sans PFC, multiplicateur d'appareils et redresseur triphasé à six impulsions pour l'entrée des variateurs (sans onduleur ni moteur).",
+    "it": "Carichi non lineari: ponte monofase configurabile con esempi LED e alimentatori per computer senza PFC, moltiplicatore delle unità e raddrizzatore trifase a sei impulsi per l'ingresso degli azionamenti (senza inverter o motore).",
+    "pt": "Cargas não lineares: ponte monofásica configurável com exemplos LED e fontes de computador sem PFC, multiplicador de unidades e retificador trifásico de seis pulsos para a entrada dos variadores (sem inversor nem motor).",
+    "nl": "Niet-lineaire belastingen: instelbare eenfasige gelijkrichterbrug met LED- en computervoedingvoorbeelden zonder PFC, vermenigvuldiging van eenheden en driefasige zespulsgelijkrichter voor aandrijvingen (zonder omvormer of motor).",
+    "sv": "Icke-linjära laster: konfigurerbar enfasig likriktarbrygga med LED- och datornätaggregat utan PFC, multiplikator för antal enheter samt trefasig sexpuls-likriktare för frekvensomriktarens ingång (utan växelriktare och motor).",
+    "da": "Ikke-lineære belastninger: konfigurerbar enfaset ensretterbro med LED- og computerforsyningseksempler uden PFC, multiplikator for antal enheder og trefaset sekspuls-ensretter til frekvensomformerens indgang (uden inverter og motor).",
+    "nb": "Ikke-lineære laster: konfigurerbar enfaset likeretterbro med LED- og datamaskinstrømforsyningseksempler uten PFC, multiplikator for antall enheter og trefaset sekspuls-likeretter på frekvensomformerens inngang (uten vekselretter og motor).",
+    "fi": "Epälineaariset kuormat: säädettävä yksivaiheinen tasasuuntaussilta LED- ja tietokonevirtalähde-esimerkeillä ilman PFC:tä, yksikkökertoimella sekä kolmivaiheinen kuusipulssitasasuuntaaja taajuusmuuttajan tuloon (ilman vaihtosuuntaajaa ja moottoria).",
+    "pl": "Obciążenia nieliniowe: konfigurowalny mostek jednofazowy z przykładami LED i zasilaczy komputerowych bez PFC, mnożnik liczby urządzeń i trójfazowy prostownik sześciopulsowy na wejściu napędu (bez falownika i silnika).",
+    "csx": "Nelineární zátěže: nastavitelný jednofázový usměrňovací můstek s příklady LED a počítačových zdrojů bez PFC, násobičem počtu jednotek a třífázový šestipulzní usměrňovač pro vstup pohonů (bez střídače a motoru).",
+    "ru": "Нелинейные нагрузки: настраиваемый однофазный диодный мост с примерами светодиодных устройств и компьютерных блоков питания без PFC, множителем числа устройств и трёхфазный шестипульсный выпрямитель для входа преобразователя частоты (без инвертора и двигателя).",
+    "zh": "非线性负载：可配置单相整流桥，包含无 PFC 的 LED 与计算机电源示例、设备数量倍增功能，以及用于变频器输入级的三相六脉波整流器（不含逆变器和电动机）。",
+    "zh-tw": "非線性負載：可設定單相整流橋，包含無 PFC 的 LED 與電腦電源範例、設備數量倍增功能，以及用於變頻器輸入級的三相六脈波整流器（不含逆變器和馬達）。",
+    "ja": "非線形負荷：PFCなしのLEDとパソコン電源の例を備えた設定可能な単相整流ブリッジ、台数倍率の設定、インバーター入力部向けの三相6パルス整流器（インバーター本体とモーターは含まない）。",
+    "kr": "비선형 부하: PFC 없는 LED 및 컴퓨터 전원공급장치 예제를 갖춘 단상 브리지 정류기, 기기 수 배율 설정, 주파수 변환기 입력단용 3상 6펄스 정류기(인버터 및 모터 제외)."
+  };
   const strings=changes[lang]||changes.en;
-  if(strings.length!==7)throw Error("Incomplete improvements translations for "+lang);
+  if(strings.length!==7||!nonlinearImprovements[lang]||!nonlinearImprovements[lang].trim())
+    throw Error("Incomplete improvements translations for "+lang);
   const heading=document.getElementById("jgr-improvements-title");
   const list=document.getElementById("jgr-improvements-list");
   if(!heading||!list)return;
   heading.textContent=strings[0];
-  list.replaceChildren(...strings.slice(1).map(item=>{
+  list.replaceChildren(...[...strings.slice(1),nonlinearImprovements[lang]].map(item=>{
     const li=document.createElement("li");
     li.textContent=item;
     return li;

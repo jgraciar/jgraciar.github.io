@@ -89,7 +89,7 @@ try{
     language+": el código fuente debe estar separado del laboratorio");
   assert(data.improvementsTitle?.includes("CircuitJS1 5.0.4ts"),
     language+": falta encabezado de mejoras");
-  assert.equal(data.improvements.length,6,language+": faltan mejoras implementadas");
+  assert.equal(data.improvements.length,7,language+": faltan mejoras implementadas");
   // Las escrituras china, japonesa y coreana expresan la misma información
   // con menos caracteres que los alfabetos occidentales.
   const minChars=["zh","zh-tw","ja","kr"].includes(language)?9:25;
@@ -121,12 +121,16 @@ try{
     language+": denominación de colaboradores en inglés");
   }
   if(language==="en"){
+   assert(data.improvements.at(-1).includes("three-phase six-pulse rectifier"),
+    "No se citan las mejoras del rectificador en inglés");
    assert.equal(data.improvementsTitle,"Improvements over CircuitJS1 5.0.4ts");
    assert.equal(data.development,"Development and adaptation");
    assert.equal(data.versions,"Original CircuitJS1, version");
    assert(data.authors.includes("and contributors"));
   }
   if(language==="ca-es-valencia"){
+   assert(data.improvements.at(-1).includes("rectificador trifàsic de sis polsos"),
+    "No se citan las mejoras del rectificador en valenciano");
    assert.equal(data.improvementsTitle,"Millores respecte de CircuitJS1 5.0.4ts");
    assert(data.improvements[0].startsWith("Vatímetre ampliat:"));
    assert.equal(data.development,"Desenvolupament i adaptació");
