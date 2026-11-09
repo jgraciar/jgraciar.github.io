@@ -1,0 +1,5 @@
+<cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11">
+<Counter7493 x="480 192 544 192" f="1"/>
+<x x="80 48 80 48" f="0" si="20" te="7493 - contador binario asincrono de 4 bits"/>
+<x x="80 80 80 80" f="0" si="14" te="CK1: reloj de entrada; conectar QA a CK2 para contar de 0 a 15. R1 y R2 a nivel alto: puesta a cero."/>
+</cir>
