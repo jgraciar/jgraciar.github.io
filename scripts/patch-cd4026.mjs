@@ -20,9 +20,10 @@ replace('registerElements.ts','    CirSim.theApp.register("CounterElm", new Coun
 replace('Menus.ts','            "Add Counter",              "CounterElm",',
  '            "Add Counter",              "CounterElm",\n            "Add CD4026 decade counter", "CD4026Elm",\n            "Add 7493 binary counter", "Counter7493Elm",\n            "Add 74191 up/down counter", "Counter74191Elm",');
 const list=join(dir,'public/setuplist.txt');
-writeFileSync(list,readFileSync(list,'utf8')+'\n+Circuit JGR\ncd4026-practice.xml CD4026: push-button counter and common-cathode display\ncd4026-practice-textbook.xml CD4026: original textbook circuit (47 uF)\n-\n');
+writeFileSync(list,readFileSync(list,'utf8')+'\n+Circuit JGR\ncd4026-practice.xml CD4026: push-button counter and common-cathode display\ncd4026-practice-textbook.xml CD4026: original textbook circuit (47 uF)\n7493-practice.xml 7493: asynchronous binary counter\n74191-practice.xml 74191: synchronous up/down counter\n-\n');
 copyFileSync(join(here,'../tests/fixtures/cd4026-practice.xml'),join(dir,'public/circuits/cd4026-practice.xml'));
 copyFileSync(join(here,'../tests/fixtures/cd4026-practice-textbook.xml'),join(dir,'public/circuits/cd4026-practice-textbook.xml'));
+for(const name of ['7493-practice.xml','74191-practice.xml'])copyFileSync(join(here,'../tests/fixtures/'+name),join(dir,'public/circuits/'+name));
 const es=join(dir,'public/locale/locale_es.txt');
-writeFileSync(es,readFileSync(es,'utf8')+'\n"Add CD4026 decade counter"="Añadir contador decimal CD4026"\n"CD4026: push-button counter and common-cathode display"="CD4026: contador con pulsador y display de cátodo común"\n"CD4026: original textbook circuit (47 uF)"="CD4026: circuito original del libro (47 µF)"\n');
+writeFileSync(es,readFileSync(es,'utf8')+'\n"Add CD4026 decade counter"="Añadir contador decimal CD4026"\n"CD4026: push-button counter and common-cathode display"="CD4026: contador con pulsador y display de cátodo común"\n"CD4026: original textbook circuit (47 uF)"="CD4026: circuito original del libro (47 µF)"\n"Add 7493 binary counter"="Añadir contador binario 7493"\n"Add 74191 up/down counter"="Añadir contador ascendente/descendente 74191"\n"7493: asynchronous binary counter"="7493: contador binario asíncrono"\n"74191: synchronous up/down counter"="74191: contador síncrono ascendente/descendente"\n');
 console.log('CD4026B registered with powered outputs and common-cathode practice');
