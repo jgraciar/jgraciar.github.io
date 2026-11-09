@@ -22,7 +22,7 @@ export class CD4026Elm extends ChipElm {
     isDigitalChip():boolean{return false;}
     showPropertiesOnCreate():boolean{return false;}
     setupPins():void {
-        this.sizeX=4;this.sizeY=10;
+        this.sizeX=5;this.sizeY=10;
         this.pins=new Array(16);
         const add=(i:number,pos:number,side:number,name:string)=>this.pins[i]=new Pin(this,pos,side,name);
         add(0,0,ChipElm.SIDE_W,"CK1");this.pins[0].clock=true;
