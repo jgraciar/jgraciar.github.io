@@ -12,21 +12,13 @@ const replace=(name,from,to)=>{
 };
 for(const name of ['CD4026Elm.ts','LabCD4026.ts','Counter7493Elm.ts','Counter74191Elm.ts'])copyFileSync(join(here,name),join(dir,name));
 replace('registerElements.ts','import { CounterElm } from "./CounterElm";',
- 'import { CounterElm } from "./CounterElm";\nimport { CD4026Elm } from "./CD4026Elm";
-import { Counter7493Elm } from "./Counter7493Elm";
-import { Counter74191Elm } from "./Counter74191Elm";');
+ 'import { CounterElm } from "./CounterElm";\nimport { CD4026Elm } from "./CD4026Elm";\nimport { Counter7493Elm } from "./Counter7493Elm";\nimport { Counter74191Elm } from "./Counter74191Elm";');
 replace('registerElements.ts','    ElementFactory.registerClass("CounterElm", CounterElm as any);',
- '    ElementFactory.registerClass("CounterElm", CounterElm as any);\n    ElementFactory.registerClass("CD4026Elm", CD4026Elm as any);
-    ElementFactory.registerClass("Counter7493Elm", Counter7493Elm as any);
-    ElementFactory.registerClass("Counter74191Elm", Counter74191Elm as any);');
+ '    ElementFactory.registerClass("CounterElm", CounterElm as any);\n    ElementFactory.registerClass("CD4026Elm", CD4026Elm as any);\n    ElementFactory.registerClass("Counter7493Elm", Counter7493Elm as any);\n    ElementFactory.registerClass("Counter74191Elm", Counter74191Elm as any);');
 replace('registerElements.ts','    CirSim.theApp.register("CounterElm", new CounterElm(0, 0));',
- '    CirSim.theApp.register("CounterElm", new CounterElm(0, 0));\n    CirSim.theApp.register("CD4026Elm", new CD4026Elm(0, 0));
-    CirSim.theApp.register("Counter7493Elm", new Counter7493Elm(0, 0));
-    CirSim.theApp.register("Counter74191Elm", new Counter74191Elm(0, 0));');
+ '    CirSim.theApp.register("CounterElm", new CounterElm(0, 0));\n    CirSim.theApp.register("CD4026Elm", new CD4026Elm(0, 0));\n    CirSim.theApp.register("Counter7493Elm", new Counter7493Elm(0, 0));\n    CirSim.theApp.register("Counter74191Elm", new Counter74191Elm(0, 0));');
 replace('Menus.ts','            "Add Counter",              "CounterElm",',
- '            "Add Counter",              "CounterElm",\n            "Add CD4026 decade counter", "CD4026Elm",
-            "Add 7493 binary counter", "Counter7493Elm",
-            "Add 74191 up/down counter", "Counter74191Elm",');
+ '            "Add Counter",              "CounterElm",\n            "Add CD4026 decade counter", "CD4026Elm",\n            "Add 7493 binary counter", "Counter7493Elm",\n            "Add 74191 up/down counter", "Counter74191Elm",');
 const list=join(dir,'public/setuplist.txt');
 writeFileSync(list,readFileSync(list,'utf8')+'\n+Circuit JGR\ncd4026-practice.xml CD4026: push-button counter and common-cathode display\ncd4026-practice-textbook.xml CD4026: original textbook circuit (47 uF)\n-\n');
 copyFileSync(join(here,'../tests/fixtures/cd4026-practice.xml'),join(dir,'public/circuits/cd4026-practice.xml'));
