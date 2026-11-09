@@ -27,13 +27,13 @@ for(let n=0;n<Math.round(tEnd/dt);n++){
   // Integración trapezoidal del balance de energía desde el arranque.
   suppliedEnergy+=dt*(previous[1]*source(t)+state[1]*source(tNext))/2;
   resistiveLoss+=dt*R*(previous[0]**2+state[0]**2)/2;
-  if(t>=tEnd-.04){
+  if(tNext>tEnd-.04){
     const [i,v]=state;
-    const ic=source(t)-i;
+    const ic=source(tNext)-i;
     sumV+=v*v;
     sumGrid+=i*i;
     sumCap+=ic*ic;
-    sumSource+=source(t)*source(t);
+    sumSource+=source(tNext)*source(tNext);
     count++;
   }
 }
