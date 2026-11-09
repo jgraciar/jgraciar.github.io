@@ -24,6 +24,8 @@ try{
  await page.goto("http://127.0.0.1:8767/circuitjgr.html",{waitUntil:"domcontentloaded"});
  assert.equal(await page.title(),"Circuit JGR 1.0");
  await page.locator("#lab-start-modal").waitFor({state:"visible",timeout:30000});
+ assert.equal(await page.locator('#lab-start-language option').count(),23,
+  "Deben conservarse 22 idiomas más la selección automática");
  assert.equal(await page.locator('input[name="lab-start-format"]').count(),2);
  await page.locator("#lab-start-accept").click();
  await page.waitForFunction(()=>!!(window.CircuitJS1?.getElements),null,{timeout:90000});
@@ -145,5 +147,13 @@ try{
  console.log("OK: portada principal con accesos a Circuit JGR y laboratorio");
  console.log("OK: Vite abre Circuit JGR 1.0 en la raíz, configuración regional "+
   "y Acerca de con autor, créditos y licencia; sin rutas del laboratorio.");
+ const unsupported=await browser.newContext({locale:"tr-TR"});
+ const fallback=await unsupported.newPage();
+ await fallback.goto("http://127.0.0.1:8767/circuitjgr.html");
+ await fallback.locator("#lab-start-modal").waitFor({state:"visible"});
+ assert.equal(await fallback.locator("#lab-start-title").innerText(),"Initial setup");
+ assert(readFileSync(join(site,"initial-settings.js"),"utf8")
+  .includes("settingsHelp[dialogLanguage]||settingsHelp.en"));
+ await unsupported.close();
  await context.close();
 }finally{await browser.close();}
