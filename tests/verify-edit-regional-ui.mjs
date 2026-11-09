@@ -54,8 +54,15 @@ try{
                          [650,300],[800,400],[500,500],[700,200]]){
      const found=moveAndEdit(x,y);if(found)return found;
     }
-    for(let y=40;y<Math.min(r.height-30,650);y+=18)
-     for(let x=35;x<Math.min(r.width-30,1200);x+=18){
+    // Los componentes nativos (p. ej., R) tienen una caja de selección
+    // mucho más estrecha que el rectificador compuesto. Un barrido con
+    // saltos de 18 px puede pasar entre ambos bordes sin acertar.
+    for(let y=372;y<=428;y+=2)
+     for(let x=520;x<=770;x+=5){
+      const found=moveAndEdit(x,y);if(found)return found;
+     }
+    for(let y=40;y<Math.min(r.height-30,650);y+=6)
+     for(let x=35;x<Math.min(r.width-30,1200);x+=12){
       const found=moveAndEdit(x,y);if(found)return found;
      }
     return {error:"No se encontró un editor para la pieza",width:r.width,height:r.height};
