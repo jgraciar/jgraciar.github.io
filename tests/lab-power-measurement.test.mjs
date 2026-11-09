@@ -373,3 +373,36 @@ assert(Math.abs(harmonicCapReading.q+supplyV*capacitorIrms)<3,
 assert(Math.abs(harmonicCapReading.harmonicPower)<1,
     "La corriente capacitiva del quinto armónico está en cuadratura con U₅");
 console.log("OK: condensador con tensión armónica, I₅=5ωCU₅ y Q₁ fundamental.");
+
+
+// Referencia analítica para estudiar la resonancia paralelo entre inductancia
+// equivalente de red y batería de condensadores. Es una comprobación de
+// ingeniería, NO una simulación del circuito R-L-C en CircuitJS.
+// Para fuente armónica de corriente inyectada en el nudo:
+// |Z_eq(h)| = 1 / |1/(R+jhωL) + jhωC|.
+// Se mantiene R>0 para obtener un máximo finito y evitar una singularidad.
+const gridL=0.0005, gridR=0.08, gridC=1/(25*omega*omega*gridL);
+const nodeImpedance=(h)=>{
+    const x=h*omega*gridL;
+    const denom=gridR*gridR+x*x;
+    const g=gridR/denom;
+    const b=-x/denom+h*omega*gridC;
+    return 1/Math.hypot(g,b);
+};
+const naturalHarmonic=1/(omega*Math.sqrt(gridL*gridC));
+assert(Math.abs(naturalHarmonic-5)<1e-12,
+    "La frecuencia propia LC debe estar próxima al quinto armónico");
+const z1=nodeImpedance(1),z5=nodeImpedance(5),z7=nodeImpedance(7);
+assert(Number.isFinite(z5) && z5>z1*4 && z5>z7*2,
+    "La resonancia paralelo debe elevar la impedancia armónica en torno a h=5");
+const injectedFifthRms=2;
+const nodeFifthRms=injectedFifthRms*z5;
+assert(Math.abs(nodeFifthRms/z5-injectedFifthRms)<1e-12,
+    "La tensión armónica del nudo debe cumplir U₅=I₅|Z_eq(5)|");
+const gridFifthCurrent=nodeFifthRms/Math.hypot(gridR,5*omega*gridL);
+const capacitorFifthCurrent=nodeFifthRms*5*omega*gridC;
+assert(gridFifthCurrent>injectedFifthRms &&
+       capacitorFifthCurrent>injectedFifthRms,
+    "En resonancia pueden circular corrientes de rama mayores que la inyectada");
+assert(Math.abs(nodeFifthRms-z5*injectedFifthRms)<1e-10);
+console.log("OK: referencia de resonancia paralelo R-L de red / C, quinto armónico.");
