@@ -22,16 +22,16 @@ export class CD4026Elm extends ChipElm {
     isDigitalChip():boolean{return false;}
     showPropertiesOnCreate():boolean{return false;}
     setupPins():void {
-        this.sizeX=5;this.sizeY=10;
+        this.sizeX=4;this.sizeY=10;
         this.pins=new Array(16);
         const add=(i:number,pos:number,side:number,name:string)=>this.pins[i]=new Pin(this,pos,side,name);
-        add(0,0,ChipElm.SIDE_W,"CK");this.pins[0].clock=true;
-        add(1,2,ChipElm.SIDE_W,"INH");
+        add(0,0,ChipElm.SIDE_W,"CK1");this.pins[0].clock=true;
+        add(1,2,ChipElm.SIDE_W,"CK/EN");
         add(2,4,ChipElm.SIDE_W,"DE");
         add(14,6,ChipElm.SIDE_W,"R");
-        add(15,2,ChipElm.SIDE_N,"VDD");
-        add(7,2,ChipElm.SIDE_S,"VSS");
-        const names=["a","b","c","d","e","f","g","DEO","CO","Uc"];
+        add(15,2,ChipElm.SIDE_N,"+Vcc");
+        add(7,2,ChipElm.SIDE_S,"Gnd");
+        const names=["a","b","c","d","e","f","g","EO","Carry","2"];
         OUTPUTS.forEach((p,i)=>{add(p,i,ChipElm.SIDE_E,names[i]);this.pins[p].output=true;});
     }
     draw(g:Graphics):void {
