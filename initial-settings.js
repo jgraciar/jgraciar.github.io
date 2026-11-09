@@ -1,36 +1,36 @@
 (()=>{
 "use strict";
 const catalogs={
- sv:["Första inställningarna","Bekräfta språk och talformat.","Språk","Regionalt talformat","Europeiskt","Anglosaxiskt","Anpassat","Antal decimaler","Decimaltecken","Tusentalsavskiljare","Förhandsgranskning","Bekräfta och öppna laboratoriet","Ingen","Inställningar"],
- en:["Initial setup","Confirm your language and number format.","Language","Regional format","European","Anglo-Saxon","Custom","Display decimal places","Decimal separator","Thousands separator","Preview","Confirm and open laboratory","None","Settings"],
- es:["Configuración inicial","Confirma el idioma y el formato numérico.","Idioma","Formato regional","Europeo","Anglosajón","Personalizado","Decimales de visualización","Separador decimal","Separador de miles","Vista previa","Aceptar y abrir laboratorio","Ninguno","Configuración"],
- fr:["Configuration initiale","Confirmez la langue et le format numérique.","Langue","Format régional","Européen","Anglo-saxon","Personnalisé","Décimales affichés","Séparateur décimal","Séparateur de milliers","Aperçu","Valider et ouvrir le laboratoire","Aucun","Paramètres"],
- de:["Ersteinrichtung","Bestätigen Sie Sprache und Zahlenformat.","Sprache","Zahlenformat","Europäisch","Angelsächsisch","Benutzerdefiniert","Angezeigte Dezimalstellen","Dezimaltrennzeichen","Tausendertrennzeichen","Vorschau","Bestätigen und Labor öffnen","Keines","Einstellungen"],
- it:["Configurazione iniziale","Conferma la lingua e il formato numerico.","Lingua","Formato regionale","Europeo","Anglosassone","Personalizzato","Decimali visualizzati","Separatore decimale","Separatore delle migliaia","Anteprima","Conferma e apri il laboratorio","Nessuno","Impostazioni"],
- pt:["Configuração inicial","Confirme o idioma e o formato numérico.","Idioma","Formato regional","Europeu","Anglo-saxónico","Personalizado","Casas decimais apresentadas","Separador decimal","Separador de milhares","Pré-visualização","Confirmar e abrir laboratório","Nenhum","Definições"],
- nl:["Eerste instellingen","Bevestig taal en getalnotatie.","Taal","Regionale notatie","Europees","Engels","Aangepast","Weergegeven decimalen","Decimaalteken","Duizendtalscheiding","Voorbeeld","Bevestigen en laboratorium openen","Geen","Instellingen"],
- pl:["Konfiguracja początkowa","Potwierdź język i format liczb.","Język","Format regionalny","Europejski","Anglosaski","Niestandardowy","Wyświetlane miejsca dziesiętne","Separator dziesiętny","Separator tysięcy","Podgląd","Zatwierdź i otwórz laboratorium","Brak","Ustawienia"]
+ sv:["Första inställningarna","Bekräfta språk och talformat.","Språk","Regionalt talformat","Europeiskt","Anglosaxiskt","Anpassat","Antal decimaler","Decimaltecken","Tusentalsavskiljare","Förhandsgranskning","Bekräfta och öppna Circuit JGR","Ingen","Inställningar"],
+ en:["Initial setup","Confirm your language and number format.","Language","Regional format","European","Anglo-Saxon","Custom","Display decimal places","Decimal separator","Thousands separator","Preview","Confirm and open Circuit JGR","None","Settings"],
+ es:["Configuración inicial","Confirma el idioma y el formato numérico.","Idioma","Formato regional","Europeo","Anglosajón","Personalizado","Decimales de visualización","Separador decimal","Separador de miles","Vista previa","Aceptar y abrir Circuit JGR","Ninguno","Configuración"],
+ fr:["Configuration initiale","Confirmez la langue et le format numérique.","Langue","Format régional","Européen","Anglo-saxon","Personnalisé","Décimales affichés","Séparateur décimal","Séparateur de milliers","Aperçu","Valider et ouvrir Circuit JGR","Aucun","Paramètres"],
+ de:["Ersteinrichtung","Bestätigen Sie Sprache und Zahlenformat.","Sprache","Zahlenformat","Europäisch","Angelsächsisch","Benutzerdefiniert","Angezeigte Dezimalstellen","Dezimaltrennzeichen","Tausendertrennzeichen","Vorschau","Bestätigen und Circuit JGR öffnen","Keines","Einstellungen"],
+ it:["Configurazione iniziale","Conferma la lingua e il formato numerico.","Lingua","Formato regionale","Europeo","Anglosassone","Personalizzato","Decimali visualizzati","Separatore decimale","Separatore delle migliaia","Anteprima","Conferma e apri Circuit JGR","Nessuno","Impostazioni"],
+ pt:["Configuração inicial","Confirme o idioma e o formato numérico.","Idioma","Formato regional","Europeu","Anglo-saxónico","Personalizado","Casas decimais apresentadas","Separador decimal","Separador de milhares","Pré-visualização","Confirmar e abrir Circuit JGR","Nenhum","Definições"],
+ nl:["Eerste instellingen","Bevestig taal en getalnotatie.","Taal","Regionale notatie","Europees","Engels","Aangepast","Weergegeven decimalen","Decimaalteken","Duizendtalscheiding","Voorbeeld","Bevestigen en Circuit JGR openen","Geen","Instellingen"],
+ pl:["Konfiguracja początkowa","Potwierdź język i format liczb.","Język","Format regionalny","Europejski","Anglosaski","Niestandardowy","Wyświetlane miejsca dziesiętne","Separator dziesiętny","Separator tysięcy","Podgląd","Zatwierdź i otwórz Circuit JGR","Brak","Ustawienia"]
 };
 // Idiomas originales de CircuitJS que no estaban incluidos en el asistente inicial.
 // El catálogo de componentes se encuentra en LabTranslations.ts.
 Object.assign(catalogs,{
- csx:["Úvodní nastavení","Potvrďte jazyk a formát čísel.","Jazyk","Místní formát","Evropský","Anglosaský","Vlastní","Počet desetinných míst","Desetinný oddělovač","Oddělovač tisíců","Náhled","Potvrdit a otevřít laboratoř","Žádný","Nastavení"],
- da:["Første opsætning","Bekræft sprog og talformat.","Sprog","Regionalt format","Europæisk","Angelsaksisk","Brugerdefineret","Antal decimaler","Decimaltegn","Tusindtalsseparator","Forhåndsvisning","Bekræft og åbn laboratoriet","Ingen","Indstillinger"],
- fi:["Alkuasetukset","Vahvista kieli ja lukumuoto.","Kieli","Alueellinen muoto","Eurooppalainen","Anglosaksinen","Mukautettu","Desimaalien määrä","Desimaalierotin","Tuhaterotin","Esikatselu","Vahvista ja avaa laboratorio","Ei mitään","Asetukset"],
- nb:["Førstegangsoppsett","Bekreft språk og tallformat.","Språk","Regionalt format","Europeisk","Angelsaksisk","Egendefinert","Antall desimaler","Desimalskilletegn","Tusenskilletegn","Forhåndsvisning","Bekreft og åpne laboratoriet","Ingen","Innstillinger"],
- ru:["Начальная настройка","Подтвердите язык и формат чисел.","Язык","Региональный формат","Европейский","Англосаксонский","Пользовательский","Количество знаков после запятой","Десятичный разделитель","Разделитель тысяч","Предпросмотр","Подтвердить и открыть лабораторию","Нет","Настройки"],
- zh:["初始设置","请选择语言和数字格式。","语言","地区格式","欧洲格式","英美格式","自定义","小数位数","小数分隔符","千位分隔符","预览","确认并打开实验室","无","设置"],
- "zh-tw":["初始設定","請確認語言和數字格式。","語言","地區格式","歐洲格式","英美格式","自訂","小數位數","小數分隔符號","千位分隔符號","預覽","確認並開啟實驗室","無","設定"],
- ja:["初期設定","言語と数値形式を確認してください。","言語","地域形式","欧州式","英米式","カスタム","小数点以下の桁数","小数点記号","桁区切り記号","プレビュー","確定して実験室を開く","なし","設定"],
- kr:["초기 설정","언어와 숫자 형식을 확인하세요.","언어","지역 형식","유럽식","영미식","사용자 지정","소수 자릿수","소수 구분 기호","천 단위 구분 기호","미리 보기","확인하고 실험실 열기","없음","설정"]
+ csx:["Úvodní nastavení","Potvrďte jazyk a formát čísel.","Jazyk","Místní formát","Evropský","Anglosaský","Vlastní","Počet desetinných míst","Desetinný oddělovač","Oddělovač tisíců","Náhled","Potvrdit a otevřít Circuit JGR","Žádný","Nastavení"],
+ da:["Første opsætning","Bekræft sprog og talformat.","Sprog","Regionalt format","Europæisk","Angelsaksisk","Brugerdefineret","Antal decimaler","Decimaltegn","Tusindtalsseparator","Forhåndsvisning","Bekræft og åbn Circuit JGR","Ingen","Indstillinger"],
+ fi:["Alkuasetukset","Vahvista kieli ja lukumuoto.","Kieli","Alueellinen muoto","Eurooppalainen","Anglosaksinen","Mukautettu","Desimaalien määrä","Desimaalierotin","Tuhaterotin","Esikatselu","Vahvista ja avaa Circuit JGR","Ei mitään","Asetukset"],
+ nb:["Førstegangsoppsett","Bekreft språk og tallformat.","Språk","Regionalt format","Europeisk","Angelsaksisk","Egendefinert","Antall desimaler","Desimalskilletegn","Tusenskilletegn","Forhåndsvisning","Bekreft og åpne Circuit JGR","Ingen","Innstillinger"],
+ ru:["Начальная настройка","Подтвердите язык и формат чисел.","Язык","Региональный формат","Европейский","Англосаксонский","Пользовательский","Количество знаков после запятой","Десятичный разделитель","Разделитель тысяч","Предпросмотр","Подтвердить и открыть Circuit JGR","Нет","Настройки"],
+ zh:["初始设置","请选择语言和数字格式。","语言","地区格式","欧洲格式","英美格式","自定义","小数位数","小数分隔符","千位分隔符","预览","确认并打开 Circuit JGR","无","设置"],
+ "zh-tw":["初始設定","請確認語言和數字格式。","語言","地區格式","歐洲格式","英美格式","自訂","小數位數","小數分隔符號","千位分隔符號","預覽","確認並開啟 Circuit JGR","無","設定"],
+ ja:["初期設定","言語と数値形式を確認してください。","言語","地域形式","欧州式","英米式","カスタム","小数点以下の桁数","小数点記号","桁区切り記号","プレビュー","確定して Circuit JGR を開く","なし","設定"],
+ kr:["초기 설정","언어와 숫자 형식을 확인하세요.","언어","지역 형식","유럽식","영미식","사용자 지정","소수 자릿수","소수 구분 기호","천 단위 구분 기호","미리 보기","확인하고 Circuit JGR 열기","없음","설정"]
 });
 Object.assign(catalogs,{
- ca:["Configuració inicial","Confirma l'idioma i el format numèric.","Idioma","Format regional","Europeu","Anglosaxó","Personalitzat","Decimals de visualització","Separador decimal","Separador de milers","Vista prèvia","Confirma i obre el laboratori","Cap","Configuració"],
- "ca-es-valencia":["Configuració inicial","Confirma l'idioma i el format numèric.","Idioma","Format regional","Europeu","Anglosaxó","Personalitzat","Decimals de visualització","Separador decimal","Separador de milers","Vista prèvia","Accepta i obri el laboratori","Cap","Configuració"],
- gl:["Configuración inicial","Confirma o idioma e o formato numérico.","Idioma","Formato rexional","Europeo","Anglosaxón","Personalizado","Decimais de visualización","Separador decimal","Separador de milleiros","Vista previa","Confirmar e abrir o laboratorio","Ningún","Configuración"],
- eu:["Hasierako konfigurazioa","Berretsi hizkuntza eta zenbaki-formatua.","Hizkuntza","Eskualdeko formatua","Europakoa","Anglosaxoia","Pertsonalizatua","Bistaratuko diren hamartarrak","Hamartar-bereizlea","Milakoen bereizlea","Aurrebista","Berretsi eta ireki laborategia","Bat ere ez","Ezarpenak"]
+ ca:["Configuració inicial","Confirma l'idioma i el format numèric.","Idioma","Format regional","Europeu","Anglosaxó","Personalitzat","Decimals de visualització","Separador decimal","Separador de milers","Vista prèvia","Confirma i obre Circuit JGR","Cap","Configuració"],
+ "ca-es-valencia":["Configuració inicial","Confirma l'idioma i el format numèric.","Idioma","Format regional","Europeu","Anglosaxó","Personalitzat","Decimals de visualització","Separador decimal","Separador de milers","Vista prèvia","Accepta i obri Circuit JGR","Cap","Configuració"],
+ gl:["Configuración inicial","Confirma o idioma e o formato numérico.","Idioma","Formato rexional","Europeo","Anglosaxón","Personalizado","Decimais de visualización","Separador decimal","Separador de milleiros","Vista previa","Confirmar e abrir Circuit JGR","Ningún","Configuración"],
+ eu:["Hasierako konfigurazioa","Berretsi hizkuntza eta zenbaki-formatua.","Hizkuntza","Eskualdeko formatua","Europakoa","Anglosaxoia","Pertsonalizatua","Bistaratuko diren hamartarrak","Hamartar-bereizlea","Milakoen bereizlea","Aurrebista","Berretsi eta ireki Circuit JGR","Bat ere ez","Ezarpenak"]
 });
-const settingsHelp={sv:"Du kan ändra dessa inställningar senare via Inställningar längst ned till höger i laboratoriet.",en:"You can change these options later using Settings, at the bottom right of the laboratory.",es:"Puedes modificar estas opciones más adelante pulsando el botón «Configuración», situado en la esquina inferior derecha de la pantalla.",fr:"Vous pourrez modifier ces options dans « Paramètres », en bas à droite du laboratoire.",de:"Sie können diese Optionen später über „Einstellungen“ unten rechts im Labor ändern.",it:"Puoi modificare queste opzioni in seguito da «Impostazioni», in basso a destra nel laboratorio.",pt:"Pode alterar estas opções mais tarde em «Definições», no canto inferior direito do laboratório.",nl:"Je kunt deze opties later wijzigen via «Instellingen», rechtsonder in het laboratorium.",pl:"Te opcje można później zmienić w «Ustawieniach» w prawym dolnym rogu laboratorium."};
+const settingsHelp={sv:"Du kan ändra dessa inställningar senare via Inställningar längst ned till höger i Circuit JGR.",en:"You can change these options later using Settings, at the bottom right of Circuit JGR.",es:"Puedes modificar estas opciones más adelante pulsando el botón «Configuración», situado en la esquina inferior derecha de la pantalla.",fr:"Vous pourrez modifier ces options dans « Paramètres », en bas à droite de Circuit JGR.",de:"Sie können diese Optionen später über „Einstellungen“ unten rechts in Circuit JGR ändern.",it:"Puoi modificare queste opzioni in seguito da «Impostazioni», in basso a destra nel laboratorio.",pt:"Pode alterar estas opções mais tarde em «Definições», no canto inferior direito do Circuit JGR.",nl:"Je kunt deze opties later wijzigen via «Instellingen», rechtsonder in Circuit JGR.",pl:"Te opcje można później zmienić w «Ustawieniach» w prawym dolnym rogu laboratorium."};
 const precisionNotes={sv:"CircuitJS räknar med 64-bitars flyttal med dubbel precision (cirka 15–17 signifikanta siffror). Inställningen påverkar endast visningen. Den sista decimalen avrundas, inte kapas.","en":"CircuitJS calculates using 64-bit double-precision floating-point numbers (approximately 15–17 significant decimal digits). This option changes only how results are displayed. The final displayed decimal digit is rounded, not truncated.","es":"CircuitJS calcula con números de coma flotante de doble precisión (64 bits), aproximadamente 15–17 cifras decimales significativas. Esta opción solo modifica la visualización. El último decimal mostrado se redondea, no se trunca.","fr":"CircuitJS calcule en virgule flottante double précision (64 bits), soit environ 15 à 17 chiffres significatifs. Ce réglage modifie uniquement l'affichage. La dernière décimale affichée est arrondie, et non tronquée.","de":"CircuitJS rechnet mit 64-Bit-Gleitkommazahlen doppelter Genauigkeit (etwa 15–17 signifikante Dezimalziffern). Diese Einstellung betrifft nur die Anzeige. Die letzte angezeigte Dezimalstelle wird gerundet, nicht abgeschnitten.","it":"CircuitJS calcola con numeri in virgola mobile a doppia precisione (64 bit), circa 15–17 cifre significative. Questa impostazione modifica solo la visualizzazione. L'ultima cifra decimale visualizzata viene arrotondata, non troncata.","pt":"O CircuitJS calcula com números de vírgula flutuante de dupla precisão (64 bits), aproximadamente 15–17 algarismos significativos. Esta opção altera apenas a apresentação. A última casa decimal apresentada é arredondada, não truncada.","nl":"CircuitJS rekent met 64-bits drijvendekommagetallen met dubbele precisie (ongeveer 15–17 significante cijfers). Deze instelling verandert alleen de weergave. De laatste weergegeven decimaal wordt afgerond, niet afgekapt.","pl":"CircuitJS oblicza wartości za pomocą 64-bitowych liczb zmiennoprzecinkowych podwójnej precyzji (około 15–17 cyfr znaczących). To ustawienie zmienia tylko wyświetlanie. Ostatnia wyświetlana cyfra po przecinku jest zaokrąglana, a nie obcinana."};
 const unitLabels={
  sv:["Visat enhetsprefix","Automatiskt","Mikro (µ)","Milli (m)","Grundenhet","Kilo (k)"],
@@ -45,19 +45,19 @@ const unitLabels={
 };
 // Textos explicativos y opciones regionales de los nueve idiomas adicionales.
 Object.assign(settingsHelp,{
- ca:"Més endavant pots canviar aquestes opcions a Configuració, a la part inferior dreta del laboratori.",
- "ca-es-valencia":"Més avant pots canviar estes opcions en Configuració, en la part inferior dreta del laboratori.",
- gl:"Podes modificar estas opcións máis adiante en Configuración, na parte inferior dereita do laboratorio.",
- eu:"Ezarpen horiek geroago alda ditzakezu laborategiaren beheko eskuineko Ezarpenak atalean.",
- csx:"Tato nastavení můžete později změnit v nabídce Nastavení v pravém dolním rohu laboratoře.",
- da:"Du kan ændre disse indstillinger senere under Indstillinger nederst til højre i laboratoriet.",
- fi:"Voit muuttaa näitä asetuksia myöhemmin laboratorion oikean alakulman Asetukset-valikosta.",
- nb:"Du kan endre disse innstillingene senere via Innstillinger nederst til høyre i laboratoriet.",
- ru:"Позже эти параметры можно изменить в разделе «Настройки» в правом нижнем углу лаборатории.",
- zh:"稍后可以通过实验室右下角的“设置”更改这些选项。",
- "zh-tw":"稍後可以透過實驗室右下角的「設定」變更這些選項。",
- ja:"これらの設定は、実験室の右下にある「設定」から後で変更できます。",
- kr:"이 설정은 나중에 실험실 오른쪽 아래의 설정 메뉴에서 변경할 수 있습니다."
+ ca:"Més endavant pots canviar aquestes opcions a Configuració, a la part inferior dreta de Circuit JGR.",
+ "ca-es-valencia":"Més avant pots canviar estes opcions en Configuració, en la part inferior dreta de Circuit JGR.",
+ gl:"Podes modificar estas opcións máis adiante en Configuración, na parte inferior dereita de Circuit JGR.",
+ eu:"Ezarpen horiek geroago alda ditzakezu Circuit JGRren beheko eskuineko Ezarpenak atalean.",
+ csx:"Tato nastavení můžete později změnit v nabídce Nastavení v pravém dolním rohu Circuit JGR.",
+ da:"Du kan ændre disse indstillinger senere under Indstillinger nederst til højre i Circuit JGR.",
+ fi:"Voit muuttaa näitä asetuksia myöhemmin Circuit JGR:n oikean alakulman Asetukset-valikosta.",
+ nb:"Du kan endre disse innstillingene senere via Innstillinger nederst til høyre i Circuit JGR.",
+ ru:"Позже эти параметры можно изменить в разделе «Настройки» в правом нижнем углу Circuit JGR.",
+ zh:"稍后可以通过Circuit JGR右下角的“设置”更改这些选项。",
+ "zh-tw":"稍後可以透過Circuit JGR右下角的「設定」變更這些選項。",
+ ja:"これらの設定は、Circuit JGRの右下にある「設定」から後で変更できます。",
+ kr:"이 설정은 나중에 Circuit JGR 오른쪽 아래의 설정 메뉴에서 변경할 수 있습니다."
 });
 Object.assign(precisionNotes,{
  ca:"CircuitJS calcula amb nombres de coma flotant de doble precisió (64 bits), aproximadament 15–17 xifres significatives. Aquesta opció només canvia la visualització. L'últim decimal es mostra arrodonit.",
