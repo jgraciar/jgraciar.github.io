@@ -116,6 +116,19 @@ export class SixPulseBridgeElm extends CompositeElm {
                (this.compElmList[phase+3]?.getCurrent()??0);
     }
     getCurrent():number{return this.phaseCurrent(0);}
+    // Métodos de medición de la API pública, sin exponer la estructura interna
+    // del composite. Permiten inspeccionar por separado las tres fases.
+    addJSMethods():void{
+        super.addJSMethods();
+        if(this._jsProxy){
+            this._jsProxy["getPhaseCurrents"]=()=>[
+                this.phaseCurrent(0),this.phaseCurrent(1),this.phaseCurrent(2)];
+            this._jsProxy["getDcVoltage"]=()=>{
+                const cap=this.compElmList.find(el=>el instanceof CapacitorElm);
+                return cap?.getVoltageDiff()??0;
+            };
+        }
+    }
     getConnection(a:number,b:number):boolean{return a!==b&&a>=0&&a<3&&b>=0&&b<3;}
     dumpXml(doc:Document,elem:Element):void{
         super.dumpXml(doc,elem);
