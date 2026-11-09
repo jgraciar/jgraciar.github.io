@@ -13,9 +13,14 @@ const replaceOnce=(path,oldValue,newValue)=>{
 };
 copyFileSync(elmSource,join(dir,"ImpedanceElm.ts"));
 copyFileSync(mathSource,join(dir,"LabImpedance.ts"));
+copyFileSync(join(elmSource,"..","ParallelDiodeElm.ts"),join(dir,"ParallelDiodeElm.ts"));
 copyFileSync(join(elmSource,"..","FilteredBridgeElm.ts"),join(dir,"FilteredBridgeElm.ts"));
 copyFileSync(join(elmSource,"..","SixPulseBridgeElm.ts"),join(dir,"SixPulseBridgeElm.ts"));
 const registry=join(dir,"registerElements.ts");
+replaceOnce(registry,'import { DiodeElm } from "./DiodeElm";',
+    'import { DiodeElm } from "./DiodeElm";\nimport { ParallelDiodeElm } from "./ParallelDiodeElm";');
+replaceOnce(registry,'    ElementFactory.registerClass("DiodeElm", DiodeElm as any);',
+    '    ElementFactory.registerClass("DiodeElm", DiodeElm as any);\n    ElementFactory.registerClass("ParallelDiodeElm", ParallelDiodeElm as any);');
 replaceOnce(registry,'import { ResistorElm } from "./ResistorElm";',
     'import { ResistorElm } from "./ResistorElm";\nimport { ImpedanceElm } from "./ImpedanceElm";\nimport { FilteredBridgeElm } from "./FilteredBridgeElm";\nimport { SixPulseBridgeElm } from "./SixPulseBridgeElm";');
 replaceOnce(registry,

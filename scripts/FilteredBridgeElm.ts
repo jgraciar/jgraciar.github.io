@@ -3,7 +3,7 @@
 // del factor de potencia. NO reproducen un equipo comercial específico.
 import { CircuitElm } from "./CircuitElm";
 import { CompositeElm } from "./CompositeElm";
-import { DiodeElm } from "./DiodeElm";
+import { ParallelDiodeElm } from "./ParallelDiodeElm";
 import { CapacitorElm } from "./CapacitorElm";
 import { ResistorElm } from "./ResistorElm";
 import { EditInfo } from "./EditInfo";
@@ -58,7 +58,7 @@ export class FilteredBridgeElm extends CompositeElm {
         // Equivalente agrupado de N puentes idénticos conectados en paralelo.
         // Se mantienen intactos los valores R, C y Rs POR UNIDAD y los datos
         // XML; el motor usa R/N, N*C y Rs/N. Un único puente de diodos
-        // representa las N ramas (aproximación a la característica de diodos).
+        // representa las N ramas escalando también I(v) de cada diodo.
         const equivalentLoadR=this.resistance/this.units;
         const equivalentCapacitance=this.capacitance*this.units;
         const equivalentSeriesR=this.seriesResistance/this.units;
@@ -71,17 +71,18 @@ export class FilteredBridgeElm extends CompositeElm {
         // Rs=0 conserva exactamente el modelo legado de seis componentes.
         const model=withRs?[
             "ResistorElm 1 5",
-            "DiodeElm 5 3","DiodeElm 2 3",
-            "DiodeElm 4 5","DiodeElm 4 2",
+            "ParallelDiodeElm 5 3","ParallelDiodeElm 2 3",
+            "ParallelDiodeElm 4 5","ParallelDiodeElm 4 2",
             "CapacitorElm 3 4","ResistorElm 3 4"
         ]:[
-            "DiodeElm 1 3","DiodeElm 2 3",
-            "DiodeElm 4 1","DiodeElm 4 2",
+            "ParallelDiodeElm 1 3","ParallelDiodeElm 2 3",
+            "ParallelDiodeElm 4 1","ParallelDiodeElm 4 2",
             "CapacitorElm 3 4","ResistorElm 3 4"
         ];
         this.loadComposite(null,model.join("\r"),[1,2]);
         for(let k=0;k<this.compElmList.length;k++){
             const elm=this.compElmList[k];
+            if(elm instanceof ParallelDiodeElm)elm.setUnits(this.units);
             if(elm instanceof ResistorElm)
                 elm.resistance=withRs&&k===0?equivalentSeriesR:equivalentLoadR;
             if(elm instanceof CapacitorElm){
@@ -144,7 +145,8 @@ export class FilteredBridgeElm extends CompositeElm {
         this.resistance=xml.parseDoubleAttr("r",this.resistance);
         this.capacitance=xml.parseDoubleAttr("c",this.capacitance);
         this.seriesResistance=xml.parseDoubleAttr("rs",0);
-        this.units=xml.parseIntAttr("units",1); // XML antiguos: exactamente una unidad
+        // No truncar 1.5 ni aceptar "2abc" como dos equipos.
+        this.units=Number(xml.parseStringAttr("units","1")); // XML antiguo: una unidad
         const value=xml.parseIntAttr("profile",0);
         this.profile=value===1||value===2?value:0;
         this.rebuild();

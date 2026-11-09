@@ -29,14 +29,14 @@ assert(source.includes("!Number.isFinite(this.seriesResistance)||this.seriesResi
 assert(source.includes('this.loadComposite(null,entries.join("\\r"),[1,2,3])'),
  "El modelo debe tener exactamente tres fases de entrada");
 for(const fragment of [
- "DiodeElm \"+phase+\" 4",
- "DiodeElm 5 \"+phase",
+ "ParallelDiodeElm \"+phase+\" 4",
+ "ParallelDiodeElm 5 \"+phase",
  "CapacitorElm 4 5",
  "ResistorElm 4 5",
  "const r=this.resistance/this.units;",
  "const c=this.capacitance*this.units;",
  "const rs=this.seriesResistance/this.units;",
- 'this.units=xml.parseIntAttr("units",1);',
+ 'this.units=Number(xml.parseStringAttr("units","1"));',
  'CircuitXMLSerializer.dumpAttr(elem,"units",this.units);',
  'if(!Number.isInteger(value)||value<1||value>SixPulseBridgeElm.maxUnits)'
 ])assert(source.includes(fragment),"Falta regla de funcionamiento: "+fragment);

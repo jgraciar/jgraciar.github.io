@@ -48,7 +48,8 @@ try{
    const start=Math.ceil((begin+1e-5)*50)/50;
    const end=start+0.06; // tres periodos completos
    const data={count:0,duration:0,i2:[0,0,0],v2:[0,0,0],
-     cross:[[0,0,0],[0,0,0],[0,0,0]],p:0,udc:0,
+     cross:[[0,0,0],[0,0,0],[0,0,0]],p:0,udc:0,udc2:0,
+     udcFirst:null,udcLast:0,absI:0,
      maxKcl:0,maxI:0,finite:true,onePhase:[]};
    let prev=begin;
    const original=sim.ontimestep;
@@ -57,7 +58,9 @@ try{
     const t=sim.getTime(),dt=t-prev;prev=t;
     if(!(dt>0&&dt<0.002&&t>=start&&t<=end))return;
     const i=bridge.getPhaseCurrents();
-    const v=voltage.map(e=>e.getVoltageDiff());
+    // Tensiones de los bornes de la carga respecto a tierra. La API de la
+    // fuente usa la polaridad contraria a la del borne superior de este XML.
+    const v=i.map((_,k)=>bridge.getVoltage(k));
     const udc=bridge.getDcVoltage();
     if(![...i,...v,udc].every(Number.isFinite)){data.finite=false;return;}
     data.count++;data.duration+=dt;
@@ -68,10 +71,14 @@ try{
     }
     data.p+=dt*i.reduce((sum,x,k)=>sum+x*v[k],0);
     data.udc+=dt*udc;
+    data.udc2+=dt*udc*udc;
+    data.absI+=dt*i.reduce((sum,x)=>sum+Math.abs(x),0);
+    if(data.udcFirst===null)data.udcFirst=udc;
+    data.udcLast=udc;
     const sum=i.reduce((a,b)=>a+b,0);
     data.maxKcl=Math.max(data.maxKcl,Math.abs(sum));
     data.maxI=Math.max(data.maxI,...i.map(Math.abs));
-    data.onePhase.push({t,dt,i:i[0]});
+    data.onePhase.push({t,dt,i:i[0],udc});
    };
    try{
     for(let j=0;j<750;j++){
@@ -89,22 +96,25 @@ try{
     vRms:data.v2.map(x=>Math.sqrt(x/data.duration)),
     cross:data.cross.map(row=>row.map(x=>x/data.duration)),
     power:data.p/data.duration,udc:data.udc/data.duration,
+    udc2:data.udc2/data.duration,absI:data.absI/data.duration,
+    capacitorRate:(data.udcLast**2-data.udcFirst**2)/(2*data.duration),
     kcl:data.maxKcl,imax:data.maxI,attrs,info,
     postExport:sim.exportCircuit(),
     voltageSourceCount:voltage.length
    };
    // Armónicos de entrada, no lazos internos del convertidor.
    // Integración ponderada por dt sobre tres períodos enteros.
-   const coeff=n=>{
+   const coeff=(n,field="i")=>{
      let cos=0,sin=0;
      for(const z of data.onePhase){
       const angle=2*Math.PI*50*n*z.t;
-      cos+=z.dt*z.i*Math.cos(angle);
-      sin+=z.dt*z.i*Math.sin(angle);
+      cos+=z.dt*z[field]*Math.cos(angle);
+      sin+=z.dt*z[field]*Math.sin(angle);
      }
      return 2*Math.hypot(cos,sin)/data.duration;
    };
-   return {...result,h1:coeff(1),h3:coeff(3),h5:coeff(5),h7:coeff(7)};
+   return {...result,h1:coeff(1),h3:coeff(3),h5:coeff(5),h7:coeff(7),
+    dc2:coeff(2,"udc"),dc6:coeff(6,"udc")};
   });
   assert(!res.missingBridge,JSON.stringify(res));
   assert.equal(res.voltageSourceCount,3);
@@ -123,8 +133,17 @@ try{
    units,rs,p:res.power,vrms:res.vRms,
    correlations:res.cross,udc:res.udc,iRms:res.iRms,
    pDcEstimated:res.udc*res.udc/(470/units)}));
-  assert(Number.isFinite(res.power)&&Math.abs(res.power)>100,
+  assert(Number.isFinite(res.power)&&res.power>100,
    "Potencia trifásica demasiado pequeña: "+JSON.stringify(res));
+  const loadPower=res.udc2*units/470;
+  const seriesLoss=res.iRms.reduce((sum,i)=>sum+i*i,0)*rs/units;
+  const storedPower=.001*units*res.capacitorRate;
+  const diodeLoss=res.power-loadPower-seriesLoss-storedPower;
+  assert(diodeLoss>=-res.power*.005 && diodeLoss<res.absI*2+res.power*.005,
+   "Balance energético: "+JSON.stringify({input:res.power,loadPower,seriesLoss,storedPower,diodeLoss}));
+  assert(res.h3/res.h1<.03,"No debe haber tercer armónico apreciable en la red equilibrada sin neutro");
+  assert(res.h5/res.h1>.02&&res.h7/res.h1>.01,"Faltan armónicos característicos 5 y 7");
+  assert(res.dc6>.1&&res.dc6>10*res.dc2,"El bus CC debe presentar rizado de seis pulsos (300 Hz)");
   assert(res.h1>res.h3&&res.h1>res.h5&&res.h1>res.h7,
    "La corriente trifásica no presenta componente fundamental principal");
   assert.equal(res.attrs.r,"470");
@@ -153,10 +172,10 @@ try{
  const one=await runCase({units:1,rs:1});
  const four=await runCase({units:4,rs:1});
  const currentRatio=four.iRms[0]/one.iRms[0];
- const powerRatio=Math.abs(four.power/one.power);
- assert(currentRatio>3.3&&currentRatio<4.7,
+ const powerRatio=four.power/one.power;
+ assert(Math.abs(currentRatio/4-1)<.01,
   "La corriente trifásica no escala con N: "+currentRatio);
- assert(powerRatio>3.3&&powerRatio<4.7,
+ assert(Math.abs(powerRatio/4-1)<.01,
   "La potencia trifásica no escala con N: "+powerRatio);
  console.log("OK N=4: relación de corriente",currentRatio,
   "relación de potencia",powerRatio);

@@ -3,7 +3,7 @@
 // de entrada de un variador, NO del motor ni de su etapa inversora PWM.
 import {CircuitElm} from "./CircuitElm";
 import {CompositeElm} from "./CompositeElm";
-import {DiodeElm} from "./DiodeElm";
+import {ParallelDiodeElm} from "./ParallelDiodeElm";
 import {CapacitorElm} from "./CapacitorElm";
 import {ResistorElm} from "./ResistorElm";
 import {EditInfo} from "./EditInfo";
@@ -62,12 +62,13 @@ export class SixPulseBridgeElm extends CompositeElm {
         const phases=[6,7,8];
         const entries:string[]=[];
         for(let k=0;k<3;k++)entries.push("ResistorElm "+(k+1)+" "+phases[k]);
-        for(const phase of phases)entries.push("DiodeElm "+phase+" 4");
-        for(const phase of phases)entries.push("DiodeElm 5 "+phase);
+        for(const phase of phases)entries.push("ParallelDiodeElm "+phase+" 4");
+        for(const phase of phases)entries.push("ParallelDiodeElm 5 "+phase);
         entries.push("CapacitorElm 4 5","ResistorElm 4 5");
         this.loadComposite(null,entries.join("\r"),[1,2,3]);
         for(let k=0;k<this.compElmList.length;k++){
             const elm=this.compElmList[k];
+            if(elm instanceof ParallelDiodeElm)elm.setUnits(this.units);
             if(elm instanceof ResistorElm)
                 elm.resistance=k<3?rs:r;
             if(elm instanceof CapacitorElm){
@@ -142,7 +143,7 @@ export class SixPulseBridgeElm extends CompositeElm {
         this.resistance=xml.parseDoubleAttr("r",this.resistance);
         this.capacitance=xml.parseDoubleAttr("c",this.capacitance);
         this.seriesResistance=xml.parseDoubleAttr("rs",this.seriesResistance);
-        this.units=xml.parseIntAttr("units",1);
+        this.units=Number(xml.parseStringAttr("units","1"));
         this.rebuild();
         super.undumpXml(xml);
     }

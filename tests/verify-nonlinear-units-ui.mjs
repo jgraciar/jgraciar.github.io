@@ -2,8 +2,7 @@ import assert from "node:assert/strict";
 import {chromium} from "playwright";
 
 // Verifica N cargas no lineales idénticas en paralelo usando el SOLVER real.
-// El multiplicador es un equivalente compacto: la característica de los
-// diodos se representa por un único puente, por lo que N·I es aproximado.
+// El equivalente escala R, C, Rs y la característica I(v) de los diodos.
 const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({locale:"es-ES",viewport:{width:1280,height:850}});
@@ -24,7 +23,8 @@ try{
  async function measure(load,units){
   const attrs='r="'+load.r+'" c="'+load.c+'" rs="'+load.rs+'" profile="'+load.profile+'"'+
    (units===1?'':' units="'+units+'"');
-  const xml=header+'<FilteredBridge x="256 304 352 304" f="0" '+attrs+'/>'+footer;
+  const xml=header.replace('325.2691193458119',String(Math.SQRT2*(load.voltage??230)))+
+   '<FilteredBridge x="256 304 352 304" f="0" '+attrs+'/>'+footer;
   await page.evaluate(text=>window.CircuitJS1.importCircuit(text,false),xml);
   await page.waitForFunction(()=>window.CircuitJS1?.getTime?.()>0.17,
    null,{timeout:90000});
@@ -77,7 +77,7 @@ try{
   assert.equal(current.attrs.r,String(load.r));
   assert.equal(current.attrs.c,String(load.c));
   assert.equal(current.attrs.rs,String(load.rs));
-  assert.equal(current.attrs.profile,String(load.profile));
+  assert.equal(current.attrs.profile,load.profile?String(load.profile):undefined);
   assert.equal(current.attrs.units,units===1?undefined:String(units),
    "El XML debe omitir el factor N=1 y guardar N>1");
   assert(current.info.some(x=>String(x).includes("Unidades = "+units)),
@@ -100,22 +100,37 @@ try{
 
  const profiles=[
   {name:"LED sin PFC",r:6800,c:0.000010,rs:10,profile:1,quantity:5},
-  {name:"Fuente de ordenador sin PFC",r:470,c:0.000470,rs:2.2,profile:2,quantity:4}
+  {name:"Fuente de ordenador sin PFC",r:470,c:0.000470,rs:2.2,profile:2,quantity:4},
+  {name:"Puente a baja tensión",r:200,c:0.002,rs:1,profile:0,quantity:100,voltage:10}
  ];
  for(const load of profiles){
   const one=await measure(load,1);
   const many=await measure(load,load.quantity);
   const ratioI=many.irms/one.irms;
   const ratioP=Math.abs(many.p/one.p);
-  // Un único juego de diodos es una aproximación compacta a N puentes.
-  assert(ratioI>load.quantity*0.78&&ratioI<load.quantity*1.22,
+  assert(Math.abs(ratioI/load.quantity-1)<0.01,
     load.name+": el multiplicador de corriente no se aproxima a N: "+
     JSON.stringify({one,many,ratioI}));
-  assert(ratioP>load.quantity*0.75&&ratioP<load.quantity*1.25,
+  assert(Math.abs(ratioP/load.quantity-1)<0.01,
     load.name+": el multiplicador de potencia no se aproxima a N: "+
     JSON.stringify({one,many,ratioP}));
   console.log("OK:",load.name,"N="+load.quantity,
    "relación de corriente",ratioI,"relación de potencia",ratioP);
+ }
+ // La carga XML no debe truncar fracciones ni aceptar basura tras el entero.
+ for(const type of ["FilteredBridge","SixPulseBridge"]){
+  for(const units of ["0","-1","1.5","2abc","10001","Infinity",""]){
+   const result=await page.evaluate(({type,units})=>{
+    const sim=window.CircuitJS1;
+    sim.setSimRunning(false);
+    let rejected=false;
+    try{
+     sim.importCircuit('<cir><'+type+' x="256 304 352 304" f="0" r="470" c="0.001" rs="1" units="'+units+'"/></cir>',false);
+    }catch{rejected=true;}
+    return {rejected,count:sim.getElements().filter(e=>e.getType()===type+'Elm').length};
+   },{type,units});
+   assert.deepEqual(result,{rejected:true,count:0},type+": unidades inválidas aceptadas: "+units);
+  }
  }
  assert.deepEqual(errors,[],"Errores JavaScript: "+errors.join("; "));
  console.log("OK: valores por unidad, escala de cargas, potencia y XML con N=1 y N>1");

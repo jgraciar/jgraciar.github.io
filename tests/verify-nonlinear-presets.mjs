@@ -28,7 +28,7 @@ assert(source.includes('this.seriesResistance=xml.parseDoubleAttr("rs",0);'),
 assert(source.includes('this.profile=value===1||value===2?value:0;'));
 assert(source.includes("ResistorElm 1 5"),
  "La resistencia de entrada debe estar incluida en el circuito físico");
-assert(source.includes("this.units=xml.parseIntAttr(\"units\",1);"),
+assert(source.includes('this.units=Number(xml.parseStringAttr("units","1"));'),
  "XML antiguos deben emplear una sola carga por defecto");
 assert(source.includes('CircuitXMLSerializer.dumpAttr(elem,"units",this.units)'),
  "El atributo units debe conservarse en el XML");
