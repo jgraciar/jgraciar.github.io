@@ -1,6 +1,19 @@
 import assert from "node:assert/strict";
 import {LabPowerMeasurement} from "../scripts/LabPowerMeasurement.ts";
 
+// El motor puede avanzar entre muestras almacenadas (separadas 100 µs).
+const live=new LabPowerMeasurement();
+live.add(0,12,1);
+live.add(0.00004,15,-2);
+assert.deepEqual(live.getWindowReadings(.02).instantaneous,{v:15,i:-2,p:-30});
+assert.equal(live.getWindowReadings(.02).duration,.00004);
+// Un reinicio también puede ocurrir entre dos muestras almacenadas.
+live.add(.00002,3,2);
+assert.equal(live.getWindowReadings(.02).duration,0);
+assert.equal(live.getWindowReadings(.02).instantaneous.p,6);
+live.clear();
+assert.equal(live.getWindowReadings(.02),null);
+
 function measure(v, i, end=0.75, mode="auto") {
     const meter=new LabPowerMeasurement();
     for(let k=0; k<=Math.round(end/0.00005);k++) {

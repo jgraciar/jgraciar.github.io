@@ -110,7 +110,12 @@ once('        const p = this.getPower();\n        const dt = CircuitElm.sim.time
         this.labMeasurement.add(CircuitElm.sim.t, this.getVoltageDiff(), this.getCurrent());
         const dt = CircuitElm.sim.timeStep;`);
 once('    canViewInScope(): boolean { return true; }',
-`    private getLabWindowSeconds(period: number | null): number {
+`    reset(): void {
+        super.reset();
+        this.labMeasurement.clear();
+    }
+
+    private getLabWindowSeconds(period: number | null): number {
         const T = period !== null && period >= 0.0005 && period <= 0.5 ? period : 0.02;
         switch(this.labWindowMode) {
             case 0: return T;
@@ -139,7 +144,7 @@ once('    canViewInScope(): boolean { return true; }',
             value === null ? "..." : CircuitElm.getUnitText(value,unit);
         if (mask & 1)
             result.push(powerLabel + print(power,"W"));
-        if (electrical.kind === "dc" || (electrical.kind === "pending" && type !== "ac")) {
+        if (electrical.kind === "dc") {
             // Convención solicitada para continua, siempre seleccionables.
             if (mask & 2) result.push("Q 0 VAr");
             if (mask & 4) result.push("S 0 VA");
@@ -190,12 +195,12 @@ once('        arr[3] = "P = " + CircuitElm.getUnitText(this.getVoltageDiff() * t
             value === null ? "..." : CircuitElm.getUnitText(value,unit);
         let line = 5;
         if (this.labPowerMask & 2) {
-            const q = powers.kind === "dc" || (powers.kind === "pending" && currentType !== "ac")
+            const q = powers.kind === "dc"
                 ? "0 VAr" : fmt(powers.q,"VAr");
             arr[line++] = "Q (fundamental) = " + q;
         }
         if (this.labPowerMask & 4) {
-            const s = powers.kind === "dc" || (powers.kind === "pending" && currentType !== "ac")
+            const s = powers.kind === "dc"
                 ? "0 VA" : fmt(powers.s,"VA");
             arr[line++] = "S = " + s;
         }

@@ -21,6 +21,7 @@ export class LabPowerMeasurement {
     private samples: PowerSample[] = [];
     private start = 0;
     private lastStored = -Infinity;
+    private latest: PowerSample | null = null;
     private readonly spacing = 0.0001;
     private readonly history = 1.25;
 
@@ -28,12 +29,14 @@ export class LabPowerMeasurement {
         this.samples = [];
         this.start = 0;
         this.lastStored = -Infinity;
+        this.latest = null;
     }
 
     add(t: number, v: number, i: number): void {
         if (![t, v, i].every(Number.isFinite)) return;
-        const last = this.samples[this.samples.length - 1];
+        const last = this.latest;
         if (last && t < last.t) this.clear();
+        this.latest = {t,v,i};
         if (t <= this.lastStored + this.spacing - 1e-10) return;
         this.samples.push({t, v, i});
         this.lastStored = t;
@@ -207,6 +210,11 @@ export class LabPowerMeasurement {
         mean: {v:number; i:number; p:number};
     } | null {
         const data=this.samples.slice(this.start);
+        // La lectura instantánea usa el último paso del motor, incluso entre
+        // muestras del historial reducido. Integrar también ese tramo final.
+        if(this.latest && (!data.length || this.latest.t>data[data.length-1].t))
+            data.push(this.latest);
+        else if(this.latest && data.length)data[data.length-1]=this.latest;
         if(data.length===0)return null;
         const last=data[data.length-1];
         const instant={v:last.v, i:last.i, p:last.v*last.i};

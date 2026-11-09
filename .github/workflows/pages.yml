@@ -102,6 +102,7 @@ jobs:
           node adaptacion/tests/verify-nonlinear-presets-ui.mjs
           node adaptacion/tests/verify-nonlinear-units-ui.mjs
           node adaptacion/tests/verify-six-pulse-ui.mjs
+          node adaptacion/tests/verify-wattmeter-ui.mjs
 
       - name: Preparar GitHub Pages
         uses: actions/configure-pages@v5
