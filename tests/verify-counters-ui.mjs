@@ -25,6 +25,7 @@ try{
  for(const name of ['7493','74191']){
   const fixture=readFileSync(new URL(`./fixtures/${name}-practice.xml`,import.meta.url),'utf8');
   assert(!/<g\s/.test(fixture),'no unnecessary ground elements');
+  assert.equal((fixture.match(/<M\s/g)||[]).length,name==='74191'?6:4,'all counter outputs have visible logic indicators');
   await load(fixture);const start=await read();await advance(.5);assert.equal((await read()).count,(start.count+1)%16,'actual 2 Hz clock counts');
   await page.screenshot({path:`/tmp/counter-${name}.png`});
   const beforeMove=await read();
