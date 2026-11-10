@@ -44,6 +44,7 @@ jobs:
       - name: Pruebas numéricas de los componentes propios
         run: |
           node --experimental-strip-types adaptacion/tests/lab-power-measurement.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-digital-ics.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-cd4026.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-counters.test.mjs
           node adaptacion/tests/lab-resonance-transient.test.mjs
@@ -65,6 +66,7 @@ jobs:
           node adaptacion/scripts/patch-impedance.mjs circuitjs-src/ts adaptacion/scripts/ImpedanceElm.ts adaptacion/scripts/LabImpedance.ts
           node adaptacion/scripts/patch-pv-inverter.mjs circuitjs-src/ts adaptacion/scripts/PVInverterElm.ts adaptacion/scripts/LabPVInverter.ts
           node adaptacion/scripts/patch-cd4026.mjs circuitjs-src/ts
+          node --experimental-strip-types adaptacion/scripts/patch-digital-ics.mjs circuitjs-src/ts
           node adaptacion/scripts/patch-lab-localization.mjs circuitjs-src/ts adaptacion/scripts/LabTranslations.ts
           node adaptacion/scripts/prepare-circuits-jgr.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-edit-regional-numbers.mjs circuitjs-src/ts
@@ -109,6 +111,7 @@ jobs:
           python3 -m http.server 8767 --directory site-root >/tmp/circuitjgr-http.log 2>&1 &
           sleep 2
           node adaptacion/tests/verify-circuits-jgr-root.mjs site-root
+          node --experimental-strip-types adaptacion/tests/verify-digital-ics-ui.mjs
           node adaptacion/tests/verify-edit-regional-ui.mjs
           node adaptacion/tests/verify-circuitjgr-elements.mjs
           node adaptacion/tests/verify-nonlinear-presets-ui.mjs
