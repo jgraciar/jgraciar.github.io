@@ -40,6 +40,18 @@ try{
    if(coordinates((await read()).xml)!==coordinates(beforeMove.xml)){moved=true;break;}
   }
   if(name==='7493')assert(moved,'dragging the package body moves the counter');
+  // The 74191 is larger: verify hit testing at its actual package centre,
+  // independently of viewport zoom, pan and the wires connected to its pins.
+  if(name==='74191'){
+   const hit=await page.evaluate(()=>{
+    const chip=Array.from(window.CircuitJS1.getElements()).find(e=>/Counter74191/.test(e.getType()));
+    const xs=chip.rectPointsX,ys=chip.rectPointsY;
+    const cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2;
+    return {distance:chip.getMouseDistance(cx,cy),width:Math.max(...xs)-Math.min(...xs),height:Math.max(...ys)-Math.min(...ys)};
+   });
+   assert(hit.width>0&&hit.height>0,'74191 package has nonzero dimensions');
+   assert.equal(hit.distance,0,'74191 package centre is selectable');
+  }
   // Manual clock for exact edge, control and restoration checks; fixture above uses the actual clock.
   await load(fixture.replace(/<R [^>]+\/>/,'<L x="336 '+(name==='7493'?192:256)+' 288 '+(name==='7493'?192:256)+'" f="2" p="0" key="k"/>'));
   if(name==='7493'){
