@@ -52,7 +52,8 @@ try{
  // Live values must follow actual solver nodes while the dialog stays open.
  const point=await load(circuit('7408',true),'7408',560,224);await page.mouse.move(point.x,point.y);await page.mouse.click(point.x,point.y,{button:'right'});
  await page.getByText('Información del integrado',{exact:true}).click();await dialog.waitFor({state:'visible'});
- assert((await dialog.locator('[data-ic-pin="3"] td').allTextContents())[2].match(/0\s*V/));
+ const low=await page.evaluate(()=>Array.from(window.CircuitJS1.getElements()).find(e=>e.getType()==='IC7408Elm').getVoltage(2));
+ const lowText=(await dialog.locator('[data-ic-pin="3"] td').allTextContents())[2];assert(Math.abs(low)<.01&&/V$/.test(lowText),'low output includes modeled leakage: '+lowText+' / '+low);
  await page.evaluate(()=>window.CircuitJS1.setExtVoltage('ic-input',5));await advance();
  await page.waitForFunction(()=>document.querySelector('#ic-info-dialog [data-ic-pin="3"] td:nth-child(3)')?.textContent?.match(/4[.,]9/));
  const text=await dialog.innerText();assert(text.includes('1.4 V'),'model threshold distinguished from hardware VIH/VIL');assert(text.includes('SN7408'));assert(text.includes('≥ 2 V'));assert(text.includes('≤ 0.8 V'));

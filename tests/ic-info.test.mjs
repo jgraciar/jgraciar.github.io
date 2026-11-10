@@ -37,3 +37,12 @@ const attack={...ttl,part:'<script>alert(1)</script>',stages:['<img onerror=x>']
 const safe=icInfoDiagram(attack,'<unsafe>');assert(!safe.includes('<script>'));assert(safe.includes('&lt;script&gt;'));
 assert.equal(numberedICInfo('unknown'),null);
 console.log('OK IC information: 46 physical pinouts, complete internal wiring, function tables, supply/logic distinction, 22 languages and escaped SVG');
+
+for(const language of ['es','en']){
+ assert(numberedICInfo('74138',language).table[0][1].includes('/Y[CBA]=0; /Y[m≠CBA]=1'));
+ assert(numberedICInfo('74147',language).table[1][0].includes('m>n'));
+ assert(numberedICInfo('7447',language).table[3][1].includes('=0'));
+ assert.deepEqual(numberedICInfo('74138',language).stages[0],'A / B / C');
+}
+assert.equal(numberedICInfo('74147','es').stages[1],'Prioridad');
+assert.equal(numberedICInfo('74147','en').stages[1],'Priority');
