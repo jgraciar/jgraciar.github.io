@@ -45,6 +45,7 @@ jobs:
         run: |
           node --experimental-strip-types adaptacion/tests/lab-power-measurement.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-digital-ics.test.mjs
+          node --experimental-strip-types adaptacion/tests/ic-info.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-cd4026.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-counters.test.mjs
           node adaptacion/tests/lab-resonance-transient.test.mjs
@@ -111,6 +112,7 @@ jobs:
           python3 -m http.server 8767 --directory site-root >/tmp/circuitjgr-http.log 2>&1 &
           sleep 2
           node adaptacion/tests/verify-circuits-jgr-root.mjs site-root
+          node --experimental-strip-types adaptacion/tests/verify-ic-info-ui.mjs
           node --experimental-strip-types adaptacion/tests/verify-digital-ics-ui.mjs
           node adaptacion/tests/verify-edit-regional-ui.mjs
           node adaptacion/tests/verify-circuitjgr-elements.mjs
@@ -140,3 +142,4 @@ jobs:
       - name: Publicar en GitHub Pages
         id: pages
         uses: actions/deploy-pages@v4
+

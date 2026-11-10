@@ -273,3 +273,7 @@ console.log("Traducciones activadas: menús, nombres de componentes y Acerca de 
 // Reorganize the complete Draw component inventory after all component patches.
 const drawGrouping=spawnSync(process.execPath,['--experimental-strip-types',join(repoRoot,'scripts/patch-draw-menu-groups.mjs'),dir],{stdio:'inherit'});
 if(drawGrouping.status!==0)throw Error('No se pudo clasificar el menú Dibujar');
+
+
+const icInformation=spawnSync(process.execPath,[join(repoRoot,'scripts/patch-ic-info.mjs'),dir],{stdio:'inherit'});
+if(icInformation.status!==0)throw Error('No se pudo incorporar la información de los integrados');
