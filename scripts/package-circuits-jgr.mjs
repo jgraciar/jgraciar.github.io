@@ -4,6 +4,7 @@
 import assert from "node:assert/strict";
 import {cpSync,existsSync,mkdirSync,readFileSync,rmSync,writeFileSync} from "node:fs";
 import {resolve,join} from "node:path";
+import {brotliDecompressSync} from "node:zlib";
 
 const [source,output,adaptation]=process.argv.slice(2);
 assert(source&&output&&adaptation,"Uso: package-circuits-jgr.mjs <ts-src> <destino> <repositorio-adaptacion>");
@@ -26,6 +27,23 @@ writeFileSync(target,html.replace("</head>",
 cpSync(join(repo,"initial-settings.js"),join(site,"initial-settings.js"));
 cpSync(join(repo,"LICENSE"),join(site,"LICENSE-GPLv3.txt"));
 cpSync(resolve(ts,"..","COPYING.txt"),join(site,"COPYING-CircuitJS.txt"));
+
+// La calculadora se distribuye sin modificar el código recibido.
+const calculatorBundle=join(repo,"assets","calculadora-sistemas.br.b64");
+assert(existsSync(calculatorBundle),"Falta el paquete original de la calculadora");
+const calculatorNames=["index.html","solver.js","app.js","style.css"];
+const bundleBytes=Buffer.from(readFileSync(calculatorBundle,"utf8").trim(),"base64");
+const calculatorFiles=brotliDecompressSync(bundleBytes).toString("utf8").split("\0");
+assert.equal(calculatorFiles.length,calculatorNames.length,
+ "El paquete de la calculadora no contiene los cuatro archivos esperados");
+const calculatorDir=join(site,"calculadora");
+mkdirSync(calculatorDir,{recursive:true});
+for(let i=0;i<calculatorNames.length;i++){
+ assert(calculatorFiles[i].length>0,"Archivo vacío: "+calculatorNames[i]);
+ writeFileSync(join(calculatorDir,calculatorNames[i]),calculatorFiles[i]);
+}
+assert(readFileSync(join(calculatorDir,"index.html"),"utf8")
+ .includes('src="solver.js"'),"Falta el módulo solver.js en la calculadora");
 
 const about=readFileSync(join(site,"circuitjs","about.html"),"utf8");
 assert(about.includes("circuits-jgr-identity")&&
