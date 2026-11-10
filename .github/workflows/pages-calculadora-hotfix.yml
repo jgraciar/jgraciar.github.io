@@ -7,6 +7,7 @@ on:
       - .github/workflows/pages-calculadora-hotfix.yml
       - assets/calculadora-sistemas.br.b64
       - scripts/layout-calculadora.mjs
+      - tests/calculadora-decimales.test.mjs
       - scripts/package-circuits-jgr.mjs
   workflow_dispatch:
 
@@ -62,6 +63,7 @@ jobs:
             });
           '
           node scripts/layout-calculadora.mjs site-root/calculadora
+          node tests/calculadora-decimales.test.mjs site-root/calculadora
           test -s site-root/calculadora/style.css
           grep -Fq 'class="workbench"' site-root/calculadora/index.html
           grep -Fq 'class="entry-pane"' site-root/calculadora/index.html
