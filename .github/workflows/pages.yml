@@ -45,6 +45,7 @@ jobs:
         run: |
           node --experimental-strip-types adaptacion/tests/lab-power-measurement.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-cd4026.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-counters.test.mjs
           node adaptacion/tests/lab-resonance-transient.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-impedance.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-pv-inverter.test.mjs
@@ -88,8 +89,11 @@ jobs:
           test -s site-root/circuitjs/about.html
           test -s site-root/LICENSE-GPLv3.txt
           test -s site-root/COPYING-CircuitJS.txt
-          test -s site-root/circuits/cd4026-practice.xml
-          ! test -e site-root/circuits/cd4026-practice-textbook.xml
+          test -s site-root/circuitjs/circuits/cd4026-practice.xml
+          ! test -e site-root/circuitjs/circuits/cd4026-practice-textbook.xml
+          test -s site-root/circuitjs/setuplist.txt
+          test -s site-root/circuitjs/circuits/7493-practice.xml
+          test -s site-root/circuitjs/circuits/74191-practice.xml
           ! grep -q 'cd4026-practice-textbook.xml' site-root/circuitjs/setuplist.txt
 
       - name: Instalar Chromium para prueba funcional
@@ -110,6 +114,7 @@ jobs:
           node adaptacion/tests/verify-six-pulse-ui.mjs
           node adaptacion/tests/verify-wattmeter-ui.mjs
           node adaptacion/tests/verify-cd4026-ui.mjs
+          node adaptacion/tests/verify-counters-ui.mjs
 
       - name: Preparar GitHub Pages
         uses: actions/configure-pages@v5

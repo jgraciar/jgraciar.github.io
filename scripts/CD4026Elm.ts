@@ -24,6 +24,18 @@ export class CD4026Elm extends ChipElm {
     // Match the small-grid CD4026 used by the supplied practice fixture (f=1).
     // ChipElm otherwise inserts new chips at twice this scale.
     useSmallGrid():boolean{return true;}
+    // Selection covers the entire package, including a zero-length insertion drag.
+    getMouseDistance(gx:number,gy:number):number {
+        const xs=this.rectPointsX,ys=this.rectPointsY;
+        if(xs?.length && gx>=Math.min(...xs) && gx<=Math.max(...xs) && gy>=Math.min(...ys) && gy<=Math.max(...ys))return 0;
+        const distance=super.getMouseDistance(gx,gy);
+        return Number.isFinite(distance)?distance:(gx-this.x)**2+(gy-this.y)**2;
+    }
+    setPoints():void {
+        const end=this.x2;
+        if(this.isCreating()){this.setSize(1);this.x2=this.x+this.sizeX*16;}
+        super.setPoints();this.x2=end;
+    }
     setupPins():void {
         this.sizeX=5;this.sizeY=10;
         this.pins=new Array(16);

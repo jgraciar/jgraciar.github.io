@@ -56,10 +56,14 @@ once(locale,'        if (lang.startsWith("en")) {',
  '        Locale.activeLanguage = lang.toLowerCase();\n'+
  '        if (lang.startsWith("en")) {');
 once(locale,'                // Catálogo inexistente: utilizar el español del laboratorio.\n                await Locale.loadSpanishFallback();',
- '                // Neerlandés y sueco aún no tienen catálogo oficial completo: usar la interfaz\n'+
- '                // base inglesa, pero traducir todos los elementos añadidos.\n'+
- '                if(["nl","sv"].includes(Locale.activeLanguage)) Locale.localizationMap=new Map();\n'+
- '                else await Locale.loadSpanishFallback();');
+ '                // A missing catalog always falls back to the English source UI.\n'+
+ '                Locale.activeLanguage="en";\n'+
+ '                Locale.localizationMap=new Map<string,string>();');
+// Network failures follow the same English fallback, including custom translations.
+{
+ const source=readFileSync(locale,"utf8").replaceAll("await Locale.loadSpanishFallback();",'Locale.activeLanguage="en"; Locale.localizationMap=new Map<string,string>();');
+ writeFileSync(locale,source);
+}
 // Windows usa ca-ES-valencia. No debe reducirse a «ca» al
 // normalizar variantes regionales antes de cargar el catálogo.
 once(locale,
