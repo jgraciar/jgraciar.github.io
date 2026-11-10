@@ -38,9 +38,14 @@ try{
   if(run)await advance();await page.waitForFunction(()=>!!window.icGrab,null,{timeout:15000});return page.evaluate(()=>window.icGrab);
  }
  const dialog=page.locator('#ic-info-dialog');
+ const openInformation=async point=>{
+  await page.mouse.move(point.x,point.y);await page.mouse.click(point.x,point.y,{button:'right'});
+  await page.getByText('Información del integrado',{exact:true}).click();await dialog.waitFor({state:'visible'});
+ };
+
  for(const part of digitalICParts){
   const d=digitalICs[part],point=await load(circuit(part),part,560,168+4*d.pins),before=await layout();
-  await page.mouse.dblclick(point.x,point.y);await dialog.waitFor({state:'visible'});
+  await openInformation(point);
   assert((await dialog.locator('#ic-info-title').innerText()).startsWith(part+' —'));
   assert.equal(await dialog.locator('svg [data-pin]').count(),d.pins);assert.equal(await dialog.locator('tr[data-ic-pin]').count(),d.pins);
   assert(await dialog.locator('[data-ic-supply]').innerText(),'explicit supply measurement '+part);
@@ -48,7 +53,7 @@ try{
   const pin=await dialog.locator(`tr[data-ic-pin="${d.vcc}"] td`).allTextContents();assert(pin[2].includes('5'),'live VCC '+part+' '+pin);
   await page.keyboard.press('Escape');assert.equal(await dialog.count(),0);assert.deepEqual(await layout(),before,'opening information must not move or add elements');
  }
- console.log('OK IC cards: all 42 powered DIP models open by double-click, complete pins, internal wiring, supply voltages and unchanged circuit');
+ console.log('OK IC cards: all 42 powered DIP models open through context action, complete pins, internal wiring, supply voltages and unchanged circuit');
  // Live values must follow actual solver nodes while the dialog stays open.
  const point=await load(circuit('7408',true),'7408',560,224);await page.mouse.move(point.x,point.y);await page.mouse.click(point.x,point.y,{button:'right'});
  await page.getByText('Información del integrado',{exact:true}).click();await dialog.waitFor({state:'visible'});
@@ -65,13 +70,23 @@ try{
  await page.setViewportSize({width:1500,height:950});
  console.log('OK IC card: context action, live solver/diagram voltage updates, model versus hardware specifications, responsive mobile layout, close and Escape');
  for(const [tag,text,x,y,count]of [['CD4026','4026',528,232,16],['Counter7493','7493',520,200,14],['Counter74191','74191',528,224,16],['Timer','dis',512,170,8],['DFlipFlop','D',512,170,4]]){
-  const point=await load(head+`<${tag} x="480 160 624 160" f="${tag==='Timer'?7:1}"/>`+'</cir>',text,x,y,false);await page.mouse.dblclick(point.x,point.y);await dialog.waitFor({state:'visible'});
+  const point=await load(head+`<${tag} x="480 160 624 160" f="${tag==='Timer'?7:1}"/>`+'</cir>',text,x,y,false);await openInformation(point);
   assert.equal(await dialog.locator('[data-ic-pin]').count(),count,tag+' physical versus logical terminals');
   if(tag==='DFlipFlop'){
    assert((await dialog.innerText()).includes('sin encapsulado físico asignado'));
    await dialog.locator('[data-ic-edit]').click();assert.equal(await dialog.count(),0);await page.keyboard.press('Escape');
   }else await page.keyboard.press('Escape');
  }
+ // Restore the original gesture for configurable chips, both logical and analog.
+ for(const [tag,text]of [['DFlipFlop','D'],['Timer','dis']]){
+  const point=await load(head+`<${tag} x="480 160 624 160" f="${tag==='Timer'?7:1}"/>`+'</cir>',text,512,170,false);
+  await page.mouse.dblclick(point.x,point.y);
+  const editor=page.locator('dialog.circuitDialog[open]').filter({has:page.locator('h3')});
+  await editor.locator('input').first().waitFor({state:'visible'});assert.equal(await dialog.count(),0,tag+' double-click must edit, never open information');
+  await page.keyboard.press('Escape');await editor.waitFor({state:'detached'});
+ }
+ console.log('OK native double-click: D flip-flop and 555 open their parameter editor; information remains a separate context action');
  assert.deepEqual(errors,[],'no browser errors from chip information');
  console.log('OK IC cards: 4026, 7493, 74191, 555 and generic logical chip; physical pin mapping, unexposed pins and Edit action');
 }finally{await browser.close();}
+

@@ -1,6 +1,6 @@
 # Fichas de circuitos integrados
 
-Acceso mediante doble clic (doble toque en pantalla táctil) o «Información del integrado» en el menú contextual. La selección y el arrastre conservan su funcionamiento. El menú «Editar…» y el botón de la ficha mantienen el acceso a los parámetros.
+Acceso únicamente mediante «Información del integrado» en el menú contextual (clic derecho o pulsación prolongada). El doble clic y el doble toque conservan íntegramente su comportamiento original para editar parámetros, subcircuitos y osciloscopios. La selección y el arrastre conservan su funcionamiento. El menú «Editar…» y el botón de la ficha mantienen el acceso a los parámetros.
 
 Las 42 referencias del modelo DIP digital, los contadores 4026/7493/74191 y el temporizador 555 incluyen patillaje físico en vista superior. Las puertas muestran las unidades internas conectadas a sus patillas mediante símbolos rectangulares y burbujas de inversión; los JK y RS muestran los biestables y sus controles. Los MSI complejos usan diagramas de bloques funcionales, sin presentarlos como esquemas de transistores. El dibujo SVG se genera a partir de la misma definición de patillas usada por el modelo; permite ampliar y desplazarse horizontalmente.
 
@@ -28,4 +28,7 @@ Los controles y encabezados están en los 22 idiomas del simulador; las explicac
 
 `tests/ic-info.test.mjs`: las 46 referencias físicas, numeración, roles, conexiones de todas las patillas funcionales en el SVG, tablas, diferencias de alimentación/umbrales, niveles Z y escape de etiquetas.
 
-`tests/verify-ic-info-ui.mjs`: apertura real por doble clic en los 42 DIP alimentados, acción contextual, actualización de valores desde los nodos del solver y el SVG, conservación de elementos/posiciones, visualización móvil, cierre/Escape, edición y los modelos 4026/7493/74191/555 y un biestable genérico.
+`tests/verify-ic-info-ui.mjs`: apertura real desde el menú contextual en los 42 DIP alimentados, acción contextual, actualización de valores desde los nodos del solver y el SVG, conservación de elementos/posiciones, visualización móvil, cierre/Escape, edición y los modelos 4026/7493/74191/555 y un biestable genérico.
+
+
+La prueba de navegador comprueba además que un doble clic en un biestable D y en el temporizador 555 abre su editor de parámetros y no la ficha. El parche exige que el manejador original de doble clic permanezca idéntico.
