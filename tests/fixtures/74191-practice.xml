@@ -45,7 +45,15 @@
 <w x="656 240 656 144" f="0"/>
 <M x="656 144 656 112" f="2"/>
 <x x="646 88 646 88" f="0" si="14" te="QD"/>
+<w x="576 256 880 256" f="0"/>
+<w x="880 256 880 144" f="0"/>
+<M x="880 144 880 112" f="2"/>
+<x x="870 88 870 88" f="0" si="14" te="C"/>
+<w x="576 272 928 272" f="0"/>
+<w x="928 272 928 144" f="0"/>
+<M x="928 144 928 112" f="2"/>
+<x x="918 88 918 88" f="0" si="14" te="R"/>
 <x x="180 360 180 360" f="0" si="14" te="U/D: 0 contar, 1 descontar (tecla D). EN: 0 contar, 1 detener (E)."/>
 <x x="180 384 180 384" f="0" si="14" te="LD = 0 carga L4 L3 L2 L1, sin esperar al reloj (L). Datos: teclas 1–4."/>
-<x x="180 408 180 408" f="0" si="14" te="C y R: salidas activas a nivel bajo para encadenar contadores; pueden quedar libres."/>
+<x x="180 408 180 408" f="0" si="14" te="C y R: salidas de fin de cuenta y acarreo para encadenar contadores."/>
 </cir>
