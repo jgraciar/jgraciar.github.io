@@ -9,10 +9,10 @@ try{
  await page.addInitScript(()=>{
   const fillText=CanvasRenderingContext2D.prototype.fillText;
   CanvasRenderingContext2D.prototype.fillText=function(text,x,y,...rest){
-   if(text==='74191'){
+   if(text==='74191'||text==='7493'){
     const m=this.getTransform(),r=this.canvas.getBoundingClientRect();
-    const cx=x+this.measureText(text).width/2,cy=y+77; // 5 px label gap + half the 144 px package
-    window.counterGrab={x:r.left+(m.a*cx+m.c*cy+m.e)*r.width/this.canvas.width,
+    const cx=x+this.measureText(text).width/2,cy=y+5+(text==='74191'?144:96)/2; // label gap + half the package height
+    window.counterGrabs??={};window.counterGrabs[text]={x:r.left+(m.a*cx+m.c*cy+m.e)*r.width/this.canvas.width,
      y:r.top+(m.b*cx+m.d*cy+m.f)*r.height/this.canvas.height,
      dy:-80*m.d*r.height/this.canvas.height};
    }
@@ -45,9 +45,8 @@ try{
   await page.screenshot({path:`/tmp/counter-${name}.png`});
   const beforeMove=await read();
   const coordinates=xml=>xml.match(/<Counter74[^>]*\sx="([^"]+)"/)[1];
-  if(name==='74191')await page.waitForFunction(()=>!!window.counterGrab);
-  const grabs=name==='7493'?[{x:715,y:590,dx:72,dy:48}]:
-   [{...await page.evaluate(()=>window.counterGrab),dx:0}];
+  await page.waitForFunction(name=>!!window.counterGrabs?.[name],name);
+  const grabs=[{...await page.evaluate(name=>window.counterGrabs[name],name),dx:0}];
   let moved=false;
   for(const grab of grabs){
    await page.mouse.move(grab.x,grab.y);await page.mouse.down();await page.waitForTimeout(200);
@@ -55,29 +54,31 @@ try{
    if(coordinates((await read()).xml)!==coordinates(beforeMove.xml)){moved=true;break;}
   }
   assert(moved,'dragging the package body moves the '+name+' counter');
-  if(name==='74191'){
+  {
    const state=await read();
-   assert.match(state.type,/Counter74191/,'74191 component is loaded');
-   assert.equal(state.volts.length,14,'74191 exposes all output and control pins');
+   assert(state.type.includes('Counter'+name),'counter component is loaded');
+   assert.equal(state.volts.length,name==='74191'?14:8,'all output and control pins are exposed');
    assert.equal(state.count,beforeMove.count,'dragging a stopped counter preserves count');
-   const connected=await page.evaluate(()=>{
+   const connected=await page.evaluate(name=>{
     const xml=new DOMParser().parseFromString(window.CircuitJS1.exportCircuit(),'application/xml');
-    const pos=xml.querySelector('Counter74191').getAttribute('x').trim().split(/\s+/).map(Number);
+    const pos=xml.querySelector('Counter'+name).getAttribute('x').trim().split(/\s+/).map(Number);
     const ends=Array.from(xml.querySelectorAll('rw')).flatMap(w=>{
      const p=w.getAttribute('x').trim().split(/\s+/).map(Number);
      return [[p[0],p[1]],[p[2],p[3]]];
     });
-    // Small-grid fixture: eight west pins and six east pins, spaced 16 units.
-    return [...Array.from({length:8},(_,i)=>[pos[0],pos[1]+16*i]),
-     ...Array.from({length:6},(_,i)=>[pos[0]+96,pos[1]+16*i])]
+    const west=name==='74191'?[0,1,2,3,4,5,6,7]:[0,2,4,5];
+    const eastCount=name==='74191'?6:4,right=pos[0]+(name==='74191'?96:80);
+    return [...west.map(i=>[pos[0],pos[1]+16*i]),
+     ...Array.from({length:eastCount},(_,i)=>[right,pos[1]+16*i])]
      .map(([x,y])=>ends.filter(([ex,ey])=>ex===x&&ey===y).length);
-   });
-   assert.deepEqual(connected,Array(14).fill(1),'every pin retains its routed wire');
+   },name);
+   assert.deepEqual(connected,name==='74191'?Array(14).fill(1):[1,1,1,1,2,1,1,1],
+    'every pin retains its routed wires, including QA feedback');
    await advance(.5);
    assert.equal((await read()).count,(state.count+1)%16,'clock still counts after moving');
    const movedState=await read();await load(movedState.xml);
    assert.equal((await read()).count,movedState.count,'moved circuit retains count on import');
-   await page.screenshot({path:'/tmp/counter-74191-moved.png'});
+   await page.screenshot({path:`/tmp/counter-${name}-moved.png`});
   }
   // Manual clock for exact edge, control and restoration checks; fixture above uses the actual clock.
   await load(fixture.replace(/<R [^>]+\/>/,'<L x="336 '+(name==='7493'?192:256)+' 288 '+(name==='7493'?192:256)+'" f="2" p="0" key="k"/>'));
@@ -93,7 +94,7 @@ try{
    const s=await read();for(let i=0;i<4;i++)assert.equal(s.volts[8+i]>2.5,!!(s.count&(1<<i)));
   }
   const saved=await read();await load(saved.xml);assert.equal((await read()).count,saved.count,'XML retains count without a false clock edge');
-  console.log(`${name}: automatic clock, 0/1 controls, wraparound, output voltages and XML round trip passed`);
+  console.log(`${name}: dragged package, retained connections, automatic clock, 0/1 controls, wraparound, output voltages and XML round trip passed`);
  }
  for(const lang of ['zz','es']){
   const fallback=await browser.newPage();
