@@ -11,7 +11,7 @@ try{
  const canvas=page.locator('canvas').first(),box=await canvas.boundingBox();
  await canvas.click({button:'right',position:{x:box.width-40,y:box.height-40}});
  const groups=['Puertas lógicas','Biestables y latch','Registros de desplazamiento','Contadores','Codificadores y decodificadores','Multiplexores','Memoria y aritmética','Otros componentes digitales'];
- const menus=await page.evaluate(heads=>heads.map(head=>Array.from(document.querySelectorAll('li.hasSubmenu')).filter(li=>Array.from(li.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()===head).map(li=>Array.from(li.querySelector(':scope > ul').children).map(item=>item.textContent.trim()))),groups);
+ const menus=await page.evaluate(heads=>heads.map(head=>Array.from(document.querySelectorAll('li.hasSubmenu')).filter(li=>Array.from(li.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()===head).map(li=>Array.from(li.querySelector(':scope > ul').children).map(item=>(item.querySelector('.itemLabel')?.textContent||item.textContent).trim()))),groups);
  for(let i=0;i<groups.length;i++)assert.equal(menus[i].length,2,'Draw and context submenu '+groups[i]);
  const numbered=menus.flatMap(copies=>copies[0]).map(x=>x.match(/^(\d+N?)\b/)?.[1]).filter(Boolean);
  assert.equal(new Set(numbered).size,45,'45 distinct numbered references including three legacy counters');assert.equal(numbered.length,45,'no duplicate numbered references');
