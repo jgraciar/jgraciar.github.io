@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import {digitalICs as defs,digitalICParts,DigitalICState,outputPins,inputPins} from '../scripts/LabDigitalIC.ts';
-const requested='4081 7408 4011 7400 4071 7432 4069 4070 4001 7486 7402 4082 7420 4012 4023 4043 4044 7476N 74112 7476 4027 40106 7414 7404'.split(' ').sort();
+const requested='4081 7408 4011 7400 4071 7432 4069 4070 4001 7486 7402 4082 7420 4012 4023 4043 4044 7476N 74112 7476 4027 40106 7414 7404 74373 74194 74190 7447 74192 7430 74147 74151 54151 74152 74150 74138 7475 74181 74164 74165 74168 74189'.split(' ').sort();
 assert.deepEqual([...digitalICParts].sort(),requested);
 const power=(d,supply=5,offset=0)=>{const v=Array(d.pins).fill(offset);v[d.vcc-1]=offset+supply;return v;};
 let cases=0;
 for(const d of Object.values(defs)){
  assert.equal(d.labels.length,d.pins);assert.equal(new Set(outputPins(d)).size,outputPins(d).length);
- assert(!inputPins(d).some(p=>outputPins(d).includes(p)||p===d.vcc||p===d.gnd));
+ assert(!inputPins(d).some(p=>(outputPins(d).includes(p)&&!d.msi?.bidir?.includes(p))||p===d.vcc||p===d.gnd));
  assert(d.labels[d.vcc-1].startsWith('V'));assert.equal(d.labels[d.gnd-1],'GND');
  for(const gate of d.gates){
   for(let bits=0;bits<2**gate.inputs.length;bits++){
@@ -63,4 +63,6 @@ assert.deepEqual(defs['7420'].gates.map(g=>g.inputs),[[1,2,4,5],[9,10,12,13]]);
 assert.deepEqual(defs['4043'].rs.map(f=>f.q),[2,9,10,1]);assert.deepEqual(defs['4044'].rs.map(f=>f.q),[13,9,10,1]);
 assert.deepEqual([defs['7476'].vcc,defs['7476'].gnd,defs['7476'].jk[0].k],[5,13,16]);
 assert.deepEqual(defs['7476N'].jk,defs['7476'].jk);
-console.log(`OK 24 digital ICs: ${cases} gate truth-table cases, 6-channel hysteresis, both JK channels/edges, async controls, RS dominance/high-Z, supply and state restoration`);
+console.log(`OK 42 digital ICs: ${cases} gate truth-table cases, 6-channel hysteresis, both JK channels/edges, async controls, RS dominance/high-Z, supply and state restoration`);
+
+await import('./lab-digital-msi.test.mjs');

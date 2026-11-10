@@ -25,6 +25,7 @@ export abstract class DigitalICElm extends ChipElm {
    const left=i<d.pins/2,pos=left?i+1:d.pins-i;
    const pin=new Pin(this,pos,left?ChipElm.SIDE_W:ChipElm.SIDE_E,`${i+1} ${label}`);
    pin.output=outs.includes(i+1);
+   if(d.msi){pin.bubble=label.startsWith('/');pin.clock=label==='CK'||label==='UP'||label==='DOWN';}
    const ff=d.jk?.find(f=>f.clock===i+1||f.set===i+1||f.reset===i+1||f.nq===i+1);
    if(ff){
     pin.clock=ff.clock===i+1;

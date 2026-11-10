@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Functional DIP pinouts, checked against the manufacturer references in docs/digital-ics.md.
+import {msiDefinitions,MSIState} from './LabDigitalMSI.ts';
+import type {MSI} from './LabDigitalMSI.ts';
 export type GateKind='AND'|'NAND'|'OR'|'NOR'|'XOR'|'NOT'|'SCHMITT';
 export interface Gate {inputs:number[];output:number;kind:GateKind;}
 export interface JK {j:number;k:number;clock:number;set:number;reset:number;q:number;nq:number;}
 export interface RS {set:number;reset:number;q:number;}
 export interface DigitalIC {
  part:string;family:'CMOS'|'TTL';pins:number;vcc:number;gnd:number;
- labels:string[];gates:Gate[];jk?:JK[];rs?:RS[];enable?:number;
+ msi?:MSI;labels:string[];gates:Gate[];jk?:JK[];rs?:RS[];enable?:number;
  mode?:'master-slave'|'falling'|'rising'|'rs-nor'|'rs-nand';
 }
-const specs:Record<string,DigitalIC>={};
+const specs:Record<string,DigitalIC>={...msiDefinitions};
 function gateIC(parts:string[],family:'CMOS'|'TTL',kind:GateKind,channels:number[][]):void{
  for(const part of parts){
   const labels=Array(14).fill('NC');labels[13]=family==='TTL'?'Vcc':'Vdd';labels[6]='GND';
@@ -32,6 +34,7 @@ gateIC(['40106'],'CMOS','SCHMITT',inv);gateIC(['7414'],'TTL','SCHMITT',inv);
 gateIC(['4082'],'CMOS','AND',[[2,3,4,5,1],[9,10,11,12,13]]);
 gateIC(['4012'],'CMOS','NAND',[[2,3,4,5,1],[9,10,11,12,13]]);
 gateIC(['7420'],'TTL','NAND',[[1,2,4,5,6],[9,10,12,13,8]]);
+gateIC(['7430'],'TTL','NAND',[[1,2,3,4,5,6,11,12,8]]);
 gateIC(['4023'],'CMOS','NAND',[[1,2,8,9],[3,4,5,6],[11,12,13,10]]);
 function sequential(part:string,family:'CMOS'|'TTL',vcc:number,gnd:number,mode:DigitalIC['mode'],jk?:JK[],rs?:RS[],enable?:number):void{
  const labels=Array(16).fill('NC');labels[vcc-1]=family==='TTL'?'Vcc':'Vdd';labels[gnd-1]='GND';
@@ -54,21 +57,22 @@ sequential('4044','CMOS',16,8,'rs-nand',undefined,[
  {set:3,reset:4,q:13},{set:7,reset:6,q:9},{set:11,reset:12,q:10},{set:15,reset:14,q:1}],5);
 export const digitalICs:Readonly<Record<string,DigitalIC>>=specs;
 export const digitalICParts=Object.keys(specs).sort((a,b)=>parseInt(a)-parseInt(b)||a.localeCompare(b));
-export function outputPins(d:DigitalIC):number[]{return [...d.gates.map(g=>g.output),...(d.jk?.flatMap(f=>[f.q,f.nq])||[]),...(d.rs?.map(f=>f.q)||[])];}
-export function inputPins(d:DigitalIC):number[]{return [...new Set([...d.gates.flatMap(g=>g.inputs),...(d.jk?.flatMap(f=>[f.j,f.k,f.clock,f.set,f.reset])||[]),...(d.rs?.flatMap(f=>[f.set,f.reset])||[]),...(d.enable?[d.enable]:[])])];}
+export function outputPins(d:DigitalIC):number[]{return [...(d.msi?.outputs||[]),...d.gates.map(g=>g.output),...(d.jk?.flatMap(f=>[f.q,f.nq])||[]),...(d.rs?.map(f=>f.q)||[])];}
+export function inputPins(d:DigitalIC):number[]{return [...new Set([...(d.msi?.inputs||[]),...d.gates.flatMap(g=>g.inputs),...(d.jk?.flatMap(f=>[f.j,f.k,f.clock,f.set,f.reset])||[]),...(d.rs?.flatMap(f=>[f.set,f.reset])||[]),...(d.enable?[d.enable]:[])])];}
 export function gateValue(kind:GateKind,values:boolean[]):boolean{
  const and=values.every(Boolean),or=values.some(Boolean);
  switch(kind){case'AND':return and;case'NAND':return !and;case'OR':return or;case'NOR':return !or;case'XOR':return values.filter(Boolean).length%2===1;default:return !values[0];}
 }
 export class DigitalICState {
  q=[false,false,false,false];master=[false,false];clock=[false,false];levels:boolean[]=Array(16).fill(false);
+ msi=new MSIState();
  invalid=false;
- reset():void{this.q.fill(false);this.master.fill(false);this.clock.fill(false);this.levels.fill(false);this.invalid=false;}
- save():string{return JSON.stringify({q:this.q,master:this.master,clock:this.clock,levels:this.levels});}
+ reset():void{this.msi.reset();this.q.fill(false);this.master.fill(false);this.clock.fill(false);this.levels.fill(false);this.invalid=false;}
+ save():string{return JSON.stringify({q:this.q,master:this.master,clock:this.clock,levels:this.levels.slice(0,16),msi:this.msi.save()});}
  restore(text:string):void{
   try{const s=JSON.parse(text);for(const key of ['q','master','clock','levels']as const){
-   if(!Array.isArray(s[key])||s[key].length!==this[key].length||!s[key].every((x:unknown)=>typeof x==='boolean'))throw Error('invalid IC state');
-  }this.q=s.q;this.master=s.master;this.clock=s.clock;this.levels=s.levels;}catch{this.reset();}
+   if(!Array.isArray(s[key])||s[key].length!==(key==='levels'?16:this[key].length)||!s[key].every((x:unknown)=>typeof x==='boolean'))throw Error('invalid IC state');
+  }this.q=s.q;this.master=s.master;this.clock=s.clock;this.levels=s.levels;this.msi.restore(s.msi);}catch{this.reset();}
  }
  step(d:DigitalIC,volts:number[]):Record<number,boolean|null>{
   const vss=volts[d.gnd-1],supply=volts[d.vcc-1]-vss;
@@ -83,6 +87,7 @@ export class DigitalICState {
    }else this.levels[p-1]=v>(d.family==='TTL'?1.4:supply/2);
   }
   const high=(p:number)=>this.levels[p-1];
+  if(d.msi)return this.msi.step(d,high);
   for(const g of d.gates)out[g.output]=gateValue(g.kind,g.inputs.map(high));
   d.rs?.forEach((f,i)=>{
    const set=d.mode==='rs-nand'?!high(f.set):high(f.set),reset=d.mode==='rs-nand'?!high(f.reset):high(f.reset);
