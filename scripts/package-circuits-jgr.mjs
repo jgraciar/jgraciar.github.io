@@ -25,6 +25,9 @@ assert(html.includes("</head>"),"No se reconoce la cabecera HTML");
 writeFileSync(target,html.replace("</head>",
  '  <script defer src="./initial-settings.js"></script>\n</head>'));
 cpSync(join(repo,"initial-settings.js"),join(site,"initial-settings.js"));
+// La misma ruta existía en versiones anteriores; mantenerla permite al navegador
+// actualizar el trabajador antiguo y abandonar las páginas almacenadas en caché.
+cpSync(join(repo,"service-worker.js"),join(site,"service-worker.js"));
 cpSync(join(repo,"LICENSE"),join(site,"LICENSE-GPLv3.txt"));
 cpSync(resolve(ts,"..","COPYING.txt"),join(site,"COPYING-CircuitJS.txt"));
 
