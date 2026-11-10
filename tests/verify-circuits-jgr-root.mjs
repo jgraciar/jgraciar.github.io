@@ -5,6 +5,11 @@ import {chromium} from "playwright";
 
 const site=resolve(process.argv[2]||"site-root");
 const html=readFileSync(join(site,"circuitjgr.html"),"utf8");
+const serviceWorker=readFileSync(join(site,"service-worker.js"),"utf8");
+assert(serviceWorker.includes('cache:"no-store"'),
+ "El service worker debe recuperar páginas de la red sin caché antigua");
+assert(serviceWorker.includes('name.startsWith("circuitjs-cache")'),
+ "El service worker debe eliminar las cachés anteriores de CircuitJS");
 assert(!existsSync(join(site,"circuitjs.html")),
  "El simulador raíz debe usar circuitjgr.html, no un duplicado de circuitjs.html");
 assert(html.includes('<title>Circuit JGR 1.0</title>'));
