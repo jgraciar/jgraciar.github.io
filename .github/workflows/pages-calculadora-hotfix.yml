@@ -51,7 +51,7 @@ jobs:
             import {brotliDecompressSync} from "node:zlib";
             import assert from "node:assert/strict";
             const archive=readFileSync("assets/calculadora-sistemas.br.b64","utf8").trim();
-            const parts=brotliDecompressSync(Buffer.from(archive,"base64")).toString("utf8").split("\\0");
+            const parts=brotliDecompressSync(Buffer.from(archive,"base64")).toString("utf8").split(String.fromCharCode(0));
             const names=["index.html","solver.js","app.js","style.css"];
             assert.equal(parts.length,names.length);
             names.forEach((name,i)=>{
