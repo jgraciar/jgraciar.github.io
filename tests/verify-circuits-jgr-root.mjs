@@ -20,6 +20,15 @@ try{
   "La portada debe ofrecer acceso al simulador");
  assert.equal(await page.locator('a[href="./electrotecnia/"]').count(),1,
   "La portada debe conservar el acceso al laboratorio");
+ assert.equal(await page.locator('a[href="./calculadora/"]').count(),1,
+  "La portada debe ofrecer acceso a la calculadora");
+ await page.goto("http://127.0.0.1:8767/calculadora/",{waitUntil:"domcontentloaded"});
+ assert.equal(await page.title(),"Calculadora de sistemas de ecuaciones");
+ await page.waitForFunction(()=>document.querySelectorAll("#rows option").length===8);
+ assert.equal(await page.locator("#cols option").count(),6);
+ assert.equal(await page.locator('script[src="solver.js"]').count(),1);
+ assert.equal(await page.locator('script[src="app.js"]').count(),1);
+
 
  await page.goto("http://127.0.0.1:8767/circuitjgr.html",{waitUntil:"domcontentloaded"});
  assert.equal(await page.title(),"Circuit JGR 1.0");
