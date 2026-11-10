@@ -8,7 +8,7 @@ try{
  await page.goto('http://127.0.0.1:8767/circuitjgr.html');await page.locator('#lab-start-accept').click({timeout:30000});
  await page.waitForFunction(()=>!!window.CircuitJS1?.getElements);
  await page.evaluate(()=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit('<cir f="0" ts="0.00001"></cir>',false);});
- const canvas=page.locator('canvas').first(),box=await canvas.boundingBox();
+ const canvas=page.locator('.canvasWrapper > canvas'),box=await canvas.boundingBox();
  await canvas.click({button:'right',position:{x:box.width-40,y:box.height-40}});
  const groups=['Puertas lógicas','Biestables y latch','Registros de desplazamiento','Contadores','Codificadores y decodificadores','Multiplexores','Memoria y aritmética','Otros componentes digitales'];
  const menus=await page.evaluate(heads=>heads.map(head=>Array.from(document.querySelectorAll('li.hasSubmenu')).filter(li=>Array.from(li.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()===head).map(li=>Array.from(li.querySelector(':scope > ul').children).map(item=>(item.querySelector('.itemLabel')?.textContent||item.textContent).trim()))),groups);
