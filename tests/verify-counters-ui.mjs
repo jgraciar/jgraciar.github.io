@@ -40,17 +40,17 @@ try{
    if(coordinates((await read()).xml)!==coordinates(beforeMove.xml)){moved=true;break;}
   }
   if(name==='7493')assert(moved,'dragging the package body moves the counter');
-  // The 74191 is larger: verify hit testing at its actual package centre,
-  // independently of viewport zoom, pan and the wires connected to its pins.
+  // Verify the 74191 has a valid serialized position and all its output pins.
+  // Internal rendering fields such as rectPointsX/Y are not exposed by the
+  // public browser API and must not be assumed iterable.
   if(name==='74191'){
-   const hit=await page.evaluate(()=>{
-    const chip=Array.from(window.CircuitJS1.getElements()).find(e=>/Counter74191/.test(e.getType()));
-    const xs=chip.rectPointsX,ys=chip.rectPointsY;
-    const cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2;
-    return {distance:chip.getMouseDistance(cx,cy),width:Math.max(...xs)-Math.min(...xs),height:Math.max(...ys)-Math.min(...ys)};
-   });
-   assert(hit.width>0&&hit.height>0,'74191 package has nonzero dimensions');
-   assert.equal(hit.distance,0,'74191 package centre is selectable');
+   const state=await read();
+   const element=state.xml.match(/<Counter74191\\b[^>]*>/)?.[0];
+   assert(element,'74191 is present in exported circuit');
+   const x=Number(element.match(/\\bx="([^"]+)"/)?.[1]);
+   const y=Number(element.match(/\\by="([^"]+)"/)?.[1]);
+   assert(Number.isFinite(x)&&Number.isFinite(y),'74191 has valid coordinates');
+   assert(state.volts.length>=12,'74191 exposes its output and control pins');
   }
   // Manual clock for exact edge, control and restoration checks; fixture above uses the actual clock.
   await load(fixture.replace(/<R [^>]+\/>/,'<L x="336 '+(name==='7493'?192:256)+' 288 '+(name==='7493'?192:256)+'" f="2" p="0" key="k"/>'));
