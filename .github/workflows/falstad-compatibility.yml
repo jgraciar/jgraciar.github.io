@@ -1,0 +1,63 @@
+name: Comparar elementos originales con Falstad
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/falstad-compatibility.yml'
+      - 'tests/audit-falstad-source.mjs'
+      - 'tests/compare-falstad-live.mjs'
+permissions:
+  contents: read
+jobs:
+  comparison:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: adaptacion
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: pfalstad/circuitjs1
+          ref: 8ac55f22a03606579b822b3dccd4dc10de1ddc5b
+          path: circuitjs-src
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Conservar fuente original y preparar adaptación
+        run: |
+          cp -a circuitjs-src/ts pristine-ts
+          node adaptacion/scripts/embed-default-aron.mjs circuitjs-src/ts/CirSim.ts adaptacion/tests/fixtures/sistema-iii-n-startup.xml
+          node adaptacion/scripts/patch-wattmeter-powers.mjs circuitjs-src/ts/WattmeterTrueElm.ts adaptacion/scripts/LabPowerMeasurement.ts
+          node adaptacion/scripts/patch-impedance.mjs circuitjs-src/ts adaptacion/scripts/ImpedanceElm.ts adaptacion/scripts/LabImpedance.ts
+          node adaptacion/scripts/patch-pv-inverter.mjs circuitjs-src/ts adaptacion/scripts/PVInverterElm.ts adaptacion/scripts/LabPVInverter.ts
+          node adaptacion/scripts/patch-cd4026.mjs circuitjs-src/ts
+          node --experimental-strip-types adaptacion/scripts/patch-digital-ics.mjs circuitjs-src/ts
+          node adaptacion/scripts/patch-lab-localization.mjs circuitjs-src/ts adaptacion/scripts/LabTranslations.ts
+          node adaptacion/scripts/prepare-circuits-jgr.mjs circuitjs-src/ts
+          node --experimental-strip-types adaptacion/tests/verify-edit-regional-numbers.mjs circuitjs-src/ts
+          node --experimental-strip-types adaptacion/tests/verify-edit-dialog-titles.mjs circuitjs-src/ts
+          node --experimental-strip-types adaptacion/tests/verify-about-and-draw-locales.mjs circuitjs-src/ts
+          node --experimental-strip-types adaptacion/tests/verify-nonlinear-presets.mjs circuitjs-src/ts
+          node --experimental-strip-types adaptacion/tests/verify-six-pulse-static.mjs circuitjs-src/ts
+
+      - name: Auditar fuente original
+        run: |
+          npm ci --prefix circuitjs-src/ts
+          node adaptacion/tests/audit-falstad-source.mjs pristine-ts circuitjs-src/ts audit-report
+      - name: Instalar navegador
+        working-directory: adaptacion/tests
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Comparar las dos webs publicadas
+        run: node adaptacion/tests/compare-falstad-live.mjs pristine-ts/public/circuits audit-report
+      - name: Conservar resultados completos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: falstad-compatibility
+          path: audit-report
