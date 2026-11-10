@@ -4,6 +4,19 @@ import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true,...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{})});
 try{
  const page=await browser.newPage({viewport:{width:1500,height:950},locale:'es-ES'});
+ await page.addInitScript(()=>{
+  const fillText=CanvasRenderingContext2D.prototype.fillText;
+  CanvasRenderingContext2D.prototype.fillText=function(text,x,y,...rest){
+   if(text==='4026'){
+    const m=this.getTransform(),r=this.canvas.getBoundingClientRect();
+    const cx=x+this.measureText(text).width/2;
+    window.cd4026Grab={x:r.left+(m.a*cx+m.c*y+m.e)*r.width/this.canvas.width,
+     y:r.top+(m.b*cx+m.d*y+m.f)*r.height/this.canvas.height,
+     dx:64*m.a*r.width/this.canvas.width};
+   }
+   return fillText.call(this,text,x,y,...rest);
+  };
+ });
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8767/circuitjgr.html');
  await page.locator('#lab-start-accept').click({timeout:30000});
@@ -33,6 +46,28 @@ try{
  await advance(.03);
  let d=await read();assert.equal(d.count,0);assert.equal(d.volts[15],12);
  const pulse=async key=>{await page.keyboard.down(key);await advance(.03);await page.keyboard.up(key);await advance(.03);};
+ // Drag before testing every displayed digit, so LED current checks also verify the moved circuit.
+ await page.waitForFunction(()=>!!window.cd4026Grab);
+ const before=await page.evaluate(()=>window.CircuitJS1.exportCircuit());
+ const grab=await page.evaluate(()=>window.cd4026Grab);
+ await page.mouse.move(grab.x,grab.y);await page.mouse.down();
+ await page.mouse.move(grab.x+grab.dx,grab.y,{steps:8});await page.mouse.up();
+ const geometry=await page.evaluate(()=>{
+  const xml=new DOMParser().parseFromString(window.CircuitJS1.exportCircuit(),'application/xml');
+  const pos=xml.querySelector('CD4026').getAttribute('x').trim().split(/\s+/).map(Number);
+  const ends=Array.from(xml.querySelectorAll('rw')).flatMap(w=>{
+   const a=w.getAttribute('x').trim().split(/\s+/).map(Number);return [[a[0],a[1]],[a[2],a[3]]];
+  });
+  const [x,y]=pos;
+  const pins=[[x,y],[x,y+32],[x,y+64],[x,y+96],[x+48,y-16],[x+48,y+160],
+   ...Array.from({length:7},(_,i)=>[x+96,y+16*i])];
+  return {position:pos,connections:pins.map(([x,y])=>ends.filter(([a,b])=>a===x&&b===y).length)};
+ });
+ const previous=before.match(/<CD4026[^>]* x="([^"]+)"/)[1].trim().split(/\s+/).map(Number);
+ assert.equal(geometry.position[0],previous[0]+64,'package moves horizontally by 64 grid units');
+ assert.equal(geometry.position[1],previous[1],'package keeps its vertical position');
+ assert.deepEqual(geometry.connections,Array(13).fill(1),'all 13 used pins retain their routed wire');
+ assert.equal((await read()).count,0,'dragging preserves the count');
  for(let n=1;n<=12;n++){
   await pulse('c');d=await read();assert.equal(d.count,n%10,'Count button '+n);
   assert(d.current.every(Number.isFinite));
@@ -53,5 +88,5 @@ try{
  await page.evaluate(xml=>(window.CircuitJS1.importCircuit(xml,false),window.CircuitJS1.setSimRunning(true)),xml);await advance(.1);
  assert.equal((await read()).count,1,'XML roundtrip');
  await page.screenshot({path:process.env.CD4026_SCREENSHOT||'/tmp/cd4026-practice.png'});
- assert.deepEqual(errors,[]);console.log('OK CD4026 practice: 12 rapid button presses, 1 ms bounce rejection, 9→0, reset, LED currents and XML roundtrip');
+ assert.deepEqual(errors,[]);console.log('OK CD4026 practice: package drag, 13 retained connections, 12 rapid button presses, 1 ms bounce rejection, 9→0, reset, LED currents and XML roundtrip');
 }finally{await browser.close();}
