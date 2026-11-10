@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import {cpSync,existsSync,mkdirSync,readFileSync,rmSync,writeFileSync} from "node:fs";
 import {resolve,join} from "node:path";
 import {brotliDecompressSync} from "node:zlib";
+import {execFileSync} from "node:child_process";
 
 const [source,output,adaptation]=process.argv.slice(2);
 assert(source&&output&&adaptation,"Uso: package-circuits-jgr.mjs <ts-src> <destino> <repositorio-adaptacion>");
@@ -45,6 +46,7 @@ for(let i=0;i<calculatorNames.length;i++){
  assert(calculatorFiles[i].length>0,"Archivo vacío: "+calculatorNames[i]);
  writeFileSync(join(calculatorDir,calculatorNames[i]),calculatorFiles[i]);
 }
+execFileSync(process.execPath,[join(repo,"scripts","layout-calculadora.mjs"),calculatorDir],{stdio:"inherit"});
 assert(readFileSync(join(calculatorDir,"index.html"),"utf8")
  .includes('src="solver.js"'),"Falta el módulo solver.js en la calculadora");
 
