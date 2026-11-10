@@ -6,6 +6,8 @@ on:
     paths:
       - .github/workflows/pages-calculadora-hotfix.yml
       - assets/calculadora-sistemas.br.b64
+      - scripts/layout-calculadora.mjs
+      - scripts/package-circuits-jgr.mjs
   workflow_dispatch:
 
 permissions:
@@ -59,6 +61,13 @@ jobs:
               writeFileSync("site-root/calculadora/"+name,parts[i]);
             });
           '
+          node scripts/layout-calculadora.mjs site-root/calculadora
+          test -s site-root/calculadora/style.css
+          grep -Fq 'class="workbench"' site-root/calculadora/index.html
+          grep -Fq 'class="entry-pane"' site-root/calculadora/index.html
+          grep -Fq 'class="output-pane"' site-root/calculadora/index.html
+          grep -Fq 'class="result-placeholder"' site-root/calculadora/index.html
+          grep -Fq 'border-left:2px solid #a9bdcd' site-root/calculadora/style.css
           node --check site-root/calculadora/app.js
           node --check site-root/calculadora/solver.js
           grep -Fq 'data-example="unique"' site-root/calculadora/index.html
