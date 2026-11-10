@@ -17,5 +17,8 @@ for(const [file,expected]of Object.entries({'CircuitElm.ts':['CircuitElm.initCla
  const a=methods(base,file),b=methods(patched,file),diff=Object.keys(a).filter(k=>a[k]!==b[k]);assert.deepEqual(diff.sort(),expected.sort(),file+' changed methods');methodChanges[file]=diff;
 }
 for(const f of ['SimulationManager.ts','CircuitNode.ts','ChipElm.ts','NumberParse.ts'])assert(identical.includes(f),f+' must remain identical');
-const report={upstream:'8ac55f22a03606579b822b3dccd4dc10de1ddc5b',originalFiles:files.length,identical:identical.length,changed,concreteElements:concrete.length,unchangedElements:concrete.length-1,intentionalElementException:'WattmeterTrueElm.ts',methodChanges};
+const drawCommands=text=>new Set(Array.from(text.matchAll(/"(\w+Elm(?:[:~][^"]*)?)"/g),m=>m[1]));
+const originalDraw=drawCommands(readFileSync(join(base,'Menus.ts'),'utf8')),currentDraw=drawCommands(readFileSync(join(patched,'Menus.ts'),'utf8'));
+assert.deepEqual([...originalDraw].filter(c=>!currentDraw.has(c)),[],'Original Draw commands must remain available');
+const report={originalDrawCommands:originalDraw.size,missingDrawCommands:0,upstream:'8ac55f22a03606579b822b3dccd4dc10de1ddc5b',originalFiles:files.length,identical:identical.length,changed,concreteElements:concrete.length,unchangedElements:concrete.length-1,intentionalElementException:'WattmeterTrueElm.ts',methodChanges};
 mkdirSync(out,{recursive:true});writeFileSync(join(out,'source.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));

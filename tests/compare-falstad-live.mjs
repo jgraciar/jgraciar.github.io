@@ -12,7 +12,7 @@ try{
  for(const url of report.urls){
   const context=await browser.newContext({viewport:{width:1500,height:950},locale:'en-US',serviceWorkers:'block'});
   await context.addInitScript(()=>{
-   for(const [k,v]of Object.entries({language:'en',labLanguageMode:'manual',labStartConfigured:'1',labRegionalFormat:'us',labDisplayUnitScale:'auto',decimalDigits:'3',decimalDigitsShort:'1',showPropsOnClick:'false',showOhm:'false'}))localStorage.setItem(k,v);
+   for(const [k,v]of Object.entries({language:'en',labLanguageMode:'manual',labStartConfigured:'1',labRegionalFormat:'uk',labDecimalSeparator:'.',labGroupingSeparator:'',labDisplayUnitScale:'auto',decimalDigits:'3',decimalDigitsShort:'1',showPropsOnClick:'false',showOhm:'false'}))localStorage.setItem(k,v);
    const fill=CanvasRenderingContext2D.prototype.fillText;
    CanvasRenderingContext2D.prototype.fillText=function(text,x,y,...rest){const q=window.auditRequest;if(q&&text===q.text&&this.canvas.matches('.canvasWrapper > canvas')){const m=this.getTransform(),r=this.canvas.getBoundingClientRect();window.auditPoint={x:r.left+(m.a*q.x+m.c*q.y+m.e)*r.width/this.canvas.width,y:r.top+(m.b*q.x+m.d*q.y+m.f)*r.height/this.canvas.height};}return fill.call(this,text,x,y,...rest);};
   });
