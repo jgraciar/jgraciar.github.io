@@ -72,8 +72,8 @@ if(!app.includes("const fractional=s.slice(-digits).replace(/0+$/,'');")){
   ].join('\n');
   app=replaceOnce(app,oldDecimal,decimalFormatter);
 }
-const oldHint="'Resultados con '+$('precision').value+' decimales: = indica un valor exacto; ≈ indica un valor redondeado. El desarrollo conserva las fracciones exactas.'";
-const newHint="'Resultados con hasta '+$('precision').value+' decimales, sin ceros finales: = indica un valor exacto; ≈ indica un valor redondeado. El desarrollo conserva las fracciones exactas.'";
+const oldHint="Resultados con '+$('precision').value+' decimales: = indica un valor exacto; ≈ indica un valor redondeado. El desarrollo conserva las fracciones exactas.";
+const newHint="Resultados con hasta '+$('precision').value+' decimales, sin ceros finales: = indica un valor exacto; ≈ indica un valor redondeado. El desarrollo conserva las fracciones exactas.";
 if(!app.includes(newHint))app=replaceOnce(app,oldHint,newHint);
 save('app.js',app);
 for(const digits of [3,4,6,10]){
