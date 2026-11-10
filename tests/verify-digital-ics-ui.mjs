@@ -7,6 +7,9 @@ try{
  page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8767/circuitjgr.html');await page.locator('#lab-start-accept').click({timeout:30000});
  await page.waitForFunction(()=>!!window.CircuitJS1?.getElements);
+ await page.evaluate(()=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit('<cir f="0" ts="0.00001"></cir>',false);});
+ const canvas=page.locator('canvas').first(),box=await canvas.boundingBox();
+ await canvas.click({button:'right',position:{x:box.width-40,y:box.height-40}});
  const groups=['Puertas lógicas','Biestables y latch','Registros de desplazamiento','Contadores','Codificadores y decodificadores','Multiplexores','Memoria y aritmética','Otros componentes digitales'];
  const menus=await page.evaluate(heads=>heads.map(head=>Array.from(document.querySelectorAll('li.hasSubmenu')).filter(li=>Array.from(li.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()===head).map(li=>Array.from(li.querySelector(':scope > ul').children).map(item=>item.textContent.trim()))),groups);
  for(let i=0;i<groups.length;i++)assert.equal(menus[i].length,2,'Draw and context submenu '+groups[i]);
@@ -15,6 +18,7 @@ try{
  for(const part of digitalICParts)assert(numbered.includes(part),'menu contains '+part);
  assert(menus[3][0].some(x=>/^4026\s/.test(x)),'4026 number-first label');
  console.log('OK digital menus: eight submenus in Draw and context menu, 45 distinct references');
+ await page.keyboard.press('Escape');
  const advance=async()=>{
   await page.evaluate(()=>{const api=window.CircuitJS1,target=api.getTime()+.001;window.icReady=false;
    api.ontimestep=()=>{if(api.getTime()>=target){api.setSimRunning(false);api.ontimestep=null;window.icReady=true;}};api.setSimRunning(true);});
