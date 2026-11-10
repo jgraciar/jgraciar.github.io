@@ -47,6 +47,7 @@ for(let i=0;i<calculatorNames.length;i++){
  writeFileSync(join(calculatorDir,calculatorNames[i]),calculatorFiles[i]);
 }
 execFileSync(process.execPath,[join(repo,"scripts","layout-calculadora.mjs"),calculatorDir],{stdio:"inherit"});
+execFileSync(process.execPath,[join(repo,"scripts","calculadora-ejemplos-fraccionarios.mjs"),calculatorDir],{stdio:"inherit"});
 assert(readFileSync(join(calculatorDir,"index.html"),"utf8")
  .includes('src="solver.js"'),"Falta el módulo solver.js en la calculadora");
 
