@@ -1,0 +1,64 @@
+name: Reparar caché y publicar calculadora
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/pages-calculadora-hotfix.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-calculadora-hotfix
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Publicar último sitio verificado con reparador de caché
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Obtener corrección del trabajador de servicio
+        uses: actions/checkout@v4
+      - name: Recuperar la última compilación completa aprobada
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          run-id: 42850079092
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: verified-site
+      - name: Montar portal verificado y corregir la caché
+        run: |
+          set -euo pipefail
+          test -s verified-site/artifact.tar
+          mkdir -p site-root
+          tar -xf verified-site/artifact.tar -C site-root
+          cp service-worker.js site-root/service-worker.js
+          test -s site-root/index.html
+          test -s site-root/calculadora/index.html
+          test -s site-root/calculadora/solver.js
+          test -s site-root/calculadora/app.js
+          test -s site-root/calculadora/style.css
+          test -s site-root/circuitjgr.html
+          grep -Fq 'href="./calculadora/"' site-root/index.html
+          grep -Fq 'href="./circuitjgr.html"' site-root/index.html
+          grep -Fq 'href="./electrotecnia/"' site-root/index.html
+          grep -Fq 'name.startsWith("circuitjs-cache")' site-root/service-worker.js
+          grep -Fq 'cache:"no-store"' site-root/service-worker.js
+          echo 'Portal, simulador y calculadora verificados; corrección de caché incluida'
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Empaquetar sitio
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site-root
+      - name: Publicar portal
+        id: deployment
+        uses: actions/deploy-pages@v4
