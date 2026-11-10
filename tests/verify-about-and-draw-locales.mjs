@@ -36,7 +36,7 @@ for(const [key,translated,language,expected] of [
  ["Add Resistor","Tilføj Resistor","da","Resistor"],
  ["Add Resistor","Widerstand einfügen","de","Widerstand"],
  ["Add Wire","Verbindung einfügen (wire)","de","Verbindung (wire)"],
- ["Add Resistor","Wstaw rezystor","pl","rezystor"],
+ ["Add Resistor","Wstaw rezystor","pl","Rezystor"],
  ["Add Resistor","Inserir Resistor","pt","Resistor"],
  ["Add Resistor","抵抗器を追加","ja","抵抗器"],
  ["Add Resistor","저항 추가","kr","저항"],
@@ -44,10 +44,10 @@ for(const [key,translated,language,expected] of [
  ["Add Custom Logic","カスタムロジック追加","ja","カスタムロジック"],
  ["Add Resistor","加入電阻器","zh-tw","電阻器"],
  ["Add Resistor","添加电阻器","zh","电阻器"],
- ["Añadir impedancia Z (CA, RLC serie)","Añadir impedancia Z (CA, RLC serie)","es","impedancia Z (CA, RLC serie)"],
- ["Añadir impedancia Z (CA, RLC serie)","Afig impedància Z","ca-es-valencia","impedància Z"],
- ["Add Resistor","Добавить резистор","ru","резистор"],
- ["Add Resistor","Voeg toe weerstand","nl","weerstand"]
+ ["Añadir impedancia Z (CA, RLC serie)","Añadir impedancia Z (CA, RLC serie)","es","Impedancia Z (CA, RLC serie)"],
+ ["Añadir impedancia Z (CA, RLC serie)","Afig impedància Z","ca-es-valencia","Impedància Z"],
+ ["Add Resistor","Добавить резистор","ru","Резистор"],
+ ["Add Resistor","Voeg toe weerstand","nl","Weerstand"]
 ]){
  assert.equal(circuitJsDrawLabel(key,translated,language),expected,
   "El menú Dibujo conserva verbo de inserción: "+language+" "+translated);
@@ -149,3 +149,23 @@ for(const code of labLanguageCodes){
  }
 }
 console.log("OK: ventana Acerca de y textos legales completos en 22 idiomas; créditos íntegros, Dibujo y formatos regionales.");
+
+
+// New headings have complete independent labels for all supported languages.
+const {drawMenuGroupKeys,drawMenuGroupTranslations}=await import('../scripts/DrawMenuGroups.ts');
+assert.equal(drawMenuGroupKeys.length,30);
+for(const code of labLanguageCodes){
+ assert.equal(drawMenuGroupTranslations[code]?.length,30,code+' Draw headings');
+ assert(drawMenuGroupTranslations[code].every(x=>x.trim()),code+' empty Draw heading');
+}
+for(const name of ['passMenu','inputMenu','outputMenu','activeMenu','activeBlocMenu','gateMenu','achipMenu'])
+ assert(menus.includes(name+'.addSubmenu(drawMenuGroupLabel('),name+' must be grouped');
+for(const [key,label,lang,expected]of [
+ ['Add Resistor','resistencia','es','Resistencia'],
+ ['Add CD4026 decade counter','contador','es','4026 Contador decimal'],
+ ['IC7476N','7476N 2 × biestable JK','es','7476N 2 × Biestable JK'],
+ ['Add Op Amp','amplificador (MOSFET, VAr)','es','Amplificador (MOSFET, VAr)'],
+ ['Add Resistor','résistance','fr','Résistance'],
+ ['Add Resistor','резистор','ru','Резистор']
+])assert.equal(circuitJsDrawLabel(key,label,lang),expected);
+console.log('OK: all seven remaining Draw categories grouped; 30 headings in 22 languages; uppercase initials and numbered IC names');

@@ -1,3 +1,4 @@
+import {drawMenuGroupKeys,drawMenuGroupTranslations} from '../scripts/DrawMenuGroups.ts';
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {digitalICs,digitalICParts,DigitalICState,inputPins,outputPins} from '../scripts/LabDigitalIC.ts';
@@ -18,6 +19,23 @@ try{
  for(const part of digitalICParts)assert(numbered.includes(part),'menu contains '+part);
  assert(menus[3][0].some(x=>/^4026\s/.test(x)),'4026 number-first label');
  console.log('OK digital menus: eight submenus in Draw and context menu, 45 distinct references');
+ const classified=await page.evaluate(()=>Array.from(document.querySelectorAll('ul[data-draw-group]')).map(ul=>({
+  key:ul.dataset.drawGroup,
+  heading:Array.from(ul.parentElement.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim(),
+  labels:Array.from(ul.querySelectorAll(':scope > li > .itemLabel')).map(el=>el.textContent.trim())
+ })));
+ assert.equal(classified.length,60,'30 component groups in Draw and context menu');
+ for(const [i,key]of drawMenuGroupKeys.entries()){
+  const copies=classified.filter(g=>g.key===key);assert.equal(copies.length,2,key+' in both menus');
+  assert.equal(copies[0].heading,drawMenuGroupTranslations.es[i]);assert.deepEqual(copies[0].labels,copies[1].labels);
+  assert(copies[0].labels.length>0,key+' is not empty');
+ }
+ for(const label of [...classified.flatMap(g=>g.labels),...menus.flatMap(copies=>copies[0])]){
+  const first=label.replace(/^\s*\d+N?\s+/,'').match(/\p{L}/u)?.[0];
+  assert(!first||first===first.toLocaleUpperCase('es'),'Uppercase initial: '+label);
+ }
+ console.log('OK all Draw menus: 30 additional submenus, matching context entries, uppercase component initials');
+
  await page.keyboard.press('Escape');
  const advance=async()=>{
   await page.evaluate(()=>{const api=window.CircuitJS1,target=api.getTime()+.001;window.icReady=false;
@@ -108,3 +126,4 @@ try{
  assert.deepEqual(errors,[],'no browser errors from digital IC packages');
  await page.screenshot({path:'/tmp/digital-ics.png'});
 }finally{await browser.close();}
+

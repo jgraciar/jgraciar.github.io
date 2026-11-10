@@ -268,3 +268,8 @@ const aboutSource=readFileSync(join(repoRoot,"scripts/circuitjs-about-i18n.js"),
 const aboutLegal=readFileSync(join(repoRoot,"scripts/circuitjs-about-legal.js"),"utf8");
 once(about,"</script>",aboutSource+"\n"+aboutLegal+"\n</script>");
 console.log("Traducciones activadas: menús, nombres de componentes y Acerca de en 22 idiomas");
+
+
+// Reorganize the complete Draw component inventory after all component patches.
+const drawGrouping=spawnSync(process.execPath,['--experimental-strip-types',join(repoRoot,'scripts/patch-draw-menu-groups.mjs'),dir],{stdio:'inherit'});
+if(drawGrouping.status!==0)throw Error('No se pudo clasificar el menú Dibujar');

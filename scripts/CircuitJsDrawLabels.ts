@@ -112,12 +112,20 @@ const digitalCounterNames: Record<string, string[]> = {
   ]
 };
 
+// Uppercase only the first letter of the name, after an optional catalogue number.
+// Keep the remaining technical spelling (cos φ, VAr, MOSFET, etc.) intact.
+export function capitalizeDrawComponent(label:string,language:string):string {
+ const prefix=label.match(/^\s*\d+N?\s+/)?.[0]||'';
+ const locale=language==='csx'?'cs':language==='kr'?'ko':language;
+ return prefix+label.slice(prefix.length).replace(/\p{L}/u,c=>c.toLocaleUpperCase(locale||'en'));
+}
+
 // Nombres de los componentes de Dibujo sin verbos de inserción.
 // Se conserva intacta la clave del comando (por ejemplo, «Add Resistor»)
 // y se modifica únicamente su rótulo visible.
 export function circuitJsDrawLabel(sourceKey: string, localized: string, language: string): string {
     // Los accesos de arrastre y las acciones ajenas a «Add» no se cambian.
-    if (!/^(?:Add |Añadir |Afegir |Afig |Engadir )/i.test(sourceKey) || !localized) return localized;
+    if (!/^(?:Add |Añadir |Afegir |Afig |Engadir )/i.test(sourceKey) || !localized) return capitalizeDrawComponent(localized,language);
 
     const code = language.toLowerCase().replace(/_/g, "-");
     const base = code.startsWith("ca-es-valencia") ? "ca-es-valencia"
@@ -129,7 +137,7 @@ export function circuitJsDrawLabel(sourceKey: string, localized: string, languag
         "Add 74191 up/down counter": ["74191", 2]
     };
     const counter = counters[sourceKey];
-    if (counter) return counter[0] + " " + (digitalCounterNames[base] || digitalCounterNames.en)[counter[1]];
+    if (counter) return capitalizeDrawComponent(counter[0] + " " + (digitalCounterNames[base] || digitalCounterNames.en)[counter[1]],language);
 
     const prefixes: Record<string, string[]> = {
         en: ["Add "],
@@ -169,5 +177,6 @@ export function circuitJsDrawLabel(sourceKey: string, localized: string, languag
     if (base === "de") label = label.replace(/\s+einfügen(?=\s|$)/gi, " ");
     if (base === "ja") label = label.replace(/(?:を)?追加|を挿入|を加える/g, "");
     if (base === "kr") label = label.replace(/\s*추가(?=\s|\(|$)/g, "");
-    return label.replace(/\s{2,}/g, " ").trim() || localized;
+    return capitalizeDrawComponent(label.replace(/\s{2,}/g, " ").trim() || localized,language);
 }
+
