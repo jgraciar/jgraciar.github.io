@@ -62,9 +62,9 @@ try{
    assert.equal(state.count,beforeMove.count,'dragging a stopped counter preserves count');
    const connected=await page.evaluate(()=>{
     const xml=new DOMParser().parseFromString(window.CircuitJS1.exportCircuit(),'application/xml');
-    const pos=xml.querySelector('Counter74191').getAttribute('x').trim().split(/\\s+/).map(Number);
+    const pos=xml.querySelector('Counter74191').getAttribute('x').trim().split(/\s+/).map(Number);
     const ends=Array.from(xml.querySelectorAll('rw')).flatMap(w=>{
-     const p=w.getAttribute('x').trim().split(/\\s+/).map(Number);
+     const p=w.getAttribute('x').trim().split(/\s+/).map(Number);
      return [[p[0],p[1]],[p[2],p[3]]];
     });
     // Small-grid fixture: eight west pins and six east pins, spaced 16 units.
