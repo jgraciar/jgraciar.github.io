@@ -29,8 +29,31 @@ b.pins[6].value=true;b.pins[7].value=false;b.pins[5].value=false;b.pins[4].value
 assert.equal(b.pins[12].value,false,'C is inverted MAX/MIN, per the supplied symbol');assert.equal(b.pins[13].value,false);
 b.pins[4].value=true;b.execute();assert.equal(b.count,0);assert.equal(b.pins[12].value,true);assert.equal(b.pins[13].value,true);
 b.pins[5].value=true;b.pins[4].value=false;b.execute();assert.equal(b.pins[12].value,false);assert.equal(b.pins[13].value,false);
+// Exhaust every state, direction, enable and clock level without a clock edge.
+// C is active low at MAX/MIN; R also requires low clock and enabled count.
+for(const down of [false,true])for(const disabled of [false,true]){
+ for(let count=0;count<16;count++)for(const clock of [false,true]){
+  const chip=new B();chip.count=count;chip.prevClock=clock;
+  chip.pins[4].value=clock;chip.pins[5].value=down;
+  chip.pins[6].value=true;chip.pins[7].value=disabled;chip.execute();
+  const terminal=down?count===0:count===15;
+  assert.equal(chip.count,count,'control changes without rising edge preserve count');
+  assert.equal(chip.pins[12].value,!terminal,'C terminal decode');
+  assert.equal(chip.pins[13].value,!(terminal&&!clock&&!disabled),'R carry gating');
+ }
+}
+// Restore both clock levels: importing must not create a fictitious rising edge.
+for(const clock of [false,true])for(const down of [false,true]){
+ const original=new B();original.count=down?0:15;original.prevClock=clock;
+ const data={};original.dumpXmlState(null,data);
+ const chip=new B();chip.undumpXml({parseIntAttr:(k,d)=>data[k]??d,parseBooleanAttr:(k,d)=>data[k]??d});
+ chip.pins[4].value=clock;chip.pins[5].value=down;chip.pins[6].value=true;
+ chip.execute();assert.equal(chip.count,original.count,'restored clock does not count');
+ chip.pins[4].value=false;chip.execute();chip.pins[4].value=true;chip.execute();
+ assert.equal(chip.count,down?15:0,'first real rising edge wraps after restore');
+}
 for(const c of [a,b]){
  const data={};c.dumpXmlState(null,data);const restored=new (c.constructor)();
  restored.undumpXml({parseIntAttr:(k,d)=>data[k]??d,parseBooleanAttr:(k,d)=>data[k]??d});assert.equal(restored.count,c.count);
 }
-console.log('7493/74191: wraparound, independent clocks, reset, direction, enable, all parallel loads, cascade and state restore passed');
+console.log('7493/74191: wraparound, independent clocks, reset, direction, enable, all parallel loads, 128 carry combinations, clock-level restoration and state restore passed');
