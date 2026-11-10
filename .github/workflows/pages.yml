@@ -84,6 +84,7 @@ jobs:
       - name: Generar sitio raíz y portada
         run: |
           node adaptacion/scripts/package-circuits-jgr.mjs circuitjs-src/ts site-root adaptacion
+          node adaptacion/tests/calculadora-decimales.test.mjs site-root/calculadora
           test -s site-root/index.html
           test -s site-root/circuitjgr.html
           test -s site-root/circuitjs/about.html
