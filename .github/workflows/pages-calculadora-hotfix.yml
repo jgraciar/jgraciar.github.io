@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/pages-calculadora-hotfix.yml
+      - assets/calculadora-sistemas.br.b64
   workflow_dispatch:
 
 permissions:
@@ -34,6 +35,10 @@ jobs:
           run-id: 42850079092
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: verified-site
+      - name: Preparar Node.js para la calculadora
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Montar portal verificado y corregir la caché
         run: |
           set -euo pipefail
@@ -41,6 +46,26 @@ jobs:
           mkdir -p site-root
           tar -xf verified-site/artifact.tar -C site-root
           cp service-worker.js site-root/service-worker.js
+          node --input-type=module -e '
+            import {readFileSync,writeFileSync} from "node:fs";
+            import {brotliDecompressSync} from "node:zlib";
+            import assert from "node:assert/strict";
+            const archive=readFileSync("assets/calculadora-sistemas.br.b64","utf8").trim();
+            const parts=brotliDecompressSync(Buffer.from(archive,"base64")).toString("utf8").split("\\0");
+            const names=["index.html","solver.js","app.js","style.css"];
+            assert.equal(parts.length,names.length);
+            names.forEach((name,i)=>{
+              assert(parts[i].length>0);
+              writeFileSync("site-root/calculadora/"+name,parts[i]);
+            });
+          '
+          node --check site-root/calculadora/app.js
+          node --check site-root/calculadora/solver.js
+          grep -Fq 'data-example="unique"' site-root/calculadora/index.html
+          grep -Fq 'data-example="infinite"' site-root/calculadora/index.html
+          grep -Fq 'data-example="none"' site-root/calculadora/index.html
+          grep -Fq "setMode('grid')" site-root/calculadora/app.js
+          ! grep -Fq 'Herramienta independiente' site-root/calculadora/index.html
           test -s site-root/index.html
           test -s site-root/calculadora/index.html
           test -s site-root/calculadora/solver.js
