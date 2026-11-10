@@ -70,6 +70,8 @@ const index=`<!doctype html>
         <span>Simulador de circuitos eléctricos y electrónicos.</span></a>
       <a href="./electrotecnia/"><strong>Laboratorio de Electrotecnia</strong>
         <span>Prácticas, actividades e instrumentación virtual.</span></a>
+      <a href="./calculadora/"><strong>Calculadora de sistemas</strong>
+        <span>Resolución de sistemas de ecuaciones lineales paso a paso.</span></a>
     </nav>
     <footer>Desarrollo y adaptación: Jesús Gracia Ruiz · 2026</footer>
   </main>
@@ -78,7 +80,7 @@ const index=`<!doctype html>
 assert(!existsSync(join(site,"index.html")),
  "No se debe sobrescribir una portada existente del sitio del simulador");
 writeFileSync(join(site,"index.html"),index);
-assert(index.includes('href="./circuitjgr.html"')&&index.includes('href="./electrotecnia/"'),
+assert(index.includes('href="./circuitjgr.html"')&&index.includes('href="./electrotecnia/"')&&index.includes('href="./calculadora/"'),
  "La portada debe enlazar las dos aplicaciones");
 console.log("OK: sitio raíz independiente /circuitjgr.html, GPLv3, COPYING upstream, "+
  "22 idiomas y recursos del motor; portada de selección independiente.");
