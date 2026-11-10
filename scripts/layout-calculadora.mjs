@@ -55,8 +55,32 @@ if(!css.includes('/* Calculadora: sistema a la izquierda y resultado a la derech
 let app=load('app.js');
 if(app.includes('<h2>Solución</h2>')){
   app=replaceOnce(app,'<h2>Solución</h2>','');
-  save('app.js',app);
 }
+// El redondeo sigue usando BigInt; solo se suprimen los ceros decimales de relleno.
+const oldDecimal=app.split('\n').find(line=>line.startsWith('function decimal(q){'));
+assert(oldDecimal,'No se encuentra el formateador decimal original');
+if(!app.includes("const fractional=s.slice(-digits).replace(/0+$/,'');")){
+  const decimalFormatter=[
+    'function decimal(q){',
+    " const digits=+$('precision').value,scale=10n**BigInt(digits),n=q.n<0n?-q.n:q.n;",
+    ' const rounded=(n*scale*2n+q.d)/(2n*q.d);',
+    " const s=rounded.toString().padStart(digits+1,'0');",
+    " const whole=s.slice(0,-digits).replace(/\\B(?=(\\d{3})+(?!\\d))/g,region==='eu'?'.':',');",
+    " const fractional=s.slice(-digits).replace(/0+$/,'');",
+    " return (q.n<0n&&rounded!==0n?'−':'')+whole+(fractional?(region==='eu'?',':'.')+fractional:'');",
+    '}'
+  ].join('\n');
+  app=replaceOnce(app,oldDecimal,decimalFormatter);
+}
+const oldHint="'Resultados con '+$('precision').value+' decimales: = indica un valor exacto; ≈ indica un valor redondeado. El desarrollo conserva las fracciones exactas.'";
+const newHint="'Resultados con hasta '+$('precision').value+' decimales, sin ceros finales: = indica un valor exacto; ≈ indica un valor redondeado. El desarrollo conserva las fracciones exactas.'";
+if(!app.includes(newHint))app=replaceOnce(app,oldHint,newHint);
+save('app.js',app);
+for(const digits of [3,4,6,10]){
+  const oldLabel='>'+digits+' decimales</option>';
+  if(html.includes(oldLabel))html=replaceOnce(html,oldLabel,'>Hasta '+digits+' decimales</option>');
+}
+save('index.html',html);
 assert(html.indexOf('class="entry-pane"')<html.indexOf('id="grid"'));
 assert(html.indexOf('id="grid"')<html.indexOf('class="output-pane"'));
 assert(html.indexOf('class="output-pane"')<html.indexOf('id="result"'));
