@@ -12,7 +12,7 @@ try{
     const cx=x+this.measureText(text).width/2;
     window.cd4026Grab={x:r.left+(m.a*cx+m.c*y+m.e)*r.width/this.canvas.width,
      y:r.top+(m.b*cx+m.d*y+m.f)*r.height/this.canvas.height,
-     dx:64*m.a*r.width/this.canvas.width};
+     dy:-32*m.d*r.height/this.canvas.height};
    }
    return fillText.call(this,text,x,y,...rest);
   };
@@ -50,8 +50,8 @@ try{
  await page.waitForFunction(()=>!!window.cd4026Grab);
  const before=await page.evaluate(()=>window.CircuitJS1.exportCircuit());
  const grab=await page.evaluate(()=>window.cd4026Grab);
- await page.mouse.move(grab.x,grab.y);await page.mouse.down();
- await page.mouse.move(grab.x+grab.dx,grab.y,{steps:8});await page.mouse.up();
+ await page.mouse.move(grab.x,grab.y);await page.waitForTimeout(200);await page.mouse.down();await page.waitForTimeout(200);
+ await page.mouse.move(grab.x,grab.y+grab.dy,{steps:8});await page.mouse.up();
  const geometry=await page.evaluate(()=>{
   const xml=new DOMParser().parseFromString(window.CircuitJS1.exportCircuit(),'application/xml');
   const pos=xml.querySelector('CD4026').getAttribute('x').trim().split(/\s+/).map(Number);
@@ -64,8 +64,9 @@ try{
   return {position:pos,connections:pins.map(([x,y])=>ends.filter(([a,b])=>a===x&&b===y).length)};
  });
  const previous=before.match(/<CD4026[^>]* x="([^"]+)"/)[1].trim().split(/\s+/).map(Number);
- assert.equal(geometry.position[0],previous[0]+64,'package moves horizontally by 64 grid units');
- assert.equal(geometry.position[1],previous[1],'package keeps its vertical position');
+ console.log('CD4026 drag geometry',JSON.stringify({grab,previous,after:geometry.position}));
+ assert.equal(geometry.position[0],previous[0],'package keeps its horizontal position');
+ assert.equal(geometry.position[1],previous[1]-32,'package moves vertically by 32 grid units');
  assert.deepEqual(geometry.connections,Array(13).fill(1),'all 13 used pins retain their routed wire');
  assert.equal((await read()).count,0,'dragging preserves the count');
  for(let n=1;n<=12;n++){
