@@ -51,4 +51,18 @@ patch('UIManager.ts',`            const ybase = this.app.circuitArea.height - h;
             const jgrDetails = info.slice(0, i).filter(value => value != null && value !== "(saved)");
             if (this.mouse.getMouseElm() == null) jgrDetails.splice(0, 2);
             this.jgrScopeComponent.textContent = jgrDetails.join('\\n');`);
+// Permitir ajustar previamente el brillo de potencia aunque Mostrar potencia no esté marcado.
+// El control conserva su significado original y no modifica el modo de visualización.
+patch('UIManager.ts',`    setPowerBarEnable(): void {
+        if (this.menus.powerCheckItem.getState()) {
+            this.powerLabel.classList.remove('disabled');
+            this.powerBar.enable();
+        } else {
+            this.powerLabel.classList.add('disabled');
+            this.powerBar.disable();
+        }
+    }`,`    setPowerBarEnable(): void {
+        this.powerLabel.classList.remove('disabled');
+        this.powerBar.enable();
+    }`);
 console.log('OK: nombre de circuito, tiempo, paso temporal e información del componente en el panel lateral.');
