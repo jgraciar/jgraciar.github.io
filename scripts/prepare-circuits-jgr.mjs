@@ -144,6 +144,20 @@ writeFileSync(menuSource,menuText.replace(fileMenuAnchor,
  '            (window as any).__CircuitJGRExperimentalApp = this.app;\n' +
  fileMenuAnchor));
 
+// Mantener el diálogo nativo «Guardar como...» y comunicar el nombre solo
+// después de pulsar Aceptar. Cancelar no guarda ni cierra la pestaña.
+const saveDialogSource=join(dir,"ExportAsLocalFileDialog.ts");
+const saveDialogText=readFileSync(saveDialogSource,"utf8");
+const saveDialogAnchor='        document.body.removeChild(a);\n        return true;';
+assert(saveDialogText.split(saveDialogAnchor).length===2,
+ "No se encuentra la finalización de Guardar como... de CircuitJS");
+writeFileSync(saveDialogSource,saveDialogText.replace(saveDialogAnchor,
+ '        document.body.removeChild(a);\n' +
+ '        if (this.rememberName && new URLSearchParams(window.location.search).has("jgr-tabs-prototype"))\n' +
+ '            window.parent.postMessage({source:"circuit-jgr-tabs",action:"saved",name:fname},"*");\n' +
+ '        return true;'));
+
+
 
 // Validate before clearing the current circuit on all import routes.
 const importValidation=spawnSync(process.execPath,[new URL("./patch-import-validation.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
