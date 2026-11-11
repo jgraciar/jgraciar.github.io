@@ -70,6 +70,15 @@ try{
  const scopeInfo=await page.evaluate(()=>{
   const app=window.__CircuitJGRExperimentalApp;
   const scope=app.scopeManager.scopes[0];scope.setText(null);
+  // Si el osciloscopio reúne varias señales, su identidad se muestra
+  // en la leyenda individual de cada curva. Probar aquí el caso sin
+  // nombre de un único trazado.
+  if(scope.visiblePlots.length>1){
+   scope.plots=[scope.plots[0]];
+   scope.calcVisiblePlots();
+  }
+  scope.showElmInfo=false;
+  scope.selectedPlot=0;
   return {count:app.scopeManager.scopeCount,label:scope.getScopeLabelOrText(true),
    width:scope.traceWidth};
  });
