@@ -73,6 +73,21 @@ try{
   return canvas;
  };
  const origin="jgr-1";
+ const sidebarInfo=id=>page.evaluate(id=>{
+  const frame=document.querySelector('iframe[data-tab-id="'+id+'"]');
+  const app=frame.contentWindow.__CircuitJGRExperimentalApp;
+  const info=frame.contentDocument.querySelector('#jgr-scope-info');
+  return {name:app.ui.titleLabel.textContent,afterTitle:app.ui.titleLabel.nextElementSibling===info,
+   afterCircuitLabel:app.ui.titleLabel.previousElementSibling?.textContent,
+   lines:info?.textContent?.split('\n')};
+ },id);
+ await page.waitForFunction(()=>document.querySelector('iframe[data-tab-id="jgr-1"]')
+   ?.contentDocument?.querySelector('#jgr-scope-info')?.textContent?.includes('t = '));
+ const originalInfo=await sidebarInfo(origin);
+ assert.equal(originalInfo.name,"Sin título 1");
+ assert(originalInfo.afterTitle,"Tiempo y componente deben situarse justo bajo el nombre del circuito");
+ assert(originalInfo.lines?.[0]?.startsWith("t = "),"Falta el tiempo debajo del nombre");
+ assert(originalInfo.lines?.[1]?.includes("="),"Falta el paso temporal debajo del nombre");
  const originalLayout=await geometry(origin);
  assert(originalLayout.stripTop>=originalLayout.menuBottom-1);
  if(originalLayout.toolbarVisible)
@@ -210,6 +225,10 @@ try{
  const download=await downloaded;
  assert.equal(download.suggestedFilename(),"esquema-guardado.jgr");
  await page.waitForFunction(()=>window.JGRTabsExperimental.list()[3].name==="esquema-guardado.jgr",null,{timeout:10000});
+ const savedInfo=await sidebarInfo("jgr-4");
+ assert.equal(savedInfo.name,"esquema-guardado.jgr",
+   "Guardar como debe actualizar también el nombre mostrado sobre los datos temporales");
+ assert(savedInfo.afterTitle,"La información debe permanecer inmediatamente debajo del nombre al guardar");
  assert.equal(await sim("jgr-4","modified"),false);
  console.log("OK: Guardar como... nativo actualiza el nombre de pestaña tras confirmar descarga");
 
