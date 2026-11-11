@@ -18,23 +18,6 @@ body{background:white}
 #notice{position:absolute;left:8px;bottom:7px;z-index:3;background:#fffff2;color:#333;
  border:1px solid #bbb;padding:5px 9px;font-size:12px;max-width:min(620px,90vw)}
 #notice:empty{display:none}
-#close-overlay[hidden]{display:none}
-#close-overlay{position:fixed;inset:0;background:#0006;z-index:100;display:grid;place-items:center}
-#close-panel{background:#fff;color:#242424;border:1px solid #d6d6d6;border-radius:8px;
-  padding:23px 26px 24px;width:min(490px,calc(100vw - 30px));
-  box-shadow:0 12px 40px #0004;font:14px "Segoe UI",Arial,sans-serif}
-#close-heading{display:flex;gap:12px;align-items:center;margin-bottom:15px}
-#close-heading svg{flex:none}
-#close-heading h2{font-size:18px;font-weight:600;margin:0}
-#close-panel p{margin:0 0 12px;line-height:1.45;font-size:15px}
-#close-panel .detail{font-size:13px;color:#5c5c5c;margin-bottom:23px}
-#close-panel .buttons{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-#close-panel button{font:14px "Segoe UI",Arial,sans-serif;border-radius:4px;
- border:1px solid #b9b9b9;background:#fff;color:#242424;min-width:96px;padding:8px 13px;cursor:pointer}
-#close-panel button:hover{background:#f3f3f3}
-#close-panel #close-save{background:#0f6cbd;color:#fff;border-color:#0f6cbd}
-#close-panel #close-save:hover{background:#115ea3}
-button:focus-visible{outline:2px solid #225d9b;outline-offset:2px}
 </style>
 </head>
 <body>
@@ -42,25 +25,6 @@ button:focus-visible{outline:2px solid #225d9b;outline-offset:2px}
   <input id="open-files" type="file" accept=".txt,.xml,.circuitjs" multiple>
 </main>
 <div id="notice" role="status" aria-live="polite"></div>
-<div id="close-overlay" hidden>
- <div id="close-panel" role="dialog" aria-modal="true" aria-labelledby="close-question">
-  <div id="close-heading">
-   <svg width="26" height="30" viewBox="0 0 26 30" aria-hidden="true">
-    <path d="M4 1h13l6 6v21H4z" fill="#e6f1fb" stroke="#0f6cbd" stroke-width="1.5"/>
-    <path d="M17 1v6h6" fill="none" stroke="#0f6cbd" stroke-width="1.5"/>
-    <path d="M8 13h11M8 17h11M8 21h8" stroke="#0f6cbd" stroke-width="1.5"/>
-   </svg>
-   <h2>Guardar cambios</h2>
-  </div>
-  <p id="close-question">¿Quieres guardar los cambios realizados en «<span id="close-filename"></span>»?</p>
-  <p class="detail">Si no guardas los cambios, se perderán.</p>
-  <div class="buttons">
-   <button id="close-save" type="button">Guardar</button>
-   <button id="close-discard" type="button">No guardar</button>
-   <button id="close-cancel" type="button">Cancelar</button>
-  </div>
- </div>
-</div>
 <script>
 "use strict";
 (() => {
@@ -68,11 +32,10 @@ button:focus-visible{outline:2px solid #225d9b;outline-offset:2px}
  const workspace=document.querySelector("#workspace");
  const openInput=document.querySelector("#open-files");
  const notice=document.querySelector("#notice");
- const overlay=document.querySelector("#close-overlay");
  const tabs=[];
  const MAX_TABS=8;
  const BLANK='<cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11"></cir>';
- let active=null, serial=0, unnamed=0, dialogTarget=null;
+ let active=null, serial=0, unnamed=0;
  function message(text){notice.textContent=text||"";}
  function find(id){return tabs.find(t=>t.id===id);}
  function appFor(t){try{return t?.frame.contentWindow.__CircuitJGRExperimentalApp||null;}catch{return null;}}
@@ -292,30 +255,64 @@ button:focus-visible{outline:2px solid #225d9b;outline-offset:2px}
   renderTabs();
   if(!tabs.length)message("No hay circuitos abiertos.");
  }
+ // Este aviso utiliza el diálogo nativo del propio CircuitJS.
+ // Se construye dentro del simulador activo para heredar exactamente
+ // las reglas CSS de dialog.circuitDialog, tipografía y botones.
  function requestClose(t){
   if(!find(t.id))return;
   if(!isModified(t)){removeTab(t);return;}
-  dialogTarget=t;
-  document.querySelector("#close-filename").textContent=t.name;
-  overlay.hidden=false;
-  document.querySelector("#close-save").focus();
- }
- function hideClose(){
-  overlay.hidden=true;
-  dialogTarget=null;
- }
- document.querySelector("#close-cancel").onclick=hideClose;
- document.querySelector("#close-discard").onclick=()=>{
-  const t=dialogTarget;hideClose();if(t)removeTab(t);
- };
- document.querySelector("#close-save").onclick=()=>{
-  const t=dialogTarget;hideClose();
-  if(!t)return;
   if(t!==active)activate(t);
-  t.closeAfterSave=true;
-  saveAs(t);
- };
- overlay.addEventListener("keydown",e=>{if(e.key==="Escape"){hideClose();e.preventDefault();}});
+  const doc=t.frame.contentDocument;
+  if(doc.getElementById("jgr-close-dialog"))return;
+  const dialog=doc.createElement("dialog");
+  dialog.id="jgr-close-dialog";
+  dialog.className="circuitDialog";
+  dialog.setAttribute("aria-labelledby","jgr-close-title");
+  const title=doc.createElement("h3");
+  title.id="jgr-close-title";
+  title.textContent="Guardar cambios";
+  title.style.margin="0 0 8px 0";
+  dialog.append(title);
+  const question=doc.createElement("div");
+  question.id="jgr-close-question";
+  question.textContent="¿Quieres guardar los cambios realizados en «"+t.name+"»?";
+  dialog.append(question);
+  const detail=doc.createElement("div");
+  detail.textContent="Si no guardas los cambios, se perderán.";
+  detail.style.marginTop="8px";
+  dialog.append(detail);
+  const actions=doc.createElement("div");
+  actions.style.display="flex";
+  actions.style.justifyContent="space-between";
+  actions.style.gap="8px";
+  actions.style.marginTop="8px";
+  const save=doc.createElement("button");
+  save.type="button";save.id="jgr-close-save";save.textContent="Guardar";
+  const discard=doc.createElement("button");
+  discard.type="button";discard.id="jgr-close-discard";discard.textContent="No guardar";
+  const cancel=doc.createElement("button");
+  cancel.type="button";cancel.id="jgr-close-cancel";cancel.textContent="Cancelar";
+  actions.append(save,discard,cancel);
+  dialog.append(actions);
+  const dismiss=()=>{if(dialog.open)dialog.close();else dialog.remove();};
+  save.addEventListener("click",()=>{
+   dismiss();
+   t.closeAfterSave=true;
+   saveAs(t);
+  });
+  discard.addEventListener("click",()=>{
+   dismiss();
+   removeTab(t);
+  });
+  cancel.addEventListener("click",dismiss);
+  dialog.addEventListener("cancel",e=>{e.preventDefault();dismiss();});
+  dialog.addEventListener("close",()=>dialog.remove(),{once:true});
+  // Los atajos del editor no deben actuar sobre el circuito bajo el diálogo.
+  dialog.addEventListener("keydown",e=>e.stopPropagation());
+  doc.body.append(dialog);
+  dialog.showModal();
+  save.focus();
+ }
  window.addEventListener("message",event=>{
   if(event.origin!==location.origin||event.data?.source!=="circuit-jgr-tabs")return;
   const t=tabs.find(item=>item.frame.contentWindow===event.source);
