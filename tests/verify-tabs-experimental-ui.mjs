@@ -151,6 +151,12 @@ try{
  await sim("jgr-4","menu","exportaslocalfile");
  const dialog=page.frameLocator('iframe[data-tab-id="jgr-4"]').locator("dialog.circuitDialog").last();
  await dialog.waitFor({state:"visible",timeout:15000});
+ const originalDialogStyle=await dialog.evaluate(el=>{
+  const css=getComputedStyle(el);
+  return {fontFamily:css.fontFamily,fontSize:css.fontSize,
+   backgroundColor:css.backgroundColor,borderRadius:css.borderRadius,
+   borderStyle:css.borderStyle,padding:css.padding};
+ });
  await dialog.locator('input[type="text"]').fill("esquema-guardado.circuitjs");
  const downloaded=page.waitForEvent("download");
  await dialog.getByRole("button",{name:/OK|Aceptar/i}).click();
@@ -165,24 +171,34 @@ try{
  await (await focusCanvas(second)).press("Control+v");
  assert.equal(await sim(second,"count"),1);
  await closeTab("jgr-2");
- const closeOverlay=page.locator("#close-overlay");
- await closeOverlay.waitFor({state:"visible",timeout:10000});
- assert.equal(await page.locator("#close-question").innerText(),
+ const closeDialog=page.frameLocator('iframe[data-tab-id="jgr-2"]').locator("#jgr-close-dialog");
+ await closeDialog.waitFor({state:"visible",timeout:10000});
+ assert.equal(await closeDialog.locator("#jgr-close-question").innerText(),
   "¿Quieres guardar los cambios realizados en «Sin título 2»?");
- assert.equal(await page.locator("#close-heading h2").innerText(),"Guardar cambios");
- assert.equal(await page.locator("#close-save").innerText(),"Guardar");
- assert.equal(await page.locator("#close-discard").innerText(),"No guardar");
- assert.equal(await page.locator("#close-cancel").innerText(),"Cancelar");
- await page.locator("#close-cancel").click();
+ assert.equal(await closeDialog.locator("#jgr-close-title").innerText(),"Guardar cambios");
+ assert.equal(await closeDialog.locator("#jgr-close-save").innerText(),"Guardar");
+ assert.equal(await closeDialog.locator("#jgr-close-discard").innerText(),"No guardar");
+ assert.equal(await closeDialog.locator("#jgr-close-cancel").innerText(),"Cancelar");
+ const closeDialogStyle=await closeDialog.evaluate(el=>{
+  const css=getComputedStyle(el);
+  return {fontFamily:css.fontFamily,fontSize:css.fontSize,
+   backgroundColor:css.backgroundColor,borderRadius:css.borderRadius,
+   borderStyle:css.borderStyle,padding:css.padding};
+ });
+ assert.deepEqual(closeDialogStyle,originalDialogStyle,
+  "El aviso de cambios debe usar el mismo estilo CSS que el diálogo Guardar como... nativo");
+ assert.equal(await page.locator("#close-overlay").count(),0,
+  "No debe mantenerse un cuadro externo con estilos ajenos al simulador");
+ await closeDialog.locator("#jgr-close-cancel").click();
  assert.equal((await list()).length,4,"Cancelar debe conservar la pestaña");
  await closeTab("jgr-2");
- await page.locator("#close-save").click();
+ await closeDialog.locator("#jgr-close-save").click();
  const secondDialog=page.frameLocator('iframe[data-tab-id="jgr-2"]').locator("dialog.circuitDialog").last();
  await secondDialog.waitFor({state:"visible",timeout:15000});
  await secondDialog.getByRole("button",{name:/Cancel|Cancelar/i}).click();
  assert.equal((await list()).length,4,"Cancelar Guardar como... no debe cerrar");
  await closeTab("jgr-2");
- await page.locator("#close-save").click();
+ await closeDialog.locator("#jgr-close-save").click();
  await secondDialog.waitFor({state:"visible",timeout:15000});
  await secondDialog.locator('input[type="text"]').fill("guardar-antes-de-cerrar.circuitjs");
  const lastDownload=page.waitForEvent("download");
@@ -192,14 +208,14 @@ try{
  assert.equal(await sim(origin,"count"),1);
  assert.equal(await sim("jgr-3","count"),1);
  assert.equal(await sim("jgr-4","count"),1);
- console.log("OK: diálogo tipo Word Guardar/No guardar/Cancelar, cancelación y guardado antes de cerrar");
+ console.log("OK: aviso nativo CircuitJS idéntico a Guardar como..., con Guardar/No guardar/Cancelar");
 
  // No guardar cierra sin descarga; los demás circuitos no se modifican.
  await switchTo("jgr-3");
  await (await focusCanvas("jgr-3")).press("Control+v");
  assert.equal(await sim("jgr-3","modified"),true);
  await closeTab("jgr-3");
- await page.locator("#close-discard").click();
+ await page.frameLocator('iframe[data-tab-id="jgr-3"]').locator("#jgr-close-discard").click();
  await page.waitForFunction(()=>window.JGRTabsExperimental.list().length===2,null,{timeout:10000});
  assert.equal(await sim(origin,"count"),1);
  assert.equal(await sim("jgr-4","count"),1);
