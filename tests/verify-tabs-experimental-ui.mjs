@@ -14,6 +14,9 @@ try{
  const ready=async n=>page.waitForFunction(n=>window.JGRTabsExperimental.list().length===n&&
     window.JGRTabsExperimental.list().every(t=>t.ready),n,{timeout:90000});
  await ready(1);
+ const accepted=await page.locator("#open-files").getAttribute("accept");
+ assert.equal(accepted,".jgr,.txt,.circuitjs,.xml",
+  "La extensión .jgr debe figurar primero en Abrir archivo...");
  assert.equal(await page.locator("#workspace iframe").count(),1);
  assert.equal(await page.locator("#tabs").count(),0);
  assert.equal(await page.frameLocator('iframe[data-tab-id="jgr-1"]').locator("#jgr-tab-strip").count(),1);
@@ -135,13 +138,13 @@ try{
  await sim(second,"menu","importfromlocalfile");
  const chooser=await chooserPromise;
  await chooser.setFiles([
-  {name:"red-100.circuitjs",mimeType:"application/xml",buffer:Buffer.from(sample(100))},
-  {name:"red-470.circuitjs",mimeType:"application/xml",buffer:Buffer.from(sample(470,256))}
+  {name:"red-100.jgr",mimeType:"text/plain",buffer:Buffer.from(sample(100))},
+  {name:"red-470.txt",mimeType:"text/plain",buffer:Buffer.from(sample(470,256))}
  ]);
  await ready(4);
  const all=await list();
- assert.equal(all[2].name,"red-100.circuitjs");
- assert.equal(all[3].name,"red-470.circuitjs");
+ assert.equal(all[2].name,"red-100.jgr");
+ assert.equal(all[3].name,"red-470.txt");
  assert.match(await sim("jgr-3","export"),/r="100"/);
  assert.match(await sim("jgr-4","export"),/r="470"/);
  assert.equal(await sim(second,"count"),0,"Abrir archivos no debe sustituir la pestaña anterior");
@@ -157,12 +160,14 @@ try{
    backgroundColor:css.backgroundColor,borderRadius:css.borderRadius,
    borderStyle:css.borderStyle,padding:css.padding};
  });
- await dialog.locator('input[type="text"]').fill("esquema-guardado.circuitjs");
+ assert.match(await dialog.locator('input[type="text"]').inputValue(),/\.jgr$/i,
+  "Guardar como... debe proponer .jgr también para un archivo .txt");
+ await dialog.locator('input[type="text"]').fill("esquema-guardado");
  const downloaded=page.waitForEvent("download");
  await dialog.getByRole("button",{name:/OK|Aceptar/i}).click();
  const download=await downloaded;
- assert.equal(download.suggestedFilename(),"esquema-guardado.circuitjs");
- await page.waitForFunction(()=>window.JGRTabsExperimental.list()[3].name==="esquema-guardado.circuitjs",null,{timeout:10000});
+ assert.equal(download.suggestedFilename(),"esquema-guardado.jgr");
+ await page.waitForFunction(()=>window.JGRTabsExperimental.list()[3].name==="esquema-guardado.jgr",null,{timeout:10000});
  assert.equal(await sim("jgr-4","modified"),false);
  console.log("OK: Guardar como... nativo actualiza el nombre de pestaña tras confirmar descarga");
 
@@ -200,10 +205,10 @@ try{
  await closeTab("jgr-2");
  await closeDialog.locator("#jgr-close-save").click();
  await secondDialog.waitFor({state:"visible",timeout:15000});
- await secondDialog.locator('input[type="text"]').fill("guardar-antes-de-cerrar.circuitjs");
+ await secondDialog.locator('input[type="text"]').fill("guardar-antes-de-cerrar");
  const lastDownload=page.waitForEvent("download");
  await secondDialog.getByRole("button",{name:/OK|Aceptar/i}).click();
- assert.equal((await lastDownload).suggestedFilename(),"guardar-antes-de-cerrar.circuitjs");
+ assert.equal((await lastDownload).suggestedFilename(),"guardar-antes-de-cerrar.jgr");
  await page.waitForFunction(()=>window.JGRTabsExperimental.list().length===3,null,{timeout:10000});
  assert.equal(await sim(origin,"count"),1);
  assert.equal(await sim("jgr-3","count"),1);
@@ -220,6 +225,32 @@ try{
  assert.equal(await sim(origin,"count"),1);
  assert.equal(await sim("jgr-4","count"),1);
  console.log("OK: No guardar descarta únicamente la pestaña modificada");
+ // El simulador principal usa el mismo formato predeterminado y conserva importaciones .txt.
+ const main=await browser.newPage({locale:"es-ES",acceptDownloads:true});
+ try{
+  await main.addInitScript(()=>localStorage.setItem("labStartConfigured","1"));
+  const mainURL=new URL("circuitjgr.html",ORIGIN).href;
+  await main.goto(mainURL,{waitUntil:"domcontentloaded"});
+  const nativeInput=main.locator("#LoadFileElement");
+  await nativeInput.waitFor({state:"attached",timeout:90000});
+  assert.equal(await nativeInput.getAttribute("accept"),".jgr,.txt,.circuitjs,.xml");
+  await nativeInput.setInputFiles({
+   name:"esquema-legado.txt",mimeType:"text/plain",buffer:Buffer.from(sample(390))
+  });
+  await main.waitForFunction(()=>window.CircuitJS1?.exportCircuit()?.includes('r="390"'),null,{timeout:30000});
+  const nativeFileMenu=main.locator("td.gwt-MenuItem").first();
+  await nativeFileMenu.click();
+  const saveOption=nativeFileMenu.locator("li.menuItem").filter({hasText:/Guardar como|Save As/i}).first();
+  await saveOption.click();
+  const nativeSave=main.locator("dialog.circuitDialog").last();
+  await nativeSave.waitFor({state:"visible",timeout:15000});
+  assert.equal(await nativeSave.locator('input[type="text"]').inputValue(),"esquema-legado.jgr");
+  await nativeSave.locator('input[type="text"]').fill("exportacion");
+  const nativeDownload=main.waitForEvent("download");
+  await nativeSave.getByRole("button",{name:/OK|Aceptar/i}).click();
+  assert.equal((await nativeDownload).suggestedFilename(),"exportacion.jgr");
+  console.log("OK: extensión .jgr por defecto en simulador principal, importación .txt y filtro prioritario");
+ }finally{await main.close();}
 
  assert.deepEqual(errors,[],"Errores JS durante las pruebas de pestañas experimentales");
 }finally{await browser.close();}
