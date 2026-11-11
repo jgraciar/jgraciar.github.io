@@ -48,6 +48,8 @@ patch('ScopePlot.ts',[
  ['"#A0A000" : "#FFFF00"', '"#6A1B9A" : "#FFFF00"']
 ]);
 patch('Scope.ts',[
+ ['let minorDiv = "#404040";', 'let minorDiv = "#707070";'],
+ ['let majorDiv = "#A0A0A0";', 'let majorDiv = "#B0B0B0";'],
  ['minorDiv = "#D0D0D0";', 'minorDiv = "#E2E5E9";'],
  ['majorDiv = "#808080";', 'majorDiv = "#9AA2AC";'],
  ['this.curColor = "#A0A000";', 'this.curColor = "#6A1B9A";'],

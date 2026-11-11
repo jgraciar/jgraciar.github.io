@@ -8,6 +8,20 @@ try {
    localStorage.setItem('labStartConfigured','1');
    window.paletteColors={};
    window.scopeBackgroundPaints=[];
+   window.scopeGridDirections={};
+   const proto=CanvasRenderingContext2D.prototype;
+   const move=proto.moveTo,line=proto.lineTo;
+   proto.moveTo=function(x,y){this.jgrGridStart=[x,y];return move.call(this,x,y);};
+   proto.lineTo=function(x,y){
+    const start=this.jgrGridStart;
+    if(start && ['#707070','#b0b0b0','#e2e5e9','#9aa2ac'].includes(this.strokeStyle)){
+     const key=String(this.strokeStyle);
+     const seen=window.scopeGridDirections[key]??(window.scopeGridDirections[key]={h:0,v:0});
+     if(y===start[1] && Math.abs(x-start[0])>20)seen.h++;
+     if(x===start[0] && Math.abs(y-start[1])>20)seen.v++;
+    }
+    return line.call(this,x,y);
+   };
    for(const method of ['fillRect','stroke']){
     const original=CanvasRenderingContext2D.prototype[method];
     CanvasRenderingContext2D.prototype[method]=function(...args){
@@ -25,6 +39,9 @@ try {
   await page.waitForFunction(light=>Object.keys(window.paletteColors).includes(light?'#6a1b9a':'#ffff00'),light);
   const canvas=page.locator('.canvasWrapper > canvas');
   assert.equal(await canvas.evaluate(c=>c.style.backgroundColor),light?'rgb(255, 255, 255)':'rgb(0, 0, 0)');
+  await page.waitForFunction(light=>{
+   const seen=window.scopeGridDirections[light?'#e2e5e9':'#707070'];return seen?.h>0 && seen?.v>0;
+  },light);
   const colors=await page.evaluate(()=>window.paletteColors);
   const backgrounds=await page.evaluate(()=>window.scopeBackgroundPaints);
   assert(backgrounds.length>0,'Debe comprobarse el relleno real de la zona de osciloscopios');
