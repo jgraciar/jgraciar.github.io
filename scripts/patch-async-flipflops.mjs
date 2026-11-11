@@ -23,8 +23,6 @@ once('RSGenericElm.ts','import {Choice} from "./Choice";','import {Choice} from 
 // ChipElm conoce una etiqueta exterior opcional, usada sólo en los dos
 // contactos asíncronos. Se conserva el dibujo de reloj y demás patillas.
 once('ChipElm.ts','    clock: boolean = false;','    clock: boolean = false;\n    jgrExternalLabel: string | null = null;');
-once('ChipElm.ts','            if (p.lineOver) {\n                    const ya = p.textloc.y - asc + asc / 3;\n                    g.drawLine(tx, ya, tx + sw, ya);\n                }\n                break;',
-'            if (p.lineOver) {\n                    const ya = p.textloc.y - asc + asc / 3;\n                    g.drawLine(tx, ya, tx + sw, ya);\n                }\n                break;');
 // El dibujo se añade después del bucle de texto, siempre con el mismo
 // contexto gráfico; queda por fuera del encapsulado y no tapa CLK ni Q.
 once('ChipElm.ts','        }\n        this.drawLabel(g, this.labelX, this.labelY);',
