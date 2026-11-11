@@ -197,6 +197,8 @@ const scopeScaleBadge=spawnSync(process.execPath,[new URL("./patch-scope-scale-b
 assert(scopeScaleBadge.status===0,"Scope scale badge patch failed");
 const scopeLineWidth=spawnSync(process.execPath,[new URL("./patch-scope-line-width.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
 assert(scopeLineWidth.status===0,"Scope trace line-width patch failed");
+const scopeIdPatch=spawnSync(process.execPath,[new URL("./patch-scope-identification.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
+assert(scopeIdPatch.status===0,"Scope identification patch failed");
 
 // Reservar una fila de pestañas dentro de la interfaz SOLO para el prototipo.
 // La página principal conserva exactamente las dimensiones originales.
