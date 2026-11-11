@@ -45,6 +45,7 @@ jobs:
         run: |
           node --experimental-strip-types adaptacion/tests/lab-power-measurement.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-digital-ics.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-digital-msi.test.mjs
           node --experimental-strip-types adaptacion/tests/ic-info.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-cd4026.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-counters.test.mjs
