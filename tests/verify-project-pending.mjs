@@ -57,12 +57,23 @@ try{
  for(const kind of ['R','RL','RLC'])for(const multiplier of [0,.5,1,1.5])await test('PV-'+kind+'-'+multiplier,async()=>{
   const pl=kind==='R'?1:.8,p=multiplier*pl;await load(pvCircuit({kind,p}));const select=[{type:'VoltageElm',what:'v'},{type:'VoltageElm'},{type:'PVInverterElm'},{type:'ResistorElm'}];if(kind==='RLC')select.push({type:'CapacitorElm'});
   const rows=await record(select);let maxKcl=0;for(const z of rows){const residual=z[2]+z[3]-z[4]-(kind==='RLC'?z[5]:0);maxKcl=Math.max(maxKcl,Math.abs(residual));close(residual,0,2e-6,0);}
-  const grid=stats(rows,1,2),pv=stats(rows,1,3),load=stats(rows,1,4),capacitor=kind==='RLC'?stats(rows,1,5):{p:0,q:0};
-  close(load.p,pl);close(pv.p,p);close(pv.q,0);close(grid.p,pl-p);close(grid.q,kind==='RL'?.6:0);close(grid.p+pv.p,load.p+capacitor.p,.0001,.0001);
+  const grid=stats(rows,1,2),pv=stats(rows,1,3),loadPower=stats(rows,1,4),capacitor=kind==='RLC'?stats(rows,1,5):{p:0,q:0};
+  close(loadPower.p,pl);close(pv.p,p);close(pv.q,0);close(grid.p,pl-p);close(grid.q,kind==='RL'?.6:0);close(grid.p+pv.p,loadPower.p+capacitor.p,.0001,.0001);
   const saved=await page.evaluate(()=>window.CircuitJS1.exportCircuit());await page.evaluate(s=>window.CircuitJS1.importCircuit(s,false),saved);assert.equal(await page.evaluate(()=>Array.from(window.CircuitJS1.getElements()).filter(e=>e.getType()==='PVInverterElm').length),1);
-  return {grid,pv,load,capacitor,maxKcl,xmlRoundTrip:true};
+  return {grid,pv,load:loadPower,capacitor,maxKcl,xmlRoundTrip:true};
  });
  await test('PV-follows-grid-60Hz-phase',async()=>{await load(pvCircuit({kind:'RL',p:.4,f:60,phase:.7}));const rows=await record([{type:'VoltageElm',what:'v'},{type:'VoltageElm'},{type:'PVInverterElm'}],.3,.3+5/60),pv=stats(rows,1,3,60),grid=stats(rows,1,2,60);close(pv.p,.4);close(pv.q,0);close(grid.p,.4);close(grid.q,.6);return {pv,grid};});
+ await test('PV-three-phase-phase-selection-and-export',async()=>{
+  const ps=[.25,.75,1.5],phases=[0,-2*Math.PI/3,2*Math.PI/3],parts=[];
+  for(let k=0;k<3;k++){
+   const sx=80+160*k,y=160+160*k,rx=560+80*k,px=880+80*k;
+   parts.push(`<v x="${sx} 640 ${sx} ${y}" f="0" wf="1" fr="50" maxv="14.142135623730951" phaseShift="${phases[k]}"/>`,wire(sx,y,rx,y),wire(rx,y,px,y),`<r x="${rx} ${y} ${rx} 640" f="0" r="100"/>`,`<PVInverter x="${px} 640 ${px} ${y}" f="0" pvP="${ps[k]}" pvQ="0" pvV="10" pvF="50"/>`);
+  }
+  const neutral=[80,240,400,560,640,720,880,960,1040];for(let k=1;k<neutral.length;k++)parts.push(wire(neutral[k-1],640,neutral[k],640));parts.push('<g x="80 640 80 672" f="0"/>');
+  await load(head+parts.join('')+'</cir>');const select=[];for(let k=0;k<3;k++)select.push({type:'VoltageElm',n:k,what:'v'},{type:'VoltageElm',n:k},{type:'PVInverterElm',n:k},{type:'ResistorElm',n:k});
+  const rows=await record(select),result=[];for(let k=0;k<3;k++){const v=1+4*k,grid=stats(rows,v,v+1),pv=stats(rows,v,v+2),loadPower=stats(rows,v,v+3);close(pv.p,ps[k]);close(pv.q,0);close(loadPower.p,1);close(grid.p,1-ps[k]);close(grid.q,0);result.push({phase:k+1,grid,pv,load:loadPower});}
+  close(result.reduce((s,r)=>s+r.grid.p,0),.5);return {phases:result,totalGridPower:result.reduce((s,r)=>s+r.grid.p,0)};
+ });
  await test('wattmeter-nonlinear-grid-Fourier',async()=>{
   const xml=head+source()+wire(80,160,160,160)+`<WattmeterTrue x="160 160 272 160" f="0" w="32" meter="1" labPowerMask="7" labShowCosPhi="1" labShowPowerFactor="1" labShowTHDU="1" labShowTHDI="1" labShowDistortion="1"/>`+
    wire(272,160,352,160)+wire(160,192,80,192)+wire(80,192,80,160)+wire(272,192,272,448)+wire(272,448,80,448)+
@@ -79,10 +90,14 @@ try{
   const text=readFileSync(new URL('./fixtures/sistema-iii-n-startup.xml',import.meta.url),'utf8');await load(text);const before=await page.evaluate(()=>Array.from(window.CircuitJS1.getElements()).map(e=>[e.getType(),e.getPostCount()]));assert.equal(before.filter(e=>e[0]==='WattmeterTrueElm').length,2);const saved=await page.evaluate(()=>window.CircuitJS1.exportCircuit());await load(saved);assert.deepEqual(await page.evaluate(()=>Array.from(window.CircuitJS1.getElements()).map(e=>[e.getType(),e.getPostCount()])),before);return {elements:before.length,wattmeters:2};
  });
  if(process.env.FALSTAD_EXAMPLES)for(const name of ['resistors','lrc','fullrectf','mosfetamp','jkff','counter'])await test('import-Falstad-TXT-'+name,async()=>{const text=readFileSync(join(process.env.FALSTAD_EXAMPLES,name+'.txt'),'utf8');await load(text);const before=await page.evaluate(()=>Array.from(window.CircuitJS1.getElements()).map(e=>[e.getType(),e.getPostCount()]));assert(before.length>2);const saved=await page.evaluate(()=>window.CircuitJS1.exportCircuit());await load(saved);assert.deepEqual(await page.evaluate(()=>Array.from(window.CircuitJS1.getElements()).map(e=>[e.getType(),e.getPostCount()])),before);return {elements:before.length};});
- await test('reject-unknown-import-preserves-open-circuit',async()=>{
+ for(const [name,text]of [
+  ['unknown-XML','<cir f="0"><r x="0 0 80 0" f="0" r="123"/><UnknownJGRTest x="80 0 160 0" f="0"/></cir>'],
+  ['unknown-TXT','$ 1 0.00001 10 50 5 50\nr 0 0 80 0 0 123\n999999 80 0 160 0 0'],
+  ['malformed-XML','<cir><r x="0 0 80 0" r="123"></cir>']
+ ])await test('reject-'+name+'-preserves-open-circuit',async()=>{
   await load(pvCircuit({kind:'RL',p:.4}));const before=await page.evaluate(()=>window.CircuitJS1.exportCircuit());let error=null;
-  try{await page.evaluate(()=>window.CircuitJS1.importCircuit('<cir f="0"><r x="0 0 80 0" f="0" r="123"/><UnknownJGRTest x="80 0 160 0" f="0"/></cir>',false));}catch(e){error=String(e);}
-  const after=await page.evaluate(()=>window.CircuitJS1.exportCircuit());assert.equal(after,before,'Unsupported element must not partially replace the open circuit');return {preserved:true,error};
+  try{await page.evaluate(text=>window.CircuitJS1.importCircuit(text,false),text);}catch(e){error=String(e);}
+  const after=await page.evaluate(()=>window.CircuitJS1.exportCircuit());assert.equal(after,before,'Unsupported or malformed input must not partially replace the open circuit');return {preserved:true,error};
  });
  report.ok=report.cases.every(c=>c.ok);console.log('RESULT '+JSON.stringify({passed:report.cases.filter(c=>c.ok).length,total:report.cases.length,ok:report.ok}));assert(report.ok,'Pending checks found failures; see results.json');
 }finally{writeFileSync(join(out,'results.json'),JSON.stringify(report,null,2));await browser.close();}

@@ -2,6 +2,7 @@
 // redirección de la versión compilada de circuitjs.html.
 // Ejecutar tras los parches del motor y las traducciones, antes de npm run build.
 import assert from "node:assert/strict";
+import {spawnSync} from "node:child_process";
 import {readFileSync,writeFileSync,existsSync} from "node:fs";
 import {resolve,join} from "node:path";
 
@@ -130,3 +131,7 @@ ${improvementsScript}
 assert(!html.includes("circuits-jgr-identity"),"La identidad se ha insertado dos veces");
 writeFileSync(about,html.replace("<div>","<div>\n"+identity));
 console.log("OK: entrada Vite circuitjgr.html, Circuit JGR 1.0 y Acerca de conservando todos los créditos.");
+
+// Validate before clearing the current circuit on all import routes.
+const importValidation=spawnSync(process.execPath,[new URL("./patch-import-validation.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
+assert(importValidation.status===0,"Import validation patch failed");

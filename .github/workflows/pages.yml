@@ -112,6 +112,7 @@ jobs:
           python3 -m http.server 8767 --directory site-root >/tmp/circuitjgr-http.log 2>&1 &
           sleep 2
           node adaptacion/tests/verify-circuits-jgr-root.mjs site-root
+          CIRCUIT_URL=http://127.0.0.1:8767/circuitjgr.html FALSTAD_EXAMPLES=circuitjs-src/ts/public/circuits CHECK_REPORT=/tmp/project-checks node adaptacion/tests/verify-project-pending.mjs
           node adaptacion/tests/verify-upstream-505-ui.mjs
           node --experimental-strip-types adaptacion/tests/verify-ic-info-ui.mjs
           node --experimental-strip-types adaptacion/tests/verify-digital-ics-ui.mjs

@@ -1,20 +1,21 @@
 name: Comprobaciones eléctricas e importación de Circuit JGR
 on:
   workflow_dispatch:
-  push:
+  workflow_run:
+    workflows: ['Publicar Circuit JGR 1.0']
+    types: [completed]
     branches: [main]
-    paths:
-      - '.github/workflows/project-validation.yml'
-      - 'tests/verify-project-pending.mjs'
 permissions:
   contents: read
 jobs:
   validation:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           path: adaptacion
           persist-credentials: false
       - uses: actions/checkout@v4
