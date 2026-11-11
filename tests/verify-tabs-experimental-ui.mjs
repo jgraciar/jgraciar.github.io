@@ -193,5 +193,17 @@ try{
  assert.equal(await sim("jgr-3","count"),1);
  assert.equal(await sim("jgr-4","count"),1);
  console.log("OK: diálogo tipo Word Guardar/No guardar/Cancelar, cancelación y guardado antes de cerrar");
+
+ // No guardar cierra sin descarga; los demás circuitos no se modifican.
+ await switchTo("jgr-3");
+ await (await focusCanvas("jgr-3")).press("Control+v");
+ assert.equal(await sim("jgr-3","modified"),true);
+ await closeTab("jgr-3");
+ await page.locator("#close-discard").click();
+ await page.waitForFunction(()=>window.JGRTabsExperimental.list().length===2,null,{timeout:10000});
+ assert.equal(await sim(origin,"count"),1);
+ assert.equal(await sim("jgr-4","count"),1);
+ console.log("OK: No guardar descarta únicamente la pestaña modificada");
+
  assert.deepEqual(errors,[],"Errores JS durante las pruebas de pestañas experimentales");
 }finally{await browser.close();}
