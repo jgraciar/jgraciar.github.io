@@ -16,6 +16,7 @@ try{
      y:r.top+(m.b*cx+m.d*cy+m.f)*r.height/this.canvas.height,
      dy:-80*m.d*r.height/this.canvas.height};
    }
+   if(this.canvas.matches('.canvasWrapper > canvas')&&y===216&&x>1015&&x<1060&&/^(?:[0-9]|1[0-5])$/.test(String(text)))window.counterDecimalText=String(text);
    return fillText.call(this,text,x,y,...rest);
   };
  });
@@ -33,7 +34,9 @@ try{
   const api=window.CircuitJS1,chip=Array.from(api.getElements()).find(e=>/Counter74/.test(e.getType()));
   const xml=new DOMParser().parseFromString(api.exportCircuit(),'application/xml');
   const state=xml.querySelector('Counter7493,Counter74191');
-  return {count:Number(state.getAttribute('count')),type:chip.getType(),volts:Array.from({length:chip.getPostCount()},(_,i)=>chip.getVoltage(i)),xml:api.exportCircuit()};
+  const display=Array.from(api.getElements()).find(e=>e.getType()==='DecimalDisplayElm');
+  const displayValue=display?Array.from({length:4},(_,i)=>display.getVoltage(i)>2.5?1<<i:0).reduce((a,b)=>a+b,0):null;
+  return {count:Number(state.getAttribute('count')),type:chip.getType(),volts:Array.from({length:chip.getPostCount()},(_,i)=>chip.getVoltage(i)),xml:api.exportCircuit(),displayValue,displayText:window.counterDecimalText};
  });
  const load=async xml=>{await page.evaluate(xml=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit(xml,false);window.CircuitJS1.setSimRunning(false);},xml);await advance(.005);};
  const key=async k=>{await page.keyboard.press(k);await advance(.001);};
@@ -83,7 +86,7 @@ try{
   // Manual clock for exact edge, control and restoration checks; fixture above uses the actual clock.
   await load(fixture.replace(/<R [^>]+\/>/,'<L x="336 '+(name==='7493'?192:256)+' 288 '+(name==='7493'?192:256)+'" f="2" p="0" key="k"/>'));
   if(name==='7493'){
-   for(let n=1;n<=18;n++){await key('k');await key('k');const s=await read();assert.equal(s.count,n%16);for(let i=0;i<4;i++)assert.equal(s.volts[4+i]>2.5,!!(s.count&(1<<i)));}
+   for(let n=1;n<=18;n++){await key('k');await key('k');const s=await read();assert.equal(s.count,n%16);for(let i=0;i<4;i++)assert.equal(s.volts[4+i]>2.5,!!(s.count&(1<<i)));assert.equal(s.displayValue,s.count,'four display inputs follow QA/QB/QC/QD');assert.equal(s.displayText,String(s.count),'decimal display renders the full 0–15 count');}
    await key('1');assert.equal((await read()).count,2);await key('2');assert.equal((await read()).count,0);await key('1');await key('2');
   }else{
    for(let n=1;n<=18;n++){await key('k');await key('k');assert.equal((await read()).count,n%16);}
@@ -93,6 +96,7 @@ try{
    await key('l');await key('e');await key('k');await key('k');assert.equal((await read()).count,4,'down count resumes');
    const s=await read();for(let i=0;i<4;i++)assert.equal(s.volts[8+i]>2.5,!!(s.count&(1<<i)));
   }
+  if(name==='7493')console.log('7493: original indicators retained; decimal display matches every count 0–15 through the four horizontal elbow branches');
   const saved=await read();await load(saved.xml);assert.equal((await read()).count,saved.count,'XML retains count without a false clock edge');
   console.log(`${name}: dragged package, retained connections, automatic clock, 0/1 controls, wraparound, output voltages and XML round trip passed`);
  }

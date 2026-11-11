@@ -14,3 +14,7 @@ En el símbolo facilitado, C y R llevan burbuja: C es el complemento de MAX/MIN 
 El estado de la cuenta y del reloj se conserva al exportar e importar XML. Los tres integrados propios (4026, 7493 y 74191) permiten seleccionar y arrastrar todo el cuerpo, incluso si se insertaron con extremos coincidentes; un arrastre largo de inserción conserva su escala pequeña.
 
 Referencia funcional: [TI SN74LS191](https://www.ti.com/lit/ds/symlink/sn74ls191.pdf). Las posiciones del símbolo agrupan funciones y no son un encapsulado DIP físico.
+
+## Display del ejemplo 7493
+
+Las salidas existentes QA/QB/QC/QD y su realimentación se conservan. Se añaden ramas horizontales desde los codos (800,192), (752,208), (704,224) y (656,240), respectivamente, hasta las entradas I0/I1/I2/I3 de un display decimal de cuatro bits situado a la derecha. Muestra 0–15, con QA como bit menos significativo. No necesita descodificador ni conexiones de alimentación adicionales.
