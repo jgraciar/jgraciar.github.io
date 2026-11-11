@@ -56,7 +56,7 @@ try {
   assert.match(await page.locator('#jgr-scope-info').textContent(),/t = /,'Tiempo conservado en el panel de controles');
   await page.waitForFunction(()=>{
    const labels=Object.values(window.scopeScaleLabels);
-   return labels.some(s=>s.startsWith('t: ')) && labels.some(s=>/ V\/div$/.test(s)) && labels.some(s=>/ A\/div$/.test(s)) && labels.some(s=>/ W\/div$/.test(s));
+   return labels.some(s=>s.startsWith('t: ')) && labels.some(s=>/V\/div$/.test(s)) && labels.some(s=>/A\/div$/.test(s)) && labels.some(s=>/W\/div$/.test(s));
   });
   const previousTimeScales=await page.evaluate(()=>{
    const previous=Object.values(window.scopeScaleLabels).filter(s=>s.startsWith('t: '));
