@@ -122,6 +122,7 @@ jobs:
           node adaptacion/tests/verify-nonlinear-presets-ui.mjs
           node adaptacion/tests/verify-nonlinear-units-ui.mjs
           node adaptacion/tests/verify-six-pulse-ui.mjs
+          node adaptacion/tests/verify-live-settings-ui.mjs
           node adaptacion/tests/verify-light-palette-ui.mjs
           node adaptacion/tests/verify-wattmeter-ui.mjs
           node adaptacion/tests/verify-cd4026-ui.mjs
