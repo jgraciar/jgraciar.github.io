@@ -8,7 +8,11 @@ export async function applyCircuitJGRSettings(app:any, settings:{language:string
         // Keep the existing controls and their commands; translate their labels in place.
         const sources = new Map<string,string>();
         for (const [source,translated] of Locale.liveTranslations)
-            if (translated) sources.set(translated,source);
+            if (translated) {
+                const previous=sources.get(translated);
+                // Prefer canonical plain labels to legacy HTML or duplicate aliases.
+                if(previous===undefined || source===translated || (/[<>]/.test(previous) && !/[<>]/.test(source)))sources.set(translated,source);
+            }
         const nodes:Array<{node:Text;source:string;prefix:string;suffix:string}>=[];
         const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
         let node:Node|null;

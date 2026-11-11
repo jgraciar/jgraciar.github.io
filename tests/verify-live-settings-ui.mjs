@@ -26,6 +26,7 @@ try{
   await page.waitForFunction(light=>document.querySelector('.canvasWrapper > canvas').style.backgroundColor===(light?'rgb(255, 255, 255)':'rgb(0, 0, 0)'),light);
   const after=await page.evaluate(()=>({sameApi:window.liveSettingsApi===window.CircuitJS1,circuit:window.CircuitJS1.exportCircuit().split('\n').slice(1).join('\n'),time:window.CircuitJS1.getTime(),running:window.CircuitJS1.isRunning(),background:localStorage.getItem('whiteBackground'),digits:localStorage.getItem('decimalDigits'),decimal:localStorage.getItem('labDecimalSeparator')}));
   assert(after.sameApi,'No se ha recargado el motor');assert.equal(after.circuit,before.circuit);assert.equal(after.time,before.time);assert.equal(after.running,false);assert.equal(after.background,String(light));assert.equal(after.decimal,format==='eu'?',':'.');assert(Number(after.digits)>4);
+  console.log('Live menu language',lang,await page.locator('.gwt-MenuBar').allTextContents());
   await page.getByText(lang==='es'?'Opciones':'Options',{exact:true}).filter({visible:true}).waitFor({state:'visible',timeout:10000});
  }
  assert.deepEqual(errors,[]);console.log('OK: fondo, idioma y formato en vivo, mismo circuito, tiempo y estado de pausa.');
