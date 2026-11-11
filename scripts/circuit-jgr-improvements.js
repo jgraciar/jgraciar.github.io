@@ -13,7 +13,7 @@
   const improvements={
   "en": [
     "Improvements over CircuitJS1 5.0.5ts",
-    "Extended wattmeter: active (P), fundamental reactive (Q) and apparent (S) power, phase-displacement cosine, true power factor and selectable reading modes; voltage and current THD and non-fundamental residual D*; voltage and current THD and non-fundamental residual D*.",
+    "Extended wattmeter: active (P), fundamental reactive (Q) and apparent (S) power, phase-displacement cosine, true power factor and selectable reading modes; voltage and current THD and non-fundamental residual D*.",
     "AC impedance Z: R ± jX, magnitude/phase and equivalent R, L and C representations.",
     "Photovoltaic inverter element, with grid-connected and stand-alone modes.",
     "Regional number input and display: decimal and thousands separators, configurable precision and initial preferences. Electrical display with four decimal places by default, no unnecessary trailing decimal zeros, automatic or selectable unit prefixes, and numeric input with scientific notation, SI prefixes and RMS values.",
@@ -25,7 +25,7 @@
   ],
   "ca-es-valencia": [
     "Millores respecte de CircuitJS1 5.0.5ts",
-    "Vatímetre ampliat: potències activa (P), reactiva fonamental (Q) i aparent (S), cosinus del desfasament, factor de potència real i modes de lectura seleccionables; THD de tensió i corrent i residual no fonamental D*; THD de tensió i corrent i residual no fonamental D*.",
+    "Vatímetre ampliat: potències activa (P), reactiva fonamental (Q) i aparent (S), cosinus del desfasament, factor de potència real i modes de lectura seleccionables; THD de tensió i corrent i residual no fonamental D*.",
     "Impedància Z en CA: R ± jX, mòdul/argument i representacions equivalents de R, L i C.",
     "Element inversor fotovoltaic, amb modes de connexió a xarxa i funcionament aïllat.",
     "Entrada i visualització numèrica regional: separadors decimals i de milers, precisió configurable i preferències inicials. Presentació elèctrica amb quatre decimals per defecte, sense zeros decimals innecessaris, prefixos d’unitats automàtics o seleccionables i entrada amb notació científica, prefixos SI i valors RMS.",
@@ -37,7 +37,7 @@
   ],
   "es": [
     "Mejoras respecto a CircuitJS1 5.0.5ts",
-    "Vatímetro ampliado: potencias activa (P), reactiva fundamental (Q) y aparente (S), coseno del desfase, factor de potencia real y modos de lectura seleccionables; THD de tensión y corriente y residual no fundamental D*; THD de tensión y corriente y residual no fundamental D*.",
+    "Vatímetro ampliado: potencias activa (P), reactiva fundamental (Q) y aparente (S), coseno del desfase, factor de potencia real y modos de lectura seleccionables; THD de tensión y corriente y residual no fundamental D*.",
     "Impedancia Z en CA: R ± jX, módulo/argumento y representaciones equivalentes de R, L y C.",
     "Elemento inversor fotovoltaico, con funcionamiento conectado a red y aislado.",
     "Formato numérico regional con separadores decimales y de miles, cuatro decimales por defecto y supresión de ceros innecesarios; prefijos de unidades automáticos o seleccionables y entrada con notación científica, prefijos SI y valores RMS.",
@@ -49,7 +49,7 @@
   ],
   "ca": [
     "Millores respecte de CircuitJS1 5.0.5ts",
-    "Vatímetre ampliat: potències activa (P), reactiva fonamental (Q) i aparent (S), cosinus del desfasament, factor de potència real i modes de lectura seleccionables; THD de tensió i corrent i residual no fonamental D*; THD de tensió i corrent i residual no fonamental D*.",
+    "Vatímetre ampliat: potències activa (P), reactiva fonamental (Q) i aparent (S), cosinus del desfasament, factor de potència real i modes de lectura seleccionables; THD de tensió i corrent i residual no fonamental D*.",
     "Impedància Z en CA: R ± jX, mòdul/argument i representacions equivalents de R, L i C.",
     "Element inversor fotovoltaic, amb modes de connexió a la xarxa i funcionament aïllat.",
     "Entrada i visualització numèrica regional: separadors decimals i de milers, precisió configurable i preferències inicials. Presentació elèctrica amb quatre decimals per defecte, sense zeros decimals innecessaris, prefixos d’unitats automàtics o seleccionables i entrada amb notació científica, prefixos SI i valors RMS.",
@@ -61,7 +61,7 @@
   ],
   "gl": [
     "Melloras respecto de CircuitJS1 5.0.5ts",
-    "Vatímetro ampliado: potencias activa (P), reactiva fundamental (Q) e aparente (S), coseno do desfasamento, factor de potencia real e modos de lectura seleccionables; THD de tensión e corrente e residual non fundamental D*; THD de tensión e corrente e residual non fundamental D*.",
+    "Vatímetro ampliado: potencias activa (P), reactiva fundamental (Q) e aparente (S), coseno do desfasamento, factor de potencia real e modos de lectura seleccionables; THD de tensión e corrente e residual non fundamental D*.",
     "Impedancia Z en CA: R ± jX, módulo/argumento e representacións equivalentes de R, L e C.",
     "Elemento inversor fotovoltaico, con funcionamento conectado á rede e illado.",
     "Entrada e visualización numérica rexional: separadores decimais e de millares, precisión configurable e preferencias iniciais. Presentación eléctrica con catro decimais por defecto, sen ceros decimais innecesarios, prefixos automáticos ou seleccionables e entrada con notación científica, prefixos SI e valores RMS.",
@@ -73,7 +73,7 @@
   ],
   "eu": [
     "CircuitJS1 5.0.5ts bertsioarekiko hobekuntzak",
-    "Wattmetro hedatua: potentzia aktiboa (P), oinarrizko erreaktiboa (Q) eta itxurazkoa (S), desfasearen kosinua, benetako potentzia-faktorea eta hauta daitezkeen irakurketa-moduak; tentsioaren eta korrontearen THD eta D* hondar ez-funtsezkoa; tentsioaren eta korrontearen THD eta D* hondar ez-funtsezkoa.",
+    "Wattmetro hedatua: potentzia aktiboa (P), oinarrizko erreaktiboa (Q) eta itxurazkoa (S), desfasearen kosinua, benetako potentzia-faktorea eta hauta daitezkeen irakurketa-moduak; tentsioaren eta korrontearen THD eta D* hondar ez-funtsezkoa.",
     "Korronte alternoko Z inpedantzia: R ± jX, modulua/argumentua eta R, L eta C adierazpen baliokideak.",
     "Inbertsore fotovoltaikoaren elementua, sarera konektatzeko eta isolatuta funtzionatzeko moduekin.",
     "Eskualdeko zenbaki-formatua sartzean eta bistaratzean: hamartar eta milako bereizleak, doitu daitekeen zehaztasuna eta hasierako hobespenak. Aurkezpen elektrikoa lau hamartarrekin lehenespenez, alferrikako amaierako zerorik gabe, unitate-aurrizki automatiko edo hautagarriekin eta notazio zientifiko, SI aurrizki eta RMS balioen sarrerarekin.",
@@ -85,7 +85,7 @@
   ],
   "fr": [
     "Améliorations par rapport à CircuitJS1 5.0.5ts",
-    "Wattmètre étendu : puissances active (P), réactive fondamentale (Q) et apparente (S), cosinus du déphasage, facteur de puissance réel et modes de mesure sélectionnables; THD de tension et de courant et résidu non fondamental D*; THD de tension et de courant et résidu non fondamental D*.",
+    "Wattmètre étendu : puissances active (P), réactive fondamentale (Q) et apparente (S), cosinus du déphasage, facteur de puissance réel et modes de mesure sélectionnables; THD de tension et de courant et résidu non fondamental D*.",
     "Impédance Z en courant alternatif : R ± jX, module/argument et représentations équivalentes R, L et C.",
     "Élément onduleur photovoltaïque avec modes raccordé au réseau et autonome.",
     "Saisie et affichage régionaux des nombres : séparateurs décimal et des milliers, précision réglable et préférences initiales. Affichage électrique avec quatre décimales par défaut, sans zéros décimaux superflus, préfixes automatiques ou sélectionnables et saisie en notation scientifique, préfixes SI et valeurs RMS.",
@@ -97,7 +97,7 @@
   ],
   "de": [
     "Erweiterungen gegenüber CircuitJS1 5.0.5ts",
-    "Erweitertes Wattmeter: Wirk- (P), Grundschwingungsblind- (Q) und Scheinleistung (S), Verschiebungsfaktor, tatsächlicher Leistungsfaktor und wählbare Messmodi; Spannungs- und Strom-THD sowie nichtfundamentalem Rest D*; Spannungs- und Strom-THD sowie nichtfundamentalem Rest D*.",
+    "Erweitertes Wattmeter: Wirk- (P), Grundschwingungsblind- (Q) und Scheinleistung (S), Verschiebungsfaktor, tatsächlicher Leistungsfaktor und wählbare Messmodi; Spannungs- und Strom-THD sowie nichtfundamentalem Rest D*.",
     "Wechselstromimpedanz Z: R ± jX, Betrag/Winkel und äquivalente R-, L- und C-Darstellungen.",
     "Photovoltaik-Wechselrichter als Bauteil mit netzgekoppeltem und Inselbetrieb.",
     "Regionale Zahleneingabe und -anzeige: Dezimal- und Tausendertrennzeichen, einstellbare Genauigkeit und Starteinstellungen. Elektrische Anzeige mit standardmäßig vier Dezimalstellen, ohne unnötige nachgestellte Nullen, automatischen oder wählbaren Einheitenpräfixen und Eingabe mit wissenschaftlicher Notation, SI-Präfixen und RMS-Werten.",
@@ -109,7 +109,7 @@
   ],
   "it": [
     "Miglioramenti rispetto a CircuitJS1 5.0.5ts",
-    "Wattmetro esteso: potenze attiva (P), reattiva fondamentale (Q) e apparente (S), coseno dello sfasamento, fattore di potenza reale e modalità di lettura selezionabili; THD di tensione e corrente e residuo non fondamentale D*; THD di tensione e corrente e residuo non fondamentale D*.",
+    "Wattmetro esteso: potenze attiva (P), reattiva fondamentale (Q) e apparente (S), coseno dello sfasamento, fattore di potenza reale e modalità di lettura selezionabili; THD di tensione e corrente e residuo non fondamentale D*.",
     "Impedenza Z in CA: R ± jX, modulo/argomento e rappresentazioni equivalenti R, L e C.",
     "Elemento inverter fotovoltaico con funzionamento connesso alla rete e in isola.",
     "Inserimento e visualizzazione numerica regionale: separatori decimali e delle migliaia, precisione configurabile e preferenze iniziali. Visualizzazione elettrica con quattro decimali predefiniti, senza zeri decimali superflui, prefissi automatici o selezionabili e immissione con notazione scientifica, prefissi SI e valori RMS.",
@@ -121,7 +121,7 @@
   ],
   "pt": [
     "Melhorias face ao CircuitJS1 5.0.5ts",
-    "Vatímetro ampliado: potências ativa (P), reativa fundamental (Q) e aparente (S), cosseno do desfasamento, fator de potência real e modos de leitura selecionáveis; THD de tensão e corrente e residual não fundamental D*; THD de tensão e corrente e residual não fundamental D*.",
+    "Vatímetro ampliado: potências ativa (P), reativa fundamental (Q) e aparente (S), cosseno do desfasamento, fator de potência real e modos de leitura selecionáveis; THD de tensão e corrente e residual não fundamental D*.",
     "Impedância Z em CA: R ± jX, módulo/argumento e representações equivalentes R, L e C.",
     "Elemento inversor fotovoltaico com funcionamento ligado à rede e isolado.",
     "Introdução e apresentação numérica regional: separadores decimais e de milhares, precisão configurável e preferências iniciais. Apresentação elétrica com quatro casas decimais por defeito, sem zeros decimais desnecessários, prefixos automáticos ou selecionáveis e entrada com notação científica, prefixos SI e valores RMS.",
@@ -133,7 +133,7 @@
   ],
   "nl": [
     "Verbeteringen ten opzichte van CircuitJS1 5.0.5ts",
-    "Uitgebreide wattmeter: actief (P), fundamenteel reactief (Q) en schijnbaar (S) vermogen, cosinus van de faseverschuiving, werkelijke arbeidsfactor en instelbare meetmodi; spannings- en stroom-THD en niet-fundamenteel residu D*; spannings- en stroom-THD en niet-fundamenteel residu D*.",
+    "Uitgebreide wattmeter: actief (P), fundamenteel reactief (Q) en schijnbaar (S) vermogen, cosinus van de faseverschuiving, werkelijke arbeidsfactor en instelbare meetmodi; spannings- en stroom-THD en niet-fundamenteel residu D*.",
     "Wisselstroomimpedantie Z: R ± jX, grootte/fasehoek en equivalente R-, L- en C-weergaven.",
     "Fotovoltaïsche omvormer met netgekoppelde en autonome bedrijfsmodi.",
     "Regionale numerieke invoer en weergave: decimaal- en duizendtalscheidingstekens, instelbare precisie en beginvoorkeuren. Elektrische weergave met standaard vier decimalen, zonder overbodige eindnullen, automatische of instelbare eenheidsprefixen en invoer met wetenschappelijke notatie, SI-prefixen en RMS-waarden.",
@@ -145,7 +145,7 @@
   ],
   "sv": [
     "Förbättringar jämfört med CircuitJS1 5.0.5ts",
-    "Utökad wattmeter: aktiv (P), grundtonens reaktiva (Q) och skenbara (S) effekt, fasförskjutningens cosinus, verklig effektfaktor och valbara mätlägen; spännings- och ström-THD samt icke-grundtonens residual D*; spännings- och ström-THD samt icke-grundtonens residual D*.",
+    "Utökad wattmeter: aktiv (P), grundtonens reaktiva (Q) och skenbara (S) effekt, fasförskjutningens cosinus, verklig effektfaktor och valbara mätlägen; spännings- och ström-THD samt icke-grundtonens residual D*.",
     "Växelströmsimpedans Z: R ± jX, belopp/fasvinkel och motsvarande R-, L- och C-visningar.",
     "Solcellsväxelriktare med nätanslutet och fristående driftläge.",
     "Regional inmatning och visning av tal: decimal- och tusentalsavgränsare, valbar precision och startinställningar. Elektrisk visning med fyra decimaler som standard, utan onödiga avslutande nollor, automatiska eller valbara enhetsprefix samt inmatning med vetenskaplig notation, SI-prefix och RMS-värden.",
@@ -157,7 +157,7 @@
   ],
   "da": [
     "Forbedringer i forhold til CircuitJS1 5.0.5ts",
-    "Udvidet wattmeter: aktiv (P), grundtonens reaktive (Q) og tilsyneladende (S) effekt, cosinus til faseforskydningen, reel effektfaktor og valgbare måletilstande; spændings- og strøm-THD samt ikke-fundamental rest D*; spændings- og strøm-THD samt ikke-fundamental rest D*.",
+    "Udvidet wattmeter: aktiv (P), grundtonens reaktive (Q) og tilsyneladende (S) effekt, cosinus til faseforskydningen, reel effektfaktor og valgbare måletilstande; spændings- og strøm-THD samt ikke-fundamental rest D*.",
     "Vekselstrømsimpedans Z: R ± jX, størrelse/fasevinkel og tilsvarende R-, L- og C-visninger.",
     "Solcelleinverter med nettilsluttet og selvstændig drift.",
     "Regional indtastning og visning af tal: decimal- og tusindtalsseparatorer, justerbar præcision og startindstillinger. Elektrisk visning med fire decimaler som standard, uden unødvendige afsluttende nuller, automatiske eller valgbare enhedspræfikser og indtastning med videnskabelig notation, SI-præfikser og RMS-værdier.",
@@ -169,7 +169,7 @@
   ],
   "nb": [
     "Forbedringer sammenlignet med CircuitJS1 5.0.5ts",
-    "Utvidet wattmeter: aktiv (P), grunnfrekvensens reaktive (Q) og tilsynelatende (S) effekt, cosinus til faseforskyvningen, reell effektfaktor og valgbare målemoduser; spennings- og strøm-THD og ikke-fundamental rest D*; spennings- og strøm-THD og ikke-fundamental rest D*.",
+    "Utvidet wattmeter: aktiv (P), grunnfrekvensens reaktive (Q) og tilsynelatende (S) effekt, cosinus til faseforskyvningen, reell effektfaktor og valgbare målemoduser; spennings- og strøm-THD og ikke-fundamental rest D*.",
     "Vekselstrømsimpedans Z: R ± jX, størrelse/fasevinkel og tilsvarende R-, L- og C-visninger.",
     "Solcellevekselretter med nettilkoblet og frittstående drift.",
     "Regional tallinntasting og visning: desimal- og tusenskilletegn, justerbar presisjon og startinnstillinger. Elektrisk visning med fire desimaler som standard, uten unødvendige avsluttende nuller, automatiske eller valgbare enhetsprefikser og inntasting med vitenskapelig notasjon, SI-prefikser og RMS-verdier.",
@@ -181,7 +181,7 @@
   ],
   "fi": [
     "CircuitJS1 5.0.5ts -versioon tehdyt parannukset",
-    "Laajennettu wattimittari: pätöteho (P), perustaajuuden loisteho (Q) ja näennäisteho (S), vaihe-eron kosini, todellinen tehokerroin ja valittavat mittaustilat; jännitteen ja virran THD sekä ei-perustaajuinen jäännös D*; jännitteen ja virran THD sekä ei-perustaajuinen jäännös D*.",
+    "Laajennettu wattimittari: pätöteho (P), perustaajuuden loisteho (Q) ja näennäisteho (S), vaihe-eron kosini, todellinen tehokerroin ja valittavat mittaustilat; jännitteen ja virran THD sekä ei-perustaajuinen jäännös D*.",
     "Vaihtovirran impedanssi Z: R ± jX, itseisarvo/vaihekulma sekä vastaavat R-, L- ja C-esitykset.",
     "Aurinkosähköinvertteri, jossa on verkkoon kytketty ja saareketila.",
     "Alueellinen lukujen syöttö ja näyttö: desimaali- ja tuhaterottimet, säädettävä tarkkuus ja aloitusasetukset. Sähkösuureiden näyttö oletuksena neljällä desimaalilla, ilman tarpeettomia loppunollia, automaattisin tai valittavin yksikköetuliittein sekä syöttö tieteellisellä esitystavalla, SI-etuliitteillä ja RMS-arvoilla.",
@@ -193,7 +193,7 @@
   ],
   "pl": [
     "Ulepszenia względem CircuitJS1 5.0.5ts",
-    "Rozszerzony watomierz: moc czynna (P), bierna składowej podstawowej (Q) i pozorna (S), cosinus przesunięcia fazowego, rzeczywisty współczynnik mocy i wybieralne tryby pomiaru; THD napięcia i prądu oraz pozostałość niesinusoidalna D*; THD napięcia i prądu oraz pozostałość niesinusoidalna D*.",
+    "Rozszerzony watomierz: moc czynna (P), bierna składowej podstawowej (Q) i pozorna (S), cosinus przesunięcia fazowego, rzeczywisty współczynnik mocy i wybieralne tryby pomiaru; THD napięcia i prądu oraz pozostałość niesinusoidalna D*.",
     "Impedancja Z dla prądu przemiennego: R ± jX, moduł/kąt oraz równoważne przedstawienia R, L i C.",
     "Falownik fotowoltaiczny z trybem pracy sieciowej i wyspowej.",
     "Regionalne wprowadzanie i wyświetlanie liczb: separatory dziesiętne i tysięcy, regulowana precyzja i ustawienia początkowe. Wyświetlanie elektryczne domyślnie z czterema miejscami dziesiętnymi, bez zbędnych końcowych zer, automatycznymi lub wybieranymi przedrostkami i wprowadzaniem notacji naukowej, przedrostków SI oraz wartości RMS.",
@@ -205,7 +205,7 @@
   ],
   "csx": [
     "Vylepšení oproti CircuitJS1 5.0.5ts",
-    "Rozšířený wattmetr: činný (P), jalový výkon základní harmonické (Q) a zdánlivý výkon (S), kosinus fázového posunu, skutečný účiník a volitelné režimy měření; THD napětí a proudu a nezákladní zbytek D*; THD napětí a proudu a nezákladní zbytek D*.",
+    "Rozšířený wattmetr: činný (P), jalový výkon základní harmonické (Q) a zdánlivý výkon (S), kosinus fázového posunu, skutečný účiník a volitelné režimy měření; THD napětí a proudu a nezákladní zbytek D*.",
     "Impedance Z pro střídavý proud: R ± jX, velikost/fázový úhel a ekvivalentní zobrazení R, L a C.",
     "Fotovoltaický střídač se síťovým a ostrovním režimem provozu.",
     "Regionální zadávání a zobrazení čísel: oddělovače desetinných míst a tisíců, nastavitelná přesnost a úvodní nastavení. Elektrické zobrazení standardně se čtyřmi desetinnými místy, bez zbytečných koncových nul, automatickými či volitelnými předponami a zadáváním vědeckého zápisu, předpon SI a hodnot RMS.",
@@ -217,7 +217,7 @@
   ],
   "ru": [
     "Улучшения по сравнению с CircuitJS1 5.0.5ts",
-    "Расширенный ваттметр: активная (P), реактивная по основной гармонике (Q) и полная (S) мощность, косинус фазового сдвига, действительный коэффициент мощности и выбираемые режимы измерения; THD напряжения и тока и неосновной остаток D*; THD напряжения и тока и неосновной остаток D*.",
+    "Расширенный ваттметр: активная (P), реактивная по основной гармонике (Q) и полная (S) мощность, косинус фазового сдвига, действительный коэффициент мощности и выбираемые режимы измерения; THD напряжения и тока и неосновной остаток D*.",
     "Импеданс Z для переменного тока: R ± jX, модуль/фаза и эквивалентные представления R, L и C.",
     "Фотоэлектрический инвертор с сетевым и автономным режимами.",
     "Региональные форматы ввода и отображения чисел: десятичный разделитель и разделитель тысяч, настраиваемая точность и начальные параметры. Электрические величины по умолчанию с четырьмя десятичными знаками, без лишних конечных нулей, с автоматическими или выбираемыми приставками и вводом научной записи, приставок SI и значений RMS.",
@@ -265,7 +265,7 @@
   ],
   "kr": [
     "CircuitJS1 5.0.5ts 대비 개선 사항",
-    "확장 전력계: 유효전력 (P), 기본파 무효전력 (Q), 피상전력 (S), 위상차 코사인, 실제 역률 및 선택 가능한 측정 모드; 전압·전류 THD 및 비기본파 잔여량 D*; 전압·전류 THD 및 비기본파 잔여량 D*.",
+    "확장 전력계: 유효전력 (P), 기본파 무효전력 (Q), 피상전력 (S), 위상차 코사인, 실제 역률 및 선택 가능한 측정 모드; 전압·전류 THD 및 비기본파 잔여량 D*.",
     "교류 임피던스 Z: R ± jX, 크기/위상각 및 등가 R·L·C 표시.",
     "계통 연계 및 독립 운전 모드를 지원하는 태양광 인버터 부품.",
     "지역별 숫자 입력 및 표시: 소수점과 천 단위 구분 기호, 정밀도 설정 및 시작 환경설정. 전기량을 기본 소수점 네 자리로 표시하고 불필요한 끝자리 0을 생략합니다. 자동 또는 선택 단위 접두어와 과학 표기법, SI 접두어, RMS 값 입력을 지원합니다.",
