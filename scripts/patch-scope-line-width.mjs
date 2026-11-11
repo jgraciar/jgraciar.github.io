@@ -8,8 +8,8 @@ function patch(file,before,after){
  writeFileSync(path,source.replace(before,after));
 }
 patch('Scope.ts','showScale: boolean = true;',
- 'showScale: boolean = true;\n    traceWidth: number = 1;');
-patch('Scope.ts','        this.speed = 64;','        this.speed = 64;\n        this.traceWidth = 1;');
+ 'showScale: boolean = true;\n    traceWidth: number = 2;');
+patch('Scope.ts','        this.speed = 64;','        this.speed = 64;\n        this.traceWidth = 2;');
 patch('Scope.ts','        g.setColor(color);\n        if (this.isManualScale()) {',
  '        g.setColor(color);\n        g.setLineWidth(this.traceWidth);\n        if (this.isManualScale()) {');
 patch('Scope.ts',`        if (ox !== -1)
@@ -20,9 +20,9 @@ patch('Scope.ts',`        if (ox !== -1)
         g.setLineWidth(1);
     }`);
 patch('ScopeSerializer.ts','        CircuitXMLSerializer.dumpAttr(xmlElm, "p", this.scope.position);',
- '        CircuitXMLSerializer.dumpAttr(xmlElm, "p", this.scope.position);\n        if (this.scope.traceWidth !== 1) CircuitXMLSerializer.dumpAttr(xmlElm, "lw", this.scope.traceWidth);');
+ '        CircuitXMLSerializer.dumpAttr(xmlElm, "p", this.scope.position);\n        if (this.scope.traceWidth !== 2) CircuitXMLSerializer.dumpAttr(xmlElm, "lw", this.scope.traceWidth);');
 patch('ScopeSerializer.ts','        this.scope.manDivisions = xml.parseIntAttr("md", 8);',
- '        this.scope.manDivisions = xml.parseIntAttr("md", 8);\n        this.scope.traceWidth = Math.max(1, Math.min(4, xml.parseIntAttr("lw", 1)));');
+ '        this.scope.manDivisions = xml.parseIntAttr("md", 8);\n        this.scope.traceWidth = Math.max(1, Math.min(4, xml.parseIntAttr("lw", 2)));');
 patch('ScopePropertiesDialog.ts','        hContent.appendChild(hRow);',
 `        hContent.appendChild(hRow);
         // Grosor de trazo por osciloscopio. Es una propiedad visual,

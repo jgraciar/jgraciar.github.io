@@ -39,7 +39,11 @@ try{
  assert(baseline.bottomGap>=-2 && baseline.bottomGap<55,'Configuración debe estar abajo');
  assert(baseline.resetParent&&baseline.runParent,'Reiniciar e Iniciar/Detener no deben desplazarse');
  assert(baseline.sameBorder&&baseline.sameFont,'Configuración debe compartir estilo con Reiniciar');
- assert(baseline.brightnessActive,'El regulador de brillo debe estar habilitado');
+ assert(!baseline.brightnessActive,'El control de brillo debe estar deshabilitado sin Mostrar potencia');
+ await page.evaluate(()=>window.__CircuitJGRExperimentalApp.menus.powerCheckItem.toggle());
+ await page.waitForFunction(()=>!document.querySelector('.powerLabel')?.classList?.contains('disabled'),null,{timeout:3000}).catch(()=>{});
+ assert(await page.evaluate(()=>!window.__CircuitJGRExperimentalApp.ui.powerLabel.classList.contains('disabled')),'El brillo debe habilitarse con Mostrar potencia');
+ await page.evaluate(()=>window.__CircuitJGRExperimentalApp.menus.powerCheckItem.toggle());
  assert(baseline.hasSeparateStatus&&baseline.hasSeparateDetails
   && parseFloat(baseline.detailsSpacing)>=12,
   'Estado guardado e información del componente deben estar separados');
@@ -88,7 +92,7 @@ try{
  });
  assert(scopeInfo.count>0);
  assert.match(scopeInfo.label,/E\d+/,'Sin título el osciloscopio debe identificar la fuente');
- assert.equal(scopeInfo.width,1,'Grosor inicial de 1 px');
+ assert.equal(scopeInfo.width,2,'Grosor inicial de 2 px');
 
  await page.evaluate(()=>window.__CircuitJGRExperimentalApp.scopeManager.scopes[0].showProperties());
  const lineWidth=page.locator('#jgr-trace-width');
