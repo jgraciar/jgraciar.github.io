@@ -110,7 +110,7 @@
   const t = strings[lang];
   if (!t) return;
   // Identificar el motor original como tal: la versión propia es Circuit JGR 1.0.
-  // No cambiar la versión 5.0.4ts del motor que aparece en el span .ver.
+  // No cambiar la versión 5.0.5ts del motor que aparece en el span .ver.
   const baseVersion={
     en:"Original CircuitJS1, version ",
     es:"CircuitJS1 original, versión ",

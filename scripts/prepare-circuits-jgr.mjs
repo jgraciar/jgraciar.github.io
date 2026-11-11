@@ -50,13 +50,13 @@ const identity=`
   <p style="margin:3px 0"><span id="jgr-development">Desarrollo y adaptación</span>:
     <strong>Jesús Gracia Ruiz</strong> · 2026</p>
   <p style="margin:3px 0"><span id="jgr-based">Basado en</span>
-    <strong>CircuitJS1 5.0.4ts</strong> (<span id="jgr-authors">Paul Falstad, Iain Sharp and contributors</span>).</p>
+    <strong>CircuitJS1 5.0.5ts</strong> (<span id="jgr-authors">Paul Falstad, Iain Sharp and contributors</span>).</p>
   <p style="margin:3px 0"><span id="jgr-license">Adaptaciones propias: GNU GPLv3</span>.
     <a href="../LICENSE-GPLv3.txt" target="_blank" rel="noopener">GPLv3</a>.
     <span id="jgr-code">Código fuente</span>:
     <a href="https://github.com/jgraciar/jgraciar.github.io" target="_blank" rel="noopener">jgraciar/jgraciar.github.io</a>.
     <span id="jgr-credits">The original credits and licenses follow.</span></p>
-  <h3 id="jgr-improvements-title" style="font-size:1.05em;margin:14px 0 6px">Improvements over CircuitJS1 5.0.4ts</h3>
+  <h3 id="jgr-improvements-title" style="font-size:1.05em;margin:14px 0 6px">Improvements over CircuitJS1 5.0.5ts</h3>
   <ul id="jgr-improvements-list" style="padding-left:22px;margin:0 0 12px"></ul>
 </section>
 <script>

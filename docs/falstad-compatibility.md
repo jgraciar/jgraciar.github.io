@@ -4,7 +4,7 @@ Comprobación del 10 de noviembre de 2026. Resultado: no se han detectado regres
 
 ## Fuente y versiones
 
-Circuit JGR utiliza la base pública de CircuitJS `8ac55f22a03606579b822b3dccd4dc10de1ddc5b` (5.0.4ts). La web oficial de Falstad consultada muestra 5.0.5ts. Por tanto, la identidad del código se comprueba contra la base original fijada; la comparación de comportamiento se ejecuta contra la web oficial actual.
+La auditoría inicial se realizó cuando Circuit JGR utilizaba la base pública de CircuitJS `8ac55f22a03606579b822b3dccd4dc10de1ddc5b` (5.0.4ts). La web oficial de Falstad consultada muestra 5.0.5ts. Por tanto, la identidad del código se comprueba contra la base original fijada; la comparación de comportamiento se ejecuta contra la web oficial actual.
 
 De los 260 archivos TypeScript originales, 241 son idénticos y ninguno falta. De los 157 archivos de modelos concretos de componentes, 156 son idénticos. La excepción intencionada es `WattmeterTrueElm.ts`, ampliado para las mediciones de potencia del proyecto.
 
@@ -32,3 +32,11 @@ Ejecución y resultados completos: https://github.com/jgraciar/jgraciar.github.i
 El flujo `.github/workflows/falstad-compatibility.yml` permite repetir la auditoría. `tests/audit-falstad-source.mjs` comprueba los archivos originales, métodos y órdenes de dibujo; `tests/compare-falstad-live.mjs` ejecuta los casos contra las webs publicadas y guarda los resultados completos en JSON.
 
 La prueba de comportamiento es una batería representativa con un intervalo temporal concreto; no recorre todas las configuraciones posibles de los componentes. La comprobación de identidad del código sí abarca todos los modelos originales de la base fijada, con la excepción explícita del vatímetro ampliado. Una futura actualización de la web oficial puede introducir diferencias respecto a esta base sin que procedan de Circuit JGR.
+
+## Actualización completa a 5.0.5ts (11 de noviembre de 2026)
+
+La compilación y la auditoría usan ahora el commit oficial `8d694e2ce2657b53a94a81b4816e3d19dcb645b5` de `dev-ts`, correspondiente a 5.0.5ts. Se incorporan los siete archivos modificados respecto a la base anterior mediante el cambio de revisión fijada, antes de aplicar las adaptaciones propias. No se toman modificaciones posteriores de desarrollo.
+
+Incluye la corrección del borrado contextual y de registros redundantes de deshacer, y la restauración del submenú para añadir señales a un osciloscopio existente, acoplado o flotante. Se actualiza también la identificación de la base en Acerca de y sus traducciones. La versión propia de Circuit JGR sigue siendo 1.0.
+
+`tests/verify-upstream-505-ui.mjs` verifica en Chromium el borrado de un componente sin seleccionar, su restauración con un único deshacer y la elección de un osciloscopio flotante desde el submenú. Las pruebas habituales conservan la cobertura del doble clic de edición y de los componentes propios.

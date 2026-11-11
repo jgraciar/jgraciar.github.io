@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: pfalstad/circuitjs1
-          ref: 8ac55f22a03606579b822b3dccd4dc10de1ddc5b
+          ref: 8d694e2ce2657b53a94a81b4816e3d19dcb645b5
           path: circuitjs-src
           persist-credentials: false
       - uses: actions/setup-node@v4

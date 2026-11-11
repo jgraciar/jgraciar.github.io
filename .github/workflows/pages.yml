@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: pfalstad/circuitjs1
-          ref: 8ac55f22a03606579b822b3dccd4dc10de1ddc5b
+          ref: 8d694e2ce2657b53a94a81b4816e3d19dcb645b5
           path: circuitjs-src
           persist-credentials: false
 
@@ -112,6 +112,7 @@ jobs:
           python3 -m http.server 8767 --directory site-root >/tmp/circuitjgr-http.log 2>&1 &
           sleep 2
           node adaptacion/tests/verify-circuits-jgr-root.mjs site-root
+          node adaptacion/tests/verify-upstream-505-ui.mjs
           node --experimental-strip-types adaptacion/tests/verify-ic-info-ui.mjs
           node --experimental-strip-types adaptacion/tests/verify-digital-ics-ui.mjs
           node adaptacion/tests/verify-edit-regional-ui.mjs

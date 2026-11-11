@@ -1,4 +1,4 @@
-// Características incorporadas a Circuit JGR respecto a CircuitJS1 5.0.4ts.
+// Características incorporadas a Circuit JGR respecto a CircuitJS1 5.0.5ts.
 // Nombres y atribuciones originales se conservan fuera de este bloque.
 (() => {
   const requested=new URLSearchParams(location.search).get("lang")||
@@ -12,7 +12,7 @@
   // [Título, vatímetro, impedancia, inversor, configuración, idiomas, circuito inicial].
   const changes={
     en:[
-      "Improvements over CircuitJS1 5.0.4ts",
+      "Improvements over CircuitJS1 5.0.5ts",
       "Extended wattmeter: active (P), fundamental reactive (Q) and apparent (S) power, phase-displacement cosine, true power factor and selectable reading modes.",
       "AC impedance Z: R ± jX, magnitude/phase and equivalent R, L and C representations.",
       "Photovoltaic inverter element, with grid-connected and stand-alone modes.",
@@ -21,7 +21,7 @@
       "Three-phase teaching circuit included at simulator startup."
     ],
     "ca-es-valencia":[
-      "Millores respecte de CircuitJS1 5.0.4ts",
+      "Millores respecte de CircuitJS1 5.0.5ts",
       "Vatímetre ampliat: potències activa (P), reactiva fonamental (Q) i aparent (S), cosinus del desfasament, factor de potència real i modes de lectura seleccionables.",
       "Impedància Z en CA: R ± jX, mòdul/argument i representacions equivalents de R, L i C.",
       "Element inversor fotovoltaic, amb modes de connexió a xarxa i funcionament aïllat.",
@@ -30,7 +30,7 @@
       "Circuit trifàsic didàctic incorporat a l'inici del simulador."
     ],
     es:[
-      "Mejoras respecto a CircuitJS1 5.0.4ts",
+      "Mejoras respecto a CircuitJS1 5.0.5ts",
       "Vatímetro ampliado: potencias activa (P), reactiva fundamental (Q) y aparente (S), coseno del desfase, factor de potencia real y modos de lectura seleccionables.",
       "Impedancia Z en CA: R ± jX, módulo/argumento y representaciones equivalentes de R, L y C.",
       "Elemento inversor fotovoltaico, con funcionamiento conectado a red y aislado.",
@@ -39,7 +39,7 @@
       "Circuito trifásico didáctico incorporado al inicio del simulador."
     ],
     ca:[
-      "Millores respecte de CircuitJS1 5.0.4ts",
+      "Millores respecte de CircuitJS1 5.0.5ts",
       "Vatímetre ampliat: potències activa (P), reactiva fonamental (Q) i aparent (S), cosinus del desfasament, factor de potència real i modes de lectura seleccionables.",
       "Impedància Z en CA: R ± jX, mòdul/argument i representacions equivalents de R, L i C.",
       "Element inversor fotovoltaic, amb modes de connexió a la xarxa i funcionament aïllat.",
@@ -48,7 +48,7 @@
       "Circuit trifàsic didàctic inclòs a l'inici del simulador."
     ],
     gl:[
-      "Melloras respecto de CircuitJS1 5.0.4ts",
+      "Melloras respecto de CircuitJS1 5.0.5ts",
       "Vatímetro ampliado: potencias activa (P), reactiva fundamental (Q) e aparente (S), coseno do desfasamento, factor de potencia real e modos de lectura seleccionables.",
       "Impedancia Z en CA: R ± jX, módulo/argumento e representacións equivalentes de R, L e C.",
       "Elemento inversor fotovoltaico, con funcionamento conectado á rede e illado.",
@@ -57,7 +57,7 @@
       "Circuíto trifásico didáctico incluído ao iniciar o simulador."
     ],
     eu:[
-      "CircuitJS1 5.0.4ts bertsioarekiko hobekuntzak",
+      "CircuitJS1 5.0.5ts bertsioarekiko hobekuntzak",
       "Wattmetro hedatua: potentzia aktiboa (P), oinarrizko erreaktiboa (Q) eta itxurazkoa (S), desfasearen kosinua, benetako potentzia-faktorea eta hauta daitezkeen irakurketa-moduak.",
       "Korronte alternoko Z inpedantzia: R ± jX, modulua/argumentua eta R, L eta C adierazpen baliokideak.",
       "Inbertsore fotovoltaikoaren elementua, sarera konektatzeko eta isolatuta funtzionatzeko moduekin.",
@@ -66,7 +66,7 @@
       "Simulagailua abiatzean zirkuitu trifasiko didaktikoa kargatzen da."
     ],
     fr:[
-      "Améliorations par rapport à CircuitJS1 5.0.4ts",
+      "Améliorations par rapport à CircuitJS1 5.0.5ts",
       "Wattmètre étendu : puissances active (P), réactive fondamentale (Q) et apparente (S), cosinus du déphasage, facteur de puissance réel et modes de mesure sélectionnables.",
       "Impédance Z en courant alternatif : R ± jX, module/argument et représentations équivalentes R, L et C.",
       "Élément onduleur photovoltaïque avec modes raccordé au réseau et autonome.",
@@ -75,7 +75,7 @@
       "Circuit triphasé pédagogique chargé au démarrage du simulateur."
     ],
     de:[
-      "Erweiterungen gegenüber CircuitJS1 5.0.4ts",
+      "Erweiterungen gegenüber CircuitJS1 5.0.5ts",
       "Erweitertes Wattmeter: Wirk- (P), Grundschwingungsblind- (Q) und Scheinleistung (S), Verschiebungsfaktor, tatsächlicher Leistungsfaktor und wählbare Messmodi.",
       "Wechselstromimpedanz Z: R ± jX, Betrag/Winkel und äquivalente R-, L- und C-Darstellungen.",
       "Photovoltaik-Wechselrichter als Bauteil mit netzgekoppeltem und Inselbetrieb.",
@@ -84,7 +84,7 @@
       "Didaktische Drehstromschaltung beim Start des Simulators."
     ],
     it:[
-      "Miglioramenti rispetto a CircuitJS1 5.0.4ts",
+      "Miglioramenti rispetto a CircuitJS1 5.0.5ts",
       "Wattmetro esteso: potenze attiva (P), reattiva fondamentale (Q) e apparente (S), coseno dello sfasamento, fattore di potenza reale e modalità di lettura selezionabili.",
       "Impedenza Z in CA: R ± jX, modulo/argomento e rappresentazioni equivalenti R, L e C.",
       "Elemento inverter fotovoltaico con funzionamento connesso alla rete e in isola.",
@@ -93,7 +93,7 @@
       "Circuito trifase didattico caricato all'avvio del simulatore."
     ],
     pt:[
-      "Melhorias face ao CircuitJS1 5.0.4ts",
+      "Melhorias face ao CircuitJS1 5.0.5ts",
       "Vatímetro ampliado: potências ativa (P), reativa fundamental (Q) e aparente (S), cosseno do desfasamento, fator de potência real e modos de leitura selecionáveis.",
       "Impedância Z em CA: R ± jX, módulo/argumento e representações equivalentes R, L e C.",
       "Elemento inversor fotovoltaico com funcionamento ligado à rede e isolado.",
@@ -102,7 +102,7 @@
       "Circuito trifásico didático carregado ao iniciar o simulador."
     ],
     nl:[
-      "Verbeteringen ten opzichte van CircuitJS1 5.0.4ts",
+      "Verbeteringen ten opzichte van CircuitJS1 5.0.5ts",
       "Uitgebreide wattmeter: actief (P), fundamenteel reactief (Q) en schijnbaar (S) vermogen, cosinus van de faseverschuiving, werkelijke arbeidsfactor en instelbare meetmodi.",
       "Wisselstroomimpedantie Z: R ± jX, grootte/fasehoek en equivalente R-, L- en C-weergaven.",
       "Fotovoltaïsche omvormer met netgekoppelde en autonome bedrijfsmodi.",
@@ -111,7 +111,7 @@
       "Didactisch driefasencircuit bij het starten van de simulator."
     ],
     sv:[
-      "Förbättringar jämfört med CircuitJS1 5.0.4ts",
+      "Förbättringar jämfört med CircuitJS1 5.0.5ts",
       "Utökad wattmeter: aktiv (P), grundtonens reaktiva (Q) och skenbara (S) effekt, fasförskjutningens cosinus, verklig effektfaktor och valbara mätlägen.",
       "Växelströmsimpedans Z: R ± jX, belopp/fasvinkel och motsvarande R-, L- och C-visningar.",
       "Solcellsväxelriktare med nätanslutet och fristående driftläge.",
@@ -120,7 +120,7 @@
       "Pedagogisk trefaskrets som laddas vid simulatorns start."
     ],
     da:[
-      "Forbedringer i forhold til CircuitJS1 5.0.4ts",
+      "Forbedringer i forhold til CircuitJS1 5.0.5ts",
       "Udvidet wattmeter: aktiv (P), grundtonens reaktive (Q) og tilsyneladende (S) effekt, cosinus til faseforskydningen, reel effektfaktor og valgbare måletilstande.",
       "Vekselstrømsimpedans Z: R ± jX, størrelse/fasevinkel og tilsvarende R-, L- og C-visninger.",
       "Solcelleinverter med nettilsluttet og selvstændig drift.",
@@ -129,7 +129,7 @@
       "Didaktisk trefaset kredsløb indlæses ved simulatorstart."
     ],
     nb:[
-      "Forbedringer sammenlignet med CircuitJS1 5.0.4ts",
+      "Forbedringer sammenlignet med CircuitJS1 5.0.5ts",
       "Utvidet wattmeter: aktiv (P), grunnfrekvensens reaktive (Q) og tilsynelatende (S) effekt, cosinus til faseforskyvningen, reell effektfaktor og valgbare målemoduser.",
       "Vekselstrømsimpedans Z: R ± jX, størrelse/fasevinkel og tilsvarende R-, L- og C-visninger.",
       "Solcellevekselretter med nettilkoblet og frittstående drift.",
@@ -138,7 +138,7 @@
       "Pedagogisk trefasekrets lastes ved oppstart av simulatoren."
     ],
     fi:[
-      "CircuitJS1 5.0.4ts -versioon tehdyt parannukset",
+      "CircuitJS1 5.0.5ts -versioon tehdyt parannukset",
       "Laajennettu wattimittari: pätöteho (P), perustaajuuden loisteho (Q) ja näennäisteho (S), vaihe-eron kosini, todellinen tehokerroin ja valittavat mittaustilat.",
       "Vaihtovirran impedanssi Z: R ± jX, itseisarvo/vaihekulma sekä vastaavat R-, L- ja C-esitykset.",
       "Aurinkosähköinvertteri, jossa on verkkoon kytketty ja saareketila.",
@@ -147,7 +147,7 @@
       "Opetuskäyttöön tarkoitettu kolmivaihepiiri ladataan simulaattorin käynnistyessä."
     ],
     pl:[
-      "Ulepszenia względem CircuitJS1 5.0.4ts",
+      "Ulepszenia względem CircuitJS1 5.0.5ts",
       "Rozszerzony watomierz: moc czynna (P), bierna składowej podstawowej (Q) i pozorna (S), cosinus przesunięcia fazowego, rzeczywisty współczynnik mocy i wybieralne tryby pomiaru.",
       "Impedancja Z dla prądu przemiennego: R ± jX, moduł/kąt oraz równoważne przedstawienia R, L i C.",
       "Falownik fotowoltaiczny z trybem pracy sieciowej i wyspowej.",
@@ -156,7 +156,7 @@
       "Dydaktyczny obwód trójfazowy ładowany przy uruchomieniu symulatora."
     ],
     csx:[
-      "Vylepšení oproti CircuitJS1 5.0.4ts",
+      "Vylepšení oproti CircuitJS1 5.0.5ts",
       "Rozšířený wattmetr: činný (P), jalový výkon základní harmonické (Q) a zdánlivý výkon (S), kosinus fázového posunu, skutečný účiník a volitelné režimy měření.",
       "Impedance Z pro střídavý proud: R ± jX, velikost/fázový úhel a ekvivalentní zobrazení R, L a C.",
       "Fotovoltaický střídač se síťovým a ostrovním režimem provozu.",
@@ -165,7 +165,7 @@
       "Výukový třífázový obvod načítaný při spuštění simulátoru."
     ],
     ru:[
-      "Улучшения по сравнению с CircuitJS1 5.0.4ts",
+      "Улучшения по сравнению с CircuitJS1 5.0.5ts",
       "Расширенный ваттметр: активная (P), реактивная по основной гармонике (Q) и полная (S) мощность, косинус фазового сдвига, действительный коэффициент мощности и выбираемые режимы измерения.",
       "Импеданс Z для переменного тока: R ± jX, модуль/фаза и эквивалентные представления R, L и C.",
       "Фотоэлектрический инвертор с сетевым и автономным режимами.",
@@ -174,7 +174,7 @@
       "Учебная трёхфазная схема загружается при запуске симулятора."
     ],
     zh:[
-      "相对于 CircuitJS1 5.0.4ts 的改进",
+      "相对于 CircuitJS1 5.0.5ts 的改进",
       "扩展功率表：有功功率 (P)、基波无功功率 (Q)、视在功率 (S)、位移功率因数、真实功率因数及可选读数模式。",
       "交流阻抗 Z：R ± jX、幅值/相位角及等效 R、L、C 表示。",
       "新增光伏逆变器元件，支持并网及离网模式。",
@@ -183,7 +183,7 @@
       "仿真器启动时加载教学用三相电路。"
     ],
     "zh-tw":[
-      "相對於 CircuitJS1 5.0.4ts 的改進",
+      "相對於 CircuitJS1 5.0.5ts 的改進",
       "擴充功率表：有功功率 (P)、基波無功功率 (Q)、視在功率 (S)、位移功率因數、真實功率因數及可選讀值模式。",
       "交流阻抗 Z：R ± jX、大小／相位角及等效 R、L、C 表示。",
       "新增太陽能逆變器元件，支援併網及離網模式。",
@@ -192,7 +192,7 @@
       "模擬器啟動時載入教學用三相電路。"
     ],
     ja:[
-      "CircuitJS1 5.0.4ts からの改良点",
+      "CircuitJS1 5.0.5ts からの改良点",
       "拡張電力計：有効電力 (P)、基本波無効電力 (Q)、皮相電力 (S)、位相差の余弦、真の力率、選択可能な測定モード。",
       "交流インピーダンス Z：R ± jX、絶対値／位相角、等価な R・L・C 表示。",
       "系統連系モードと独立運転モードを備えた太陽光発電インバーター素子。",
@@ -201,7 +201,7 @@
       "起動時に教材用の三相回路を読み込みます。"
     ],
     kr:[
-      "CircuitJS1 5.0.4ts 대비 개선 사항",
+      "CircuitJS1 5.0.5ts 대비 개선 사항",
       "확장 전력계: 유효전력 (P), 기본파 무효전력 (Q), 피상전력 (S), 위상차 코사인, 실제 역률 및 선택 가능한 측정 모드.",
       "교류 임피던스 Z: R ± jX, 크기/위상각 및 등가 R·L·C 표시.",
       "계통 연계 및 독립 운전 모드를 지원하는 태양광 인버터 부품.",
