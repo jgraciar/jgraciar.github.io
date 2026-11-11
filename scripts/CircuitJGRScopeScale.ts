@@ -12,17 +12,17 @@ export function scopeScaleRows(scope:Scope):ScaleRow[]{
   if(!scope.isManualScale())return [];// Auto XY only has centre axes, not division lines.
   const x=scope.plots[xy.validPlotIndex(xy.plotX,0)];
   const y=scope.plots[xy.validPlotIndex(xy.plotY,Math.min(1,scope.plots.length-1))];
-  return x&&y?[{text:'X: '+x.getUnitText(x.manScale)+div,color:x.color},{text:'Y: '+y.getUnitText(y.manScale)+div,color:y.color}]:[];
+  return x&&y?[{text:'V: '+y.getUnitText(y.manScale)+div,color:y.color},{text:'H: '+x.getUnitText(x.manScale)+div,color:x.color}]:[];
  }
  if(!plots.length)return [];
  const rows:ScaleRow[]=[];
- if(scope.gridStepX>0)rows.push({text:'t: '+CircuitElm.getUnitText(scope.gridStepX,'s')+div,color:plain});
- if(scope.fftPlot.enabled)rows.push({text:'f: '+CircuitElm.getUnitText(1/(scope.sim.maxTimeStep*scope.speed*40),'Hz')+div,color:plain});
  const values=plots.map(p=>p.getUnitText(p.gridStepY)+div);
  if(plots.every(p=>p.gridStepY>0)){
-  if(values.every(v=>v===values[0]))rows.push({text:values[0],color:plain});
-  else plots.forEach((p,i)=>rows.push({text:Locale.LS('CH ')+(i+1)+': '+values[i],color:p.color}));
+  if(values.every(v=>v===values[0]))rows.push({text:'V: '+values[0],color:plain});
+  else plots.forEach((p,i)=>rows.push({text:'V '+Locale.LS('CH ')+(i+1)+': '+values[i],color:p.color}));
  }
+ if(scope.gridStepX>0)rows.push({text:'H: '+CircuitElm.getUnitText(scope.gridStepX,'s')+div,color:plain});
+ if(scope.fftPlot.enabled)rows.push({text:'H (f): '+CircuitElm.getUnitText(1/(scope.sim.maxTimeStep*scope.speed*40),'Hz')+div,color:plain});
  return rows;
 }
 export function drawScopeScaleBadge(scope:Scope,g:Graphics):{width:number;height:number}{

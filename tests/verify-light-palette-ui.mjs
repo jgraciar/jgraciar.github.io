@@ -56,15 +56,23 @@ try {
   assert.match(await page.locator('#jgr-scope-info').textContent(),/t = /,'Tiempo conservado en el panel de controles');
   await page.waitForFunction(()=>{
    const labels=Object.values(window.scopeScaleLabels);
-   return labels.some(s=>s.startsWith('t: ')) && labels.some(s=>/V\/div$/.test(s)) && labels.some(s=>/A\/div$/.test(s)) && labels.some(s=>/W\/div$/.test(s));
+   return labels.some(s=>s.startsWith('H: ')) && labels.some(s=>s.startsWith('V: ')) && labels.some(s=>/V\/div$/.test(s)) && labels.some(s=>/A\/div$/.test(s)) && labels.some(s=>/W\/div$/.test(s));
   });
+  const autoMaximum=await page.evaluate(()=>{
+   const xml=new DOMParser().parseFromString(window.CircuitJS1.exportCircuit(),'application/xml');
+   return Array.from(xml.querySelectorAll('o')).map(scope=>{
+    const raw=scope.getAttribute('f')||'0';const flags=raw.startsWith('x')?parseInt(raw.slice(1),16):Number(raw);
+    return (flags&8192)!==0 && (flags&16)===0;
+   });
+  });
+  assert(autoMaximum.length>0 && autoMaximum.every(Boolean),'Todos los osciloscopios iniciales deben usar Auto (escala máxima)');
   const previousTimeScales=await page.evaluate(()=>{
-   const previous=Object.values(window.scopeScaleLabels).filter(s=>s.startsWith('t: '));
+   const previous=Object.values(window.scopeScaleLabels).filter(s=>s.startsWith('H: '));
    window.scopeScaleLabels={};
    window.CircuitJS1.setMaxTimeStep(window.CircuitJS1.getMaxTimeStep()*10);
    return previous;
   });
-  await page.waitForFunction(previous=>Object.values(window.scopeScaleLabels).some(s=>s.startsWith('t: ')&&!previous.includes(s)),previousTimeScales);
+  await page.waitForFunction(previous=>Object.values(window.scopeScaleLabels).some(s=>s.startsWith('H: ')&&!previous.includes(s)),previousTimeScales);
   const colors=await page.evaluate(()=>window.paletteColors);
   const backgrounds=await page.evaluate(()=>window.scopeBackgroundPaints);
   assert(backgrounds.length>0,'Debe comprobarse el relleno real de la zona de osciloscopios');

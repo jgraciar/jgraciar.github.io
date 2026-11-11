@@ -21,7 +21,15 @@ patch('ScopeOverlays.ts','    drawLegend(g: Graphics): void {','    drawLegend(g
 patch('Scope.ts','showScale: boolean = false;','showScale: boolean = true;');
 patch('Scope.ts','        this.showScale = this.showFreq = this.manualScale = this.showMin = this.showP2P = this.showElmInfo = false;', '        this.showScale = true;\n        this.showFreq = this.manualScale = this.showMin = this.showP2P = this.showElmInfo = false;');
 // Bit 28 marks explicit scale visibility. Bits 25–27 belong to legacy trigger flags.
-patch('ScopeSerializer.ts','        let flags = (this.scope.showI ? 1 : 0)', '        let flags = (1 << 28) | (this.scope.showI ? 1 : 0)');
+patch('ScopeSerializer.ts','        let flags = (this.scope.showI ? 1 : 0)', '        let flags = (1 << 28) | (1 << 29) | (this.scope.showI ? 1 : 0)');
 patch('ScopeSerializer.ts','        this.scope.showScale = (flags & 512) !== 0;','        this.scope.showScale = (flags & (1 << 28)) === 0 || (flags & 512) !== 0;');
 patch('ScopePlot2d.ts',`            this.scope.drawInfoText(g, "X=" + spx.getUnitText(spx.manScale) + "/div, Y=" + spy.getUnitText(spy.manScale) + "/div");`, '            this.scope.overlays.drawScale(g);');
 console.log('OK: live top-right scope scales, real units per division and preserved explicit visibility.');
+
+patch('Scope.ts','maxScale: boolean = false;','maxScale: boolean = true;');
+patch('Scope.ts','        this.showMax = true;','        this.showMax = true;\n        this.maxScale = true;');
+// Bit 29 preserves explicit Auto / Auto (Max Scale) choices after migration.
+patch('ScopeSerializer.ts','        this.scope.maxScale = (flags & 8192) !== 0;',
+ '        this.scope.maxScale = (flags & (1 << 29)) !== 0 ? (flags & 8192) !== 0 : !this.scope.manualScale;');
+
+patch('Scope.ts','gridMax = (mx - mn) * 0.55;', 'gridMax = Math.max((mx - mn) * 0.55, 1e-12);');
