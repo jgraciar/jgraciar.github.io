@@ -205,6 +205,28 @@ try{
  assert.match(await sim("jgr-3","export"),/r="100"/);
  assert.match(await sim("jgr-4","export"),/r="470"/);
  assert.equal(await sim(second,"count"),0,"Abrir archivos no debe sustituir la pestaña anterior");
+ const openedInfo=await sidebarInfo("jgr-4");
+ assert.equal(openedInfo.name,"red-470.txt","El panel debe identificar el circuito abierto");
+ assert(openedInfo.afterTitle,"El estado temporal debe situarse inmediatamente debajo del nombre");
+ // Seleccionar un componente real y comprobar que sus datos se muestran
+ // debajo del tiempo, no sobre los osciloscopios ni en otra parte de la barra.
+ await page.evaluate(()=>{
+  const frame=document.querySelector('iframe[data-tab-id="jgr-4"]');
+  const app=frame.contentWindow.__CircuitJGRExperimentalApp;
+  app.mouse.mousePost=-1;
+  app.mouse.setMouseElm(app.elmList[0]);
+  app.ui.repaint();
+ });
+ await page.waitForFunction(()=>{
+  const frame=document.querySelector('iframe[data-tab-id="jgr-4"]');
+  return frame?.contentDocument?.querySelector('#jgr-scope-info')
+   ?.textContent?.split('\\n').length>2;
+ },null,{timeout:15000});
+ const componentInfo=await sidebarInfo("jgr-4");
+ assert(componentInfo.lines?.[0]?.startsWith("t = "),"El tiempo precede al componente");
+ assert(componentInfo.lines?.[1]?.includes("="),"El intervalo precede al componente");
+ assert(componentInfo.lines?.length>2,"La información del componente debe aparecer bajo el intervalo");
+ console.log("OK: nombre, tiempo, intervalo y datos del componente aparecen en ese orden");
  console.log("OK: menú Archivo → Abrir archivo... crea pestañas con sus nombres originales");
 
  // Guardar como... utiliza el cuadro nativo, cambia el nombre solo al confirmar.
