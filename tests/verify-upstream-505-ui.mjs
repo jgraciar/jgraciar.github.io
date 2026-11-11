@@ -23,7 +23,7 @@ try{
  console.log('OK 5.0.5: contextual Delete targets the component; one Undo restores it');
  await popup(1);await page.getByText('View in New Scope',{exact:true}).filter({visible:true}).click();
  await popup(2);await page.getByText('View in New Undocked Scope',{exact:true}).filter({visible:true}).click();
- await popup(3);const add=page.getByText('Add to Existing Scope',{exact:true}).filter({visible:true});await add.hover();
+ await popup(3);const add=page.locator('li.hasSubmenu').filter({hasText:/^Add to Existing Scope/}).filter({visible:true});await add.hover();
  const item=page.getByText(/^Undocked Scope 1(?: \(|$)/).filter({visible:true});await item.waitFor({state:'visible'});assert(await page.getByText(/^Scope 1(?: \(|$)/).filter({visible:true}).isVisible(),'docked and floating scopes are both listed');await item.click();
  const result=await page.evaluate(()=>{const d=new DOMParser().parseFromString(window.CircuitJS1.exportCircuit(),'application/xml');return Array.from(d.querySelectorAll('o')).map(o=>({en:o.getAttribute('en'),plots:Array.from(o.querySelectorAll('p')).map(p=>p.getAttribute('e'))}));});
  assert(result.some(o=>o.plots.includes('2')),'selected floating scope contains third resistor plot: '+JSON.stringify(result));
