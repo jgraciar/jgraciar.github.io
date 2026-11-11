@@ -91,6 +91,7 @@ jobs:
           node adaptacion/tests/calculadora-ejemplos.test.mjs site-root/calculadora
           test -s site-root/index.html
           test -s site-root/circuitjgr.html
+          test -s site-root/tabs-experimental.html
           test -s site-root/circuitjs/about.html
           test -s site-root/LICENSE-GPLv3.txt
           test -s site-root/COPYING-CircuitJS.txt
@@ -113,6 +114,7 @@ jobs:
           python3 -m http.server 8767 --directory site-root >/tmp/circuitjgr-http.log 2>&1 &
           sleep 2
           node adaptacion/tests/verify-counters-ui.mjs
+          node adaptacion/tests/verify-tabs-experimental-ui.mjs
           node adaptacion/tests/verify-live-settings-ui.mjs
           node adaptacion/tests/verify-light-palette-ui.mjs
           node adaptacion/tests/verify-circuits-jgr-root.mjs site-root
