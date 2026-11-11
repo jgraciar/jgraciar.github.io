@@ -8,100 +8,143 @@ try{
  const page=await browser.newPage({locale:"es-ES",viewport:{width:1510,height:1000},acceptDownloads:true});
  const errors=[];
  page.on("pageerror",error=>errors.push(error.message));
- await page.addInitScript(()=>{try{localStorage.setItem("labStartConfigured","1");}catch{}});
+ await page.addInitScript(()=>localStorage.setItem("labStartConfigured","1"));
  await page.goto(ORIGIN,{waitUntil:"domcontentloaded"});
- await page.waitForFunction(()=>window.JGRTabsExperimental?.list().length===1&&
-  window.JGRTabsExperimental.list()[0].ready,null,{timeout:90000});
+ const list=()=>page.evaluate(()=>window.JGRTabsExperimental.list());
+ const ready=async n=>page.waitForFunction(n=>window.JGRTabsExperimental.list().length===n&&
+    window.JGRTabsExperimental.list().every(t=>t.ready),n,{timeout:90000});
+ await ready(1);
  assert.equal(await page.locator("#workspace iframe").count(),1);
- const evalApi=(id,fn,arg)=>page.evaluate(({id,fn,arg})=>{
+ assert.equal(await page.locator("#tabs").count(),1);
+ assert.equal(await page.locator("header,footer,#duplicate-tab,#rename-tab,#download-tab").count(),0,
+  "Las pestañas deben estar integradas, sin barra externa de acciones");
+
+ const sim=(id,action,arg)=>page.evaluate(({id,action,arg})=>{
   const frame=document.querySelector('iframe[data-tab-id="'+id+'"]');
   const api=frame?.contentWindow.CircuitJS1;
-  if(!api)throw Error("No CircuitJS1 API in "+id);
-  if(fn==="count")return api.getElements().length;
-  if(fn==="running")return api.isRunning();
-  if(fn==="import"){api.importCircuit(arg,false);return api.getElements().length;}
-  if(fn==="export")return api.exportCircuit();
-  if(fn==="start"){api.setSimRunning(true);return api.isRunning();}
-  if(fn==="stop"){api.setSimRunning(false);return api.isRunning();}
-  throw Error("Unsupported operation");
- },{id,fn,arg});
- const first="jgr-1";
- assert.equal(await evalApi(first,"count"),0,"New tab should start with an empty circuit");
- assert.equal(await evalApi(first,"import",sample(220)),1);
- assert.match(await evalApi(first,"export"),/r="220"/);
-
- await page.locator("#new-tab").click();
- const second="jgr-2";
- await page.waitForFunction(()=>window.JGRTabsExperimental.list().length===2&&
-   window.JGRTabsExperimental.list().every(t=>t.ready),null,{timeout:90000});
- assert.equal(await evalApi(second,"count"),0);
- assert.equal(await evalApi(first,"count"),1,"Opening new tab must not replace the source circuit");
- await evalApi(first,"start");
- await page.locator('.tab[data-tab-id="jgr-1"] .choose').click();
- assert.equal(await evalApi(second,"running"),false,"Inactive simulation must stay paused");
- await page.locator('.tab[data-tab-id="jgr-2"] .choose').click();
- assert.equal(await evalApi(first,"running"),false,"Switching tabs pauses the old simulator");
-
- // The underlying editor writes a model-aware XML selection to localStorage.circuitClipboard.
- // Trigger real keyboard shortcuts in the source iframe; use that unchanged clipboard
- // in the destination iframe (not a synthetic XML transfer).
+  const app=frame?.contentWindow.__CircuitJGRExperimentalApp;
+  if(!api||!app)throw Error("Falta el simulador "+id);
+  if(action==="count")return app.elmList.length;
+  if(action==="import"){api.importCircuit(arg,false);return app.elmList.length;}
+  if(action==="export")return api.exportCircuit();
+  if(action==="running")return api.isRunning();
+  if(action==="start"){api.setSimRunning(true);return api.isRunning();}
+  if(action==="modified")return app.isModified();
+  if(action==="x")return app.elmList.map(el=>el.x);
+  if(action==="menu"){app.commands.menuPerformed("file",arg);return true;}
+  throw Error("Acción desconocida");
+ },{id,action,arg});
+ const switchTo=async id=>page.locator('.tab[data-tab-id="'+id+'"] .choose').click();
+ const canvasOf=id=>page.frameLocator('iframe[data-tab-id="'+id+'"]').locator('canvas').first();
  const focusCanvas=async id=>{
-  const frame=page.frameLocator('iframe[data-tab-id="'+id+'"]');
-  const canvas=frame.locator('canvas').first();
+  const canvas=canvasOf(id);
   await canvas.waitFor({state:"visible",timeout:30000});
   await canvas.evaluate(el=>{el.tabIndex=0;el.focus();});
   return canvas;
  };
- await page.locator('.tab[data-tab-id="jgr-1"] .choose').click();
- const sourceCanvas=await focusCanvas(first);
+ const origin="jgr-1";
+ assert.equal(await sim(origin,"count"),0);
+ assert.equal(await sim(origin,"import",sample(220)),1);
+ assert.match(await sim(origin,"export"),/r="220"/);
+
+ // El comando real del menú Archivo: nuevo circuito en blanco -> nueva pestaña.
+ const fileMenu=page.frameLocator('iframe[data-tab-id="jgr-1"]').locator('td.gwt-MenuItem').first();
+ await fileMenu.click();
+ await fileMenu.locator(':scope > ul.menuDropdown > li.menuItem').first().click();
+ await ready(2);
+ const second="jgr-2";
+ assert.equal(await sim(second,"count"),0);
+ assert.equal(await sim(origin,"count"),1);
+ await sim(origin,"start");
+ await switchTo(origin);
+ await switchTo(second);
+ assert.equal(await sim(origin,"running"),false,"Las pestañas inactivas deben pausarse");
+ console.log("OK: menú Archivo → Nuevo circuito en blanco abre pestaña y aísla el simulador");
+
+ // Copia nativa seleccionada, pegado centrado bajo el cursor y confirmación por clic.
+ await switchTo(origin);
+ const sourceCanvas=await focusCanvas(origin);
  await sourceCanvas.press("Control+a");
  await sourceCanvas.press("Control+c");
  const clipboard=await page.evaluate(()=>localStorage.getItem("circuitClipboard"));
- assert(clipboard&&clipboard.includes('r="220"'),
-  "Native Ctrl+C must save selected circuit elements in shared clipboard");
- await page.locator('.tab[data-tab-id="jgr-2"] .choose').click();
+ assert(clipboard?.includes('r="220"'),"No se ha copiado mediante el portapapeles nativo");
+ await switchTo(second);
  const targetCanvas=await focusCanvas(second);
  await targetCanvas.press("Control+v");
- await page.waitForFunction(()=>document.querySelector('iframe[data-tab-id="jgr-2"]')
-  ?.contentWindow.CircuitJS1.getElements().length===1,null,{timeout:30000});
- assert.match(await evalApi(second,"export"),/r="220"/);
- assert.equal(await evalApi(first,"count"),1,"Native paste must leave source unchanged");
+ assert.equal(await sim(second,"count"),1);
+ const originalX=(await sim(second,"x"))[0];
+ const canvasBox=await targetCanvas.boundingBox();
+ assert(canvasBox?.width>500&&canvasBox.height>350,"No se encuentra el lienzo");
+ await page.mouse.move(canvasBox.x+canvasBox.width*.67,canvasBox.y+canvasBox.height*.34);
+ const movedX=(await sim(second,"x"))[0];
+ assert.notEqual(movedX,originalX,"Los elementos pegados deben seguir al cursor");
+ await page.mouse.click(canvasBox.x+canvasBox.width*.67,canvasBox.y+canvasBox.height*.34);
+ const fixedX=(await sim(second,"x"))[0];
+ await page.mouse.move(canvasBox.x+canvasBox.width*.32,canvasBox.y+canvasBox.height*.55);
+ assert.equal((await sim(second,"x"))[0],fixedX,"El clic debe fijar la posición del pegado");
+ assert.equal(await sim(origin,"count"),1,"Copiar no debe alterar la pestaña original");
+ assert.equal(await sim(second,"modified"),true);
  await targetCanvas.press("Control+z");
- await page.waitForFunction(()=>document.querySelector('iframe[data-tab-id="jgr-2"]')
-  ?.contentWindow.CircuitJS1.getElements().length===0,null,{timeout:30000});
- assert.equal(await evalApi(first,"count"),1,"Undo in destination may not affect source");
- console.log("OK: two isolated Circuit JGR instances, native Ctrl+C / Ctrl+V and independent Undo");
+ assert.equal(await sim(second,"count"),0,"Deshacer solo debe afectar a la pestaña de destino");
+ console.log("OK: pegar centrado, seguir el ratón, fijar al pulsar y deshacer independientemente");
 
- // Open multiple files in a single picker operation.
- await page.locator("#open-files").setInputFiles([
+ // Abrir archivos desde el propio menú de CircuitJS, siempre en pestañas nuevas.
+ const chooserPromise=page.waitForEvent("filechooser");
+ await sim(second,"menu","importfromlocalfile");
+ const chooser=await chooserPromise;
+ await chooser.setFiles([
   {name:"red-100.circuitjs",mimeType:"application/xml",buffer:Buffer.from(sample(100))},
   {name:"red-470.circuitjs",mimeType:"application/xml",buffer:Buffer.from(sample(470,256))}
  ]);
- await page.waitForFunction(()=>window.JGRTabsExperimental.list().length===4&&
-  window.JGRTabsExperimental.list().every(t=>t.ready),null,{timeout:90000});
- assert.match(await evalApi("jgr-3","export"),/r="100"/);
- assert.match(await evalApi("jgr-4","export"),/r="470"/);
- assert.equal(await evalApi(first,"count"),1);
- assert.equal(await evalApi(second,"count"),0);
- assert((await page.locator('.tab').allTextContents()).some(x=>x.includes("red-100.circuitjs")));
- console.log("OK: batch opening two different circuit files preserves the other tabs");
+ await ready(4);
+ const all=await list();
+ assert.equal(all[2].name,"red-100.circuitjs");
+ assert.equal(all[3].name,"red-470.circuitjs");
+ assert.match(await sim("jgr-3","export"),/r="100"/);
+ assert.match(await sim("jgr-4","export"),/r="470"/);
+ assert.equal(await sim(second,"count"),0,"Abrir archivos no debe sustituir la pestaña anterior");
+ console.log("OK: menú Archivo → Abrir archivo... crea pestañas con sus nombres originales");
 
- // Save current tab with its own name/content, then duplicate without replacing it.
- const downloadPromise=page.waitForEvent("download");
- await page.locator("#download-tab").click();
- const download=await downloadPromise;
- assert.equal(download.suggestedFilename(),"red-470.circuitjs");
- await page.locator("#duplicate-tab").click();
- await page.waitForFunction(()=>window.JGRTabsExperimental.list().length===5&&
-  window.JGRTabsExperimental.list().every(t=>t.ready),null,{timeout:90000});
- assert.match(await evalApi("jgr-5","export"),/r="470"/);
- const dialogPromise=new Promise(resolve=>page.once("dialog",async dialog=>{
-  assert.equal(dialog.type(),"confirm");await dialog.accept();resolve();
- }));
- await page.locator('.tab[data-tab-id="jgr-5"] .close').click();
- await dialogPromise;
- await page.waitForFunction(()=>window.JGRTabsExperimental.list().length===4);
- assert.match(await evalApi("jgr-4","export"),/r="470"/);
- assert.deepEqual(errors,[],"No browser runtime errors in parent or child Circuit JGR sessions");
- console.log("OK: export, duplicate tab, close with warning, independent states and no runtime errors");
+ // Guardar como... utiliza el cuadro nativo, cambia el nombre solo al confirmar.
+ await sim("jgr-4","menu","exportaslocalfile");
+ const dialog=page.frameLocator('iframe[data-tab-id="jgr-4"]').locator("dialog.circuitDialog").last();
+ await dialog.waitFor({state:"visible",timeout:15000});
+ await dialog.locator('input[type="text"]').fill("esquema-guardado.circuitjs");
+ const downloaded=page.waitForEvent("download");
+ await dialog.getByRole("button",{name:/OK|Aceptar/i}).click();
+ const download=await downloaded;
+ assert.equal(download.suggestedFilename(),"esquema-guardado.circuitjs");
+ await page.waitForFunction(()=>window.JGRTabsExperimental.list()[3].name==="esquema-guardado.circuitjs",null,{timeout:10000});
+ assert.equal(await sim("jgr-4","modified"),false);
+ console.log("OK: Guardar como... nativo actualiza el nombre de pestaña tras confirmar descarga");
+
+ // Alterar otra pestaña, cerrar: No mantiene, Sí descarta y Guardar como... salva y cierra.
+ await switchTo(second);
+ await (await focusCanvas(second)).press("Control+v");
+ assert.equal(await sim(second,"count"),1);
+ await page.locator('.tab[data-tab-id="jgr-2"] .close').click();
+ const closeOverlay=page.locator("#close-overlay");
+ await closeOverlay.waitFor({state:"visible",timeout:10000});
+ assert.equal(await page.locator("#close-question").innerText(),"¿Cerrar la pestaña sin guardar cambios?");
+ await page.locator("#close-no").click();
+ assert.equal((await list()).length,4,"No debe mantener la pestaña");
+ await page.locator('.tab[data-tab-id="jgr-2"] .close').click();
+ await page.locator("#close-save").click();
+ const secondDialog=page.frameLocator('iframe[data-tab-id="jgr-2"]').locator("dialog.circuitDialog").last();
+ await secondDialog.waitFor({state:"visible",timeout:15000});
+ await secondDialog.getByRole("button",{name:/Cancel|Cancelar/i}).click();
+ assert.equal((await list()).length,4,"Cancelar Guardar como... no debe cerrar");
+ await page.locator('.tab[data-tab-id="jgr-2"] .close').click();
+ await page.locator("#close-save").click();
+ await secondDialog.waitFor({state:"visible",timeout:15000});
+ await secondDialog.locator('input[type="text"]').fill("guardar-antes-de-cerrar.circuitjs");
+ const lastDownload=page.waitForEvent("download");
+ await secondDialog.getByRole("button",{name:/OK|Aceptar/i}).click();
+ assert.equal((await lastDownload).suggestedFilename(),"guardar-antes-de-cerrar.circuitjs");
+ await page.waitForFunction(()=>window.JGRTabsExperimental.list().length===3,null,{timeout:10000});
+ assert.equal(await sim(origin,"count"),1);
+ assert.equal(await sim("jgr-3","count"),1);
+ assert.equal(await sim("jgr-4","count"),1);
+ console.log("OK: cerrar sin cambios, opciones Sí/No/Guardar como..., cancelar y guardar antes de cerrar");
+ assert.deepEqual(errors,[],"Errores JS durante las pruebas de pestañas experimentales");
 }finally{await browser.close();}
