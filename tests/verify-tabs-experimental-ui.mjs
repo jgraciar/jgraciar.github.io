@@ -84,7 +84,7 @@ try{
  await page.waitForFunction(()=>document.querySelector('iframe[data-tab-id="jgr-1"]')
    ?.contentDocument?.querySelector('#jgr-scope-info')?.textContent?.includes('t = '));
  const originalInfo=await sidebarInfo(origin);
- assert.equal(originalInfo.name,"Sin título 1");
+ assert.equal(originalInfo.name,"Circuito inicial");
  assert(originalInfo.afterTitle,"Tiempo y componente deben situarse justo bajo el nombre del circuito");
  assert(originalInfo.lines?.[0]?.startsWith("t = "),"Falta el tiempo debajo del nombre");
  assert(originalInfo.lines?.[1]?.includes("="),"Falta el paso temporal debajo del nombre");
@@ -136,7 +136,9 @@ try{
  assert(Math.abs(restoredLayout.canvasWidth-originalLayout.canvasWidth)<=1,
   "Mostrar de nuevo el panel debe restaurar la anchura inicial del circuito");
  console.log("OK: panel lateral bajo las pestañas y barra de herramientas, ocultación/restauración y redimensionamiento");
- assert.equal(await sim(origin,"count"),0);
+ const startup=await sim(origin,"export");
+ assert((await sim(origin,"count"))>20,"El ejemplo trifásico inicial no puede estar vacío");
+ assert.equal((startup.match(/<WattmeterTrue\b/g)||[]).length,2,"Deben recuperarse los dos vatímetros del esquema inicial");
  assert.equal(await sim(origin,"import",sample(220)),1);
  assert.match(await sim(origin,"export"),/r="220"/);
 

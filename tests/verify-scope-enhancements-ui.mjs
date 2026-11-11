@@ -17,6 +17,8 @@ try{
   const panelRect=panel.getBoundingClientRect(),settingsRect=settings.getBoundingClientRect();
   const resetStyle=getComputedStyle(reset),settingsStyle=getComputedStyle(settings);
   return {panelBackground:getComputedStyle(panel).backgroundColor,
+   borderLeft:getComputedStyle(panel).borderLeftColor,
+   borderLeftWidth:getComputedStyle(panel).borderLeftWidth,
    buttonIsInPanel:settings.parentElement===panel,
    leftOffset:settingsRect.left-panelRect.left,
    bottomGap:panelRect.bottom-settingsRect.bottom,
@@ -29,7 +31,9 @@ try{
    hasSeparateDetails:!!panel.querySelector('#jgr-component-info'),
    detailsSpacing:getComputedStyle(panel.querySelector('#jgr-component-info')).marginTop};
  });
- assert.equal(baseline.panelBackground,'rgb(232, 232, 232)','La barra debe tener el gris de las pestañas');
+ assert.equal(baseline.panelBackground,'rgb(255, 255, 255)','La barra lateral debe ser blanca');
+ assert.equal(baseline.borderLeftWidth,'1px','El límite de la barra debe estar marcado');
+ assert.equal(baseline.borderLeft,'rgb(188, 188, 188)','El límite de la barra debe ser gris');
  assert(baseline.buttonIsInPanel,'Configuración debe estar integrada en la barra lateral');
  assert(baseline.leftOffset>=0 && baseline.leftOffset<18,'Configuración debe alinearse a la izquierda');
  assert(baseline.bottomGap>=-2 && baseline.bottomGap<55,'Configuración debe estar abajo');
@@ -115,7 +119,7 @@ try{
  await page.mouse.move(hover.x,hover.y);
  await page.waitForFunction(()=>window.jgrScopeMarkerHits.length>0,null,{timeout:10000});
  assert.deepEqual(errors,[],'No deben producirse errores JavaScript');
- console.log('OK: barra gris, Configuración a la izquierda, botones nativos intactos, brillo, (saved), diálogo nativo, grosor por osciloscopio y localización E#');
+ console.log('OK: barra blanca con borde gris, Configuración a la izquierda, botones nativos intactos, brillo, (saved), diálogo nativo, grosor por osciloscopio y localización E#');
 }finally{
  await browser.close();
 }

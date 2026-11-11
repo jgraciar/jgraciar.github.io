@@ -386,7 +386,9 @@ body{background:white}
    clearInterval(waiter);
    try{
     interceptNativeFileMenu(t);
-    a.importCircuit(content||BLANK,false);
+    // No sobrescribir el circuito inicial con un circuito vacío.
+    // Nuevo circuito y Abrir archivo siguen importando su contenido.
+    if(content!==null)a.importCircuit(content,false);
     app.setCircuitTitle(name);
     app.unsavedChanges=false;
     app.savedDumpPending=true;
@@ -432,7 +434,8 @@ body{background:white}
   newBlank,
   openFilePicker:()=>openInput.click()
  };
- newBlank();
+ unnamed=1;
+ addTab('Circuito inicial',null,false);
 })();
 </script>
 </body>
