@@ -49,23 +49,24 @@ try{
   const frame=page.frameLocator('iframe[data-tab-id="'+id+'"]');
   const canvas=frame.locator('canvas').first();
   await canvas.waitFor({state:"visible",timeout:30000});
-  await canvas.click({position:{x:12,y:12}});
+  await canvas.evaluate(el=>{el.tabIndex=0;el.focus();});
+  return canvas;
  };
  await page.locator('.tab[data-tab-id="jgr-1"] .choose').click();
- await focusCanvas(first);
- await page.keyboard.press("Control+a");
- await page.keyboard.press("Control+c");
+ const sourceCanvas=await focusCanvas(first);
+ await sourceCanvas.press("Control+a");
+ await sourceCanvas.press("Control+c");
  const clipboard=await page.evaluate(()=>localStorage.getItem("circuitClipboard"));
  assert(clipboard&&clipboard.includes('r="220"'),
   "Native Ctrl+C must save selected circuit elements in shared clipboard");
  await page.locator('.tab[data-tab-id="jgr-2"] .choose').click();
- await focusCanvas(second);
- await page.keyboard.press("Control+v");
+ const targetCanvas=await focusCanvas(second);
+ await targetCanvas.press("Control+v");
  await page.waitForFunction(()=>document.querySelector('iframe[data-tab-id="jgr-2"]')
   ?.contentWindow.CircuitJS1.getElements().length===1,null,{timeout:30000});
  assert.match(await evalApi(second,"export"),/r="220"/);
  assert.equal(await evalApi(first,"count"),1,"Native paste must leave source unchanged");
- await page.keyboard.press("Control+z");
+ await targetCanvas.press("Control+z");
  await page.waitForFunction(()=>document.querySelector('iframe[data-tab-id="jgr-2"]')
   ?.contentWindow.CircuitJS1.getElements().length===0,null,{timeout:30000});
  assert.equal(await evalApi(first,"count"),1,"Undo in destination may not affect source");
