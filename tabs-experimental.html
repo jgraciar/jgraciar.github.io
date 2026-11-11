@@ -153,6 +153,10 @@ body{background:white}
   if(!name||!name.trim())return;
   t.name=name.trim().slice(0,170);
   if(t.frame)t.frame.title="Circuit JGR: "+t.name;
+  // Mantener el encabezado nativo del panel sincronizado con el nombre
+  // de la pestaña, también tras «Guardar como...».
+  const app=appFor(t);
+  if(app?.ui?.titleLabel)app.ui.setCircuitTitle(t.name);
   renderTabs();
  }
  function getBounds(elements){
