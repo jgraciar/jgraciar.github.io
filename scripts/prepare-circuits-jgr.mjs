@@ -223,5 +223,13 @@ for(const [before,after] of Object.entries(reserve)){
  assert(uiText.split(before).length===2,"No se encuentra una única referencia de UI para insertar pestañas: "+before);
  uiText=uiText.replace(before,after.replaceAll("\\n","\n"));
 }
+// En el prototipo, ocultar el panel derecho debe recuperar todo el ancho
+// del lienzo; la versión sin pestañas conserva el cálculo del motor original.
+const sidebarWidthCondition="        if (!this.app.isMobile(this.sidePanelCheckboxLabel))";
+assert(uiText.split(sidebarWidthCondition).length===3,
+ "Se esperaban exactamente dos comprobaciones del ancho del panel lateral");
+uiText=uiText.replaceAll(sidebarWidthCondition,
+ "        if (!this.app.isMobile(this.sidePanelCheckboxLabel) &&\n" +
+ "            !(new URLSearchParams(window.location.search).has('jgr-tabs-prototype') && this.verticalPanel.style.display === 'none'))");
 writeFileSync(uiSource,uiText);
 
