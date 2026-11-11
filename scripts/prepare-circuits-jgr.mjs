@@ -152,7 +152,21 @@ const saveDialogAnchor='        document.body.removeChild(a);\n        return tr
 const cancelAnchor='        cancelButton.onclick = () => this.closeDialog();';
 assert(saveDialogText.split(cancelAnchor).length===2,
  "No se encuentra Cancelar en el diálogo nativo Guardar como...");
-const withCancel=saveDialogText.replace(cancelAnchor,
+// Circuit JGR utiliza .jgr por defecto, conservando el formato de texto
+// compatible con CircuitJS/Falstad y respetando las extensiones introducidas
+// explícitamente en Guardar como....
+const defaultFilenameAnchor='fname = "circuitjs-" + ts + ".txt";';
+const noExtensionAnchor='fname += ".txt";';
+const existingFilenameAnchor='fname = ExportAsLocalFileDialog.lastFileName;';
+for(const anchor of [defaultFilenameAnchor,noExtensionAnchor,existingFilenameAnchor])
+ assert(saveDialogText.split(anchor).length===2,
+  "No se encuentra el punto de configuración de la extensión JGR: "+anchor);
+const jgrSaveDialogText=saveDialogText
+ .replace(defaultFilenameAnchor,'fname = "circuitjgr-" + ts + ".jgr";')
+ .replace(noExtensionAnchor,'fname += ".jgr";')
+ .replace(existingFilenameAnchor,
+  'fname = ExportAsLocalFileDialog.lastFileName.replace(/\\.(txt|xml|circuitjs)$/i, ".jgr");');
+const withCancel=jgrSaveDialogText.replace(cancelAnchor,
  '        cancelButton.onclick = () => {\n' +
  '            if (new URLSearchParams(window.location.search).has("jgr-tabs-prototype"))\n' +
  '                window.parent.postMessage({source:"circuit-jgr-tabs",action:"save-canceled"},"*");\n' +
@@ -187,6 +201,12 @@ assert(scopeScaleBadge.status===0,"Scope scale badge patch failed");
 // Se hace después de aplicar los parches de osciloscopio para no solaparlos.
 const uiSource=join(dir,"UIManager.ts");
 let uiText=readFileSync(uiSource,"utf8");
+const loadFileAcceptAnchor="this.element.accept = '.txt,.circuitjs';";
+assert(uiText.split(loadFileAcceptAnchor).length===2,
+ "No se encuentra el filtro nativo Abrir archivo...");
+uiText=uiText.replace(loadFileAcceptAnchor,
+ "this.element.accept = '.jgr,.txt,.circuitjs,.xml';");
+
 const reserve={
   '        expectedHeight -= (this.hideMenu ? 0 : UIManager.MENUBARHEIGHT);':
     '        expectedHeight -= (this.hideMenu ? 0 : UIManager.MENUBARHEIGHT);\\n' +
