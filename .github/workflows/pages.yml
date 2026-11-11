@@ -70,6 +70,8 @@ jobs:
           node adaptacion/scripts/patch-pv-inverter.mjs circuitjs-src/ts adaptacion/scripts/PVInverterElm.ts adaptacion/scripts/LabPVInverter.ts
           node adaptacion/scripts/patch-cd4026.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/scripts/patch-digital-ics.mjs circuitjs-src/ts
+          node adaptacion/scripts/patch-generic-sequential.mjs circuitjs-src/ts
+          node adaptacion/tests/verify-generic-sequential-static.mjs circuitjs-src/ts
           node adaptacion/scripts/patch-lab-localization.mjs circuitjs-src/ts adaptacion/scripts/LabTranslations.ts
           node adaptacion/scripts/prepare-circuits-jgr.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-edit-regional-numbers.mjs circuitjs-src/ts
@@ -128,6 +130,7 @@ jobs:
           node adaptacion/tests/verify-upstream-505-ui.mjs
           node --experimental-strip-types adaptacion/tests/verify-ic-info-ui.mjs
           node --experimental-strip-types adaptacion/tests/verify-digital-ics-ui.mjs
+          node adaptacion/tests/verify-generic-sequential-ui.mjs
           node adaptacion/tests/verify-edit-regional-ui.mjs
           node adaptacion/tests/verify-circuitjgr-elements.mjs
           node adaptacion/tests/verify-nonlinear-presets-ui.mjs
