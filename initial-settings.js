@@ -233,24 +233,39 @@ function render(){
     const poll=()=>window.CircuitJS1?.applyInitialSettings?resolve(window.CircuitJS1):setTimeout(poll,50);poll();
    });
    await api.applyInitialSettings({language,whiteBackground,digits,decimal:ds,grouping:gs});
-   document.getElementById("lab-start-modal").hidden=true;
+   {const setupDialog=document.getElementById("lab-start-modal");if(setupDialog.open)setupDialog.close();setupDialog.hidden=true;}
    document.body.classList.remove("lab-start-open");
    document.querySelector(".lab-start-settings").textContent=(catalogs[language]||catalogs.en)[13];
   }finally{button.disabled=false;}
  }else{
-  document.getElementById("lab-start-modal").hidden=true;document.body.classList.remove("lab-start-open");
+  {const setupDialog=document.getElementById("lab-start-modal");if(setupDialog.open)setupDialog.close();setupDialog.hidden=true;}document.body.classList.remove("lab-start-open");
  }
  };
 }
-function show(){whiteBackground=savedBackground()==="true";const modal=document.getElementById("lab-start-modal");modal.hidden=false;document.body.classList.add("lab-start-open");render()}
+function show(){whiteBackground=savedBackground()==="true";const modal=document.getElementById("lab-start-modal");modal.hidden=false;document.body.classList.add("lab-start-open");render();if(!modal.open)modal.showModal()}
 function init(){
   // Idioma BCP 47 correcto para lectores de pantalla; CircuitJS mantiene códigos históricos.
   document.documentElement.lang=language==="csx"?"cs":language==="kr"?"ko":language==="zh"?"zh-Hans":language==="zh-tw"?"zh-Hant":language;
  const style=document.createElement("style");
  style.textContent='.lab-start-settings-help{font-size:13px;line-height:1.5;color:#35435a;margin:8px 0 14px}.lab-start-precision{font-size:12px;line-height:1.45;color:#505d70;margin:6px 0 12px}.lab-start-open{overflow:hidden}.lab-start-modal[hidden]{display:none}.lab-start-modal{position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.7);display:grid;place-items:center;padding:16px;overflow:auto}.lab-start-card{background:#fff;color:#202936;border-radius:14px;padding:24px;width:min(100%,440px);max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 20px 70px #0007;font:15px system-ui,sans-serif}.lab-start-card h2{font-size:22px;margin:0 0 8px}.lab-start-card p{margin:0 0 16px}.lab-start-card label{display:block;margin:12px 0;font-weight:600}.lab-start-card select,.lab-start-card input[type=number]{display:block;width:100%;padding:9px;margin-top:6px;font:inherit;box-sizing:border-box}.lab-start-card fieldset{border:0;padding:0;margin:14px 0}.lab-start-card legend{font-weight:600}.lab-start-card .lab-start-choice{display:flex;align-items:center;gap:8px;font-weight:400;margin:9px 0}.lab-start-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.lab-start-preview{background:#eef1f5;padding:12px;border-radius:8px;margin:14px 0}.lab-start-preview small{display:block}.lab-start-preview strong{display:block;font-size:24px;font-variant-numeric:tabular-nums;margin-top:5px}.lab-start-digits{margin:14px 0}.lab-start-digits-label{display:block;font-weight:600;margin-bottom:9px}.lab-start-stepper{display:flex;align-items:center;justify-content:center;gap:14px}.lab-start-card .lab-start-stepper button{width:52px;height:48px;padding:0;font-size:28px;border-radius:9px;background:#fff;color:#202936;border:1px solid #8c98a9}.lab-start-card .lab-start-stepper button:disabled{opacity:.35;cursor:default}.lab-start-stepper output{display:grid;place-items:center;min-width:76px;height:48px;border:1px solid #8c98a9;border-radius:9px;font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}.lab-start-digits>small{display:block;text-align:center;margin-top:7px;color:#505d70}.lab-start-original{display:block;margin-top:7px;color:#505d70;font-variant-numeric:tabular-nums}.lab-start-arrow{display:block;color:#505d70}.lab-start-card button{width:100%;padding:12px;border:0;border-radius:8px;background:#175fba;color:white;font:inherit;cursor:pointer}.lab-start-settings{position:fixed;bottom:12px;right:12px;z-index:1000;padding:8px 12px;border:1px solid #888;border-radius:8px;background:#fff;color:#222;cursor:pointer}';
- document.head.appendChild(style);
- const modal=document.createElement("div");modal.id="lab-start-modal";modal.className="lab-start-modal";modal.hidden=true;document.body.appendChild(modal);
- const settings=document.createElement("button");settings.className="lab-start-settings";settings.type="button";settings.textContent=(catalogs[language]||catalogs.en)[13];settings.onclick=show;document.body.appendChild(settings);
+ style.textContent += '.verticalPanel{background:#e8e8e8!important;display:flex;flex-direction:column}'+
+   '.verticalPanel .lab-start-settings{position:sticky;bottom:0;align-self:flex-start;margin-top:auto;margin-left:5px;margin-bottom:5px;z-index:3;width:auto;padding:5px 7px;background:#e7e7e7;border:1px solid #bbb;border-bottom:1px solid #a0a0a0;border-radius:3px;color:#222;font-size:small;white-space:normal;text-align:left}'+
+   '.lab-start-modal:not([hidden]){display:block;inset:auto;max-height:85vh;overflow:auto;box-sizing:border-box;width:min(490px,calc(100vw - 24px));padding:18px;background:white;color:#222;border:1px solid #999;border-radius:4px;box-shadow:0 8px 28px #0005;font:small Arial Unicode MS,Arial,sans-serif}'+
+   '.lab-start-modal::backdrop{background:#0006}'+
+   '.lab-start-modal .lab-start-card{width:100%;max-height:none;overflow:visible;box-sizing:border-box;padding:0;border:0;box-shadow:none;border-radius:0;background:white;color:#222;font:inherit}'+
+   '.lab-start-modal .lab-start-card h2{font-size:1.2em;font-weight:600;margin:0 0 12px}'+
+   '.lab-start-modal .lab-start-card button{width:auto;padding:5px 9px;border:1px solid #bbb;border-bottom:1px solid #a0a0a0;border-radius:3px;background:#e7e7e7;color:#222;font:inherit}'+
+   '.lab-start-modal .lab-start-card #lab-start-accept{display:block;margin:12px 0 0 auto;padding:6px 10px}'+
+   '.lab-start-modal .lab-start-stepper button{width:42px;height:35px;padding:0;font-size:22px;border-radius:3px}'+
+   '.lab-start-modal .lab-start-stepper output{height:35px;font-size:21px;border-radius:3px}'+
+   '.lab-start-modal .lab-start-preview{background:#f0f0f0;border:1px solid #ccc;border-radius:3px}';
+  document.head.appendChild(style);
+ const modal=document.createElement("dialog");modal.id="lab-start-modal";modal.className="circuitDialog lab-start-modal";modal.hidden=true;
+  modal.addEventListener("cancel",e=>{if(get("labStartConfigured")!=="1")e.preventDefault();else{modal.hidden=true;document.body.classList.remove("lab-start-open")}});
+  document.body.appendChild(modal);
+ const settings=document.createElement("button");settings.className="lab-start-settings topButton";settings.type="button";settings.textContent=(catalogs[language]||catalogs.en)[13];settings.onclick=show;
+  const attachSettings=()=>{const sidebar=document.querySelector(".verticalPanel");if(!sidebar)return false;if(settings.parentElement!==sidebar)sidebar.appendChild(settings);return true;};
+  if(!attachSettings()){const watch=new MutationObserver(()=>{if(attachSettings())watch.disconnect()});watch.observe(document.body,{childList:true,subtree:true})}
  if(get("labStartConfigured")!=="1")show();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
