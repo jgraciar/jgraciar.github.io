@@ -31,3 +31,15 @@ La batería se ejecuta antes de publicar en el sitio de prueba y vuelve a ejecut
 - Revisión técnica manual de las traducciones. Integridad de los 22 catálogos no significa validación lingüística integral de cada explicación.
 
 La Z avanzada con parámetros por longitud/modelo π, el variador con inversor y motor y la regulación automática de condensadores son funciones pendientes, no comprobaciones que puedan darse por superadas sobre un modelo ya disponible.
+
+## Lista de trabajo pendiente (11-11-2026)
+
+Estas tareas siguen abiertas; la comparación 47/47 con Falstad no acredita su finalización:
+
+1. Robustez numérica del solucionador: parámetros extremos, fallos, componentes desconectados, reinicios e importación/exportación repetida.
+2. Autoconsumo fotovoltaico: red no ideal, desequilibrios, cargas no lineales y supuestos trifásicos de consumo y excedentes.
+3. Baterías de condensadores: regulador automático por escalones, limitación de sobrecompensación, bloqueo con exportación a red y resonancia ante armónicos.
+4. Compatibilidad con más circuitos externos, variantes de archivos y bibliotecas de subcircuitos.
+5. Revisión lingüística manual de los 22 idiomas y ampliación de las pruebas de interfaz.
+
+La permanencia del tiempo de simulación y del paso temporal en el panel lateral es una corrección funcional independiente y se verifica con y sin osciloscopios.
