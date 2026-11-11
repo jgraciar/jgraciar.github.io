@@ -121,6 +121,14 @@ try{
   return {x:r.x+s.rect.x+Math.min(20,s.rect.width/2),y:r.y+s.rect.y+Math.min(20,s.rect.height/2)};
  });
  await page.mouse.move(hover.x,hover.y);
+ // Verificar el indicador en coordenadas propias del canvas, con independencia
+ // del zoom del navegador, que puede transformar las coordenadas de pantalla.
+ await page.evaluate(()=>{
+  const app=window.__CircuitJGRExperimentalApp,s=app.scopeManager.scopes[0];
+  app.mouse.mouseCursorX=s.rect.x+Math.trunc(s.rect.width/2);
+  app.mouse.mouseCursorY=s.rect.y+Math.trunc(s.rect.height/2);
+  app.ui.repaint();
+ });
  await page.waitForFunction(()=>window.jgrScopeMarkerHits.length>0,null,{timeout:10000});
  assert.deepEqual(errors,[],'No deben producirse errores JavaScript');
  console.log('OK: barra blanca con borde gris, Configuración a la izquierda, botones nativos intactos, brillo, (saved), diálogo nativo, grosor por osciloscopio y localización E#');
