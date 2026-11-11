@@ -26,6 +26,10 @@ assert(html.includes("</head>"),"No se reconoce la cabecera HTML");
 writeFileSync(target,html.replace("</head>",
  '  <script defer src="./initial-settings.js"></script>\n</head>'));
 cpSync(join(repo,"initial-settings.js"),join(site,"initial-settings.js"));
+// Página de evaluación aislada: el simulador principal permanece sin cambios.
+cpSync(join(repo,"tabs-experimental.html"),join(site,"tabs-experimental.html"));
+assert(readFileSync(join(site,"tabs-experimental.html"),"utf8").includes("JGRTabsExperimental"),
+ "No se ha empaquetado la página experimental de pestañas");
 // La misma ruta existía en versiones anteriores; mantenerla permite al navegador
 // actualizar el trabajador antiguo y abandonar las páginas almacenadas en caché.
 cpSync(join(repo,"service-worker.js"),join(site,"service-worker.js"));
