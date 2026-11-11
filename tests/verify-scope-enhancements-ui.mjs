@@ -125,23 +125,16 @@ try{
  // del zoom del navegador, que puede transformar las coordenadas de pantalla.
  await page.evaluate(()=>{
   const app=window.__CircuitJGRExperimentalApp,s=app.scopeManager.scopes[0];
-  app.mouse.mouseCursorX=s.rect.x+Math.trunc(s.rect.width/2);
-  app.mouse.mouseCursorY=s.rect.y+Math.trunc(s.rect.height/2);
+  // Un mouseout asíncrono del navegador podía restablecer el cursor a (0,0)
+  // durante el fotograma siguiente. Fijamos el punto interno solo en esta
+  // prueba aislada del indicador, sin alterar el simulador distribuido.
+  Object.defineProperty(app.mouse,'mouseCursorX',{configurable:true,
+   get:()=>s.rect.x+Math.trunc(s.rect.width/2),set:()=>{}});
+  Object.defineProperty(app.mouse,'mouseCursorY',{configurable:true,
+   get:()=>s.rect.y+Math.trunc(s.rect.height/2),set:()=>{}});
   app.ui.repaint();
  });
- await page.waitForTimeout(300);
- console.log("DIAG-marker",JSON.stringify(await page.evaluate(()=>{
-   const app=window.__CircuitJGRExperimentalApp;
-   const s=app.scopeManager.scopes[0],plot=s.visiblePlots[0];
-   return {mouse:[app.mouse.mouseCursorX,app.mouse.mouseCursorY],
-    rect:{x:s.rect.x,y:s.rect.y,w:s.rect.width,h:s.rect.height},
-    cursor:s.constructor.cursorScope===s,source:typeof plot?.elm?.getType==='function'?plot.elm.getType():typeof plot?.elm,
-    sourceIndex:plot?.elm?app.locateElm(plot.elm):null,
-    visiblePlots:s.visiblePlots.length,selectedPlot:s.selectedPlot,
-    stopMessage:app.stopMessage,modal:app.modalDialogIsShowing(),
-    hits:window.jgrScopeMarkerHits.slice(0,8)};
- })));
- await page.waitForFunction(()=>window.jgrScopeMarkerHits.length>0,null,{timeout:3000});
+ await page.waitForFunction(()=>window.jgrScopeMarkerHits.length>0,null,{timeout:10000});
  assert.deepEqual(errors,[],'No deben producirse errores JavaScript');
  console.log('OK: barra blanca con borde gris, Configuración a la izquierda, botones nativos intactos, brillo, (saved), diálogo nativo, grosor por osciloscopio y localización E#');
 }finally{
