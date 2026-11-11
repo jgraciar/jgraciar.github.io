@@ -1,0 +1,44 @@
+name: Comprobaciones eléctricas e importación de Circuit JGR
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/project-validation.yml'
+      - 'tests/verify-project-pending.mjs'
+permissions:
+  contents: read
+jobs:
+  validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: adaptacion
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: pfalstad/circuitjs1
+          ref: 8d694e2ce2657b53a94a81b4816e3d19dcb645b5
+          path: original
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar Chromium
+        working-directory: adaptacion/tests
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Contraste de Z, FV, armónicos e importación en la web publicada
+        env:
+          FALSTAD_EXAMPLES: original/ts/public/circuits
+          CHECK_REPORT: project-checks
+        run: node adaptacion/tests/verify-project-pending.mjs
+      - name: Guardar resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-checks
+          path: project-checks
