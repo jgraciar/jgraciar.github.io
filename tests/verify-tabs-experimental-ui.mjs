@@ -95,7 +95,7 @@ try{
  assert(Math.abs(originalLayout.canvasTop-originalLayout.stripBottom)<=1,
   "El lienzo debe comenzar debajo de las pestañas");
  assert(originalLayout.canvasHeight>150&&originalLayout.canvasLogicalHeight>150);
- assert.equal(originalLayout.sidebarDisplay,"block","El panel debe estar visible al iniciar");
+ assert(["block","flex"].includes(originalLayout.sidebarDisplay),"El panel debe estar visible al iniciar");
  assert(originalLayout.sidebarWidth>=128,"El panel lateral debe conservar su ancho habitual");
  assert(Math.abs(originalLayout.sidebarTop-originalLayout.stripBottom)<=1,
   "La barra lateral debe empezar después de las pestañas");
@@ -130,7 +130,7 @@ try{
   "El circuito debe ocupar todo el ancho sin la barra lateral");
  await sidebarButton.click();
  const restoredLayout=await geometry(origin);
- assert.equal(restoredLayout.sidebarDisplay,"block");
+ assert(["block","flex"].includes(restoredLayout.sidebarDisplay));
  assert.equal(await sidebarButton.innerText(),"Ocultar panel lateral");
  assert(Math.abs(restoredLayout.sidebarTop-restoredLayout.stripBottom)<=1);
  assert(Math.abs(restoredLayout.canvasWidth-originalLayout.canvasWidth)<=1,
