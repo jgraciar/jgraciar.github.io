@@ -4,7 +4,7 @@ import {join} from 'node:path';
 const dir=process.argv[2];
 function patch(file,before,after){
  const path=join(dir,file),original=readFileSync(path,'utf8');
- assert(original.split(before).length===2,file+': falta el anclaje único de identificación');
+ assert(original.split(before).length===2,file+': falta el anclaje único de identificación: '+before.slice(0,120));
  writeFileSync(path,original.replace(before,after));
 }
 // Se identifica el elemento físico, no su posición o número de osciloscopio.
@@ -32,8 +32,9 @@ patch('UIManager.ts',`        this.drawBottomArea(g);
 `        this.drawBottomArea(g);
         // Vincular la curva con su componente sin alterar el esquema guardado.
         const sourceScope = Scope.cursorScope;
-        const sourcePlot = sourceScope?.visiblePlots?.[
-            sourceScope.selectedPlot >= 0 ? sourceScope.selectedPlot : 0];
+        const sourcePlot = sourceScope && sourceScope.visiblePlots.length > 0
+            ? sourceScope.visiblePlots[sourceScope.selectedPlot >= 0 ? sourceScope.selectedPlot : 0]
+            : null;
         const sourceElement = sourcePlot?.elm;
         if (sourceElement != null && !this.app.modalDialogIsShowing()) {
             const sourceIndex = this.app.locateElm(sourceElement);
