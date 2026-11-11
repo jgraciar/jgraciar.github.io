@@ -7,7 +7,7 @@ const site=resolve(process.argv[2]||"site-root");
 const html=readFileSync(join(site,"circuitjgr.html"),"utf8");
 assert(!existsSync(join(site,"circuitjs.html")),
  "El simulador raíz debe usar circuitjgr.html, no un duplicado de circuitjs.html");
-assert(html.includes('<title>Circuit JGR 1.0</title>'));
+assert(html.includes('<title>Circuit JGR</title>'));
 assert(html.includes('src="./initial-settings.js"'));
 const browser=await chromium.launch({headless:true});
 try{
@@ -22,7 +22,7 @@ try{
   "La portada debe conservar el acceso al laboratorio");
 
  await page.goto("http://127.0.0.1:8767/circuitjgr.html",{waitUntil:"domcontentloaded"});
- assert.equal(await page.title(),"Circuit JGR 1.0");
+ assert.equal(await page.title(),"Circuit JGR");
  await page.locator("#lab-start-modal").waitFor({state:"visible",timeout:30000});
  assert.equal(await page.locator('#lab-start-language option').count(),23,
   "Deben conservarse 22 idiomas más la selección automática");
