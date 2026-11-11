@@ -135,7 +135,7 @@ try{
    const s=app.scopeManager.scopes[0],plot=s.visiblePlots[0];
    return {mouse:[app.mouse.mouseCursorX,app.mouse.mouseCursorY],
     rect:{x:s.rect.x,y:s.rect.y,w:s.rect.width,h:s.rect.height},
-    cursor:s.constructor.cursorScope===s,source:plot?.elm?.getType(),
+    cursor:s.constructor.cursorScope===s,source:typeof plot?.elm?.getType==='function'?plot.elm.getType():typeof plot?.elm,
     sourceIndex:plot?.elm?app.locateElm(plot.elm):null,
     visiblePlots:s.visiblePlots.length,selectedPlot:s.selectedPlot,
     stopMessage:app.stopMessage,modal:app.modalDialogIsShowing(),
