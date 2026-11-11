@@ -24,6 +24,7 @@ patch('UIManager.ts',[
         }
         if (this.menus.printableCheckItem.getState()) {
             CircuitElm.whiteColor`],
+ ['this.menus.printableCheckItem.getState() ? "#eee" : "#111"', 'this.menus.printableCheckItem.getState() ? "#ffffff" : "#111"'],
  ['    setColors(positiveColor:', '    private jgrLightPalette: boolean | undefined;\n\n    setColors(positiveColor:'],
  ['CircuitElm.positiveColor = Color.green;', 'CircuitElm.positiveColor = this.app.isPrintable() ? new Color("#007A3D") : Color.green;'],
  ['CircuitElm.negativeColor = Color.red;', 'CircuitElm.negativeColor = this.app.isPrintable() ? new Color("#C62828") : Color.red;'],

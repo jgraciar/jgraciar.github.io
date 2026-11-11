@@ -7,11 +7,15 @@ try {
   await page.addInitScript(()=>{
    localStorage.setItem('labStartConfigured','1');
    window.paletteColors={};
+   window.scopeBackgroundPaints=[];
    for(const method of ['fillRect','stroke']){
     const original=CanvasRenderingContext2D.prototype[method];
     CanvasRenderingContext2D.prototype[method]=function(...args){
      const color=method==='stroke'?this.strokeStyle:this.fillStyle;
      window.paletteColors[color]=(window.paletteColors[color]||0)+1;
+     if(method==='fillRect' && this.canvas.parentElement?.classList.contains('canvasWrapper') && args[1]>this.canvas.height*.5 && args[2]>this.canvas.width*.7 && args[3]>20){
+      window.scopeBackgroundPaints.push(String(color));
+     }
      return original.apply(this,args);
     };
    }
@@ -22,6 +26,9 @@ try {
   const canvas=page.locator('.canvasWrapper > canvas');
   assert.equal(await canvas.evaluate(c=>c.style.backgroundColor),light?'rgb(255, 255, 255)':'rgb(0, 0, 0)');
   const colors=await page.evaluate(()=>window.paletteColors);
+  const backgrounds=await page.evaluate(()=>window.scopeBackgroundPaints);
+  assert(backgrounds.length>0,'Debe comprobarse el relleno real de la zona de osciloscopios');
+  assert(backgrounds.every(color=>color===(light?'#ffffff':'#111111')),'El fondo del osciloscopio debe ser blanco puro o el negro original: '+JSON.stringify([...new Set(backgrounds)]));
   if(light){assert(colors['#e2e5e9'],'Cuadrícula clara del osciloscopio');assert(!colors['#ffff00'],'Sin corriente amarilla sobre blanco');}
   // Exercise the actual menu twice in the same running simulation.
   for(const nextLight of [!light,light]){
