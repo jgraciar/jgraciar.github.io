@@ -9,6 +9,7 @@ try {
    window.paletteColors={};
    window.scopeBackgroundPaints=[];
    window.scopeGridDirections={};
+   window.scopeGridRight=0;
    const proto=CanvasRenderingContext2D.prototype;
    const move=proto.moveTo,line=proto.lineTo;
    proto.moveTo=function(x,y){this.jgrGridStart=[x,y];return move.call(this,x,y);};
@@ -17,7 +18,10 @@ try {
     if(start && ['#707070','#b0b0b0','#e2e5e9','#9aa2ac'].includes(this.strokeStyle)){
      const key=String(this.strokeStyle);
      const seen=window.scopeGridDirections[key]??(window.scopeGridDirections[key]={h:0,v:0});
-     if(y===start[1] && Math.abs(x-start[0])>20)seen.h++;
+     if(y===start[1] && Math.abs(x-start[0])>20){
+      seen.h++;
+      window.scopeGridRight=Math.max(window.scopeGridRight,this.getTransform().transformPoint({x:Math.max(x,start[0]),y}).x);
+     }
      if(x===start[0] && Math.abs(y-start[1])>20)seen.v++;
     }
     return line.call(this,x,y);
@@ -42,6 +46,9 @@ try {
   await page.waitForFunction(light=>{
    const seen=window.scopeGridDirections[light?'#e2e5e9':'#707070'];return seen?.h>0 && seen?.v>0;
   },light);
+  await page.waitForFunction(()=>window.scopeGridRight>=document.querySelector('.canvasWrapper > canvas').width-15);
+  await page.locator('#jgr-scope-info').waitFor({state:'visible'});
+  assert.match(await page.locator('#jgr-scope-info').textContent(),/t = /,'Tiempo conservado en el panel de controles');
   const colors=await page.evaluate(()=>window.paletteColors);
   const backgrounds=await page.evaluate(()=>window.scopeBackgroundPaints);
   assert(backgrounds.length>0,'Debe comprobarse el relleno real de la zona de osciloscopios');

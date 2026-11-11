@@ -140,3 +140,5 @@ const lightPalette=spawnSync(process.execPath,[new URL("./patch-light-palette.mj
 assert(lightPalette.status===0,"Light palette patch failed");
 const liveSettings=spawnSync(process.execPath,[new URL("./patch-live-settings.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
 assert(liveSettings.status===0,"Live settings patch failed");
+const fullWidthScopes=spawnSync(process.execPath,[new URL("./patch-scope-full-width.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
+assert(fullWidthScopes.status===0,"Full-width scopes patch failed");
