@@ -15,7 +15,8 @@ try{
     window.JGRTabsExperimental.list().every(t=>t.ready),n,{timeout:90000});
  await ready(1);
  assert.equal(await page.locator("#workspace iframe").count(),1);
- assert.equal(await page.locator("#tabs").count(),1);
+ assert.equal(await page.locator("#tabs").count(),0);
+ assert.equal(await page.frameLocator('iframe[data-tab-id="jgr-1"]').locator("#jgr-tab-strip").count(),1);
  assert.equal(await page.locator("header,footer,#duplicate-tab,#rename-tab,#download-tab").count(),0,
   "Las pestañas deben estar integradas, sin barra externa de acciones");
 
@@ -34,7 +35,26 @@ try{
   if(action==="menu"){app.commands.menuPerformed("file",arg);return true;}
   throw Error("Acción desconocida");
  },{id,action,arg});
- const switchTo=async id=>page.locator('.tab[data-tab-id="'+id+'"] .choose').click();
+ const stripOf=id=>page.frameLocator('iframe[data-tab-id="'+id+'"]').locator("#jgr-tab-strip");
+ const switchTo=async id=>{
+  const current=await page.evaluate(()=>window.JGRTabsExperimental.getActive());
+  await stripOf(current).locator('.tab[data-tab-id="'+id+'"] .choose').click();
+ };
+ const closeTab=async id=>{
+  const current=await page.evaluate(()=>window.JGRTabsExperimental.getActive());
+  await stripOf(current).locator('.tab[data-tab-id="'+id+'"] .close').click();
+ };
+ const geometry=id=>page.evaluate(id=>{
+  const frame=document.querySelector('iframe[data-tab-id="'+id+'"]');
+  const doc=frame.contentDocument,app=frame.contentWindow.__CircuitJGRExperimentalApp;
+  const strip=doc.getElementById("jgr-tab-strip").getBoundingClientRect();
+  const menu=app.menus.menuBar.getBoundingClientRect();
+  const toolbar=app.ui.toolbar.element.getBoundingClientRect();
+  const canvas=app.ui.canvasWrapper.getBoundingClientRect();
+  return {stripTop:strip.top,stripBottom:strip.bottom,menuBottom:menu.bottom,
+   toolbarBottom:toolbar.bottom,toolbarVisible:app.menus.toolbarCheckItem.getState(),
+   canvasTop:canvas.top,canvasHeight:canvas.height,canvasLogicalHeight:app.ui.canvasHeight};
+ },id);
  const canvasOf=id=>page.frameLocator('iframe[data-tab-id="'+id+'"]').locator('canvas').first();
  const focusCanvas=async id=>{
   const canvas=canvasOf(id);
@@ -43,6 +63,22 @@ try{
   return canvas;
  };
  const origin="jgr-1";
+ const originalLayout=await geometry(origin);
+ assert(originalLayout.stripTop>=originalLayout.menuBottom-1);
+ if(originalLayout.toolbarVisible)
+  assert(originalLayout.stripTop>=originalLayout.toolbarBottom-1);
+ assert(Math.abs(originalLayout.canvasTop-originalLayout.stripBottom)<=1,
+  "El lienzo debe comenzar debajo de las pestañas");
+ assert(originalLayout.canvasHeight>150&&originalLayout.canvasLogicalHeight>150);
+ await page.evaluate(()=>document.querySelector('iframe[data-tab-id="jgr-1"]')
+  .contentWindow.__CircuitJGRExperimentalApp.menus.toolbarCheckItem.toggle());
+ const withoutToolbar=await geometry(origin);
+ assert.equal(Math.abs(withoutToolbar.stripTop-originalLayout.stripTop),40);
+ assert(Math.abs(withoutToolbar.canvasTop-withoutToolbar.stripBottom)<=1);
+ await page.evaluate(()=>document.querySelector('iframe[data-tab-id="jgr-1"]')
+  .contentWindow.__CircuitJGRExperimentalApp.menus.toolbarCheckItem.toggle());
+ assert.equal((await geometry(origin)).stripTop,originalLayout.stripTop);
+ console.log("OK: fila de pestañas bajo los menús y barra de herramientas, con lienzo redimensionado");
  assert.equal(await sim(origin,"count"),0);
  assert.equal(await sim(origin,"import",sample(220)),1);
  assert.match(await sim(origin,"export"),/r="220"/);
@@ -128,19 +164,24 @@ try{
  await switchTo(second);
  await (await focusCanvas(second)).press("Control+v");
  assert.equal(await sim(second,"count"),1);
- await page.locator('.tab[data-tab-id="jgr-2"] .close').click();
+ await closeTab("jgr-2");
  const closeOverlay=page.locator("#close-overlay");
  await closeOverlay.waitFor({state:"visible",timeout:10000});
- assert.equal(await page.locator("#close-question").innerText(),"¿Cerrar la pestaña sin guardar cambios?");
- await page.locator("#close-no").click();
- assert.equal((await list()).length,4,"No debe mantener la pestaña");
- await page.locator('.tab[data-tab-id="jgr-2"] .close').click();
+ assert.equal(await page.locator("#close-question").innerText(),
+  "¿Quieres guardar los cambios realizados en «Sin título 2»?");
+ assert.equal(await page.locator("#close-heading h2").innerText(),"Guardar cambios");
+ assert.equal(await page.locator("#close-save").innerText(),"Guardar");
+ assert.equal(await page.locator("#close-discard").innerText(),"No guardar");
+ assert.equal(await page.locator("#close-cancel").innerText(),"Cancelar");
+ await page.locator("#close-cancel").click();
+ assert.equal((await list()).length,4,"Cancelar debe conservar la pestaña");
+ await closeTab("jgr-2");
  await page.locator("#close-save").click();
  const secondDialog=page.frameLocator('iframe[data-tab-id="jgr-2"]').locator("dialog.circuitDialog").last();
  await secondDialog.waitFor({state:"visible",timeout:15000});
  await secondDialog.getByRole("button",{name:/Cancel|Cancelar/i}).click();
  assert.equal((await list()).length,4,"Cancelar Guardar como... no debe cerrar");
- await page.locator('.tab[data-tab-id="jgr-2"] .close').click();
+ await closeTab("jgr-2");
  await page.locator("#close-save").click();
  await secondDialog.waitFor({state:"visible",timeout:15000});
  await secondDialog.locator('input[type="text"]').fill("guardar-antes-de-cerrar.circuitjs");
@@ -151,6 +192,6 @@ try{
  assert.equal(await sim(origin,"count"),1);
  assert.equal(await sim("jgr-3","count"),1);
  assert.equal(await sim("jgr-4","count"),1);
- console.log("OK: cerrar sin cambios, opciones Sí/No/Guardar como..., cancelar y guardar antes de cerrar");
+ console.log("OK: diálogo tipo Word Guardar/No guardar/Cancelar, cancelación y guardado antes de cerrar");
  assert.deepEqual(errors,[],"Errores JS durante las pruebas de pestañas experimentales");
 }finally{await browser.close();}
