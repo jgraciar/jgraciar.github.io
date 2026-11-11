@@ -18,7 +18,8 @@ patch('UIManager.ts',`        this.buttonPanel.appendChild(this.runStopButton);`
         // La información se sitúa a continuación del nombre del circuito,
         // que se crea más abajo en el constructor.`);
 patch('UIManager.ts', '        this.verticalPanel.appendChild(this.titleLabel);',
-'        this.verticalPanel.appendChild(this.titleLabel);\\n        this.verticalPanel.appendChild(this.jgrScopeInfo);');
+`        this.verticalPanel.appendChild(this.titleLabel);
+        this.verticalPanel.appendChild(this.jgrScopeInfo);`);
 patch('UIManager.ts',`        g.setColor(CircuitElm.whiteColor);
 
         if (this.app.stopMessage != null) {`,
