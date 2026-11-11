@@ -1,22 +1,17 @@
 # Mejoras publicadas en Acerca de
 
-Revisión del 11 de noviembre de 2026: se contrastaron los chats del desarrollo de Circuit JGR y del laboratorio con el código actual, la documentación de modelos y las pruebas superadas. Las menciones antiguas a funciones pendientes no prevalecen sobre una implementación posterior comprobada. El contenido se limita al simulador y mantiene todos los créditos y licencias originales.
+Revisión del 11 de noviembre de 2026, contrastada con los chats del proyecto y el código implementado. Se conservan los créditos, licencias y la identificación de CircuitJS1 5.0.5ts como base.
 
-El apartado conserva los siete bloques anteriores y añade cinco, con el mismo contenido en los 22 idiomas:
+El apartado se agrupa en nueve bloques, en los 22 idiomas:
 
-1. Vatímetro P/Q/S, coseno del desfase, factor de potencia real y modos de lectura.
-2. Impedancia Z en alterna y sus representaciones equivalentes básicas.
+1. Vatímetro: P/Q/S, coseno del desfase, factor de potencia real, modos de lectura, THD de tensión y corriente y residual no fundamental D*.
+2. Impedancia Z en alterna y representaciones equivalentes básicas.
 3. Inversor fotovoltaico conectado a red o aislado.
-4. Entrada y visualización regional de números y preferencias iniciales.
-5. Localización de menús, editores, osciloscopio y Acerca de.
-6. Circuito trifásico inicial.
-7. Cargas no lineales monofásicas, perfiles LED y fuentes de ordenador sin PFC, multiplicador por unidades y rectificador trifásico de seis pulsos; este último no se anuncia como variador con inversor y motor.
-8. Las 42 referencias DIP nuevas y los contadores 4026, 7493 y 74191, agrupadas como 45 referencias numeradas TTL/CMOS.
-9. Fichas contextuales con patillaje cuando esté definido, interiores funcionales, tablas y tensiones instantáneas, manteniendo el doble clic de edición.
-10. Menús Dibujar agrupados, inicial mayúscula, referencia antes del nombre y sin duplicados.
-11. THD de tensión y corriente y residual no fundamental D* del vatímetro.
-12. Cuatro decimales predeterminados, supresión de ceros innecesarios, prefijos de unidades y entradas científicas, SI y RMS.
+4. Formato regional, precisión y supresión de ceros, prefijos de unidades y entrada científica, SI y RMS.
+5. Traducción ampliada y mejorada: 22 idiomas.
+6. Cargas no lineales monofásicas, perfiles LED y fuentes de ordenador sin PFC, multiplicador por unidades y rectificador trifásico de seis pulsos.
+7. Integrados digitales TTL/CMOS: 45 referencias numeradas.
+8. Información contextual de integrados: patillajes cuando estén definidos, interiores funcionales, tablas y tensiones instantáneas; doble clic de edición conservado.
+9. Menús Dibujar agrupados por tipos, nombres con inicial mayúscula, referencia antes del nombre y sin duplicados.
 
-La base 5.0.5ts sigue identificada en la cabecera. Sus correcciones oficiales se documentan en `falstad-compatibility.md`; no se atribuyen como desarrollos propios. La versión de Circuit JGR sigue siendo 1.0.
-
-No se anuncian como terminados los parámetros de línea/modelo π en el editor de impedancia, la regulación automática de condensadores, modelos completos de variador y motor ni desarrollos físicos del generador ESP32. La ficha no promete patillajes físicos para los componentes genéricos ni traducción técnica integral de todas las explicaciones de modelos.
+No se anuncian prestaciones pendientes ni se atribuyen las correcciones de la base oficial como desarrollos propios.

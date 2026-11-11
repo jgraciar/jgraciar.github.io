@@ -91,7 +91,7 @@ try{
     language+": el código fuente debe estar separado del laboratorio");
   assert(data.improvementsTitle?.includes("CircuitJS1 5.0.5ts"),
     language+": falta encabezado de mejoras");
-  assert.equal(data.improvements.length,12,language+": faltan mejoras implementadas");
+  assert.equal(data.improvements.length,9,language+": faltan mejoras implementadas");
   // Las escrituras china, japonesa y coreana expresan la misma información
   // con menos caracteres que los alfabetos occidentales.
   const minChars=["zh","zh-tw","ja","kr"].includes(language)?9:25;
