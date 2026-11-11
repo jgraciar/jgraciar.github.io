@@ -234,6 +234,162 @@
     "ja": "非線形負荷：PFCなしのLEDとパソコン電源の例を備えた設定可能な単相整流ブリッジ、台数倍率の設定、インバーター入力部向けの三相6パルス整流器（インバーター本体とモーターは含まない）。",
     "kr": "비선형 부하: PFC 없는 LED 및 컴퓨터 전원공급장치 예제를 갖춘 단상 브리지 정류기, 기기 수 배율 설정, 주파수 변환기 입력단용 3상 6펄스 정류기(인버터 및 모터 제외)."
   };
+  const recentImprovements={
+  "es": [
+    "Integrados digitales TTL y CMOS: 45 referencias numeradas, incluidas puertas, biestables, contadores, registros, codificadores, multiplexores, memorias y ALU; encapsulados alimentados en los nuevos modelos DIP.",
+    "Información de integrados desde el menú contextual: patillajes físicos cuando están definidos, puertas o bloques internos, tablas de funcionamiento y tensiones instantáneas; el doble clic conserva la edición de parámetros.",
+    "Menú Dibujar organizado por tipos y submenús, con inicial mayúscula, referencias de integrados delante del nombre y sin entradas duplicadas.",
+    "Vatímetro con opciones de THD de tensión y corriente y residual no fundamental D*; distingue el coseno del desfase del factor de potencia real cuando hay armónicos.",
+    "Presentación eléctrica con cuatro decimales por defecto, sin ceros decimales innecesarios, prefijos de unidades automáticos o seleccionables y entradas numéricas con notación científica, prefijos SI y valores RMS."
+  ],
+  "en": [
+    "TTL and CMOS digital ICs: 45 numbered references, including gates, flip-flops, counters, registers, encoders, multiplexers, memories and ALU; explicit supply pins on the new DIP models.",
+    "IC information from the context menu: physical pinouts where defined, internal gates or functional blocks, operation tables and instantaneous voltages; double-click retains parameter editing.",
+    "Draw menu organized by component type and submenus, with capitalized names, IC numbers before their names and no duplicate entries.",
+    "Wattmeter options for voltage and current THD and non-fundamental residual D*; distinguishes displacement cosine from true power factor with harmonics.",
+    "Electrical display with four decimal places by default, no unnecessary trailing decimal zeros, automatic or selectable unit prefixes, and numeric input with scientific notation, SI prefixes and RMS values."
+  ],
+  "ca": [
+    "Integrats digitals TTL i CMOS: 45 referències numerades, incloent portes, biestables, comptadors, registres, codificadors, multiplexors, memòries i ALU; alimentació explícita als nous models DIP.",
+    "Informació dels integrats des del menú contextual: patillatges físics quan estan definits, portes o blocs interns, taules de funcionament i tensions instantànies; el doble clic conserva l’edició de paràmetres.",
+    "Menú Dibuixar organitzat per tipus i submenús, amb inicial majúscula, número de l’integrat davant del nom i sense entrades duplicades.",
+    "Opcions del vatímetre per a THD de tensió i corrent i residual no fonamental D*; distinció entre cosinus del desfasament i factor de potència real amb harmònics.",
+    "Presentació elèctrica amb quatre decimals per defecte, sense zeros decimals innecessaris, prefixos d’unitats automàtics o seleccionables i entrada amb notació científica, prefixos SI i valors RMS."
+  ],
+  "ca-es-valencia": [
+    "Integrats digitals TTL i CMOS: 45 referències numerades, incloent-hi portes, biestables, comptadors, registres, codificadors, multiplexors, memòries i ALU; alimentació explícita en els nous models DIP.",
+    "Informació dels integrats des del menú contextual: patillatges físics quan estan definits, portes o blocs interns, taules de funcionament i tensions instantànies; el doble clic conserva l’edició de paràmetres.",
+    "Menú Dibuixar organitzat per tipus i submenús, amb inicial majúscula, número de l’integrat davant del nom i sense entrades duplicades.",
+    "Opcions del vatímetre per a THD de tensió i corrent i residual no fonamental D*; distinció entre cosinus del desfasament i factor de potència real amb harmònics.",
+    "Presentació elèctrica amb quatre decimals per defecte, sense zeros decimals innecessaris, prefixos d’unitats automàtics o seleccionables i entrada amb notació científica, prefixos SI i valors RMS."
+  ],
+  "gl": [
+    "Integrados dixitais TTL e CMOS: 45 referencias numeradas, con portas, biestables, contadores, rexistros, codificadores, multiplexores, memorias e ALU; alimentación explícita nos novos modelos DIP.",
+    "Información dos integrados no menú contextual: patillaxes físicas cando están definidas, portas ou bloques internos, táboas de funcionamento e tensións instantáneas; o dobre clic conserva a edición de parámetros.",
+    "Menú Debuxar organizado por tipos e submenús, con inicial maiúscula, número do integrado antes do nome e sen entradas duplicadas.",
+    "Opcións do vatímetro para THD de tensión e corrente e residual non fundamental D*; distingue o coseno do desfasamento do factor de potencia real con harmónicos.",
+    "Presentación eléctrica con catro decimais por defecto, sen ceros decimais innecesarios, prefixos automáticos ou seleccionables e entrada con notación científica, prefixos SI e valores RMS."
+  ],
+  "eu": [
+    "TTL eta CMOS zirkuitu integratu digitalak: 45 erreferentzia zenbakitu, ateak, biegonkorrak, kontagailuak, erregistroak, kodetzaileak, multiplexadoreak, memoriak eta ALU barne; elikadura-pin esplizituak DIP eredu berrietan.",
+    "Integratuen informazioa testuinguru-menuan: pin fisikoak definituta daudenean, barneko ateak edo blokeak, funtzionamendu-taulak eta uneko tentsioak; klik bikoitzak parametroen edizioa mantentzen du.",
+    "Marraztu menua osagai moten eta azpimenuen arabera antolatuta, hasierako letra larriz, integratuaren zenbakia izenaren aurretik eta sarrera bikoizturik gabe.",
+    "Wattmetroaren aukerak: tentsioaren eta korrontearen THD eta D* hondar ez-funtsezkoa; desfasearen kosinua eta benetako potentzia-faktorea bereizten ditu harmonikoekin.",
+    "Aurkezpen elektrikoa lau hamartarrekin lehenespenez, alferrikako amaierako zerorik gabe, unitate-aurrizki automatiko edo hautagarriekin eta notazio zientifiko, SI aurrizki eta RMS balioen sarrerarekin."
+  ],
+  "fr": [
+    "Circuits intégrés numériques TTL et CMOS : 45 références numérotées, avec portes, bascules, compteurs, registres, codeurs, multiplexeurs, mémoires et ALU ; alimentation explicite des nouveaux modèles DIP.",
+    "Informations des circuits intégrés par le menu contextuel : brochages physiques définis, portes ou blocs internes, tables de fonctionnement et tensions instantanées ; le double-clic conserve l’édition des paramètres.",
+    "Menu Dessiner organisé par types et sous-menus, avec initiales majuscules, références avant les noms des circuits intégrés et aucune entrée en double.",
+    "Options du wattmètre pour les THD de tension et de courant et le résidu non fondamental D* ; distinction entre cosinus du déphasage et facteur de puissance réel en présence d’harmoniques.",
+    "Affichage électrique avec quatre décimales par défaut, sans zéros décimaux superflus, préfixes automatiques ou sélectionnables et saisie en notation scientifique, préfixes SI et valeurs RMS."
+  ],
+  "de": [
+    "Digitale TTL- und CMOS-ICs: 45 nummerierte Typen mit Gattern, Flipflops, Zählern, Registern, Codierern, Multiplexern, Speichern und ALU; explizite Versorgungspins bei neuen DIP-Modellen.",
+    "IC-Informationen im Kontextmenü: definierte physische Pinbelegungen, interne Gatter oder Funktionsblöcke, Funktionstabellen und Momentanspannungen; Doppelklick bearbeitet weiterhin die Parameter.",
+    "Zeichnen-Menü nach Bauteiltypen und Untermenüs geordnet, mit großem Anfangsbuchstaben, IC-Nummer vor dem Namen und ohne doppelte Einträge.",
+    "Wattmeter-Optionen für Spannungs- und Strom-THD sowie den nichtfundamentalen Rest D*; Unterscheidung zwischen Verschiebungsfaktor und echtem Leistungsfaktor bei Oberschwingungen.",
+    "Elektrische Anzeige mit standardmäßig vier Dezimalstellen, ohne unnötige nachgestellte Nullen, automatischen oder wählbaren Einheitenpräfixen und Eingabe mit wissenschaftlicher Notation, SI-Präfixen und RMS-Werten."
+  ],
+  "it": [
+    "Integrati digitali TTL e CMOS: 45 riferimenti numerati, con porte, flip-flop, contatori, registri, codificatori, multiplexer, memorie e ALU; alimentazione esplicita nei nuovi modelli DIP.",
+    "Informazioni sugli integrati dal menu contestuale: piedinature fisiche definite, porte o blocchi interni, tabelle di funzionamento e tensioni istantanee; il doppio clic mantiene la modifica dei parametri.",
+    "Menu Disegna organizzato per tipi e sottomenu, con iniziale maiuscola, numero dell’integrato prima del nome e senza voci duplicate.",
+    "Opzioni del wattmetro per THD di tensione e corrente e residuo non fondamentale D*; distinzione tra coseno dello sfasamento e fattore di potenza reale con armoniche.",
+    "Visualizzazione elettrica con quattro decimali predefiniti, senza zeri decimali superflui, prefissi automatici o selezionabili e immissione con notazione scientifica, prefissi SI e valori RMS."
+  ],
+  "pt": [
+    "Integrados digitais TTL e CMOS: 45 referências numeradas, com portas, biestáveis, contadores, registos, codificadores, multiplexadores, memórias e ALU; alimentação explícita nos novos modelos DIP.",
+    "Informações dos integrados no menu de contexto: pinagens físicas definidas, portas ou blocos internos, tabelas de funcionamento e tensões instantâneas; o duplo clique mantém a edição de parâmetros.",
+    "Menu Desenhar organizado por tipos e submenus, com inicial maiúscula, número do integrado antes do nome e sem entradas duplicadas.",
+    "Opções do wattímetro para THD de tensão e corrente e residual não fundamental D*; distingue o cosseno do desfasamento do fator de potência real com harmónicas.",
+    "Apresentação elétrica com quatro casas decimais por defeito, sem zeros decimais desnecessários, prefixos automáticos ou selecionáveis e entrada com notação científica, prefixos SI e valores RMS."
+  ],
+  "nl": [
+    "Digitale TTL- en CMOS-IC’s: 45 genummerde typen, met poorten, flipflops, tellers, registers, encoders, multiplexers, geheugens en ALU; expliciete voedingspinnen op nieuwe DIP-modellen.",
+    "IC-informatie via het contextmenu: gedefinieerde fysieke pinaansluitingen, interne poorten of blokken, functietabellen en momentane spanningen; dubbelklikken blijft parameters bewerken.",
+    "Tekenmenu ingedeeld naar componenttypen en submenu’s, met hoofdletter, IC-nummer vóór de naam en zonder dubbele vermeldingen.",
+    "Wattmeteropties voor spannings- en stroom-THD en niet-fundamenteel residu D*; onderscheid tussen verschuivingscosinus en werkelijke arbeidsfactor bij harmonischen.",
+    "Elektrische weergave met standaard vier decimalen, zonder overbodige eindnullen, automatische of instelbare eenheidsprefixen en invoer met wetenschappelijke notatie, SI-prefixen en RMS-waarden."
+  ],
+  "sv": [
+    "Digitala TTL- och CMOS-kretsar: 45 numrerade typer med grindar, vippor, räknare, register, kodare, multiplexrar, minnen och ALU; uttryckliga matningsstift på nya DIP-modeller.",
+    "Kretsinformation i snabbmenyn: definierade fysiska stift, interna grindar eller block, funktionstabeller och momentanspänningar; dubbelklick behåller parameterredigeringen.",
+    "Ritmenyn ordnad efter komponenttyp och undermenyer, med stor begynnelsebokstav, kretsnummer före namnet och utan dubbletter.",
+    "Wattmeteralternativ för spännings- och ström-THD samt icke-grundtonens residual D*; skiljer fasförskjutningens cosinus från verklig effektfaktor vid övertoner.",
+    "Elektrisk visning med fyra decimaler som standard, utan onödiga avslutande nollor, automatiska eller valbara enhetsprefix samt inmatning med vetenskaplig notation, SI-prefix och RMS-värden."
+  ],
+  "da": [
+    "Digitale TTL- og CMOS-kredse: 45 nummererede typer med porte, flip-flops, tællere, registre, kodere, multipleksere, hukommelser og ALU; eksplicit forsyning på nye DIP-modeller.",
+    "Kredsinformation i genvejsmenuen: definerede fysiske ben, interne porte eller blokke, funktionstabeller og øjebliksspændinger; dobbeltklik bevarer parameterredigering.",
+    "Tegnemenu ordnet efter komponenttyper og undermenuer, med stort begyndelsesbogstav, kredsnummer før navnet og uden dubletter.",
+    "Wattmeterindstillinger for spændings- og strøm-THD samt ikke-fundamental rest D*; skelner mellem faseforskydningens cosinus og reel effektfaktor ved harmoniske.",
+    "Elektrisk visning med fire decimaler som standard, uden unødvendige afsluttende nuller, automatiske eller valgbare enhedspræfikser og indtastning med videnskabelig notation, SI-præfikser og RMS-værdier."
+  ],
+  "nb": [
+    "Digitale TTL- og CMOS-kretser: 45 nummererte typer med porter, vipper, tellere, registre, kodere, multipleksere, minner og ALU; eksplisitt forsyning på nye DIP-modeller.",
+    "Kretsinformasjon i kontekstmenyen: definerte fysiske pinner, interne porter eller blokker, funksjonstabeller og øyeblikksspenninger; dobbeltklikk beholder parameterredigeringen.",
+    "Tegn-meny ordnet etter komponenttyper og undermenyer, med stor forbokstav, kretsnummer før navnet og uten duplikater.",
+    "Wattmeteralternativer for spennings- og strøm-THD og ikke-fundamental rest D*; skiller faseforskyvningens cosinus fra virkelig effektfaktor ved harmoniske.",
+    "Elektrisk visning med fire desimaler som standard, uten unødvendige avsluttende nuller, automatiske eller valgbare enhetsprefikser og inntasting med vitenskapelig notasjon, SI-prefikser og RMS-verdier."
+  ],
+  "fi": [
+    "Digitaaliset TTL- ja CMOS-piirit: 45 numeroitua tyyppiä, kuten portit, kiikut, laskurit, rekisterit, kooderit, multiplekserit, muistit ja ALU; erilliset syöttönastat uusissa DIP-malleissa.",
+    "Piiritiedot pikavalikosta: määritellyt fyysiset nastat, sisäiset portit tai lohkot, toimintataulukot ja hetkelliset jännitteet; kaksoisnapsautus säilyttää parametrien muokkauksen.",
+    "Piirtovalikko järjestetty komponenttityypeittäin alavalikoihin, nimet isolla alkukirjaimella, piirin numero ennen nimeä eikä kaksoiskappaleita.",
+    "Tehomittarin vaihtoehdot jännitteen ja virran THD:lle sekä ei-perustaajuiselle jäännökselle D*; erottaa vaihekulman kosinin todellisesta tehokertoimesta yliaalloilla.",
+    "Sähkösuureiden näyttö oletuksena neljällä desimaalilla, ilman tarpeettomia loppunollia, automaattisin tai valittavin yksikköetuliittein sekä syöttö tieteellisellä esitystavalla, SI-etuliitteillä ja RMS-arvoilla."
+  ],
+  "pl": [
+    "Cyfrowe układy TTL i CMOS: 45 numerowanych typów, w tym bramki, przerzutniki, liczniki, rejestry, kodery, multipleksery, pamięci i ALU; jawne piny zasilania w nowych modelach DIP.",
+    "Informacje o układach w menu kontekstowym: zdefiniowane fizyczne wyprowadzenia, wewnętrzne bramki lub bloki, tablice działania i napięcia chwilowe; dwukrotne kliknięcie nadal edytuje parametry.",
+    "Menu rysowania uporządkowane według typów i podmenu, z wielką literą początkową, numerem układu przed nazwą i bez duplikatów.",
+    "Opcje watomierza dla THD napięcia i prądu oraz pozostałości niesinusoidalnej D*; rozróżnia cosinus przesunięcia fazowego i rzeczywisty współczynnik mocy przy harmonicznych.",
+    "Wyświetlanie elektryczne domyślnie z czterema miejscami dziesiętnymi, bez zbędnych końcowych zer, automatycznymi lub wybieranymi przedrostkami i wprowadzaniem notacji naukowej, przedrostków SI oraz wartości RMS."
+  ],
+  "csx": [
+    "Digitální obvody TTL a CMOS: 45 číslovaných typů, včetně hradel, klopných obvodů, čítačů, registrů, kodérů, multiplexorů, pamětí a ALU; explicitní napájecí vývody nových modelů DIP.",
+    "Informace o obvodech v místní nabídce: definované fyzické vývody, vnitřní hradla nebo bloky, funkční tabulky a okamžitá napětí; dvojklik zachovává úpravu parametrů.",
+    "Nabídka kreslení uspořádaná podle typů a podnabídek, s velkým počátečním písmenem, číslem obvodu před názvem a bez duplicit.",
+    "Volby wattmetru pro THD napětí a proudu a nezákladní zbytek D*; rozlišuje kosinus fázového posunu a skutečný účiník při harmonických.",
+    "Elektrické zobrazení standardně se čtyřmi desetinnými místy, bez zbytečných koncových nul, automatickými či volitelnými předponami a zadáváním vědeckého zápisu, předpon SI a hodnot RMS."
+  ],
+  "ru": [
+    "Цифровые микросхемы TTL и CMOS: 45 нумерованных типов, включая вентили, триггеры, счётчики, регистры, кодеры, мультиплексоры, память и ALU; явные выводы питания у новых моделей DIP.",
+    "Информация о микросхемах в контекстном меню: заданная физическая цоколёвка, внутренние вентили или блоки, таблицы работы и мгновенные напряжения; двойной щелчок сохраняет редактирование параметров.",
+    "Меню рисования сгруппировано по типам и подменю, названия с заглавной буквы, номер микросхемы перед названием, без повторяющихся пунктов.",
+    "Опции ваттметра для THD напряжения и тока и неосновного остатка D*; различение косинуса фазового сдвига и истинного коэффициента мощности при гармониках.",
+    "Электрические величины по умолчанию с четырьмя десятичными знаками, без лишних конечных нулей, с автоматическими или выбираемыми приставками и вводом научной записи, приставок SI и значений RMS."
+  ],
+  "zh": [
+    "TTL 和 CMOS 数字集成电路：45 个编号型号，包括逻辑门、触发器、计数器、寄存器、编码器、多路选择器、存储器和 ALU；新增 DIP 模型具有明确的电源引脚。",
+    "通过右键菜单查看芯片信息：已定义的物理引脚、内部逻辑门或功能框图、功能表和瞬时电压；双击仍用于编辑参数。",
+    "绘图菜单按元件类型和子菜单分类，名称首字母大写，芯片编号位于名称之前，无重复项目。",
+    "功率表可显示电压和电流 THD 及非基波剩余量 D*；在含谐波时区分相位差余弦与真实功率因数。",
+    "电气量默认显示四位小数，省略无意义的末尾零，支持自动或手动单位前缀，以及科学计数法、SI 前缀和 RMS 数值输入。"
+  ],
+  "zh-tw": [
+    "TTL 和 CMOS 數位積體電路：45 個編號型號，包括邏輯閘、正反器、計數器、暫存器、編碼器、多工器、記憶體和 ALU；新增 DIP 模型具有明確的電源接腳。",
+    "透過右鍵選單查看晶片資訊：已定義的實體接腳、內部邏輯閘或功能方塊圖、功能表和瞬時電壓；雙擊仍用於編輯參數。",
+    "繪圖選單按元件類型和子選單分類，名稱首字母大寫，晶片編號位於名稱之前，無重複項目。",
+    "功率計可顯示電壓和電流 THD 及非基波殘餘量 D*；在含諧波時區分相位差餘弦與真實功率因數。",
+    "電氣量預設顯示四位小數，省略無意義的末尾零，支援自動或手動單位前綴，以及科學記號、SI 前綴和 RMS 數值輸入。"
+  ],
+  "ja": [
+    "TTL・CMOS デジタル IC：論理ゲート、フリップフロップ、カウンタ、レジスタ、エンコーダ、マルチプレクサ、メモリ、ALU を含む番号付き45品種。新しい DIP モデルには電源端子を明示。",
+    "コンテキストメニューの IC 情報：定義された物理ピン配置、内部ゲートや機能ブロック、動作表、瞬時電圧を表示。ダブルクリックによるパラメータ編集を維持。",
+    "描画メニューを部品種別とサブメニューで整理し、名前の先頭を大文字に、IC 番号を名前の前に配置。重複項目を除去。",
+    "電力計で電圧・電流 THD と非基本波残差 D* を選択表示。高調波がある場合の位相差余弦と真の力率を区別。",
+    "電気量は標準で小数点以下4桁とし、不要な末尾ゼロを省略。単位接頭辞の自動・手動選択、科学表記、SI 接頭辞、RMS 値の入力に対応。"
+  ],
+  "kr": [
+    "TTL 및 CMOS 디지털 IC: 게이트, 플립플롭, 카운터, 레지스터, 인코더, 멀티플렉서, 메모리 및 ALU를 포함한 번호형 45종. 새 DIP 모델에 전원 핀을 명시합니다.",
+    "상황별 메뉴의 IC 정보: 정의된 실제 핀 배치, 내부 게이트 또는 기능 블록, 동작표와 순간 전압을 표시하며 더블 클릭 매개변수 편집을 유지합니다.",
+    "그리기 메뉴를 부품 유형과 하위 메뉴로 정리하고 이름의 첫 글자를 대문자로, IC 번호를 이름 앞에 배치하며 중복 항목을 제거합니다.",
+    "전력계에서 전압·전류 THD 및 비기본파 잔여량 D*를 선택 표시하고 고조파가 있을 때 위상차 코사인과 실제 역률을 구분합니다.",
+    "전기량을 기본 소수점 네 자리로 표시하고 불필요한 끝자리 0을 생략합니다. 자동 또는 선택 단위 접두어와 과학 표기법, SI 접두어, RMS 값 입력을 지원합니다."
+  ]
+};
   const strings=changes[lang]||changes.en;
   if(strings.length!==7||!nonlinearImprovements[lang]||!nonlinearImprovements[lang].trim())
     throw Error("Incomplete improvements translations for "+lang);
@@ -241,7 +397,7 @@
   const list=document.getElementById("jgr-improvements-list");
   if(!heading||!list)return;
   heading.textContent=strings[0];
-  list.replaceChildren(...[...strings.slice(1),nonlinearImprovements[lang]].map(item=>{
+  list.replaceChildren(...[...strings.slice(1),nonlinearImprovements[lang],...(recentImprovements[lang]||recentImprovements.en)].map(item=>{
     const li=document.createElement("li");
     li.textContent=item;
     return li;
