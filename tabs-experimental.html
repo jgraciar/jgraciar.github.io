@@ -6,225 +6,367 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Circuit JGR · Pestañas experimentales</title>
 <style>
-:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:light}
+:root{color-scheme:light;font-family:Arial,Helvetica,sans-serif;color:#202020}
 *{box-sizing:border-box}
-html,body{height:100%;margin:0}
-body{display:flex;flex-direction:column;min-height:0;background:#e9edf3;color:#17212d}
-header{flex:none;background:#f7f9fb;border-bottom:1px solid #c9d2dc}
-.head{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:8px 12px}
-h1{font-size:15px;margin:0 12px 0 0;white-space:nowrap}
-button,.button-label{font:inherit;border:1px solid #aab9c9;border-radius:5px;background:white;color:#17212d;padding:6px 11px;cursor:pointer}
-button:hover,.button-label:hover{background:#edf4ff}
-button:focus-visible,.button-label:focus-visible{outline:2px solid #2465a5;outline-offset:2px}
-button:disabled{opacity:.48;cursor:not-allowed}
-#open-files{position:absolute;width:1px;height:1px;clip-path:inset(100%);overflow:hidden}
-nav{display:flex;align-items:end;gap:3px;overflow:auto;padding:2px 10px 0;min-height:39px}
-.tab{display:flex;align-items:center;gap:2px;min-width:90px;max-width:250px;border:1px solid #c9d2dc;border-radius:7px 7px 0 0;background:#dce3ec;color:#2d3d50}
-.tab.active{background:#fff;border-bottom-color:#fff}
-.tab .choose{border:0;background:transparent;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;max-width:190px;min-width:40px;padding:8px 9px;font-size:13px}
-.tab .close{border:0;background:transparent;padding:5px 8px;font-size:16px}
-.tab .close:hover{color:#a31313}
-#add-tab{border-radius:7px 7px 0 0;padding:7px 13px}
-#workspace{position:relative;flex:1;min-height:240px;background:#fff}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{display:flex;flex-direction:column;background:white}
+#tabs{height:33px;min-height:33px;display:flex;align-items:end;gap:2px;overflow-x:auto;overflow-y:hidden;
+  padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc}
+.tab{height:29px;flex:none;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;
+  border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:85px}
+.tab.active{background:white;border-color:#999}
+.tab.modified .choose::after{content:" *"}
+.tab button{font-family:inherit;background:none;border:0;color:#202020;cursor:pointer}
+.tab .choose{padding:5px 8px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;max-width:205px;min-width:55px}
+.tab .close{padding:2px 7px;font-size:17px}
+.tab .close:hover{color:#a50000;background:#e6d3d3}
+#add-tab{height:27px;min-width:30px;flex:none;font-size:19px;background:transparent;border:0;
+  color:#333;cursor:pointer}
+#add-tab:hover{background:#d3d3d3}
+#workspace{position:relative;flex:1;min-height:0;background:white}
 .session{position:absolute;inset:0;visibility:hidden;pointer-events:none}
 .session.active{visibility:visible;pointer-events:auto;z-index:1}
-.session iframe{display:block;width:100%;height:100%;border:0;background:white}
-footer{flex:none;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;font-size:12px;padding:5px 12px;background:#f7f9fb;border-top:1px solid #c9d2dc}
-#status[role="status"]{color:#344963}
-.warning{color:#8b4314}
-@media(max-width:650px){h1{flex-basis:100%}.head{gap:5px}.head button,.head .button-label{font-size:12px;padding:6px}footer{font-size:11px}}
+.session iframe{width:100%;height:100%;border:0;background:white;display:block}
+#open-files{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+#notice{position:absolute;left:8px;bottom:7px;z-index:3;background:#fffff2;color:#333;
+ border:1px solid #bbb;padding:5px 9px;font-size:12px;max-width:min(620px,90vw)}
+#notice:empty{display:none}
+#close-overlay[hidden]{display:none}
+#close-overlay{position:fixed;inset:0;background:#0005;z-index:100;display:grid;place-items:center}
+#close-panel{background:#f7f7f7;color:#222;border:1px solid #888;padding:18px 21px;
+  width:min(440px,calc(100vw - 30px));box-shadow:0 5px 25px #0004;font:13px Arial,sans-serif}
+#close-panel p{margin:0 0 18px;line-height:1.45;font-size:14px}
+#close-panel .buttons{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+#close-panel button{border:1px solid #999;background:#eee;color:#111;font:13px Arial,sans-serif;
+  padding:6px 12px;min-width:50px;cursor:pointer}
+#close-panel button:hover{background:#ddd}
+button:focus-visible{outline:2px solid #225d9b;outline-offset:2px}
 </style>
 </head>
 <body>
-<header>
- <div class="head">
-  <h1>Circuit JGR · Pestañas <small>(experimental)</small></h1>
-  <button id="new-tab" type="button">Nuevo circuito</button>
-  <label class="button-label" for="open-files">Abrir archivos…</label>
+<nav id="tabs" aria-label="Circuitos abiertos"></nav>
+<main id="workspace" aria-label="Circuit JGR">
   <input id="open-files" type="file" accept=".txt,.xml,.circuitjs" multiple>
-  <button id="duplicate-tab" type="button">Duplicar pestaña</button>
-  <button id="download-tab" type="button">Guardar circuito</button>
-  <button id="rename-tab" type="button">Cambiar nombre</button>
+</main>
+<div id="notice" role="status" aria-live="polite"></div>
+<div id="close-overlay" hidden>
+ <div id="close-panel" role="dialog" aria-modal="true" aria-labelledby="close-question">
+  <p id="close-question">¿Cerrar la pestaña sin guardar cambios?</p>
+  <div class="buttons">
+   <button id="close-yes" type="button">Sí</button>
+   <button id="close-no" type="button">No</button>
+   <button id="close-save" type="button">Guardar como...</button>
+  </div>
  </div>
- <nav id="tabs" aria-label="Circuitos abiertos"></nav>
-</header>
-<main id="workspace" aria-label="Simulador de la pestaña seleccionada"></main>
-<footer><span id="status" role="status">Preparando el entorno de pruebas…</span><span class="warning">No guarda automáticamente los cambios. Ctrl+C / Ctrl+V entre circuitos; las pestañas inactivas se pausan.</span></footer>
+</div>
 <script>
 "use strict";
 (() => {
  const tabsEl=document.querySelector("#tabs");
- const area=document.querySelector("#workspace");
- const status=document.querySelector("#status");
- const sessions=[];
+ const workspace=document.querySelector("#workspace");
+ const openInput=document.querySelector("#open-files");
+ const notice=document.querySelector("#notice");
+ const overlay=document.querySelector("#close-overlay");
+ const tabs=[];
  const MAX_TABS=8;
- const EMPTY='<cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11"></cir>';
- let selected=null,serial=0;
- const message=(s)=>{status.textContent=s;};
- const byId=id=>sessions.find(t=>t.id===id);
- const api=t=>{try{return t.frame.contentWindow.CircuitJS1||null;}catch{return null;}};
- const updateActions=()=>{
-  const ready=selected&&selected.ready;
-  document.querySelector("#duplicate-tab").disabled=!ready||sessions.length>=MAX_TABS;
-  document.querySelector("#download-tab").disabled=!ready;
-  document.querySelector("#rename-tab").disabled=!selected;
-  document.querySelector("#new-tab").disabled=sessions.length>=MAX_TABS;
- };
+ const BLANK='<cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11"></cir>';
+ let active=null, serial=0, unnamed=0, dialogTarget=null;
+ function message(text){notice.textContent=text||"";}
+ function find(id){return tabs.find(t=>t.id===id);}
+ function appFor(t){try{return t?.frame.contentWindow.__CircuitJGRExperimentalApp||null;}catch{return null;}}
+ function apiFor(t){try{return t?.frame.contentWindow.CircuitJS1||null;}catch{return null;}}
+ function isModified(t){
+  const app=appFor(t);
+  if(!t?.ready||!app)return false;
+  try{return !!app.isModified();}catch{return true;}
+ }
  function renderTabs(){
   tabsEl.replaceChildren();
-  for(const t of sessions){
-   const tab=document.createElement("div");
-   tab.className="tab"+(t===selected?" active":"");
-   tab.dataset.tabId=t.id;
+  for(const t of tabs){
+   const item=document.createElement("div");
+   item.className="tab"+(t===active?" active":"")+(isModified(t)?" modified":"");
+   item.dataset.tabId=t.id;
    const choose=document.createElement("button");
-   choose.className="choose";choose.type="button";
+   choose.type="button";choose.className="choose";
    choose.textContent=t.name;choose.title=t.name;
-   choose.setAttribute("aria-label","Activar "+t.name);
-   choose.setAttribute("aria-selected",String(t===selected));
-   choose.addEventListener("click",()=>activate(t));
+   choose.setAttribute("aria-label","Seleccionar "+t.name);
+   choose.setAttribute("aria-selected",String(t===active));
+   choose.onclick=()=>activate(t);
    const close=document.createElement("button");
-   close.className="close";close.type="button";close.textContent="×";
-   close.setAttribute("aria-label","Cerrar "+t.name);
-   close.addEventListener("click",()=>closeTab(t));
-   tab.append(choose,close);tabsEl.append(tab);
+   close.type="button";close.className="close";
+   close.textContent="×";close.setAttribute("aria-label","Cerrar "+t.name);
+   close.onclick=()=>requestClose(t);
+   item.append(choose,close);
+   tabsEl.append(item);
   }
-  const add=document.createElement("button");
-  add.id="add-tab";add.type="button";add.textContent="+";
-  add.title="Nuevo circuito";add.setAttribute("aria-label","Añadir pestaña");
-  add.disabled=sessions.length>=MAX_TABS;
-  add.addEventListener("click",()=>addTab("Sin título "+(serial+1),EMPTY));
-  tabsEl.append(add);
-  updateActions();
+  const plus=document.createElement("button");
+  plus.type="button";plus.id="add-tab";plus.textContent="+";
+  plus.title="Nuevo circuito en blanco";
+  plus.setAttribute("aria-label","Nuevo circuito en blanco");
+  plus.disabled=tabs.length>=MAX_TABS;
+  plus.onclick=()=>newBlank();
+  tabsEl.append(plus);
+  document.title=(active?.name?active.name+" - ":"")+"Circuit JGR 1.0 (pestañas experimentales)";
  }
  function activate(t){
-  if(t===selected)return;
-  if(selected){
-   const oldApi=api(selected);
-   if(oldApi&&selected.ready){
-    selected.resume=oldApi.isRunning();
-    oldApi.setSimRunning(false);
+  if(!t||!find(t.id)||t===active)return;
+  if(active){
+   const current=apiFor(active);
+   if(active.ready&&current){
+    active.resume=current.isRunning();
+    current.setSimRunning(false);
    }
-   selected.element.classList.remove("active");
-   selected.element.setAttribute("aria-hidden","true");
+   active.section.classList.remove("active");
+   active.section.setAttribute("aria-hidden","true");
+   active.pendingPaste=null;
   }
-  selected=t;
-  t.element.classList.add("active");
-  t.element.setAttribute("aria-hidden","false");
-  if(t.ready&&api(t)&&t.resume)api(t).setSimRunning(true);
+  active=t;
+  t.section.classList.add("active");
+  t.section.setAttribute("aria-hidden","false");
+  if(t.ready&&apiFor(t)&&t.resume)apiFor(t).setSimRunning(true);
   renderTabs();
-  message(t.ready?"Circuito activo: "+t.name:"Cargando "+t.name+"…");
+  message("");
  }
- function closeTab(t){
-  if(!confirm("¿Cerrar «"+t.name+"»? Se perderán los cambios no guardados de esta pestaña."))return;
-  const i=sessions.indexOf(t);
-  if(i<0)return;
-  const wasSelected=t===selected;
-  const running=api(t);
-  if(running)running.setSimRunning(false);
-  sessions.splice(i,1);
-  t.frame.src="about:blank";
-  t.element.remove();
-  if(wasSelected){
-   selected=null;
-   if(sessions.length)activate(sessions[Math.max(0,i-1)]);
+ function setName(t,name){
+  if(!name||!name.trim())return;
+  t.name=name.trim().slice(0,170);
+  if(t.frame)t.frame.title="Circuit JGR: "+t.name;
+  renderTabs();
+ }
+ function getBounds(elements){
+  let left=Infinity,top=Infinity,right=-Infinity,bottom=-Infinity;
+  for(const elm of elements){
+   const box=elm.getBoundingBox();
+   if(!box)continue;
+   left=Math.min(left,box.x);top=Math.min(top,box.y);
+   right=Math.max(right,box.x+box.width);bottom=Math.max(bottom,box.y+box.height);
   }
-  renderTabs();
-  if(!sessions.length)message("No hay circuitos abiertos. Pulsa «Nuevo circuito».");
+  return Number.isFinite(left)?{cx:(left+right)/2,cy:(top+bottom)/2}:null;
  }
- function addTab(name,text,opts={}){
-  if(sessions.length>=MAX_TABS){message("Límite experimental: ocho pestañas.");return null;}
-  const t={id:"jgr-"+(++serial),name,ready:false,resume:true,frame:null,element:null};
-  const element=document.createElement("section");
-  element.className="session";element.dataset.tabId=t.id;element.setAttribute("aria-hidden","true");
-  const frame=document.createElement("iframe");
-  frame.title="Circuit JGR: "+name;
-  frame.dataset.tabId=t.id;
-  // Instancias aisladas de CircuitJS1 en iframes de igual origen.
-  // El portapapeles nativo circuitClipboard de CircuitJS se comparte por localStorage.
-  const url=new URL("./circuitjgr.html",location.href);
-  url.searchParams.set("jgr-tabs-prototype",t.id);
-  frame.src=url.href;
-  element.append(frame);area.append(element);
-  t.frame=frame;t.element=element;
-  sessions.push(t);
-  activate(t);
-  const started=Date.now();
-  const wait=setInterval(()=>{
-   if(!byId(t.id)){clearInterval(wait);return;}
-   const a=api(t);
-   if(!a||typeof a.getElements!=="function"){
-    if(Date.now()-started>45000){clearInterval(wait);message("No se pudo iniciar "+t.name+". Comprueba la configuración inicial del simulador.");}
+ function movePending(t,clientX,clientY){
+  const pending=t.pendingPaste,app=appFor(t);
+  if(!pending||!app)return;
+  const canvas=app.ui.cv;
+  const bounds=canvas.getBoundingClientRect();
+  const sx=clientX-bounds.left,sy=clientY-bounds.top;
+  // No permitir colocar fuera del área de circuito ni sobre el osciloscopio.
+  const area=app.circuitArea;
+  if(sx<0||sy<0||sx>area.width||sy>area.height)return;
+  const center=getBounds(pending.elements);
+  if(!center)return;
+  const gx=app.snapGrid(app.mouse.inverseTransformX(sx));
+  const gy=app.snapGrid(app.mouse.inverseTransformY(sy));
+  const dx=app.snapGrid(gx-center.cx),dy=app.snapGrid(gy-center.cy);
+  if(!dx&&!dy)return;
+  if(!pending.elements.every(el=>el.allowMove(dx,dy)))return;
+  for(const el of pending.elements)el.move(dx,dy);
+  app.needAnalyze();
+  app.repaint();
+ }
+ function startPaste(t,before){
+  const app=appFor(t);
+  const added=app.elmList.slice(before);
+  if(!added.length)return;
+  t.pendingPaste={elements:added};
+  const canvas=app.ui.cv;
+  // Centrar inicialmente el conjunto en el área visible.
+  const rect=canvas.getBoundingClientRect();
+  movePending(t,rect.left+app.circuitArea.width/2,rect.top+app.circuitArea.height/2);
+  message("Desplaza los elementos con el ratón y pulsa para colocarlos. Esc para cancelar.");
+ }
+ function attachPastePlacement(t){
+  const app=appFor(t);
+  const canvas=app.ui.cv;
+  canvas.addEventListener("mousemove",e=>{
+   if(t.pendingPaste)movePending(t,e.clientX,e.clientY);
+  },true);
+  canvas.addEventListener("mousedown",e=>{
+   if(!t.pendingPaste||e.button!==0)return;
+   movePending(t,e.clientX,e.clientY);
+   t.pendingPaste=null;
+   message("");
+   e.preventDefault();e.stopImmediatePropagation();
+  },true);
+  t.frame.contentDocument.addEventListener("keydown",e=>{
+   if(t.pendingPaste&&e.key==="Escape"){
+    t.pendingPaste=null;
+    app.undoManager.doUndo();
+    app.repaint();
+    message("");
+    e.preventDefault();e.stopImmediatePropagation();
     return;
    }
-   clearInterval(wait);
-   try{
-    if(text!=null)a.importCircuit(text,false);
-    t.ready=true;
-    if(t!==selected)a.setSimRunning(false);
-    else if(!t.resume)a.setSimRunning(false);
-    renderTabs();
-    if(t===selected)message("Listo: "+t.name+". Puedes seleccionar componentes, copiar y pegar en otra pestaña.");
-   }catch(error){
-    t.ready=false;
-    message("No se pudo abrir «"+t.name+"»: "+error.message);
-    // Conservar la pestaña para revisar el error sin reemplazar otro circuito.
+   if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==="n"){
+    e.preventDefault();e.stopImmediatePropagation();
+    newBlank();
    }
-  },150);
+  },true);
+ }
+ function interceptNativeFileMenu(t){
+  const app=appFor(t);
+  if(!app||!app.commands||t.intercepted)return;
+  t.intercepted=true;
+  const previous=app.commands.menuPerformed.bind(app.commands);
+  app.commands.menuPerformed=function(menu,item){
+   if(item==="newblankcircuit"){newBlank();return;}
+   if(item==="importfromlocalfile"){openInput.click();return;}
+   if(item==="exportaslocalfile"||item==="saveas"){
+    saveAs(t);return;
+   }
+   if(item==="paste"){
+    const before=app.elmList.length;
+    const result=previous(menu,item);
+    startPaste(t,before);
+    return result;
+   }
+   return previous(menu,item);
+  };
+  const originalTitle=app.setCircuitTitle.bind(app);
+  app.setCircuitTitle=function(title){
+   originalTitle(title);
+   if(title&&t.ready)setName(t,title);
+  };
+  attachPastePlacement(t);
+ }
+ function saveAs(t){
+  const app=appFor(t);
+  if(!t?.ready||!app)return;
+  // Se conserva el diálogo «Guardar como...» del propio CircuitJS.
+  // El nombre y el indicador de cambios cambian solo al confirmar la descarga.
+  app.commands.doExportAsLocalFile();
+ }
+ function removeTab(t){
+  const i=tabs.indexOf(t);
+  if(i<0)return;
+  const wasActive=t===active;
+  const simulation=apiFor(t);
+  if(simulation)simulation.setSimRunning(false);
+  // La confirmación de salida ya se ha gestionado en esta interfaz.
+  const app=appFor(t);if(app)app.unsavedChanges=false;
+  tabs.splice(i,1);
+  t.frame.src="about:blank";
+  t.section.remove();
+  if(wasActive){
+   active=null;
+   if(tabs.length)activate(tabs[Math.min(i,tabs.length-1)]);
+  }
+  renderTabs();
+  if(!tabs.length)message("No hay circuitos abiertos.");
+ }
+ function requestClose(t){
+  if(!find(t.id))return;
+  if(!isModified(t)){removeTab(t);return;}
+  dialogTarget=t;
+  overlay.hidden=false;
+  document.querySelector("#close-yes").focus();
+ }
+ function hideClose(){
+  overlay.hidden=true;
+  dialogTarget=null;
+ }
+ document.querySelector("#close-no").onclick=hideClose;
+ document.querySelector("#close-yes").onclick=()=>{
+  const t=dialogTarget;hideClose();if(t)removeTab(t);
+ };
+ document.querySelector("#close-save").onclick=()=>{
+  const t=dialogTarget;hideClose();
+  if(!t)return;
+  if(t!==active)activate(t);
+  t.closeAfterSave=true;
+  saveAs(t);
+ };
+ overlay.addEventListener("keydown",e=>{if(e.key==="Escape"){hideClose();e.preventDefault();}});
+ window.addEventListener("message",event=>{
+  if(event.origin!==location.origin||event.data?.source!=="circuit-jgr-tabs")return;
+  const t=tabs.find(item=>item.frame.contentWindow===event.source);
+  if(!t)return;
+  if(event.data.action==="saved"){
+   const a=appFor(t);
+   if(a){a.unsavedChanges=false;a.savedDumpPending=true;}
+   setName(t,event.data.name);
+   if(t.closeAfterSave){t.closeAfterSave=false;removeTab(t);}
+   else renderTabs();
+  }else if(event.data.action==="save-canceled"){
+   t.closeAfterSave=false;
+  }
+ });
+ function addTab(name,content,openedFile=false){
+  if(tabs.length>=MAX_TABS){message("Máximo de ocho pestañas abiertas.");return null;}
+  const t={id:"jgr-"+(++serial),name,ready:false,resume:true,frame:null,section:null,
+   pendingPaste:null,closeAfterSave:false,openedFile,intercepted:false};
+  const section=document.createElement("section");
+  section.className="session";section.dataset.tabId=t.id;
+  section.setAttribute("aria-hidden","true");
+  const iframe=document.createElement("iframe");
+  iframe.dataset.tabId=t.id;iframe.title="Circuit JGR: "+name;
+  const url=new URL("./circuitjgr.html",location.href);
+  url.searchParams.set("jgr-tabs-prototype",t.id);
+  // Prevent an example from the URL being loaded over a new independent tab.
+  iframe.src=url.href;
+  section.append(iframe);workspace.append(section);
+  t.section=section;t.frame=iframe;
+  tabs.push(t);activate(t);
+  const started=Date.now();
+  const waiter=setInterval(()=>{
+   if(!find(t.id)){clearInterval(waiter);return;}
+   const a=apiFor(t),app=appFor(t);
+   if(!a||!app||!app.commands||!app.ui?.cv){
+    if(Date.now()-started>60000){
+     clearInterval(waiter);message("No se pudo cargar el circuito: "+t.name);
+    }
+    return;
+   }
+   clearInterval(waiter);
+   try{
+    interceptNativeFileMenu(t);
+    a.importCircuit(content||BLANK,false);
+    app.setCircuitTitle(name);
+    app.unsavedChanges=false;
+    app.savedDumpPending=true;
+    t.ready=true;
+    if(t!==active)a.setSimRunning(false);
+    renderTabs();
+    message("");
+   }catch(error){
+    message("No se pudo abrir «"+t.name+"»: "+error.message);
+   }
+  },120);
   return t;
  }
- function safeName(value){
-  return (value||"circuito").replace(/[\\/:*?"<>|]/g,"_").slice(0,120);
- }
- function download(){
-  if(!selected||!selected.ready)return;
-  const a=api(selected);
-  if(!a)return;
-  const data=a.exportCircuit();
-  const blob=new Blob([data],{type:"application/xml;charset=utf-8"});
-  const link=document.createElement("a");
-  link.href=URL.createObjectURL(blob);
-  link.download=safeName(selected.name.replace(/\.(?:txt|xml|circuitjs)$/i,""))+".circuitjs";
-  document.body.append(link);link.click();link.remove();
-  setTimeout(()=>URL.revokeObjectURL(link.href),1500);
-  message("Archivo exportado: "+link.download);
- }
+ function newBlank(){return addTab("Sin título "+(++unnamed),BLANK,false);}
  async function openFiles(files){
   for(const file of files){
-   if(file.size>1280000){message("Archivo demasiado grande: "+file.name);continue;}
-   if(sessions.length>=MAX_TABS){message("Máximo ocho pestañas. Cierra una antes de abrir más.");break;}
-   try{addTab(file.name,await file.text());}
-   catch(e){message("Error al leer "+file.name+": "+e.message);}
+   if(file.size>=1280000){message("Archivo demasiado grande: "+file.name);continue;}
+   if(tabs.length>=MAX_TABS){message("Máximo de ocho pestañas abiertas.");break;}
+   try{addTab(file.name,await file.text(),true);}
+   catch(error){message("Error al abrir «"+file.name+"»: "+error.message);}
   }
  }
- document.querySelector("#new-tab").addEventListener("click",()=>addTab("Sin título "+(serial+1),EMPTY));
- document.querySelector("#open-files").addEventListener("change",async e=>{
-  const files=Array.from(e.target.files||[]);
-  e.target.value="";
+ openInput.addEventListener("change",async event=>{
+  const files=Array.from(event.target.files||[]);
+  event.target.value="";
   await openFiles(files);
  });
- document.querySelector("#duplicate-tab").addEventListener("click",()=>{
-  if(!selected||!selected.ready)return;
-  addTab(selected.name+" (copia)",api(selected).exportCircuit());
- });
- document.querySelector("#download-tab").addEventListener("click",download);
- document.querySelector("#rename-tab").addEventListener("click",()=>{
-  if(!selected)return;
-  const name=prompt("Nombre de la pestaña:",selected.name);
-  if(name&&name.trim()){
-   selected.name=name.trim().slice(0,150);
-   selected.frame.title="Circuit JGR: "+selected.name;
-   renderTabs();
+ window.addEventListener("beforeunload",event=>{
+  if(tabs.some(t=>isModified(t))){
+   event.preventDefault();event.returnValue="";
   }
  });
- // No interceptar Ctrl+C/Ctrl+X/Ctrl+V: CircuitJS gestiona la selección,
- // los modelos adjuntos y su propio historial de deshacer dentro de cada iframe.
- // La clave circuitClipboard ya se comparte entre pestañas del mismo origen.
+ // Actualizar asterisco de cambios mediante el estado nativo, sin tocar el solver.
+ let dirtySignature="";
+ setInterval(()=>{
+  const signature=tabs.map(t=>t.id+":"+isModified(t)).join("|");
+  if(signature!==dirtySignature){dirtySignature=signature;renderTabs();}
+ },900);
  window.JGRTabsExperimental={
-  list:()=>sessions.map(t=>({id:t.id,name:t.name,ready:t.ready,active:t===selected})),
-  activate:id=>{const t=byId(id);if(t)activate(t);},
-  getActive:()=>selected?.id??null
+  list:()=>tabs.map(t=>({id:t.id,name:t.name,ready:t.ready,active:t===active,modified:isModified(t)})),
+  activate:id=>activate(find(id)),
+  getActive:()=>active?.id??null,
+  newBlank,
+  openFilePicker:()=>openInput.click()
  };
- addTab("Sin título 1",EMPTY);
+ newBlank();
 })();
 </script>
 </body>
