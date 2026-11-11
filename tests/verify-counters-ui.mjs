@@ -40,7 +40,7 @@ try{
   const jkCount=jk.reduce((n,e,i)=>n|(e.getVoltage(3)>2.5?1<<i:0),0);
   const segments=elements.filter(e=>e.getType()==='SevenSegElm').map(e=>Array.from({length:7},(_,i)=>e.getVoltage(i)>2.5?1<<i:0).reduce((a,b)=>a|b,0));
   const displayValue=display?Array.from({length:4},(_,i)=>display.getVoltage(i)>2.5?1<<i:0).reduce((a,b)=>a+b,0):null;
-  return {count:Number(state.getAttribute('count')),type:chip.getType(),volts:Array.from({length:chip.getPostCount()},(_,i)=>chip.getVoltage(i)),xml:api.exportCircuit(),displayValue,jkCount,segments:segments.slice(0,2),splitSegments:segments.slice(2),splitCount:Number(xml.querySelectorAll('Counter7493')[1]?.getAttribute('count')),splitJK:allJK.slice(4).reduce((n,e,i)=>n|(e.getVoltage(3)>2.5?1<<i:0),0),displayText:window.counterDecimalText};
+  return {count:Number(state.getAttribute('count')),type:chip.getType(),volts:Array.from({length:chip.getPostCount()},(_,i)=>chip.getVoltage(i)),xml:api.exportCircuit(),displayValue,jkCount,segments:segments.slice(0,2),splitSegments:segments.slice(2),splitCounts:Array.from(xml.querySelectorAll('Counter7493')).slice(1).map((e,i)=>Number(e.getAttribute('count'))>>(i===0?0:1)),splitT:elements.filter(e=>e.getType()==='TFlipFlopElm').map(e=>e.getVoltage(1)>2.5?1:0),displayText:window.counterDecimalText};
  });
  const load=async xml=>{await page.evaluate(xml=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit(xml,false);window.CircuitJS1.setSimRunning(false);},xml);await advance(.005);};
  const key=async k=>{await page.keyboard.press(k);await advance(.001);};
@@ -105,16 +105,19 @@ try{
    const manual=fixture.replace(/<R [^>]+wf="2"[^>]*\/>/g,tag=>{
     const x=tag.match(/x="([^"]+)"/)[1];return `<L x="${x}" f="2" p="0" key="${clockIndex++===0?'k':'h'}"/>`;
    });
-   assert.equal(clockIndex,2,'two independent clocks'); await load(manual);
+   assert.equal(clockIndex,2,'two independent clocks'); await load(manual);await key('a');await key('b');
    const masks=[63,6,91,79,102,109,125,7,127,111,119,124,57,94,121,113];
-   const check=async expected=>{const s=await read();assert.equal(s.splitCount,expected,'independent 7493 sections');assert.equal(s.splitJK,expected,'independent JK equivalent');assert.deepEqual(s.splitSegments,[masks[expected],masks[expected]]);};
-   await check(0);
-   for(let n=1;n<=9;n++){await key('h');await key('h');await check(n%2);}
-   for(let n=1;n<=9;n++){await key('k');await key('k');await check(((n%8)<<1)|1);}
-   await key('h');await key('h');await check(2);
-   await key('j');await key('k');await key('k');assert.equal((await read()).splitJK,2,'split JK enable holds');await key('j');
-   await key('r');await check(0);await key('r');
-   console.log('Independent CK1 and CK2: divide-by-2, divide-by-8, JK equivalence, displays and common reset passed');
+   const check=async(a,b)=>{const s=await read();assert.deepEqual(s.splitCounts,[a,b],'independent IC counts');assert.deepEqual(s.splitT,[a,b&1,(b>>1)&1,(b>>2)&1],'T counters match each section');assert.deepEqual(s.splitSegments,[masks[a],masks[b],masks[a],masks[b]],'separate displays');};
+   await check(0,0);
+   for(let n=1;n<=9;n++){await key('h');await key('h');await check(n%2,0);}
+   for(let n=1;n<=9;n++){await key('k');await key('k');await check(1,n%8);}
+   const topBefore=(await read()).count;
+   await key('a');await check(0,1);assert.equal((await read()).count,topBefore,'Q1 reset does not affect upper counter');await key('a');
+   await key('h');await key('h');await check(1,1);
+   await key('b');await check(1,0);assert.equal((await read()).count,topBefore,'three-bit reset does not affect upper counter');await key('b');
+   await key('k');await key('k');await check(1,1);
+   await key('r');await check(1,1);assert.equal((await read()).count,0,'upper reset remains separate');await key('r');
+   console.log('Independent modulo-2 and modulo-8 counters: T equivalence, clocks, displays and isolated resets passed');
   }
   if(name==='7493')console.log('7493: original indicators retained; decimal display matches every count 0–15 through the four horizontal elbow branches');
   const saved=await read();await load(saved.xml);assert.equal((await read()).count,saved.count,'XML retains count without a false clock edge');

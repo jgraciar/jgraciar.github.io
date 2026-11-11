@@ -27,6 +27,14 @@ Se conservan las cuatro salidas binarias del 7493 y las cuatro del montaje JK. C
 
 Los JK mantienen el disparo por flanco descendente y la conexión en cascada del archivo original. Se añaden pines de reset para la puesta a cero común y se inicializan en cero para comparar la cuenta con el 7493 desde el arranque. Las rutas Q→CK siguientes se separan de los nuevos pines de reset para evitar conexiones accidentales.
 
-## Secciones independientes del 7493
+## Contadores inferiores independientes con biestables T
 
-Debajo se añade otro 7493 sin realimentación entre QA (Q1) y CK2. CK1 usa un reloj independiente de 1 Hz y gobierna Q1; CK2 usa el reloj común superior de 2 Hz y gobierna Q2–Q4. El montaje JK inferior reproduce esa separación: el primer biestable recibe CK1 y el segundo recibe CK2, con los dos restantes en cascada. Cada montaje conserva indicadores binarios, lectura decimal y display de siete segmentos. RESET (r), los 5 V y el retorno son comunes; el interruptor J=K (j) habilita los cuatro JK inferiores.
+Los dos montajes superiores se conservan: 7493 con QA realimentando CK2, reset unido y equivalente con JK. Solo se modifica la comparación inferior.
+
+El 7493 tiene un reset común a las cuatro salidas. Para disponer de resets independientes se usan dos encapsulados: el primero aporta Q1, módulo 2, con un reloj independiente de 1 Hz; el segundo aporta Q2–Q4, módulo 8, con el reloj superior de 2 Hz. Las secciones no utilizadas tienen sus relojes fijados a cero. Cada grupo tiene lectura decimal y display de siete segmentos independiente.
+
+Debajo, un biestable T reproduce Q1 y tres biestables T reproducen Q2–Q4. Todos tienen T=1. Los T nativos se activan por flanco ascendente: se invierten los dos relojes externos y la cadena usa las salidas complementadas para reproducir el disparo descendente del 7493, sin modificar el componente nativo.
+
+El interruptor a borra Q1 en su 7493 y su T; b borra Q2–Q4 en el otro 7493 y los tres T. Ninguno afecta al otro grupo ni a los montajes superiores. El reset r queda reservado a los montajes superiores. Los controles mantienen los 5 V y el retorno compartidos.
+
+Los dos resets inferiores se cargan cerrados para inicializar ambos circuitos a cero sin flancos espurios de la cadena T. Se abren con a y b para empezar a contar.
