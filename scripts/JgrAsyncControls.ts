@@ -16,6 +16,8 @@ export function jgrCreateAsyncPins(chip:ChipElm,pins:Pin[],start:number,mode:num
     const pre=new Pin(chip,1,ChipElm.SIDE_N,'');
     const clear=new Pin(chip,1,ChipElm.SIDE_S,'');
     pre.bubble=clear.bubble=true;
+    // Reposo lógico de las entradas negadas. No se fuerzan estados con CLK.
+    pre.value=clear.value=true;
     pre.jgrExternalLabel=mode===1?'SET':'PR';
     clear.jgrExternalLabel=mode===1?'RESET':'CLR';
     pins[start]=pre;
