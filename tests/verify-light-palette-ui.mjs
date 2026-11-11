@@ -43,7 +43,7 @@ try {
     };
    }
   });
-  await page.goto(`http://127.0.0.1:8767/circuitjgr.html?lang=en&whiteBackground=${light}`);
+  await page.goto(`http://127.0.0.1:8767/circuitjgr-core.html?lang=en&whiteBackground=${light}`);
   await page.waitForFunction(()=>window.CircuitJS1?.getTime()>0.1);
   await page.waitForFunction(light=>Object.keys(window.paletteColors).includes(light?'#6a1b9a':'#ffff00'),light);
   const canvas=page.locator('.canvasWrapper > canvas');

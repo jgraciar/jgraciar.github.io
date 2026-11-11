@@ -4,7 +4,7 @@ const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({locale:'en-GB'});const errors=[];
  page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8767/circuitjgr.html?lang=en&whiteBackground=false');
+ await page.goto('http://127.0.0.1:8767/circuitjgr-core.html?lang=en&whiteBackground=false');
  await page.waitForFunction(()=>window.CircuitJS1?.applyInitialSettings);
  await page.locator('#lab-start-accept').click();
  await page.locator('#lab-start-modal').waitFor({state:'hidden'});

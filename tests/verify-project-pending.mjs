@@ -3,7 +3,7 @@ import {chromium} from 'playwright';
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 const out=process.env.CHECK_REPORT||'/tmp/project-checks';mkdirSync(out,{recursive:true});
-const report={url:process.env.CIRCUIT_URL||'https://jgraciar.github.io/circuitjgr.html',cases:[]};
+const report={url:process.env.CIRCUIT_URL||'https://jgraciar.github.io/circuitjgr-core.html',cases:[]};
 const browser=await chromium.launch({headless:true});
 const omega=2*Math.PI*50;
 function close(a,b,abs=.003,rel=.003){assert(Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<=abs+rel*Math.abs(b),`${a} != ${b} (abs ${abs}, rel ${rel})`);}

@@ -13,7 +13,7 @@ try {
   localStorage.setItem("labDecimalSeparator",".");
   localStorage.setItem("labGroupingSeparator","");
  });
- await page.goto("http://127.0.0.1:8767/circuitjgr.html");
+ await page.goto("http://127.0.0.1:8767/circuitjgr-core.html");
  await page.waitForFunction(()=>window.CircuitJS1?.getTime?.()>0.02,null,{timeout:90000});
  const read=(info,label)=>{
   const row=info.find(s=>s.startsWith(label));

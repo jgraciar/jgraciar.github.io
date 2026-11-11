@@ -9,7 +9,7 @@ try{
   const fill=CanvasRenderingContext2D.prototype.fillText;
   CanvasRenderingContext2D.prototype.fillText=function(text,x,y,...rest){const q=window.grabRequest;if(q&&String(text).replace(/Ω/g,'').trim()===q.text&&this.canvas.matches('.canvasWrapper > canvas')){const m=this.getTransform(),r=this.canvas.getBoundingClientRect();window.grabPoint={x:r.left+(m.a*q.x+m.c*q.y+m.e)*r.width/this.canvas.width,y:r.top+(m.b*q.x+m.d*q.y+m.f)*r.height/this.canvas.height};}return fill.call(this,text,x,y,...rest);};
  });
- await page.goto('http://127.0.0.1:8767/circuitjgr.html');await page.waitForFunction(()=>!!window.CircuitJS1?.getElements);
+ await page.goto('http://127.0.0.1:8767/circuitjgr-core.html');await page.waitForFunction(()=>!!window.CircuitJS1?.getElements);
  const xml='<cir f="0" ts="0.00001" ic="125" cb="50" pb="50" vr="5" mts="5e-11"><r x="480 160 624 160" f="0" r="1000"/><r x="480 240 624 240" f="0" r="2000"/><r x="160 320 304 320" f="0" r="3000"/></cir>';
  await page.evaluate(xml=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit(xml,false);},xml);
  async function popup(n){

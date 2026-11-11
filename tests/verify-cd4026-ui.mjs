@@ -18,7 +18,7 @@ try{
   };
  });
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8767/circuitjgr.html');
+ await page.goto('http://127.0.0.1:8767/circuitjgr-core.html');
  await page.locator('#lab-start-accept').click({timeout:30000});
  await page.waitForFunction(()=>!!window.CircuitJS1?.getElements);
  await page.evaluate(xml=>(window.CircuitJS1.importCircuit(xml,false),window.CircuitJS1.setSimRunning(true)),readFileSync(new URL('./fixtures/cd4026-practice.xml',import.meta.url),'utf8'));

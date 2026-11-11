@@ -6,7 +6,7 @@ try{
  const page=await browser.newPage({locale:"es-ES",viewport:{width:1280,height:800}});
  const errors=[];
  page.on("pageerror",e=>errors.push(e.message));
- await page.goto("http://127.0.0.1:8767/circuitjgr.html",{waitUntil:"domcontentloaded"});
+ await page.goto("http://127.0.0.1:8767/circuitjgr-core.html",{waitUntil:"domcontentloaded"});
  await page.locator("#lab-start-modal").waitFor({state:"visible",timeout:30000});
  await page.locator("#lab-start-accept").click();
  await page.waitForFunction(()=>!!window.CircuitJS1?.getElements&&

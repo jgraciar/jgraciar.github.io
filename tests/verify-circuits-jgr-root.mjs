@@ -5,10 +5,13 @@ import {chromium} from "playwright";
 
 const site=resolve(process.argv[2]||"site-root");
 const html=readFileSync(join(site,"circuitjgr.html"),"utf8");
+const core=readFileSync(join(site,"circuitjgr-core.html"),"utf8");
+assert(html.includes("JGRTabsExperimental")&&html.includes("jgr-tab-strip"),
+ "La ruta oficial debe incluir la gestión completa de pestañas");
 assert(!existsSync(join(site,"circuitjs.html")),
  "El simulador raíz debe usar circuitjgr.html, no un duplicado de circuitjs.html");
 assert(html.includes('<title>Circuit JGR</title>'));
-assert(html.includes('src="./initial-settings.js"'));
+assert(core.includes('src="./initial-settings.js"'));
 const browser=await chromium.launch({headless:true});
 try{
  const context=await browser.newContext({locale:"es-ES",viewport:{width:1280,height:850}});
@@ -23,6 +26,11 @@ try{
 
  await page.goto("http://127.0.0.1:8767/circuitjgr.html",{waitUntil:"domcontentloaded"});
  assert.equal(await page.title(),"Circuit JGR");
+ await page.waitForFunction(()=>!!window.JGRTabsExperimental?.list()?.[0]?.ready,null,{timeout:90000});
+ assert.equal(await page.locator("#workspace iframe").count(),1,
+  "La dirección oficial debe abrir una pestaña con el motor real");
+ assert.match(await page.locator("#workspace iframe").first().getAttribute("src"),/circuitjgr-core\.html/);
+ await page.goto("http://127.0.0.1:8767/circuitjgr-core.html",{waitUntil:"domcontentloaded"});
  await page.locator("#lab-start-modal").waitFor({state:"visible",timeout:30000});
  assert.equal(await page.locator('#lab-start-language option').count(),23,
   "Deben conservarse 22 idiomas más la selección automática");
@@ -149,7 +157,7 @@ try{
   "y Acerca de con autor, créditos y licencia; sin rutas del laboratorio.");
  const unsupported=await browser.newContext({locale:"tr-TR"});
  const fallback=await unsupported.newPage();
- await fallback.goto("http://127.0.0.1:8767/circuitjgr.html");
+ await fallback.goto("http://127.0.0.1:8767/circuitjgr-core.html");
  await fallback.locator("#lab-start-modal").waitFor({state:"visible"});
  assert.equal(await fallback.locator("#lab-start-title").innerText(),"Initial setup");
  assert(readFileSync(join(site,"initial-settings.js"),"utf8")

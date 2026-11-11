@@ -6,7 +6,7 @@ const [examples,out='/tmp/falstad-audit']=process.argv.slice(2);
 mkdirSync(out,{recursive:true});
 const names=['resistors','res-series','res-par','voltdivide','currentsrcelm','capac','induct','inductac','lrc','diodeclip','diodecurve','diodelimit','diodevar','rectify','fullrect','fullrectf','zenerref','zeneriv','npn','pnp','transswitch','mosfetamp','mosswitch','mosfollower','moscurrentsrc','jfetamp','jfetcurrentsrc','transformer','transformerdown','amp-invert','amp-noninvert','amp-follower','amp-sum','mux','dac','halfadd','fulladd','jkff','nandff','counter','sipo-sr','piso-sr','relay','scr','555square','555monostable','555schmitt'];
 const browser=await chromium.launch({headless:true});
-const report={urls:['https://www.falstad.com/circuit/circuitjs.html','https://jgraciar.github.io/circuitjgr.html'],tolerance:{absolute:1e-7,relative:1e-6},cases:[],editors:[]};
+const report={urls:['https://www.falstad.com/circuit/circuitjs.html','https://jgraciar.github.io/circuitjgr-core.html'],tolerance:{absolute:1e-7,relative:1e-6},cases:[],editors:[]};
 try{
  const pages=[];
  for(const url of report.urls){

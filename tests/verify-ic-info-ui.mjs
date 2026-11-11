@@ -14,7 +14,7 @@ try{
    }return fill.call(this,text,x,y,...rest);
   };
  });
- await page.goto('http://127.0.0.1:8767/circuitjgr.html');await page.locator('#lab-start-accept').click({timeout:30000});await page.waitForFunction(()=>!!window.CircuitJS1?.getElements);
+ await page.goto('http://127.0.0.1:8767/circuitjgr-core.html');await page.locator('#lab-start-accept').click({timeout:30000});await page.waitForFunction(()=>!!window.CircuitJS1?.getElements);
  const layout=()=>page.evaluate(()=>{
   const xml=new DOMParser().parseFromString(window.CircuitJS1.exportCircuit(),'application/xml');return Array.from(xml.documentElement.children).map(el=>[el.tagName,el.getAttribute('x')]);
  });

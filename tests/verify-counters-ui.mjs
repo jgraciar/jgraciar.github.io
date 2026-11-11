@@ -21,7 +21,7 @@ try{
   };
  });
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8767/circuitjgr.html');
+ await page.goto('http://127.0.0.1:8767/circuitjgr-core.html');
  await page.locator('#lab-start-accept').click({timeout:30000});
  await page.waitForFunction(()=>!!window.CircuitJS1?.getElements);
  const advance=async dt=>{
@@ -126,7 +126,7 @@ try{
  for(const lang of ['zz','es']){
   const fallback=await browser.newPage();
   await fallback.route('**/locale/locale_'+lang+'.txt',route=>route.fulfill({status:404,body:''}));
-  await fallback.goto('http://127.0.0.1:8767/circuitjgr.html?lang='+lang);
+  await fallback.goto('http://127.0.0.1:8767/circuitjgr-core.html?lang='+lang);
   await fallback.waitForFunction(()=>!!window.CircuitJS1?.getElements);
   await fallback.waitForFunction(()=>/File\s+Edit\s+Draw/.test(document.body.innerText),null,{timeout:10000});
   await fallback.close();

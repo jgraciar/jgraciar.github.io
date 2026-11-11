@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {chromium} from "playwright";
 
-const ORIGIN=process.env.TABS_URL||"http://127.0.0.1:8767/tabs-experimental.html";
+const ORIGIN=process.env.TABS_URL||"http://127.0.0.1:8767/circuitjgr.html";
 const sample=(r,y=176)=>'<cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11"><r x="160 '+y+' 304 '+y+'" f="0" r="'+r+'"/></cir>';
 const browser=await chromium.launch({headless:true});
 try{
@@ -271,7 +271,7 @@ try{
  const main=await browser.newPage({locale:"es-ES",acceptDownloads:true});
  try{
   await main.addInitScript(()=>localStorage.setItem("labStartConfigured","1"));
-  const mainURL=new URL("circuitjgr.html",ORIGIN).href;
+  const mainURL=new URL("circuitjgr-core.html",ORIGIN).href;
   await main.goto(mainURL,{waitUntil:"domcontentloaded"});
   const nativeInput=main.locator("#LoadFileElement");
   await nativeInput.waitFor({state:"attached",timeout:90000});

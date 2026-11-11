@@ -6,7 +6,7 @@ const browser=await chromium.launch({headless:true,...(process.env.CHROME_PATH?{
 try{
  const page=await browser.newPage({viewport:{width:1500,height:950},locale:'es-ES'}),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8767/circuitjgr.html');await page.locator('#lab-start-accept').click({timeout:30000});
+ await page.goto('http://127.0.0.1:8767/circuitjgr-core.html');await page.locator('#lab-start-accept').click({timeout:30000});
  await page.waitForFunction(()=>!!window.CircuitJS1?.getElements);
  await page.evaluate(()=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit('<cir f="0" ts="0.00001"></cir>',false);});
  const canvas=page.locator('.canvasWrapper > canvas'),box=await canvas.boundingBox();

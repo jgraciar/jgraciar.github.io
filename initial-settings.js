@@ -181,7 +181,7 @@ if(get("labDisplayUnitScale")!=="auto")set("labDisplayUnitScale","auto");
 let digits=Math.max(0,Math.min(12,Number(get("labDecimalDigits")??4)||0));
 let decimal=get("labDecimalSeparator")||",";
 let grouping=get("labGroupingSeparator")??".";
-const inSimulator=location.pathname.endsWith("/circuitjs.html") || location.pathname.endsWith("/circuitjgr.html");
+const inSimulator=location.pathname.endsWith("/circuitjs.html") || location.pathname.endsWith("/circuitjgr.html") || location.pathname.endsWith("/circuitjgr-core.html");
 const simulatorAccept={
  en:"Save and open Circuit JGR",es:"Guardar y abrir Circuit JGR",
  fr:"Enregistrer et ouvrir Circuit JGR",de:"Speichern und Circuit JGR öffnen",

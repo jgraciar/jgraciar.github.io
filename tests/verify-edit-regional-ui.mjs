@@ -24,7 +24,7 @@ try{
   const errors=[];
   page.on("pageerror",e=>errors.push(e.message));
   try{
-   await page.goto("http://127.0.0.1:8767/circuitjgr.html",
+   await page.goto("http://127.0.0.1:8767/circuitjgr-core.html",
     {waitUntil:"domcontentloaded"});
    await page.waitForFunction(()=>window.CircuitJS1?.getElements,
     null,{timeout:90000});
