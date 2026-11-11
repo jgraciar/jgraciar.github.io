@@ -5,13 +5,19 @@ import {join} from 'node:path';
 const dir=process.argv[2];
 function patch(file, edits){let s=readFileSync(join(dir,file),'utf8');for(const [a,b] of edits){assert(s.includes(a),`${file}: no se encuentra ${a.slice(0,70)}`);s=s.replaceAll(a,b);}writeFileSync(join(dir,file),s);}
 patch('UIManager.ts',[
- ['let printable = false;', 'let printable = true;'],
- ['this.getOptionFromStorage("whiteBackground", false)', 'this.getOptionFromStorage("whiteBackground", true)'],
- ['        if (this.menus.printableCheckItem.getState()) {\n            CircuitElm.whiteColor', `        // Reapply theme defaults when switching background, retaining saved custom colors.
+ ['        if (this.menus.printableCheckItem.getState()) {\n            CircuitElm.whiteColor', `        // Each background selects its complete palette, regardless of saved custom colors.
         const lightPalette = this.menus.printableCheckItem.getState();
         if (this.jgrLightPalette !== lightPalette) {
             this.jgrLightPalette = lightPalette;
-            this.setColors(null, null, null, null, null);
+            this.setColors(
+                lightPalette ? "#007A3D" : "#00FF00",
+                lightPalette ? "#C62828" : "#FF0000",
+                lightPalette ? "#777777" : "#808080",
+                lightPalette ? "#005FCC" : "#00FFFF",
+                lightPalette
+                    ? (this.menus.conventionCheckItem.getState() ? "#6A1B9A" : "#006B80")
+                    : (this.menus.conventionCheckItem.getState() ? "#FFFF00" : "#00FFFF")
+            );
             for (const scope of this.scopeManager.scopes) {
                 if (scope) { scope.calcVisiblePlots(); scope.resetGraph(); }
             }
