@@ -14,7 +14,7 @@ const src=readFileSync(htmlPath,"utf8");
 assert(src.includes("<title>CircuitJS</title>") && src.includes('src="/main.ts"'),
  "La página de origen ya no tiene la estructura esperada");
 const branded=src
- .replace("<title>CircuitJS</title>","<title>Circuit JGR 1.0</title>")
+ .replace("<title>CircuitJS</title>","<title>Circuit JGR</title>")
  .replace("<head>","<head>\n  <meta name=\"application-name\" content=\"Circuit JGR\">");
 writeFileSync(join(dir,"circuitjgr.html"),branded);
 const viteFile=join(dir,"vite.config.ts");
