@@ -149,9 +149,19 @@ writeFileSync(menuSource,menuText.replace(fileMenuAnchor,
 const saveDialogSource=join(dir,"ExportAsLocalFileDialog.ts");
 const saveDialogText=readFileSync(saveDialogSource,"utf8");
 const saveDialogAnchor='        document.body.removeChild(a);\n        return true;';
+const cancelAnchor='        cancelButton.onclick = () => this.closeDialog();';
+assert(saveDialogText.split(cancelAnchor).length===2,
+ "No se encuentra Cancelar en el diálogo nativo Guardar como...");
+const withCancel=saveDialogText.replace(cancelAnchor,
+ '        cancelButton.onclick = () => {\n' +
+ '            if (new URLSearchParams(window.location.search).has("jgr-tabs-prototype"))\n' +
+ '                window.parent.postMessage({source:"circuit-jgr-tabs",action:"save-canceled"},"*");\n' +
+ '            this.closeDialog();\n' +
+ '        };');
+
 assert(saveDialogText.split(saveDialogAnchor).length===2,
  "No se encuentra la finalización de Guardar como... de CircuitJS");
-writeFileSync(saveDialogSource,saveDialogText.replace(saveDialogAnchor,
+writeFileSync(saveDialogSource,withCancel.replace(saveDialogAnchor,
  '        document.body.removeChild(a);\n' +
  '        if (this.rememberName && new URLSearchParams(window.location.search).has("jgr-tabs-prototype"))\n' +
  '            window.parent.postMessage({source:"circuit-jgr-tabs",action:"saved",name:fname},"*");\n' +
