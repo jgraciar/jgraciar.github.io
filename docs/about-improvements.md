@@ -10,7 +10,7 @@ El apartado se agrupa en nueve bloques, en los 22 idiomas:
 4. Formato regional, precisión y supresión de ceros, prefijos de unidades y entrada científica, SI y RMS.
 5. Cargas no lineales monofásicas, perfiles LED y fuentes de ordenador sin PFC, multiplicador por unidades y rectificador trifásico de seis pulsos.
 6. Integrados digitales TTL/CMOS: 45 referencias numeradas.
-7. Información contextual de integrados: patillajes cuando estén definidos, interiores funcionales, tablas y tensiones instantáneas; doble clic de edición conservado.
+7. Información contextual de integrados: patillajes cuando estén definidos, interiores funcionales, tablas y tensiones instantáneas.
 8. Reorganización de menús y submenús.
 9. Traducción mejorada y ampliada a 22 idiomas.
 

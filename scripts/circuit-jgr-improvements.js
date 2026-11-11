@@ -19,7 +19,7 @@
     "Regional number input and display: decimal and thousands separators, configurable precision and initial preferences. Electrical display with four decimal places by default, no unnecessary trailing decimal zeros, automatic or selectable unit prefixes, and numeric input with scientific notation, SI prefixes and RMS values.",
     "Nonlinear loads: configurable single-phase bridge with LED and computer power-supply examples without PFC, unit multiplier and three-phase six-pulse rectifier for drive input stages (without inverter or motor).",
     "TTL and CMOS digital ICs: 45 numbered references, including gates, flip-flops, counters, registers, encoders, multiplexers, memories and ALU; explicit supply pins on the new DIP models.",
-    "IC information from the context menu: physical pinouts where defined, internal gates or functional blocks, operation tables and instantaneous voltages; double-click retains parameter editing.",
+    "IC information from the context menu: physical pinouts where defined, internal gates or functional blocks, operation tables and instantaneous voltages.",
     "Reorganization of menus and submenus",
     "Improved and expanded translation into 22 languages"
   ],
@@ -31,7 +31,7 @@
     "Entrada i visualització numèrica regional: separadors decimals i de milers, precisió configurable i preferències inicials. Presentació elèctrica amb quatre decimals per defecte, sense zeros decimals innecessaris, prefixos d’unitats automàtics o seleccionables i entrada amb notació científica, prefixos SI i valors RMS.",
     "Càrregues no lineals: pont monofàsic configurable amb exemples de LED i fonts d'alimentació d'ordinador sense PFC, multiplicador d'unitats i rectificador trifàsic de sis polsos per a l'entrada dels variadors (sense inversor ni motor).",
     "Integrats digitals TTL i CMOS: 45 referències numerades, incloent-hi portes, biestables, comptadors, registres, codificadors, multiplexors, memòries i ALU; alimentació explícita en els nous models DIP.",
-    "Informació dels integrats des del menú contextual: patillatges físics quan estan definits, portes o blocs interns, taules de funcionament i tensions instantànies; el doble clic conserva l’edició de paràmetres.",
+    "Informació dels integrats des del menú contextual: patillatges físics quan estan definits, portes o blocs interns, taules de funcionament i tensions instantànies.",
     "Reorganització de menús i submenús",
     "Traducció millorada i ampliada a 22 idiomes"
   ],
@@ -43,7 +43,7 @@
     "Formato numérico regional con separadores decimales y de miles, cuatro decimales por defecto y supresión de ceros innecesarios; prefijos de unidades automáticos o seleccionables y entrada con notación científica, prefijos SI y valores RMS.",
     "Cargas no lineales: puente monofásico configurable con ejemplos de LED y fuentes de ordenador sin PFC, multiplicador de unidades y rectificador trifásico de seis pulsos para la entrada de variadores (sin inversor ni motor).",
     "Integrados digitales TTL y CMOS: 45 referencias numeradas, incluidas puertas, biestables, contadores, registros, codificadores, multiplexores, memorias y ALU; encapsulados alimentados en los nuevos modelos DIP.",
-    "Información de integrados desde el menú contextual: patillajes físicos cuando están definidos, puertas o bloques internos, tablas de funcionamiento y tensiones instantáneas; el doble clic conserva la edición de parámetros.",
+    "Información de integrados desde el menú contextual: patillajes físicos cuando están definidos, puertas o bloques internos, tablas de funcionamiento y tensiones instantáneas.",
     "Reorganización de menús y submenús",
     "Traducción mejorada y ampliada a 22 idiomas"
   ],
@@ -55,7 +55,7 @@
     "Entrada i visualització numèrica regional: separadors decimals i de milers, precisió configurable i preferències inicials. Presentació elèctrica amb quatre decimals per defecte, sense zeros decimals innecessaris, prefixos d’unitats automàtics o seleccionables i entrada amb notació científica, prefixos SI i valors RMS.",
     "Càrregues no lineals: pont monofàsic configurable amb exemples de LED i fonts d'alimentació d'ordinador sense PFC, multiplicador d'unitats i rectificador trifàsic de sis polsos per a l'entrada dels variadors (sense inversor ni motor).",
     "Integrats digitals TTL i CMOS: 45 referències numerades, incloent portes, biestables, comptadors, registres, codificadors, multiplexors, memòries i ALU; alimentació explícita als nous models DIP.",
-    "Informació dels integrats des del menú contextual: patillatges físics quan estan definits, portes o blocs interns, taules de funcionament i tensions instantànies; el doble clic conserva l’edició de paràmetres.",
+    "Informació dels integrats des del menú contextual: patillatges físics quan estan definits, portes o blocs interns, taules de funcionament i tensions instantànies.",
     "Reorganització de menús i submenús",
     "Traducció millorada i ampliada a 22 idiomes"
   ],
@@ -67,7 +67,7 @@
     "Entrada e visualización numérica rexional: separadores decimais e de millares, precisión configurable e preferencias iniciais. Presentación eléctrica con catro decimais por defecto, sen ceros decimais innecesarios, prefixos automáticos ou seleccionables e entrada con notación científica, prefixos SI e valores RMS.",
     "Cargas non lineais: ponte monofásica configurable con exemplos LED e fontes de ordenador sen PFC, multiplicador de unidades e rectificador trifásico de seis pulsos para a entrada dos variadores (sen inversor nin motor).",
     "Integrados dixitais TTL e CMOS: 45 referencias numeradas, con portas, biestables, contadores, rexistros, codificadores, multiplexores, memorias e ALU; alimentación explícita nos novos modelos DIP.",
-    "Información dos integrados no menú contextual: patillaxes físicas cando están definidas, portas ou bloques internos, táboas de funcionamento e tensións instantáneas; o dobre clic conserva a edición de parámetros.",
+    "Información dos integrados no menú contextual: patillaxes físicas cando están definidas, portas ou bloques internos, táboas de funcionamento e tensións instantáneas.",
     "Reorganización de menús e submenús",
     "Tradución mellorada e ampliada a 22 idiomas"
   ],
@@ -79,7 +79,7 @@
     "Eskualdeko zenbaki-formatua sartzean eta bistaratzean: hamartar eta milako bereizleak, doitu daitekeen zehaztasuna eta hasierako hobespenak. Aurkezpen elektrikoa lau hamartarrekin lehenespenez, alferrikako amaierako zerorik gabe, unitate-aurrizki automatiko edo hautagarriekin eta notazio zientifiko, SI aurrizki eta RMS balioen sarrerarekin.",
     "Karga ez-linealak: PFCrik gabeko LED eta ordenagailu-iturrien adibideak dituen zubi monofasiko konfiguragarria, unitate-biderkatzailea eta sei pultsuko zuzentzaile trifasikoa eragingailuen sarreran (inbertsorerik eta motorrik gabe).",
     "TTL eta CMOS zirkuitu integratu digitalak: 45 erreferentzia zenbakitu, ateak, biegonkorrak, kontagailuak, erregistroak, kodetzaileak, multiplexadoreak, memoriak eta ALU barne; elikadura-pin esplizituak DIP eredu berrietan.",
-    "Integratuen informazioa testuinguru-menuan: pin fisikoak definituta daudenean, barneko ateak edo blokeak, funtzionamendu-taulak eta uneko tentsioak; klik bikoitzak parametroen edizioa mantentzen du.",
+    "Integratuen informazioa testuinguru-menuan: pin fisikoak definituta daudenean, barneko ateak edo blokeak, funtzionamendu-taulak eta uneko tentsioak.",
     "Menuen eta azpimenuen berrantolaketa",
     "Itzulpen hobetua eta 22 hizkuntzatara zabaldua"
   ],
@@ -91,7 +91,7 @@
     "Saisie et affichage régionaux des nombres : séparateurs décimal et des milliers, précision réglable et préférences initiales. Affichage électrique avec quatre décimales par défaut, sans zéros décimaux superflus, préfixes automatiques ou sélectionnables et saisie en notation scientifique, préfixes SI et valeurs RMS.",
     "Charges non linéaires : pont monophasé configurable avec exemples de LED et alimentations d'ordinateur sans PFC, multiplicateur d'appareils et redresseur triphasé à six impulsions pour l'entrée des variateurs (sans onduleur ni moteur).",
     "Circuits intégrés numériques TTL et CMOS : 45 références numérotées, avec portes, bascules, compteurs, registres, codeurs, multiplexeurs, mémoires et ALU ; alimentation explicite des nouveaux modèles DIP.",
-    "Informations des circuits intégrés par le menu contextuel : brochages physiques définis, portes ou blocs internes, tables de fonctionnement et tensions instantanées ; le double-clic conserve l’édition des paramètres.",
+    "Informations des circuits intégrés par le menu contextuel : brochages physiques définis, portes ou blocs internes, tables de fonctionnement et tensions instantanées.",
     "Réorganisation des menus et sous-menus",
     "Traduction améliorée et étendue à 22 langues"
   ],
@@ -103,7 +103,7 @@
     "Regionale Zahleneingabe und -anzeige: Dezimal- und Tausendertrennzeichen, einstellbare Genauigkeit und Starteinstellungen. Elektrische Anzeige mit standardmäßig vier Dezimalstellen, ohne unnötige nachgestellte Nullen, automatischen oder wählbaren Einheitenpräfixen und Eingabe mit wissenschaftlicher Notation, SI-Präfixen und RMS-Werten.",
     "Nichtlineare Lasten: konfigurierbare einphasige Gleichrichterbrücke mit LED- und PC-Netzteilbeispielen ohne PFC, Gerätemultiplikator und dreiphasiger Sechspuls-Gleichrichter als Eingangsstufe von Antrieben (ohne Wechselrichter und Motor).",
     "Digitale TTL- und CMOS-ICs: 45 nummerierte Typen mit Gattern, Flipflops, Zählern, Registern, Codierern, Multiplexern, Speichern und ALU; explizite Versorgungspins bei neuen DIP-Modellen.",
-    "IC-Informationen im Kontextmenü: definierte physische Pinbelegungen, interne Gatter oder Funktionsblöcke, Funktionstabellen und Momentanspannungen; Doppelklick bearbeitet weiterhin die Parameter.",
+    "IC-Informationen im Kontextmenü: definierte physische Pinbelegungen, interne Gatter oder Funktionsblöcke, Funktionstabellen und Momentanspannungen.",
     "Neuordnung der Menüs und Untermenüs",
     "Verbesserte und auf 22 Sprachen erweiterte Übersetzung"
   ],
@@ -115,7 +115,7 @@
     "Inserimento e visualizzazione numerica regionale: separatori decimali e delle migliaia, precisione configurabile e preferenze iniziali. Visualizzazione elettrica con quattro decimali predefiniti, senza zeri decimali superflui, prefissi automatici o selezionabili e immissione con notazione scientifica, prefissi SI e valori RMS.",
     "Carichi non lineari: ponte monofase configurabile con esempi LED e alimentatori per computer senza PFC, moltiplicatore delle unità e raddrizzatore trifase a sei impulsi per l'ingresso degli azionamenti (senza inverter o motore).",
     "Integrati digitali TTL e CMOS: 45 riferimenti numerati, con porte, flip-flop, contatori, registri, codificatori, multiplexer, memorie e ALU; alimentazione esplicita nei nuovi modelli DIP.",
-    "Informazioni sugli integrati dal menu contestuale: piedinature fisiche definite, porte o blocchi interni, tabelle di funzionamento e tensioni istantanee; il doppio clic mantiene la modifica dei parametri.",
+    "Informazioni sugli integrati dal menu contestuale: piedinature fisiche definite, porte o blocchi interni, tabelle di funzionamento e tensioni istantanee.",
     "Riorganizzazione di menu e sottomenu",
     "Traduzione migliorata e ampliata a 22 lingue"
   ],
@@ -127,7 +127,7 @@
     "Introdução e apresentação numérica regional: separadores decimais e de milhares, precisão configurável e preferências iniciais. Apresentação elétrica com quatro casas decimais por defeito, sem zeros decimais desnecessários, prefixos automáticos ou selecionáveis e entrada com notação científica, prefixos SI e valores RMS.",
     "Cargas não lineares: ponte monofásica configurável com exemplos LED e fontes de computador sem PFC, multiplicador de unidades e retificador trifásico de seis pulsos para a entrada dos variadores (sem inversor nem motor).",
     "Integrados digitais TTL e CMOS: 45 referências numeradas, com portas, biestáveis, contadores, registos, codificadores, multiplexadores, memórias e ALU; alimentação explícita nos novos modelos DIP.",
-    "Informações dos integrados no menu de contexto: pinagens físicas definidas, portas ou blocos internos, tabelas de funcionamento e tensões instantâneas; o duplo clique mantém a edição de parâmetros.",
+    "Informações dos integrados no menu de contexto: pinagens físicas definidas, portas ou blocos internos, tabelas de funcionamento e tensões instantâneas.",
     "Reorganização de menus e submenus",
     "Tradução melhorada e alargada a 22 idiomas"
   ],
@@ -139,7 +139,7 @@
     "Regionale numerieke invoer en weergave: decimaal- en duizendtalscheidingstekens, instelbare precisie en beginvoorkeuren. Elektrische weergave met standaard vier decimalen, zonder overbodige eindnullen, automatische of instelbare eenheidsprefixen en invoer met wetenschappelijke notatie, SI-prefixen en RMS-waarden.",
     "Niet-lineaire belastingen: instelbare eenfasige gelijkrichterbrug met LED- en computervoedingvoorbeelden zonder PFC, vermenigvuldiging van eenheden en driefasige zespulsgelijkrichter voor aandrijvingen (zonder omvormer of motor).",
     "Digitale TTL- en CMOS-IC’s: 45 genummerde typen, met poorten, flipflops, tellers, registers, encoders, multiplexers, geheugens en ALU; expliciete voedingspinnen op nieuwe DIP-modellen.",
-    "IC-informatie via het contextmenu: gedefinieerde fysieke pinaansluitingen, interne poorten of blokken, functietabellen en momentane spanningen; dubbelklikken blijft parameters bewerken.",
+    "IC-informatie via het contextmenu: gedefinieerde fysieke pinaansluitingen, interne poorten of blokken, functietabellen en momentane spanningen.",
     "Herindeling van menu’s en submenu’s",
     "Verbeterde en uitgebreide vertaling naar 22 talen"
   ],
@@ -151,7 +151,7 @@
     "Regional inmatning och visning av tal: decimal- och tusentalsavgränsare, valbar precision och startinställningar. Elektrisk visning med fyra decimaler som standard, utan onödiga avslutande nollor, automatiska eller valbara enhetsprefix samt inmatning med vetenskaplig notation, SI-prefix och RMS-värden.",
     "Icke-linjära laster: konfigurerbar enfasig likriktarbrygga med LED- och datornätaggregat utan PFC, multiplikator för antal enheter samt trefasig sexpuls-likriktare för frekvensomriktarens ingång (utan växelriktare och motor).",
     "Digitala TTL- och CMOS-kretsar: 45 numrerade typer med grindar, vippor, räknare, register, kodare, multiplexrar, minnen och ALU; uttryckliga matningsstift på nya DIP-modeller.",
-    "Kretsinformation i snabbmenyn: definierade fysiska stift, interna grindar eller block, funktionstabeller och momentanspänningar; dubbelklick behåller parameterredigeringen.",
+    "Kretsinformation i snabbmenyn: definierade fysiska stift, interna grindar eller block, funktionstabeller och momentanspänningar.",
     "Omorganisering av menyer och undermenyer",
     "Förbättrad och utökad översättning till 22 språk"
   ],
@@ -163,7 +163,7 @@
     "Regional indtastning og visning af tal: decimal- og tusindtalsseparatorer, justerbar præcision og startindstillinger. Elektrisk visning med fire decimaler som standard, uden unødvendige afsluttende nuller, automatiske eller valgbare enhedspræfikser og indtastning med videnskabelig notation, SI-præfikser og RMS-værdier.",
     "Ikke-lineære belastninger: konfigurerbar enfaset ensretterbro med LED- og computerforsyningseksempler uden PFC, multiplikator for antal enheder og trefaset sekspuls-ensretter til frekvensomformerens indgang (uden inverter og motor).",
     "Digitale TTL- og CMOS-kredse: 45 nummererede typer med porte, flip-flops, tællere, registre, kodere, multipleksere, hukommelser og ALU; eksplicit forsyning på nye DIP-modeller.",
-    "Kredsinformation i genvejsmenuen: definerede fysiske ben, interne porte eller blokke, funktionstabeller og øjebliksspændinger; dobbeltklik bevarer parameterredigering.",
+    "Kredsinformation i genvejsmenuen: definerede fysiske ben, interne porte eller blokke, funktionstabeller og øjebliksspændinger.",
     "Omorganisering af menuer og undermenuer",
     "Forbedret og udvidet oversættelse til 22 sprog"
   ],
@@ -175,7 +175,7 @@
     "Regional tallinntasting og visning: desimal- og tusenskilletegn, justerbar presisjon og startinnstillinger. Elektrisk visning med fire desimaler som standard, uten unødvendige avsluttende nuller, automatiske eller valgbare enhetsprefikser og inntasting med vitenskapelig notasjon, SI-prefikser og RMS-verdier.",
     "Ikke-lineære laster: konfigurerbar enfaset likeretterbro med LED- og datamaskinstrømforsyningseksempler uten PFC, multiplikator for antall enheter og trefaset sekspuls-likeretter på frekvensomformerens inngang (uten vekselretter og motor).",
     "Digitale TTL- og CMOS-kretser: 45 nummererte typer med porter, vipper, tellere, registre, kodere, multipleksere, minner og ALU; eksplisitt forsyning på nye DIP-modeller.",
-    "Kretsinformasjon i kontekstmenyen: definerte fysiske pinner, interne porter eller blokker, funksjonstabeller og øyeblikksspenninger; dobbeltklikk beholder parameterredigeringen.",
+    "Kretsinformasjon i kontekstmenyen: definerte fysiske pinner, interne porter eller blokker, funksjonstabeller og øyeblikksspenninger.",
     "Omorganisering av menyer og undermenyer",
     "Forbedret og utvidet oversettelse til 22 språk"
   ],
@@ -187,7 +187,7 @@
     "Alueellinen lukujen syöttö ja näyttö: desimaali- ja tuhaterottimet, säädettävä tarkkuus ja aloitusasetukset. Sähkösuureiden näyttö oletuksena neljällä desimaalilla, ilman tarpeettomia loppunollia, automaattisin tai valittavin yksikköetuliittein sekä syöttö tieteellisellä esitystavalla, SI-etuliitteillä ja RMS-arvoilla.",
     "Epälineaariset kuormat: säädettävä yksivaiheinen tasasuuntaussilta LED- ja tietokonevirtalähde-esimerkeillä ilman PFC:tä, yksikkökertoimella sekä kolmivaiheinen kuusipulssitasasuuntaaja taajuusmuuttajan tuloon (ilman vaihtosuuntaajaa ja moottoria).",
     "Digitaaliset TTL- ja CMOS-piirit: 45 numeroitua tyyppiä, kuten portit, kiikut, laskurit, rekisterit, kooderit, multiplekserit, muistit ja ALU; erilliset syöttönastat uusissa DIP-malleissa.",
-    "Piiritiedot pikavalikosta: määritellyt fyysiset nastat, sisäiset portit tai lohkot, toimintataulukot ja hetkelliset jännitteet; kaksoisnapsautus säilyttää parametrien muokkauksen.",
+    "Piiritiedot pikavalikosta: määritellyt fyysiset nastat, sisäiset portit tai lohkot, toimintataulukot ja hetkelliset jännitteet.",
     "Valikoiden ja alivalikoiden uudelleenjärjestely",
     "Parannettu ja 22 kieleen laajennettu käännös"
   ],
@@ -199,7 +199,7 @@
     "Regionalne wprowadzanie i wyświetlanie liczb: separatory dziesiętne i tysięcy, regulowana precyzja i ustawienia początkowe. Wyświetlanie elektryczne domyślnie z czterema miejscami dziesiętnymi, bez zbędnych końcowych zer, automatycznymi lub wybieranymi przedrostkami i wprowadzaniem notacji naukowej, przedrostków SI oraz wartości RMS.",
     "Obciążenia nieliniowe: konfigurowalny mostek jednofazowy z przykładami LED i zasilaczy komputerowych bez PFC, mnożnik liczby urządzeń i trójfazowy prostownik sześciopulsowy na wejściu napędu (bez falownika i silnika).",
     "Cyfrowe układy TTL i CMOS: 45 numerowanych typów, w tym bramki, przerzutniki, liczniki, rejestry, kodery, multipleksery, pamięci i ALU; jawne piny zasilania w nowych modelach DIP.",
-    "Informacje o układach w menu kontekstowym: zdefiniowane fizyczne wyprowadzenia, wewnętrzne bramki lub bloki, tablice działania i napięcia chwilowe; dwukrotne kliknięcie nadal edytuje parametry.",
+    "Informacje o układach w menu kontekstowym: zdefiniowane fizyczne wyprowadzenia, wewnętrzne bramki lub bloki, tablice działania i napięcia chwilowe.",
     "Reorganizacja menu i podmenu",
     "Ulepszone i rozszerzone tłumaczenie na 22 języki"
   ],
@@ -211,7 +211,7 @@
     "Regionální zadávání a zobrazení čísel: oddělovače desetinných míst a tisíců, nastavitelná přesnost a úvodní nastavení. Elektrické zobrazení standardně se čtyřmi desetinnými místy, bez zbytečných koncových nul, automatickými či volitelnými předponami a zadáváním vědeckého zápisu, předpon SI a hodnot RMS.",
     "Nelineární zátěže: nastavitelný jednofázový usměrňovací můstek s příklady LED a počítačových zdrojů bez PFC, násobičem počtu jednotek a třífázový šestipulzní usměrňovač pro vstup pohonů (bez střídače a motoru).",
     "Digitální obvody TTL a CMOS: 45 číslovaných typů, včetně hradel, klopných obvodů, čítačů, registrů, kodérů, multiplexorů, pamětí a ALU; explicitní napájecí vývody nových modelů DIP.",
-    "Informace o obvodech v místní nabídce: definované fyzické vývody, vnitřní hradla nebo bloky, funkční tabulky a okamžitá napětí; dvojklik zachovává úpravu parametrů.",
+    "Informace o obvodech v místní nabídce: definované fyzické vývody, vnitřní hradla nebo bloky, funkční tabulky a okamžitá napětí.",
     "Reorganizace nabídek a podnabídek",
     "Vylepšený a rozšířený překlad do 22 jazyků"
   ],
@@ -223,7 +223,7 @@
     "Региональные форматы ввода и отображения чисел: десятичный разделитель и разделитель тысяч, настраиваемая точность и начальные параметры. Электрические величины по умолчанию с четырьмя десятичными знаками, без лишних конечных нулей, с автоматическими или выбираемыми приставками и вводом научной записи, приставок SI и значений RMS.",
     "Нелинейные нагрузки: настраиваемый однофазный диодный мост с примерами светодиодных устройств и компьютерных блоков питания без PFC, множителем числа устройств и трёхфазный шестипульсный выпрямитель для входа преобразователя частоты (без инвертора и двигателя).",
     "Цифровые микросхемы TTL и CMOS: 45 нумерованных типов, включая вентили, триггеры, счётчики, регистры, кодеры, мультиплексоры, память и ALU; явные выводы питания у новых моделей DIP.",
-    "Информация о микросхемах в контекстном меню: заданная физическая цоколёвка, внутренние вентили или блоки, таблицы работы и мгновенные напряжения; двойной щелчок сохраняет редактирование параметров.",
+    "Информация о микросхемах в контекстном меню: заданная физическая цоколёвка, внутренние вентили или блоки, таблицы работы и мгновенные напряжения.",
     "Реорганизация меню и подменю",
     "Улучшенный и расширенный перевод на 22 языка"
   ],
@@ -235,7 +235,7 @@
     "区域化数字输入与显示：小数及千位分隔符、可调精度和初始设置。 电气量默认显示四位小数，省略无意义的末尾零，支持自动或手动单位前缀，以及科学计数法、SI 前缀和 RMS 数值输入。",
     "非线性负载：可配置单相整流桥，包含无 PFC 的 LED 与计算机电源示例、设备数量倍增功能，以及用于变频器输入级的三相六脉波整流器（不含逆变器和电动机）。",
     "TTL 和 CMOS 数字集成电路：45 个编号型号，包括逻辑门、触发器、计数器、寄存器、编码器、多路选择器、存储器和 ALU；新增 DIP 模型具有明确的电源引脚。",
-    "通过右键菜单查看芯片信息：已定义的物理引脚、内部逻辑门或功能框图、功能表和瞬时电压；双击仍用于编辑参数。",
+    "通过右键菜单查看芯片信息：已定义的物理引脚、内部逻辑门或功能框图、功能表和瞬时电压。",
     "菜单和子菜单重新组织",
     "改进并扩展至 22 种语言的翻译"
   ],
@@ -247,7 +247,7 @@
     "區域化數字輸入與顯示：小數及千位分隔符、可調精度和初始設定。 電氣量預設顯示四位小數，省略無意義的末尾零，支援自動或手動單位前綴，以及科學記號、SI 前綴和 RMS 數值輸入。",
     "非線性負載：可設定單相整流橋，包含無 PFC 的 LED 與電腦電源範例、設備數量倍增功能，以及用於變頻器輸入級的三相六脈波整流器（不含逆變器和馬達）。",
     "TTL 和 CMOS 數位積體電路：45 個編號型號，包括邏輯閘、正反器、計數器、暫存器、編碼器、多工器、記憶體和 ALU；新增 DIP 模型具有明確的電源接腳。",
-    "透過右鍵選單查看晶片資訊：已定義的實體接腳、內部邏輯閘或功能方塊圖、功能表和瞬時電壓；雙擊仍用於編輯參數。",
+    "透過右鍵選單查看晶片資訊：已定義的實體接腳、內部邏輯閘或功能方塊圖、功能表和瞬時電壓。",
     "選單和子選單重新整理",
     "改進並擴充至 22 種語言的翻譯"
   ],
@@ -259,7 +259,7 @@
     "地域別の数値入力・表示：小数点と桁区切り、精度設定、起動時設定。 電気量は標準で小数点以下4桁とし、不要な末尾ゼロを省略。単位接頭辞の自動・手動選択、科学表記、SI 接頭辞、RMS 値の入力に対応。",
     "非線形負荷：PFCなしのLEDとパソコン電源の例を備えた設定可能な単相整流ブリッジ、台数倍率の設定、インバーター入力部向けの三相6パルス整流器（インバーター本体とモーターは含まない）。",
     "TTL・CMOS デジタル IC：論理ゲート、フリップフロップ、カウンタ、レジスタ、エンコーダ、マルチプレクサ、メモリ、ALU を含む番号付き45品種。新しい DIP モデルには電源端子を明示。",
-    "コンテキストメニューの IC 情報：定義された物理ピン配置、内部ゲートや機能ブロック、動作表、瞬時電圧を表示。ダブルクリックによるパラメータ編集を維持。",
+    "コンテキストメニューの IC 情報：定義された物理ピン配置、内部ゲートや機能ブロック、動作表、瞬時電圧を表示。",
     "メニューとサブメニューの再編成",
     "翻訳を改善し22言語に拡充"
   ],
@@ -271,7 +271,7 @@
     "지역별 숫자 입력 및 표시: 소수점과 천 단위 구분 기호, 정밀도 설정 및 시작 환경설정. 전기량을 기본 소수점 네 자리로 표시하고 불필요한 끝자리 0을 생략합니다. 자동 또는 선택 단위 접두어와 과학 표기법, SI 접두어, RMS 값 입력을 지원합니다.",
     "비선형 부하: PFC 없는 LED 및 컴퓨터 전원공급장치 예제를 갖춘 단상 브리지 정류기, 기기 수 배율 설정, 주파수 변환기 입력단용 3상 6펄스 정류기(인버터 및 모터 제외).",
     "TTL 및 CMOS 디지털 IC: 게이트, 플립플롭, 카운터, 레지스터, 인코더, 멀티플렉서, 메모리 및 ALU를 포함한 번호형 45종. 새 DIP 모델에 전원 핀을 명시합니다.",
-    "상황별 메뉴의 IC 정보: 정의된 실제 핀 배치, 내부 게이트 또는 기능 블록, 동작표와 순간 전압을 표시하며 더블 클릭 매개변수 편집을 유지합니다.",
+    "상황별 메뉴의 IC 정보: 정의된 실제 핀 배치, 내부 게이트 또는 기능 블록, 동작표와 순간 전압을 표시합니다.",
     "메뉴 및 하위 메뉴 재구성",
     "22개 언어로 개선 및 확장된 번역"
   ]
