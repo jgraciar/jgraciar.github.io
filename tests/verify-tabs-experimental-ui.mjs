@@ -73,8 +73,14 @@ try{
  await targetCanvas.press("Control+v");
  assert.equal(await sim(second,"count"),1);
  const originalX=(await sim(second,"x"))[0];
- const canvasBox=await targetCanvas.boundingBox();
- assert(canvasBox?.width>500&&canvasBox.height>350,"No se encuentra el lienzo");
+ const canvasBox=await page.evaluate(()=>{
+  const frame=document.querySelector('iframe[data-tab-id="jgr-2"]');
+  const canvas=frame.contentWindow.__CircuitJGRExperimentalApp.ui.cv;
+  const outer=frame.getBoundingClientRect(),inner=canvas.getBoundingClientRect();
+  return {x:outer.x+inner.x,y:outer.y+inner.y,width:inner.width,height:inner.height};
+ });
+ assert(canvasBox?.width>280&&canvasBox.height>150,
+  "No se encuentra el lienzo real de la simulación: "+JSON.stringify(canvasBox));
  await page.mouse.move(canvasBox.x+canvasBox.width*.67,canvasBox.y+canvasBox.height*.34);
  const movedX=(await sim(second,"x"))[0];
  assert.notEqual(movedX,originalX,"Los elementos pegados deben seguir al cursor");
