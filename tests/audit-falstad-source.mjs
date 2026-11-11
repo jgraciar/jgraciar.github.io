@@ -13,7 +13,7 @@ const concrete=files.filter(f=>f.endsWith('Elm.ts')&&f!=='CircuitElm.ts');
 assert.deepEqual(concrete.filter(f=>changed.includes(f)),['WattmeterTrueElm.ts'],'Only the deliberately extended wattmeter may differ');
 function methods(dir,file){const s=ts.createSourceFile(file,readFileSync(join(dir,file),'utf8'),ts.ScriptTarget.Latest,true),r={};for(const c of s.statements)if(ts.isClassDeclaration(c))for(const n of c.members)if(ts.isMethodDeclaration(n)||ts.isConstructorDeclaration(n))r[c.name.text+'.'+(n.name?.getText(s)||'constructor')]=n.getText(s);return r;}
 const methodChanges={};
-for(const [file,expected]of Object.entries({'CircuitElm.ts':['CircuitElm.initClass','CircuitElm.getUnitTextImpl'],'MouseManager.ts':['MouseManager.doPopupMenu'],'CommandManager.ts':['CommandManager.menuPerformed'],'NumberFormat.ts':['NumberFormat.format'],'CircuitLoader.ts':['CircuitLoader.readCircuit']})){
+for(const [file,expected]of Object.entries({'CircuitElm.ts':['CircuitElm.initClass','CircuitElm.getUnitTextImpl','CircuitElm.drawDots'],'MouseManager.ts':['MouseManager.doPopupMenu'],'CommandManager.ts':['CommandManager.menuPerformed'],'NumberFormat.ts':['NumberFormat.format'],'CircuitLoader.ts':['CircuitLoader.readCircuit']})){
  const a=methods(base,file),b=methods(patched,file),diff=Object.keys(a).filter(k=>a[k]!==b[k]);assert.deepEqual(diff.sort(),expected.sort(),file+' changed methods');methodChanges[file]=diff;
 }
 for(const f of ['SimulationManager.ts','CircuitNode.ts','ChipElm.ts','NumberParse.ts'])assert(identical.includes(f),f+' must remain identical');
