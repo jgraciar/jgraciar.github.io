@@ -26,3 +26,7 @@ El mismo ejemplo muestra el 7493 arriba y el contador del archivo «8.7.3.1 cont
 Se conservan las cuatro salidas binarias del 7493 y las cuatro del montaje JK. Cada contador tiene lectura decimal 0–15 y un descodificador con display de siete segmentos 0–F; A–F equivalen a 10–15. Los nombres IC_Q0…IC_Q3 y JK_Q0…JK_Q3 trasladan las señales a cada descodificador sin unir las salidas de ambos contadores. Se conservan los cinco osciloscopios del archivo aportado, ajustando sus referencias a los índices del montaje combinado.
 
 Los JK mantienen el disparo por flanco descendente y la conexión en cascada del archivo original. Se añaden pines de reset para la puesta a cero común y se inicializan en cero para comparar la cuenta con el 7493 desde el arranque. Las rutas Q→CK siguientes se separan de los nuevos pines de reset para evitar conexiones accidentales.
+
+## Secciones independientes del 7493
+
+Debajo se añade otro 7493 sin realimentación entre QA (Q1) y CK2. CK1 usa un reloj independiente de 1 Hz y gobierna Q1; CK2 usa el reloj común superior de 2 Hz y gobierna Q2–Q4. El montaje JK inferior reproduce esa separación: el primer biestable recibe CK1 y el segundo recibe CK2, con los dos restantes en cascada. Cada montaje conserva indicadores binarios, lectura decimal y display de siete segmentos. RESET (r), los 5 V y el retorno son comunes; el interruptor J=K (j) habilita los cuatro JK inferiores.

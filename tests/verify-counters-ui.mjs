@@ -9,7 +9,7 @@ try{
  await page.addInitScript(()=>{
   const fillText=CanvasRenderingContext2D.prototype.fillText;
   CanvasRenderingContext2D.prototype.fillText=function(text,x,y,...rest){
-   if(text==='74191'||text==='7493'){
+   if((text==='74191'||text==='7493')&&y<1000){
     const m=this.getTransform(),r=this.canvas.getBoundingClientRect();
     const cx=x+this.measureText(text).width/2,cy=y+5+(text==='74191'?144:96)/2; // label gap + half the package height
     window.counterGrabs??={};window.counterGrabs[text]={x:r.left+(m.a*cx+m.c*cy+m.e)*r.width/this.canvas.width,
@@ -36,18 +36,18 @@ try{
   const state=xml.querySelector('Counter7493,Counter74191');
   const elements=Array.from(api.getElements());
   const display=elements.find(e=>e.getType()==='DecimalDisplayElm');
-  const jk=elements.filter(e=>e.getType()==='JKFlipFlopElm');
+  const allJK=elements.filter(e=>e.getType()==='JKFlipFlopElm'); const jk=allJK.slice(0,4);
   const jkCount=jk.reduce((n,e,i)=>n|(e.getVoltage(3)>2.5?1<<i:0),0);
   const segments=elements.filter(e=>e.getType()==='SevenSegElm').map(e=>Array.from({length:7},(_,i)=>e.getVoltage(i)>2.5?1<<i:0).reduce((a,b)=>a|b,0));
   const displayValue=display?Array.from({length:4},(_,i)=>display.getVoltage(i)>2.5?1<<i:0).reduce((a,b)=>a+b,0):null;
-  return {count:Number(state.getAttribute('count')),type:chip.getType(),volts:Array.from({length:chip.getPostCount()},(_,i)=>chip.getVoltage(i)),xml:api.exportCircuit(),displayValue,jkCount,segments,displayText:window.counterDecimalText};
+  return {count:Number(state.getAttribute('count')),type:chip.getType(),volts:Array.from({length:chip.getPostCount()},(_,i)=>chip.getVoltage(i)),xml:api.exportCircuit(),displayValue,jkCount,segments:segments.slice(0,2),splitSegments:segments.slice(2),splitCount:Number(xml.querySelectorAll('Counter7493')[1]?.getAttribute('count')),splitJK:allJK.slice(4).reduce((n,e,i)=>n|(e.getVoltage(3)>2.5?1<<i:0),0),displayText:window.counterDecimalText};
  });
  const load=async xml=>{await page.evaluate(xml=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit(xml,false);window.CircuitJS1.setSimRunning(false);},xml);await advance(.005);};
  const key=async k=>{await page.keyboard.press(k);await advance(.001);};
  for(const name of ['7493','74191']){
   const fixture=readFileSync(new URL(`./fixtures/${name}-practice.xml`,import.meta.url),'utf8');
   assert.equal((fixture.match(/<g\s/g)||[]).length,name==='7493'?1:0,'one necessary common return for physical switches');
-  assert.equal((fixture.match(/<M\s/g)||[]).length,name==='74191'?6:8,'all counter outputs have visible logic indicators');
+  assert.equal((fixture.match(/<M\s/g)||[]).length,name==='74191'?6:16,'all counter outputs have visible logic indicators');
   await load(fixture);const start=await read();await advance(.5);assert.equal((await read()).count,(start.count+1)%16,'actual 2 Hz clock counts');
   await page.screenshot({path:`/tmp/counter-${name}.png`});
   const beforeMove=await read();
@@ -99,6 +99,22 @@ try{
    await key('1');await key('3');await key('l');assert.equal((await read()).count,5,'LD loads 0101 even while disabled');
    await key('l');await key('e');await key('k');await key('k');assert.equal((await read()).count,4,'down count resumes');
    const s=await read();for(let i=0;i<4;i++)assert.equal(s.volts[8+i]>2.5,!!(s.count&(1<<i)));
+  }
+  if(name==='7493'){
+   let clockIndex=0;
+   const manual=fixture.replace(/<R [^>]+wf="2"[^>]*\/>/g,tag=>{
+    const x=tag.match(/x="([^"]+)"/)[1];return `<L x="${x}" f="2" p="0" key="${clockIndex++===0?'k':'h'}"/>`;
+   });
+   assert.equal(clockIndex,2,'two independent clocks'); await load(manual);
+   const masks=[63,6,91,79,102,109,125,7,127,111,119,124,57,94,121,113];
+   const check=async expected=>{const s=await read();assert.equal(s.splitCount,expected,'independent 7493 sections');assert.equal(s.splitJK,expected,'independent JK equivalent');assert.deepEqual(s.splitSegments,[masks[expected],masks[expected]]);};
+   await check(0);
+   for(let n=1;n<=9;n++){await key('h');await key('h');await check(n%2);}
+   for(let n=1;n<=9;n++){await key('k');await key('k');await check(((n%8)<<1)|1);}
+   await key('h');await key('h');await check(2);
+   await key('j');await key('k');await key('k');assert.equal((await read()).splitJK,2,'split JK enable holds');await key('j');
+   await key('r');await check(0);await key('r');
+   console.log('Independent CK1 and CK2: divide-by-2, divide-by-8, JK equivalence, displays and common reset passed');
   }
   if(name==='7493')console.log('7493: original indicators retained; decimal display matches every count 0–15 through the four horizontal elbow branches');
   const saved=await read();await load(saved.xml);assert.equal((await read()).count,saved.count,'XML retains count without a false clock edge');
