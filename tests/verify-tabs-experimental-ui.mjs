@@ -54,9 +54,15 @@ try{
   const menu=app.menus.menuBar.getBoundingClientRect();
   const toolbar=app.ui.toolbar.element.getBoundingClientRect();
   const canvas=app.ui.canvasWrapper.getBoundingClientRect();
+  const panel=app.ui.verticalPanel.getBoundingClientRect();
   return {stripTop:strip.top,stripBottom:strip.bottom,menuBottom:menu.bottom,
-   toolbarBottom:toolbar.bottom,toolbarVisible:app.menus.toolbarCheckItem.getState(),
-   canvasTop:canvas.top,canvasHeight:canvas.height,canvasLogicalHeight:app.ui.canvasHeight};
+   toolbarBottom:toolbar.bottom,toolbarRight:toolbar.right,
+   toolbarVisible:app.menus.toolbarCheckItem.getState(),
+   canvasTop:canvas.top,canvasHeight:canvas.height,canvasRight:canvas.right,
+   canvasWidth:canvas.width,canvasLogicalHeight:app.ui.canvasHeight,
+   canvasLogicalWidth:app.ui.canvasWidth,viewportWidth:frame.contentWindow.innerWidth,
+   sidebarTop:panel.top,sidebarLeft:panel.left,sidebarRight:panel.right,
+   sidebarWidth:panel.width,sidebarDisplay:getComputedStyle(app.ui.verticalPanel).display};
  },id);
  const canvasOf=id=>page.frameLocator('iframe[data-tab-id="'+id+'"]').locator('canvas').first();
  const focusCanvas=async id=>{
@@ -73,15 +79,47 @@ try{
  assert(Math.abs(originalLayout.canvasTop-originalLayout.stripBottom)<=1,
   "El lienzo debe comenzar debajo de las pestañas");
  assert(originalLayout.canvasHeight>150&&originalLayout.canvasLogicalHeight>150);
+ assert.equal(originalLayout.sidebarDisplay,"block","El panel debe estar visible al iniciar");
+ assert(originalLayout.sidebarWidth>=128,"El panel lateral debe conservar su ancho habitual");
+ assert(Math.abs(originalLayout.sidebarTop-originalLayout.stripBottom)<=1,
+  "La barra lateral debe empezar después de las pestañas");
+ assert(Math.abs(originalLayout.canvasRight-originalLayout.sidebarLeft)<=1,
+  "El panel lateral visible no debe tapar el circuito");
+ if(originalLayout.toolbarVisible)
+  assert(Math.abs(originalLayout.toolbarRight-originalLayout.viewportWidth)<=1,
+   "La barra de herramientas debe extenderse por encima de la barra lateral");
  await page.evaluate(()=>document.querySelector('iframe[data-tab-id="jgr-1"]')
   .contentWindow.__CircuitJGRExperimentalApp.menus.toolbarCheckItem.toggle());
  const withoutToolbar=await geometry(origin);
  assert.equal(Math.abs(withoutToolbar.stripTop-originalLayout.stripTop),40);
  assert(Math.abs(withoutToolbar.canvasTop-withoutToolbar.stripBottom)<=1);
+ assert(Math.abs(withoutToolbar.sidebarTop-withoutToolbar.stripBottom)<=1,
+  "Sin barra de herramientas, el panel debe seguir debajo de las pestañas");
  await page.evaluate(()=>document.querySelector('iframe[data-tab-id="jgr-1"]')
   .contentWindow.__CircuitJGRExperimentalApp.menus.toolbarCheckItem.toggle());
  assert.equal((await geometry(origin)).stripTop,originalLayout.stripTop);
- console.log("OK: fila de pestañas bajo los menús y barra de herramientas, con lienzo redimensionado");
+ assert(Math.abs((await geometry(origin)).sidebarTop-originalLayout.sidebarTop)<=1,
+  "Al restaurar la barra de herramientas debe moverse también la barra lateral");
+ const sidebarButton=stripOf(origin).locator("#jgr-sidebar-toggle");
+ assert.equal(await sidebarButton.innerText(),"Ocultar panel lateral");
+ await sidebarButton.click();
+ const hiddenLayout=await geometry(origin);
+ assert.equal(hiddenLayout.sidebarDisplay,"none");
+ assert.equal(await sidebarButton.innerText(),"Mostrar panel lateral");
+ assert(hiddenLayout.canvasWidth>originalLayout.canvasWidth+120,
+  "Ocultar el panel debe recuperar el ancho del circuito");
+ assert.equal(hiddenLayout.canvasLogicalWidth,Math.round(hiddenLayout.canvasWidth),
+  "La escala interna del lienzo debe actualizarse al ocultar el panel");
+ assert(Math.abs(hiddenLayout.canvasRight-hiddenLayout.viewportWidth)<=1,
+  "El circuito debe ocupar todo el ancho sin la barra lateral");
+ await sidebarButton.click();
+ const restoredLayout=await geometry(origin);
+ assert.equal(restoredLayout.sidebarDisplay,"block");
+ assert.equal(await sidebarButton.innerText(),"Ocultar panel lateral");
+ assert(Math.abs(restoredLayout.sidebarTop-restoredLayout.stripBottom)<=1);
+ assert(Math.abs(restoredLayout.canvasWidth-originalLayout.canvasWidth)<=1,
+  "Mostrar de nuevo el panel debe restaurar la anchura inicial del circuito");
+ console.log("OK: panel lateral bajo las pestañas y barra de herramientas, ocultación/restauración y redimensionamiento");
  assert.equal(await sim(origin,"count"),0);
  assert.equal(await sim(origin,"import",sample(220)),1);
  assert.match(await sim(origin,"export"),/r="220"/);
@@ -94,6 +132,8 @@ try{
  const second="jgr-2";
  assert.equal(await sim(second,"count"),0);
  assert.equal(await sim(origin,"count"),1);
+ assert(Math.abs((await geometry(second)).sidebarTop-(await geometry(second)).stripBottom)<=1,
+  "El segundo circuito también debe colocar el panel debajo de las pestañas");
  await sim(origin,"start");
  await switchTo(origin);
  await switchTo(second);
