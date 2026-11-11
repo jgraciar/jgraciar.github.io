@@ -19,7 +19,7 @@ try {
   await page.goto(`http://127.0.0.1:8767/circuitjgr.html?lang=en&whiteBackground=${light}`);
   await page.waitForFunction(()=>window.CircuitJS1?.getTime()>0.1);
   await page.waitForFunction(light=>Object.keys(window.paletteColors).includes(light?'#6a1b9a':'#ffff00'),light);
-  const canvas=page.locator('canvas').first();
+  const canvas=page.locator('.canvasWrapper > canvas');
   assert.equal(await canvas.evaluate(c=>c.style.backgroundColor),light?'rgb(255, 255, 255)':'rgb(0, 0, 0)');
   const colors=await page.evaluate(()=>window.paletteColors);
   if(light){assert(colors['#e2e5e9'],'Cuadrícula clara del osciloscopio');assert(!colors['#ffff00'],'Sin corriente amarilla sobre blanco');}
@@ -29,7 +29,7 @@ try {
    await page.getByText('Options',{exact:true}).filter({visible:true}).click();
    await page.getByText('White Background',{exact:true}).filter({visible:true}).click();
    await page.waitForFunction(light=>{
-    const c=document.querySelector('canvas');
+    const c=document.querySelector('.canvasWrapper > canvas');
     return c?.style.backgroundColor===(light?'rgb(255, 255, 255)':'rgb(0, 0, 0)')
       && window.paletteColors[light?'#6a1b9a':'#ffff00'];
    },nextLight);

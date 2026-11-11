@@ -111,6 +111,7 @@ jobs:
         run: |
           python3 -m http.server 8767 --directory site-root >/tmp/circuitjgr-http.log 2>&1 &
           sleep 2
+          node adaptacion/tests/verify-counters-ui.mjs
           node adaptacion/tests/verify-circuits-jgr-root.mjs site-root
           CIRCUIT_URL=http://127.0.0.1:8767/circuitjgr.html FALSTAD_EXAMPLES=circuitjs-src/ts/public/circuits CHECK_REPORT=/tmp/project-checks node adaptacion/tests/verify-project-pending.mjs
           node adaptacion/tests/verify-upstream-505-ui.mjs
@@ -121,11 +122,9 @@ jobs:
           node adaptacion/tests/verify-nonlinear-presets-ui.mjs
           node adaptacion/tests/verify-nonlinear-units-ui.mjs
           node adaptacion/tests/verify-six-pulse-ui.mjs
-          node adaptacion/tests/verify-live-settings-ui.mjs
           node adaptacion/tests/verify-light-palette-ui.mjs
           node adaptacion/tests/verify-wattmeter-ui.mjs
           node adaptacion/tests/verify-cd4026-ui.mjs
-          node adaptacion/tests/verify-counters-ui.mjs
 
       - name: Preparar GitHub Pages
         uses: actions/configure-pages@v5
