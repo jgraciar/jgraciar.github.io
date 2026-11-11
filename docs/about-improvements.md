@@ -12,6 +12,6 @@ El apartado se agrupa en nueve bloques, en los 22 idiomas:
 6. Integrados digitales TTL/CMOS: 45 referencias numeradas.
 7. Información contextual de integrados: patillajes cuando estén definidos, interiores funcionales, tablas y tensiones instantáneas; doble clic de edición conservado.
 8. Reorganización de menús y submenús.
-9. Traducción ampliada y mejorada: 22 idiomas.
+9. Traducción mejorada y ampliada a 22 idiomas.
 
 No se anuncian prestaciones pendientes ni se atribuyen las correcciones de la base oficial como desarrollos propios.

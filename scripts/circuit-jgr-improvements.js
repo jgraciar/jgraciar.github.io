@@ -21,7 +21,7 @@
     "TTL and CMOS digital ICs: 45 numbered references, including gates, flip-flops, counters, registers, encoders, multiplexers, memories and ALU; explicit supply pins on the new DIP models.",
     "IC information from the context menu: physical pinouts where defined, internal gates or functional blocks, operation tables and instantaneous voltages; double-click retains parameter editing.",
     "Reorganization of menus and submenus",
-    "Expanded and improved translation: 22 languages."
+    "Improved and expanded translation into 22 languages"
   ],
   "ca-es-valencia": [
     "Millores respecte de CircuitJS1 5.0.5ts",
@@ -33,7 +33,7 @@
     "Integrats digitals TTL i CMOS: 45 referències numerades, incloent-hi portes, biestables, comptadors, registres, codificadors, multiplexors, memòries i ALU; alimentació explícita en els nous models DIP.",
     "Informació dels integrats des del menú contextual: patillatges físics quan estan definits, portes o blocs interns, taules de funcionament i tensions instantànies; el doble clic conserva l’edició de paràmetres.",
     "Reorganització de menús i submenús",
-    "Traducció ampliada i millorada: 22 idiomes."
+    "Traducció millorada i ampliada a 22 idiomes"
   ],
   "es": [
     "Mejoras respecto a CircuitJS1 5.0.5ts",
@@ -45,7 +45,7 @@
     "Integrados digitales TTL y CMOS: 45 referencias numeradas, incluidas puertas, biestables, contadores, registros, codificadores, multiplexores, memorias y ALU; encapsulados alimentados en los nuevos modelos DIP.",
     "Información de integrados desde el menú contextual: patillajes físicos cuando están definidos, puertas o bloques internos, tablas de funcionamiento y tensiones instantáneas; el doble clic conserva la edición de parámetros.",
     "Reorganización de menús y submenús",
-    "Traducción ampliada y mejorada: 22 idiomas."
+    "Traducción mejorada y ampliada a 22 idiomas"
   ],
   "ca": [
     "Millores respecte de CircuitJS1 5.0.5ts",
@@ -57,7 +57,7 @@
     "Integrats digitals TTL i CMOS: 45 referències numerades, incloent portes, biestables, comptadors, registres, codificadors, multiplexors, memòries i ALU; alimentació explícita als nous models DIP.",
     "Informació dels integrats des del menú contextual: patillatges físics quan estan definits, portes o blocs interns, taules de funcionament i tensions instantànies; el doble clic conserva l’edició de paràmetres.",
     "Reorganització de menús i submenús",
-    "Traducció ampliada i millorada: 22 idiomes."
+    "Traducció millorada i ampliada a 22 idiomes"
   ],
   "gl": [
     "Melloras respecto de CircuitJS1 5.0.5ts",
@@ -69,7 +69,7 @@
     "Integrados dixitais TTL e CMOS: 45 referencias numeradas, con portas, biestables, contadores, rexistros, codificadores, multiplexores, memorias e ALU; alimentación explícita nos novos modelos DIP.",
     "Información dos integrados no menú contextual: patillaxes físicas cando están definidas, portas ou bloques internos, táboas de funcionamento e tensións instantáneas; o dobre clic conserva a edición de parámetros.",
     "Reorganización de menús e submenús",
-    "Tradución ampliada e mellorada: 22 idiomas."
+    "Tradución mellorada e ampliada a 22 idiomas"
   ],
   "eu": [
     "CircuitJS1 5.0.5ts bertsioarekiko hobekuntzak",
@@ -81,7 +81,7 @@
     "TTL eta CMOS zirkuitu integratu digitalak: 45 erreferentzia zenbakitu, ateak, biegonkorrak, kontagailuak, erregistroak, kodetzaileak, multiplexadoreak, memoriak eta ALU barne; elikadura-pin esplizituak DIP eredu berrietan.",
     "Integratuen informazioa testuinguru-menuan: pin fisikoak definituta daudenean, barneko ateak edo blokeak, funtzionamendu-taulak eta uneko tentsioak; klik bikoitzak parametroen edizioa mantentzen du.",
     "Menuen eta azpimenuen berrantolaketa",
-    "Itzulpen zabaldu eta hobetua: 22 hizkuntza."
+    "Itzulpen hobetua eta 22 hizkuntzatara zabaldua"
   ],
   "fr": [
     "Améliorations par rapport à CircuitJS1 5.0.5ts",
@@ -93,7 +93,7 @@
     "Circuits intégrés numériques TTL et CMOS : 45 références numérotées, avec portes, bascules, compteurs, registres, codeurs, multiplexeurs, mémoires et ALU ; alimentation explicite des nouveaux modèles DIP.",
     "Informations des circuits intégrés par le menu contextuel : brochages physiques définis, portes ou blocs internes, tables de fonctionnement et tensions instantanées ; le double-clic conserve l’édition des paramètres.",
     "Réorganisation des menus et sous-menus",
-    "Traduction élargie et améliorée : 22 langues."
+    "Traduction améliorée et étendue à 22 langues"
   ],
   "de": [
     "Erweiterungen gegenüber CircuitJS1 5.0.5ts",
@@ -105,7 +105,7 @@
     "Digitale TTL- und CMOS-ICs: 45 nummerierte Typen mit Gattern, Flipflops, Zählern, Registern, Codierern, Multiplexern, Speichern und ALU; explizite Versorgungspins bei neuen DIP-Modellen.",
     "IC-Informationen im Kontextmenü: definierte physische Pinbelegungen, interne Gatter oder Funktionsblöcke, Funktionstabellen und Momentanspannungen; Doppelklick bearbeitet weiterhin die Parameter.",
     "Neuordnung der Menüs und Untermenüs",
-    "Erweiterte und verbesserte Übersetzung: 22 Sprachen."
+    "Verbesserte und auf 22 Sprachen erweiterte Übersetzung"
   ],
   "it": [
     "Miglioramenti rispetto a CircuitJS1 5.0.5ts",
@@ -117,7 +117,7 @@
     "Integrati digitali TTL e CMOS: 45 riferimenti numerati, con porte, flip-flop, contatori, registri, codificatori, multiplexer, memorie e ALU; alimentazione esplicita nei nuovi modelli DIP.",
     "Informazioni sugli integrati dal menu contestuale: piedinature fisiche definite, porte o blocchi interni, tabelle di funzionamento e tensioni istantanee; il doppio clic mantiene la modifica dei parametri.",
     "Riorganizzazione di menu e sottomenu",
-    "Traduzione ampliata e migliorata: 22 lingue."
+    "Traduzione migliorata e ampliata a 22 lingue"
   ],
   "pt": [
     "Melhorias face ao CircuitJS1 5.0.5ts",
@@ -129,7 +129,7 @@
     "Integrados digitais TTL e CMOS: 45 referências numeradas, com portas, biestáveis, contadores, registos, codificadores, multiplexadores, memórias e ALU; alimentação explícita nos novos modelos DIP.",
     "Informações dos integrados no menu de contexto: pinagens físicas definidas, portas ou blocos internos, tabelas de funcionamento e tensões instantâneas; o duplo clique mantém a edição de parâmetros.",
     "Reorganização de menus e submenus",
-    "Tradução alargada e melhorada: 22 idiomas."
+    "Tradução melhorada e alargada a 22 idiomas"
   ],
   "nl": [
     "Verbeteringen ten opzichte van CircuitJS1 5.0.5ts",
@@ -141,7 +141,7 @@
     "Digitale TTL- en CMOS-IC’s: 45 genummerde typen, met poorten, flipflops, tellers, registers, encoders, multiplexers, geheugens en ALU; expliciete voedingspinnen op nieuwe DIP-modellen.",
     "IC-informatie via het contextmenu: gedefinieerde fysieke pinaansluitingen, interne poorten of blokken, functietabellen en momentane spanningen; dubbelklikken blijft parameters bewerken.",
     "Herindeling van menu’s en submenu’s",
-    "Uitgebreide en verbeterde vertaling: 22 talen."
+    "Verbeterde en uitgebreide vertaling naar 22 talen"
   ],
   "sv": [
     "Förbättringar jämfört med CircuitJS1 5.0.5ts",
@@ -153,7 +153,7 @@
     "Digitala TTL- och CMOS-kretsar: 45 numrerade typer med grindar, vippor, räknare, register, kodare, multiplexrar, minnen och ALU; uttryckliga matningsstift på nya DIP-modeller.",
     "Kretsinformation i snabbmenyn: definierade fysiska stift, interna grindar eller block, funktionstabeller och momentanspänningar; dubbelklick behåller parameterredigeringen.",
     "Omorganisering av menyer och undermenyer",
-    "Utökad och förbättrad översättning: 22 språk."
+    "Förbättrad och utökad översättning till 22 språk"
   ],
   "da": [
     "Forbedringer i forhold til CircuitJS1 5.0.5ts",
@@ -165,7 +165,7 @@
     "Digitale TTL- og CMOS-kredse: 45 nummererede typer med porte, flip-flops, tællere, registre, kodere, multipleksere, hukommelser og ALU; eksplicit forsyning på nye DIP-modeller.",
     "Kredsinformation i genvejsmenuen: definerede fysiske ben, interne porte eller blokke, funktionstabeller og øjebliksspændinger; dobbeltklik bevarer parameterredigering.",
     "Omorganisering af menuer og undermenuer",
-    "Udvidet og forbedret oversættelse: 22 sprog."
+    "Forbedret og udvidet oversættelse til 22 sprog"
   ],
   "nb": [
     "Forbedringer sammenlignet med CircuitJS1 5.0.5ts",
@@ -177,7 +177,7 @@
     "Digitale TTL- og CMOS-kretser: 45 nummererte typer med porter, vipper, tellere, registre, kodere, multipleksere, minner og ALU; eksplisitt forsyning på nye DIP-modeller.",
     "Kretsinformasjon i kontekstmenyen: definerte fysiske pinner, interne porter eller blokker, funksjonstabeller og øyeblikksspenninger; dobbeltklikk beholder parameterredigeringen.",
     "Omorganisering av menyer og undermenyer",
-    "Utvidet og forbedret oversettelse: 22 språk."
+    "Forbedret og utvidet oversettelse til 22 språk"
   ],
   "fi": [
     "CircuitJS1 5.0.5ts -versioon tehdyt parannukset",
@@ -189,7 +189,7 @@
     "Digitaaliset TTL- ja CMOS-piirit: 45 numeroitua tyyppiä, kuten portit, kiikut, laskurit, rekisterit, kooderit, multiplekserit, muistit ja ALU; erilliset syöttönastat uusissa DIP-malleissa.",
     "Piiritiedot pikavalikosta: määritellyt fyysiset nastat, sisäiset portit tai lohkot, toimintataulukot ja hetkelliset jännitteet; kaksoisnapsautus säilyttää parametrien muokkauksen.",
     "Valikoiden ja alivalikoiden uudelleenjärjestely",
-    "Laajennettu ja parannettu käännös: 22 kieltä."
+    "Parannettu ja 22 kieleen laajennettu käännös"
   ],
   "pl": [
     "Ulepszenia względem CircuitJS1 5.0.5ts",
@@ -201,7 +201,7 @@
     "Cyfrowe układy TTL i CMOS: 45 numerowanych typów, w tym bramki, przerzutniki, liczniki, rejestry, kodery, multipleksery, pamięci i ALU; jawne piny zasilania w nowych modelach DIP.",
     "Informacje o układach w menu kontekstowym: zdefiniowane fizyczne wyprowadzenia, wewnętrzne bramki lub bloki, tablice działania i napięcia chwilowe; dwukrotne kliknięcie nadal edytuje parametry.",
     "Reorganizacja menu i podmenu",
-    "Rozszerzone i ulepszone tłumaczenie: 22 języki."
+    "Ulepszone i rozszerzone tłumaczenie na 22 języki"
   ],
   "csx": [
     "Vylepšení oproti CircuitJS1 5.0.5ts",
@@ -213,7 +213,7 @@
     "Digitální obvody TTL a CMOS: 45 číslovaných typů, včetně hradel, klopných obvodů, čítačů, registrů, kodérů, multiplexorů, pamětí a ALU; explicitní napájecí vývody nových modelů DIP.",
     "Informace o obvodech v místní nabídce: definované fyzické vývody, vnitřní hradla nebo bloky, funkční tabulky a okamžitá napětí; dvojklik zachovává úpravu parametrů.",
     "Reorganizace nabídek a podnabídek",
-    "Rozšířený a vylepšený překlad: 22 jazyků."
+    "Vylepšený a rozšířený překlad do 22 jazyků"
   ],
   "ru": [
     "Улучшения по сравнению с CircuitJS1 5.0.5ts",
@@ -225,7 +225,7 @@
     "Цифровые микросхемы TTL и CMOS: 45 нумерованных типов, включая вентили, триггеры, счётчики, регистры, кодеры, мультиплексоры, память и ALU; явные выводы питания у новых моделей DIP.",
     "Информация о микросхемах в контекстном меню: заданная физическая цоколёвка, внутренние вентили или блоки, таблицы работы и мгновенные напряжения; двойной щелчок сохраняет редактирование параметров.",
     "Реорганизация меню и подменю",
-    "Расширенный и улучшенный перевод: 22 языка."
+    "Улучшенный и расширенный перевод на 22 языка"
   ],
   "zh": [
     "相对于 CircuitJS1 5.0.5ts 的改进",
@@ -237,7 +237,7 @@
     "TTL 和 CMOS 数字集成电路：45 个编号型号，包括逻辑门、触发器、计数器、寄存器、编码器、多路选择器、存储器和 ALU；新增 DIP 模型具有明确的电源引脚。",
     "通过右键菜单查看芯片信息：已定义的物理引脚、内部逻辑门或功能框图、功能表和瞬时电压；双击仍用于编辑参数。",
     "菜单和子菜单重新组织",
-    "扩展并改进的翻译：22 种语言。"
+    "改进并扩展至 22 种语言的翻译"
   ],
   "zh-tw": [
     "相對於 CircuitJS1 5.0.5ts 的改進",
@@ -249,7 +249,7 @@
     "TTL 和 CMOS 數位積體電路：45 個編號型號，包括邏輯閘、正反器、計數器、暫存器、編碼器、多工器、記憶體和 ALU；新增 DIP 模型具有明確的電源接腳。",
     "透過右鍵選單查看晶片資訊：已定義的實體接腳、內部邏輯閘或功能方塊圖、功能表和瞬時電壓；雙擊仍用於編輯參數。",
     "選單和子選單重新整理",
-    "擴充並改進的翻譯：22 種語言。"
+    "改進並擴充至 22 種語言的翻譯"
   ],
   "ja": [
     "CircuitJS1 5.0.5ts からの改良点",
@@ -261,7 +261,7 @@
     "TTL・CMOS デジタル IC：論理ゲート、フリップフロップ、カウンタ、レジスタ、エンコーダ、マルチプレクサ、メモリ、ALU を含む番号付き45品種。新しい DIP モデルには電源端子を明示。",
     "コンテキストメニューの IC 情報：定義された物理ピン配置、内部ゲートや機能ブロック、動作表、瞬時電圧を表示。ダブルクリックによるパラメータ編集を維持。",
     "メニューとサブメニューの再編成",
-    "翻訳の拡充と改善：22言語。"
+    "翻訳を改善し22言語に拡充"
   ],
   "kr": [
     "CircuitJS1 5.0.5ts 대비 개선 사항",
@@ -273,7 +273,7 @@
     "TTL 및 CMOS 디지털 IC: 게이트, 플립플롭, 카운터, 레지스터, 인코더, 멀티플렉서, 메모리 및 ALU를 포함한 번호형 45종. 새 DIP 모델에 전원 핀을 명시합니다.",
     "상황별 메뉴의 IC 정보: 정의된 실제 핀 배치, 내부 게이트 또는 기능 블록, 동작표와 순간 전압을 표시하며 더블 클릭 매개변수 편집을 유지합니다.",
     "메뉴 및 하위 메뉴 재구성",
-    "확장 및 개선된 번역: 22개 언어."
+    "22개 언어로 개선 및 확장된 번역"
   ]
 };
   const strings=improvements[lang]||improvements.en;
