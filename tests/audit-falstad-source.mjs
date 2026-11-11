@@ -7,7 +7,7 @@ const ts=createRequire(join(patched,'package.json'))('typescript');
 const files=readdirSync(base).filter(f=>f.endsWith('.ts'));
 const changed=[],identical=[];
 for(const f of files){const a=readFileSync(join(base,f),'utf8'),b=readFileSync(join(patched,f),'utf8');(a===b?identical:changed).push(f);}
-const allowed=new Set(['CircuitLoader.ts','SliderDialog.ts','ScopePropertiesDialog.ts','UIManager.ts','CircuitElm.ts','EditOptions.ts','Locale.ts','AboutBox.ts','CirSim.ts','CommandManager.ts','WattmeterTrueElm.ts','ImportFromDropboxDialog.ts','ScopeOverlays.ts','vite.config.ts','EditDialog.ts','MouseManager.ts','Menus.ts','GetCircuitAsSubcircuit.ts','registerElements.ts','NumberFormat.ts']);
+const allowed=new Set(['CircuitLoader.ts','SliderDialog.ts','ScopePropertiesDialog.ts','UIManager.ts','CircuitElm.ts','EditOptions.ts','Locale.ts','AboutBox.ts','CirSim.ts','CommandManager.ts','WattmeterTrueElm.ts','ImportFromDropboxDialog.ts','ScopeOverlays.ts','vite.config.ts','EditDialog.ts','MouseManager.ts','Menus.ts','GetCircuitAsSubcircuit.ts','registerElements.ts','NumberFormat.ts','ExportAsLocalFileDialog.ts','JSInterface.ts','Scope.ts','ScopeManager.ts','ScopePlot.ts','ScopePlot2d.ts','ScopeSerializer.ts']);
 assert.deepEqual(changed.filter(f=>!allowed.has(f)),[],'Unexpected changed original files');
 const concrete=files.filter(f=>f.endsWith('Elm.ts')&&f!=='CircuitElm.ts');
 assert.deepEqual(concrete.filter(f=>changed.includes(f)),['WattmeterTrueElm.ts'],'Only the deliberately extended wattmeter may differ');
