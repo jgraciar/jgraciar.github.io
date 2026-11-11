@@ -59,6 +59,7 @@ jobs:
           node --experimental-strip-types adaptacion/tests/lab-filtered-bridge-convergence.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-nonlinear-load.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-harmonics.test.mjs
+          node --experimental-strip-types adaptacion/tests/lab-robustness.test.mjs
           node --experimental-strip-types adaptacion/tests/lab-power-factor-rectifier.test.mjs
 
       - name: Preparar motor, componentes, traducciones e identidad

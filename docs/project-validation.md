@@ -43,3 +43,9 @@ Estas tareas siguen abiertas; la comparación 47/47 con Falstad no acredita su f
 5. Revisión lingüística manual de los 22 idiomas y ampliación de las pruebas de interfaz.
 
 La permanencia del tiempo de simulación y del paso temporal en el panel lateral es una corrección funcional independiente y se verifica con y sin osciloscopios.
+
+### Recuperación parcial de robustez (11-11-2026)
+
+Se incorpora a `tests/lab-robustness.test.mjs` la batería determinista del repositorio docente anterior, cuyas dependencias `LabFilteredBridge.ts` y `LabHarmonics.ts` existen en el simulador autónomo. Se ejecutará durante las pruebas numéricas previas a la compilación. Cubre rechazos de NaN e infinitos, parámetros no físicos, ventanas y órdenes de Fourier inválidos, tensión positiva/negativa/nula, corriente nula y continua, RMS fundamental y THD de senos de tres amplitudes.
+
+**Alcance:** prueba los modelos analíticos de referencia, no el solver nodal completo ni la estabilidad del navegador. El resto de ensayos de estrés, rectificación R/C en el solver y régimen de 230 V sigue pendiente. No se considera superada hasta una ejecución satisfactoria en el commit que la incorpora.
