@@ -14,20 +14,30 @@ patch('UIManager.ts',`        this.buttonPanel.appendChild(this.runStopButton);`
 `        this.buttonPanel.appendChild(this.runStopButton);
         this.jgrScopeInfo = document.createElement('div');
         this.jgrScopeInfo.id = 'jgr-scope-info';
-        this.jgrScopeInfo.style.cssText = 'display:none;padding:6px 8px;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.4 sans-serif;font-variant-numeric:tabular-nums;max-height:180px;overflow-y:auto;';
+        this.jgrScopeInfo.style.cssText = 'display:block;padding:6px 8px;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.4 sans-serif;font-variant-numeric:tabular-nums;max-height:180px;overflow-y:auto;';
         this.verticalPanel.appendChild(this.jgrScopeInfo);`);
 patch('UIManager.ts',`        g.setColor(CircuitElm.whiteColor);
 
         if (this.app.stopMessage != null) {`,
 `        g.setColor(CircuitElm.whiteColor);
-        this.jgrScopeInfo.style.display = 'none';
+        // Estado temporal visible incluso sin osciloscopios o con el puntero sobre un elemento.
+        const jgrNominalSteprate = 160 * this.app.getIterCount();
+        const jgrTimerate = jgrNominalSteprate * this.app.sim.timeStep;
+        let jgrSimulationTime = "t = " + CircuitElm.getTimeText(this.app.sim.t);
+        if (jgrTimerate >= 0.1 && this.steprate >= jgrNominalSteprate * 0.9)
+            jgrSimulationTime += " (" + CircuitElm.showFormat.format(jgrTimerate) + "x)";
+        this.jgrScopeInfo.textContent = jgrSimulationTime + '\\n'
+            + Locale.LS("time step = ") + CircuitElm.getTimeText(this.app.sim.timeStep);
 
         if (this.app.stopMessage != null) {`);
 patch('UIManager.ts',`            const ybase = this.app.circuitArea.height - h;`,
 `            if (ct !== 0) {
-                this.jgrScopeInfo.textContent = info.slice(0, i).filter(value => value != null).join('\\n');
-                this.jgrScopeInfo.style.display = 'block';
+                // Los datos del componente complementan, sin sustituir, los valores de tiempo.
+                const jgrDetails = info.slice(0, i).filter(value => value != null);
+                if (this.mouse.getMouseElm() == null) jgrDetails.splice(0, 2);
+                if (jgrDetails.length > 0)
+                    this.jgrScopeInfo.textContent += '\\n' + jgrDetails.join('\\n');
                 return;
             }
             const ybase = this.app.circuitArea.height - h;`);
-console.log('OK: scopes use the entire canvas width; time, timestep and component details remain in the existing controls panel.');
+console.log('OK: scope width remains full; simulation time and timestep persist with or without scopes.');
