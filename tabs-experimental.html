@@ -9,21 +9,7 @@
 :root{color-scheme:light;font-family:Arial,Helvetica,sans-serif;color:#202020}
 *{box-sizing:border-box}
 html,body{width:100%;height:100%;margin:0;overflow:hidden}
-body{display:flex;flex-direction:column;background:white}
-#tabs{height:33px;min-height:33px;display:flex;align-items:end;gap:2px;overflow-x:auto;overflow-y:hidden;
-  padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc}
-.tab{height:29px;flex:none;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;
-  border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:85px}
-.tab.active{background:white;border-color:#999}
-.tab.modified .choose::after{content:" *"}
-.tab button{font-family:inherit;background:none;border:0;color:#202020;cursor:pointer}
-.tab .choose{padding:5px 8px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;
-  white-space:nowrap;max-width:205px;min-width:55px}
-.tab .close{padding:2px 7px;font-size:17px}
-.tab .close:hover{color:#a50000;background:#e6d3d3}
-#add-tab{height:27px;min-width:30px;flex:none;font-size:19px;background:transparent;border:0;
-  color:#333;cursor:pointer}
-#add-tab:hover{background:#d3d3d3}
+body{background:white}
 #workspace{position:relative;flex:1;min-height:0;background:white}
 .session{position:absolute;inset:0;visibility:hidden;pointer-events:none}
 .session.active{visibility:visible;pointer-events:auto;z-index:1}
@@ -33,37 +19,52 @@ body{display:flex;flex-direction:column;background:white}
  border:1px solid #bbb;padding:5px 9px;font-size:12px;max-width:min(620px,90vw)}
 #notice:empty{display:none}
 #close-overlay[hidden]{display:none}
-#close-overlay{position:fixed;inset:0;background:#0005;z-index:100;display:grid;place-items:center}
-#close-panel{background:#f7f7f7;color:#222;border:1px solid #888;padding:18px 21px;
-  width:min(440px,calc(100vw - 30px));box-shadow:0 5px 25px #0004;font:13px Arial,sans-serif}
-#close-panel p{margin:0 0 18px;line-height:1.45;font-size:14px}
+#close-overlay{position:fixed;inset:0;background:#0006;z-index:100;display:grid;place-items:center}
+#close-panel{background:#fff;color:#242424;border:1px solid #d6d6d6;border-radius:8px;
+  padding:23px 26px 24px;width:min(490px,calc(100vw - 30px));
+  box-shadow:0 12px 40px #0004;font:14px "Segoe UI",Arial,sans-serif}
+#close-heading{display:flex;gap:12px;align-items:center;margin-bottom:15px}
+#close-heading svg{flex:none}
+#close-heading h2{font-size:18px;font-weight:600;margin:0}
+#close-panel p{margin:0 0 12px;line-height:1.45;font-size:15px}
+#close-panel .detail{font-size:13px;color:#5c5c5c;margin-bottom:23px}
 #close-panel .buttons{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-#close-panel button{border:1px solid #999;background:#eee;color:#111;font:13px Arial,sans-serif;
-  padding:6px 12px;min-width:50px;cursor:pointer}
-#close-panel button:hover{background:#ddd}
+#close-panel button{font:14px "Segoe UI",Arial,sans-serif;border-radius:4px;
+ border:1px solid #b9b9b9;background:#fff;color:#242424;min-width:96px;padding:8px 13px;cursor:pointer}
+#close-panel button:hover{background:#f3f3f3}
+#close-panel #close-save{background:#0f6cbd;color:#fff;border-color:#0f6cbd}
+#close-panel #close-save:hover{background:#115ea3}
 button:focus-visible{outline:2px solid #225d9b;outline-offset:2px}
 </style>
 </head>
 <body>
-<nav id="tabs" aria-label="Circuitos abiertos"></nav>
 <main id="workspace" aria-label="Circuit JGR">
   <input id="open-files" type="file" accept=".txt,.xml,.circuitjs" multiple>
 </main>
 <div id="notice" role="status" aria-live="polite"></div>
 <div id="close-overlay" hidden>
  <div id="close-panel" role="dialog" aria-modal="true" aria-labelledby="close-question">
-  <p id="close-question">¿Cerrar la pestaña sin guardar cambios?</p>
+  <div id="close-heading">
+   <svg width="26" height="30" viewBox="0 0 26 30" aria-hidden="true">
+    <path d="M4 1h13l6 6v21H4z" fill="#e6f1fb" stroke="#0f6cbd" stroke-width="1.5"/>
+    <path d="M17 1v6h6" fill="none" stroke="#0f6cbd" stroke-width="1.5"/>
+    <path d="M8 13h11M8 17h11M8 21h8" stroke="#0f6cbd" stroke-width="1.5"/>
+   </svg>
+   <h2>Guardar cambios</h2>
+  </div>
+  <p id="close-question">¿Quieres guardar los cambios realizados en «<span id="close-filename"></span>»?</p>
+  <p class="detail">Si no guardas los cambios, se perderán.</p>
   <div class="buttons">
-   <button id="close-yes" type="button">Sí</button>
-   <button id="close-no" type="button">No</button>
-   <button id="close-save" type="button">Guardar como...</button>
+   <button id="close-save" type="button">Guardar</button>
+   <button id="close-discard" type="button">No guardar</button>
+   <button id="close-cancel" type="button">Cancelar</button>
   </div>
  </div>
 </div>
 <script>
 "use strict";
 (() => {
- const tabsEl=document.querySelector("#tabs");
+ const TAB_CSS="#jgr-tab-strip{position:absolute;left:0;right:0;height:33px;box-sizing:border-box;display:flex;align-items:end;gap:2px;overflow-x:auto;overflow-y:hidden;padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc;z-index:5;font-family:Arial,Helvetica,sans-serif;color:#202020}\n#jgr-tab-strip .tab{height:29px;flex:none;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:85px}\n#jgr-tab-strip .tab.active{background:white;border-color:#999}\n#jgr-tab-strip .tab.modified .choose::after{content:\" *\"}\n#jgr-tab-strip .tab button{font:inherit;background:none;border:0;color:#202020;cursor:pointer}\n#jgr-tab-strip .tab .choose{padding:5px 8px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:205px;min-width:55px}\n#jgr-tab-strip .tab .close{padding:2px 7px;font-size:17px}\n#jgr-tab-strip .tab .close:hover{color:#a50000;background:#e6d3d3}\n#jgr-tab-strip #add-tab{height:27px;min-width:30px;flex:none;font-size:19px;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #add-tab:hover{background:#d3d3d3}\n#jgr-tab-strip button:focus-visible{outline:2px solid #225d9b;outline-offset:-2px}";
  const workspace=document.querySelector("#workspace");
  const openInput=document.querySelector("#open-files");
  const notice=document.querySelector("#notice");
@@ -81,32 +82,63 @@ button:focus-visible{outline:2px solid #225d9b;outline-offset:2px}
   if(!t?.ready||!app)return false;
   try{return !!app.isModified();}catch{return true;}
  }
- function renderTabs(){
-  tabsEl.replaceChildren();
-  for(const t of tabs){
-   const item=document.createElement("div");
-   item.className="tab"+(t===active?" active":"")+(isModified(t)?" modified":"");
-   item.dataset.tabId=t.id;
-   const choose=document.createElement("button");
-   choose.type="button";choose.className="choose";
-   choose.textContent=t.name;choose.title=t.name;
-   choose.setAttribute("aria-label","Seleccionar "+t.name);
-   choose.setAttribute("aria-selected",String(t===active));
-   choose.onclick=()=>activate(t);
-   const close=document.createElement("button");
-   close.type="button";close.className="close";
-   close.textContent="×";close.setAttribute("aria-label","Cerrar "+t.name);
-   close.onclick=()=>requestClose(t);
-   item.append(choose,close);
-   tabsEl.append(item);
+ function ensureStrip(t){
+  const app=appFor(t);
+  if(!app?.ui?.layoutPanel)return null;
+  const doc=t.frame.contentDocument;
+  let strip=doc.getElementById("jgr-tab-strip");
+  if(!strip){
+   const style=doc.createElement("style");
+   style.textContent=TAB_CSS;
+   doc.head.append(style);
+   strip=doc.createElement("nav");
+   strip.id="jgr-tab-strip";
+   strip.setAttribute("aria-label","Circuitos abiertos");
+   app.ui.layoutPanel.append(strip);
+   // Los menús desplegables originales deben quedar por encima de las pestañas.
+   app.menus.menuBar.style.zIndex="20";
   }
-  const plus=document.createElement("button");
-  plus.type="button";plus.id="add-tab";plus.textContent="+";
-  plus.title="Nuevo circuito en blanco";
-  plus.setAttribute("aria-label","Nuevo circuito en blanco");
-  plus.disabled=tabs.length>=MAX_TABS;
-  plus.onclick=()=>newBlank();
-  tabsEl.append(plus);
+  positionStrip(t);
+  return strip;
+ }
+ function positionStrip(t){
+  const app=appFor(t);
+  const strip=t.frame?.contentDocument?.getElementById("jgr-tab-strip");
+  if(!app||!strip)return;
+  const top=(app.ui.hideMenu?0:30)+(app.menus.toolbarCheckItem.getState()?40:0);
+  strip.style.top=top+"px";
+ }
+ function renderTabs(){
+  for(const session of tabs){
+   const tabsEl=ensureStrip(session);
+   if(!tabsEl)continue;
+   const doc=tabsEl.ownerDocument;
+   tabsEl.replaceChildren();
+   for(const t of tabs){
+    const item=doc.createElement("div");
+    item.className="tab"+(t===active?" active":"")+(isModified(t)?" modified":"");
+    item.dataset.tabId=t.id;
+    const choose=doc.createElement("button");
+    choose.type="button";choose.className="choose";
+    choose.textContent=t.name;choose.title=t.name;
+    choose.setAttribute("aria-label","Seleccionar "+t.name);
+    choose.setAttribute("aria-selected",String(t===active));
+    choose.onclick=()=>activate(t);
+    const close=doc.createElement("button");
+    close.type="button";close.className="close";
+    close.textContent="×";close.setAttribute("aria-label","Cerrar "+t.name);
+    close.onclick=()=>requestClose(t);
+    item.append(choose,close);
+    tabsEl.append(item);
+   }
+   const plus=doc.createElement("button");
+   plus.type="button";plus.id="add-tab";plus.textContent="+";
+   plus.title="Nuevo circuito en blanco";
+   plus.setAttribute("aria-label","Nuevo circuito en blanco");
+   plus.disabled=tabs.length>=MAX_TABS;
+   plus.onclick=()=>newBlank();
+   tabsEl.append(plus);
+  }
   document.title=(active?.name?active.name+" - ":"")+"Circuit JGR 1.0 (pestañas experimentales)";
  }
  function activate(t){
@@ -207,6 +239,12 @@ button:focus-visible{outline:2px solid #225d9b;outline-offset:2px}
   const app=appFor(t);
   if(!app||!app.commands||t.intercepted)return;
   t.intercepted=true;
+  const originalToolbar=app.ui.setToolbar.bind(app.ui);
+  app.ui.setToolbar=function(){
+   const result=originalToolbar();
+   positionStrip(t);
+   return result;
+  };
   const previous=app.commands.menuPerformed.bind(app.commands);
   app.commands.menuPerformed=function(menu,item){
    if(item==="newblankcircuit"){newBlank();return;}
@@ -258,15 +296,16 @@ button:focus-visible{outline:2px solid #225d9b;outline-offset:2px}
   if(!find(t.id))return;
   if(!isModified(t)){removeTab(t);return;}
   dialogTarget=t;
+  document.querySelector("#close-filename").textContent=t.name;
   overlay.hidden=false;
-  document.querySelector("#close-yes").focus();
+  document.querySelector("#close-save").focus();
  }
  function hideClose(){
   overlay.hidden=true;
   dialogTarget=null;
  }
- document.querySelector("#close-no").onclick=hideClose;
- document.querySelector("#close-yes").onclick=()=>{
+ document.querySelector("#close-cancel").onclick=hideClose;
+ document.querySelector("#close-discard").onclick=()=>{
   const t=dialogTarget;hideClose();if(t)removeTab(t);
  };
  document.querySelector("#close-save").onclick=()=>{
