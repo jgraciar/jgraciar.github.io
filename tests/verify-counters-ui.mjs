@@ -34,16 +34,20 @@ try{
   const api=window.CircuitJS1,chip=Array.from(api.getElements()).find(e=>/Counter74/.test(e.getType()));
   const xml=new DOMParser().parseFromString(api.exportCircuit(),'application/xml');
   const state=xml.querySelector('Counter7493,Counter74191');
-  const display=Array.from(api.getElements()).find(e=>e.getType()==='DecimalDisplayElm');
+  const elements=Array.from(api.getElements());
+  const display=elements.find(e=>e.getType()==='DecimalDisplayElm');
+  const jk=elements.filter(e=>e.getType()==='JKFlipFlopElm');
+  const jkCount=jk.reduce((n,e,i)=>n|(e.getVoltage(3)>2.5?1<<i:0),0);
+  const segments=elements.filter(e=>e.getType()==='SevenSegElm').map(e=>Array.from({length:7},(_,i)=>e.getVoltage(i)>2.5?1<<i:0).reduce((a,b)=>a|b,0));
   const displayValue=display?Array.from({length:4},(_,i)=>display.getVoltage(i)>2.5?1<<i:0).reduce((a,b)=>a+b,0):null;
-  return {count:Number(state.getAttribute('count')),type:chip.getType(),volts:Array.from({length:chip.getPostCount()},(_,i)=>chip.getVoltage(i)),xml:api.exportCircuit(),displayValue,displayText:window.counterDecimalText};
+  return {count:Number(state.getAttribute('count')),type:chip.getType(),volts:Array.from({length:chip.getPostCount()},(_,i)=>chip.getVoltage(i)),xml:api.exportCircuit(),displayValue,jkCount,segments,displayText:window.counterDecimalText};
  });
  const load=async xml=>{await page.evaluate(xml=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit(xml,false);window.CircuitJS1.setSimRunning(false);},xml);await advance(.005);};
  const key=async k=>{await page.keyboard.press(k);await advance(.001);};
  for(const name of ['7493','74191']){
   const fixture=readFileSync(new URL(`./fixtures/${name}-practice.xml`,import.meta.url),'utf8');
-  assert(!/<g\s/.test(fixture),'no unnecessary ground elements');
-  assert.equal((fixture.match(/<M\s/g)||[]).length,name==='74191'?6:4,'all counter outputs have visible logic indicators');
+  assert.equal((fixture.match(/<g\s/g)||[]).length,name==='7493'?1:0,'one necessary common return for physical switches');
+  assert.equal((fixture.match(/<M\s/g)||[]).length,name==='74191'?6:8,'all counter outputs have visible logic indicators');
   await load(fixture);const start=await read();await advance(.5);assert.equal((await read()).count,(start.count+1)%16,'actual 2 Hz clock counts');
   await page.screenshot({path:`/tmp/counter-${name}.png`});
   const beforeMove=await read();
@@ -86,8 +90,8 @@ try{
   // Manual clock for exact edge, control and restoration checks; fixture above uses the actual clock.
   await load(fixture.replace(/<R [^>]+\/>/,'<L x="336 '+(name==='7493'?192:256)+' 288 '+(name==='7493'?192:256)+'" f="2" p="0" key="k"/>'));
   if(name==='7493'){
-   for(let n=1;n<=18;n++){await key('k');await key('k');const s=await read();assert.equal(s.count,n%16);for(let i=0;i<4;i++)assert.equal(s.volts[4+i]>2.5,!!(s.count&(1<<i)));assert.equal(s.displayValue,s.count,'four display inputs follow QA/QB/QC/QD');assert.equal(s.displayText,String(s.count),'decimal display renders the full 0–15 count');}
-   await key('1');assert.equal((await read()).count,2);await key('2');assert.equal((await read()).count,0);await key('1');await key('2');
+   for(let n=1;n<=18;n++){await key('k');await key('k');const s=await read();assert.equal(s.count,n%16);for(let i=0;i<4;i++)assert.equal(s.volts[4+i]>2.5,!!(s.count&(1<<i)));assert.equal(s.displayValue,s.count,'four display inputs follow QA/QB/QC/QD');assert.equal(s.jkCount,s.count,'JK chain and 7493 count together');assert.deepEqual(s.segments,Array(2).fill([63,6,91,79,102,109,125,7,127,111,119,124,57,94,121,113][s.count]),'both seven-segment displays decode the same state');assert.equal(s.displayText,String(s.count),'decimal display renders the full 0–15 count');}
+   await key('e');await key('k');await key('k');assert.equal((await read()).jkCount,2,'J=K switch holds JK chain');await key('e');await key('r');assert.equal((await read()).count,0);assert.equal((await read()).jkCount,0,'common reset clears both counters');await key('r');
   }else{
    for(let n=1;n<=18;n++){await key('k');await key('k');assert.equal((await read()).count,n%16);}
    await key('d');await key('k');await key('k');assert.equal((await read()).count,1);

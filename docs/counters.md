@@ -18,3 +18,11 @@ Referencia funcional: [TI SN74LS191](https://www.ti.com/lit/ds/symlink/sn74ls191
 ## Display del ejemplo 7493
 
 Las salidas existentes QA/QB/QC/QD y su realimentación se conservan. Se añaden ramas horizontales desde los codos (800,192), (752,208), (704,224) y (656,240), respectivamente, hasta las entradas I0/I1/I2/I3 de un display decimal de cuatro bits situado a la derecha. Muestra 0–15, con QA como bit menos significativo. No necesita descodificador ni conexiones de alimentación adicionales.
+
+## Comparación 7493 y cuatro JK
+
+El mismo ejemplo muestra el 7493 arriba y el contador del archivo «8.7.3.1 contador_asincrono_4_bits_JK.txt» debajo. Comparten un reloj de 2 Hz. Una única línea de 5 V alimenta los controles físicos: RESET (tecla r) pone a cero ambos contadores; J=K (tecla e), inicialmente cerrado, habilita la conmutación de los cuatro JK. Sus resistencias de 10 kΩ mantienen las señales a cero al abrir los interruptores, con un único retorno común.
+
+Se conservan las cuatro salidas binarias del 7493 y las cuatro del montaje JK. Cada contador tiene lectura decimal 0–15 y un descodificador con display de siete segmentos 0–F; A–F equivalen a 10–15. Los nombres IC_Q0…IC_Q3 y JK_Q0…JK_Q3 trasladan las señales a cada descodificador sin unir las salidas de ambos contadores. Se conservan los cinco osciloscopios del archivo aportado, ajustando sus referencias a los índices del montaje combinado.
+
+Los JK mantienen el disparo por flanco descendente y la conexión en cascada del archivo original. Se añaden pines de reset para la puesta a cero común y se inicializan en cero para comparar la cuenta con el 7493 desde el arranque. Las rutas Q→CK siguientes se separan de los nuevos pines de reset para evitar conexiones accidentales.
