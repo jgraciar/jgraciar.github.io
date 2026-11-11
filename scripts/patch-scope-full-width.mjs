@@ -9,12 +9,19 @@ patch('ScopeManager.ts',`        let iw = CirSim.infoWidth;
         let w = Math.trunc((ui.canvasWidth - iw) / colct);`,
 `        // Status now lives in the existing controls panel, not beside the plots.
         let w = Math.trunc(ui.canvasWidth / colct);`);
-patch('UIManager.ts','    setColors(positiveColor:', '    private jgrScopeInfo!: HTMLDivElement;\n\n    setColors(positiveColor:');
+patch('UIManager.ts','    setColors(positiveColor:', '    private jgrScopeInfo!: HTMLDivElement;\n    private jgrScopeTime!: HTMLDivElement;\n    private jgrScopeSaved!: HTMLDivElement;\n    private jgrScopeComponent!: HTMLDivElement;\n\n    setColors(positiveColor:');
 patch('UIManager.ts',`        this.buttonPanel.appendChild(this.runStopButton);`,
 `        this.buttonPanel.appendChild(this.runStopButton);
         this.jgrScopeInfo = document.createElement('div');
         this.jgrScopeInfo.id = 'jgr-scope-info';
-        this.jgrScopeInfo.style.cssText = 'display:block;padding:6px 8px;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.4 sans-serif;font-variant-numeric:tabular-nums;max-height:180px;overflow-y:auto;';
+        this.jgrScopeInfo.style.cssText = 'padding:6px 8px;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.4 sans-serif;font-variant-numeric:tabular-nums;';
+        this.jgrScopeTime = document.createElement('div');
+        this.jgrScopeSaved = document.createElement('div');
+        this.jgrScopeSaved.id = 'jgr-saved-state';
+        this.jgrScopeComponent = document.createElement('div');
+        this.jgrScopeComponent.id = 'jgr-component-info';
+        this.jgrScopeComponent.style.cssText = 'margin-top:16px;max-height:180px;overflow-y:auto;white-space:pre-wrap;';
+        this.jgrScopeInfo.append(this.jgrScopeTime, this.jgrScopeSaved, this.jgrScopeComponent);
         // La información se sitúa a continuación del nombre del circuito,
         // que se crea más abajo en el constructor.`);
 patch('UIManager.ts', '        this.verticalPanel.appendChild(this.titleLabel);',
@@ -30,8 +37,10 @@ patch('UIManager.ts',`        g.setColor(CircuitElm.whiteColor);
         let jgrSimulationTime = "t = " + CircuitElm.getTimeText(this.app.sim.t);
         if (jgrTimerate >= 0.1 && this.steprate >= jgrNominalSteprate * 0.9)
             jgrSimulationTime += " (" + CircuitElm.showFormat.format(jgrTimerate) + "x)";
-        this.jgrScopeInfo.textContent = jgrSimulationTime + '\\n'
-            + Locale.LS("time step = ") + CircuitElm.getTimeText(this.app.sim.timeStep);
+        this.jgrScopeTime.textContent = jgrSimulationTime + '\\n'
+            + Locale.LS("time step = ") + CircuitElm.getTimeText(this.app.sim.timeStep) + '\\n';
+        this.jgrScopeSaved.textContent = this.app.savedFlag ? "(saved)\\n" : "";
+        this.jgrScopeComponent.textContent = "";
 
         if (this.app.stopMessage != null) {`);
 patch('UIManager.ts',`            const ybase = this.app.circuitArea.height - h;
@@ -39,8 +48,7 @@ patch('UIManager.ts',`            const ybase = this.app.circuitArea.height - h;
                 g.drawString(info[i]!, x, ybase + 15 * (i + 1));`,
 `            // Mostrar la información contextual bajo el tiempo y el nombre
             // del circuito, tanto si hay osciloscopios como si no.
-            const jgrDetails = info.slice(0, i).filter(value => value != null);
+            const jgrDetails = info.slice(0, i).filter(value => value != null && value !== "(saved)");
             if (this.mouse.getMouseElm() == null) jgrDetails.splice(0, 2);
-            if (jgrDetails.length > 0)
-                this.jgrScopeInfo.textContent += '\\n' + jgrDetails.join('\\n');`);
+            this.jgrScopeComponent.textContent = jgrDetails.join('\\n');`);
 console.log('OK: nombre de circuito, tiempo, paso temporal e información del componente en el panel lateral.');
