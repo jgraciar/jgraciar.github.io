@@ -129,7 +129,19 @@ try{
   app.mouse.mouseCursorY=s.rect.y+Math.trunc(s.rect.height/2);
   app.ui.repaint();
  });
- await page.waitForFunction(()=>window.jgrScopeMarkerHits.length>0,null,{timeout:10000});
+ await page.waitForTimeout(300);
+ console.log("DIAG-marker",JSON.stringify(await page.evaluate(()=>{
+   const app=window.__CircuitJGRExperimentalApp;
+   const s=app.scopeManager.scopes[0],plot=s.visiblePlots[0];
+   return {mouse:[app.mouse.mouseCursorX,app.mouse.mouseCursorY],
+    rect:{x:s.rect.x,y:s.rect.y,w:s.rect.width,h:s.rect.height},
+    cursor:s.constructor.cursorScope===s,source:plot?.elm?.getType(),
+    sourceIndex:plot?.elm?app.locateElm(plot.elm):null,
+    visiblePlots:s.visiblePlots.length,selectedPlot:s.selectedPlot,
+    stopMessage:app.stopMessage,modal:app.modalDialogIsShowing(),
+    hits:window.jgrScopeMarkerHits.slice(0,8)};
+ })));
+ await page.waitForFunction(()=>window.jgrScopeMarkerHits.length>0,null,{timeout:3000});
  assert.deepEqual(errors,[],'No deben producirse errores JavaScript');
  console.log('OK: barra blanca con borde gris, Configuración a la izquierda, botones nativos intactos, brillo, (saved), diálogo nativo, grosor por osciloscopio y localización E#');
 }finally{
