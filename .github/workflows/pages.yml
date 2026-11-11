@@ -73,10 +73,12 @@ jobs:
           node adaptacion/tests/verify-teaching-examples-static.mjs circuitjs-src/ts adaptacion
           node --experimental-strip-types adaptacion/scripts/patch-digital-ics.mjs circuitjs-src/ts
           node adaptacion/scripts/patch-generic-sequential.mjs circuitjs-src/ts
+          node adaptacion/scripts/patch-async-flipflops.mjs circuitjs-src/ts
           node adaptacion/tests/verify-generic-sequential-static.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-generic-sequential-engine.mjs circuitjs-src/ts
           node adaptacion/scripts/patch-lab-localization.mjs circuitjs-src/ts adaptacion/scripts/LabTranslations.ts
           node adaptacion/scripts/prepare-circuits-jgr.mjs circuitjs-src/ts
+          node adaptacion/scripts/patch-menu-viewport.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-edit-regional-numbers.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-edit-dialog-titles.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-about-and-draw-locales.mjs circuitjs-src/ts
@@ -129,6 +131,7 @@ jobs:
           node adaptacion/tests/verify-scope-status-ui.mjs
           node adaptacion/tests/verify-scope-enhancements-ui.mjs
           node adaptacion/tests/verify-teaching-examples-ui.mjs
+          node adaptacion/tests/verify-menu-viewport-ui.mjs
           node adaptacion/tests/verify-circuits-jgr-root.mjs site-root
           CIRCUIT_URL=http://127.0.0.1:8767/circuitjgr-core.html FALSTAD_EXAMPLES=circuitjs-src/ts/public/circuits CHECK_REPORT=/tmp/project-checks node adaptacion/tests/verify-project-pending.mjs
           node adaptacion/tests/verify-upstream-505-ui.mjs
