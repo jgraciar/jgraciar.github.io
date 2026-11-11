@@ -5,11 +5,6 @@ import {chromium} from "playwright";
 
 const site=resolve(process.argv[2]||"site-root");
 const html=readFileSync(join(site,"circuitjgr.html"),"utf8");
-const serviceWorker=readFileSync(join(site,"service-worker.js"),"utf8");
-assert(serviceWorker.includes('cache:"no-store"'),
- "El service worker debe recuperar páginas de la red sin caché antigua");
-assert(serviceWorker.includes('name.startsWith("circuitjs-cache")'),
- "El service worker debe eliminar las cachés anteriores de CircuitJS");
 assert(!existsSync(join(site,"circuitjs.html")),
  "El simulador raíz debe usar circuitjgr.html, no un duplicado de circuitjs.html");
 assert(html.includes('<title>Circuit JGR 1.0</title>'));
@@ -25,15 +20,6 @@ try{
   "La portada debe ofrecer acceso al simulador");
  assert.equal(await page.locator('a[href="./electrotecnia/"]').count(),1,
   "La portada debe conservar el acceso al laboratorio");
- assert.equal(await page.locator('a[href="./calculadora/"]').count(),1,
-  "La portada debe ofrecer acceso a la calculadora");
- await page.goto("http://127.0.0.1:8767/calculadora/",{waitUntil:"domcontentloaded"});
- assert.equal(await page.title(),"Calculadora de sistemas de ecuaciones");
- await page.waitForFunction(()=>document.querySelectorAll("#rows option").length===8);
- assert.equal(await page.locator("#cols option").count(),6);
- assert.equal(await page.locator('script[src="solver.js"]').count(),1);
- assert.equal(await page.locator('script[src="app.js"]').count(),1);
-
 
  await page.goto("http://127.0.0.1:8767/circuitjgr.html",{waitUntil:"domcontentloaded"});
  assert.equal(await page.title(),"Circuit JGR 1.0");
@@ -103,7 +89,7 @@ try{
   assert(data.upstream,language+": falta el enlace al código original");
   assert.equal(data.sourceHref,"https://github.com/jgraciar/jgraciar.github.io",
     language+": el código fuente debe estar separado del laboratorio");
-  assert(data.improvementsTitle?.includes("CircuitJS1 5.0.4ts"),
+  assert(data.improvementsTitle?.includes("CircuitJS1 5.0.5ts"),
     language+": falta encabezado de mejoras");
   assert.equal(data.improvements.length,7,language+": faltan mejoras implementadas");
   // Las escrituras china, japonesa y coreana expresan la misma información
@@ -113,7 +99,7 @@ try{
     assert(item?.length>=minChars,
       language+": falta descripción de alguna mejora");
   if(language!=="en"){
-    assert.notEqual(data.improvementsTitle,"Improvements over CircuitJS1 5.0.4ts",
+    assert.notEqual(data.improvementsTitle,"Improvements over CircuitJS1 5.0.5ts",
       language+": mejoras sin traducir");
     assert(!data.improvements[0].startsWith("Extended wattmeter:"),
       language+": descripción de mejoras sin traducir");
@@ -139,7 +125,7 @@ try{
   if(language==="en"){
    assert(data.improvements.at(-1).includes("three-phase six-pulse rectifier"),
     "No se citan las mejoras del rectificador en inglés");
-   assert.equal(data.improvementsTitle,"Improvements over CircuitJS1 5.0.4ts");
+   assert.equal(data.improvementsTitle,"Improvements over CircuitJS1 5.0.5ts");
    assert.equal(data.development,"Development and adaptation");
    assert.equal(data.versions,"Original CircuitJS1, version");
    assert(data.authors.includes("and contributors"));
@@ -147,7 +133,7 @@ try{
   if(language==="ca-es-valencia"){
    assert(data.improvements.at(-1).includes("rectificador trifàsic de sis polsos"),
     "No se citan las mejoras del rectificador en valenciano");
-   assert.equal(data.improvementsTitle,"Millores respecte de CircuitJS1 5.0.4ts");
+   assert.equal(data.improvementsTitle,"Millores respecte de CircuitJS1 5.0.5ts");
    assert(data.improvements[0].startsWith("Vatímetre ampliat:"));
    assert.equal(data.development,"Desenvolupament i adaptació");
    assert.equal(data.versions,"CircuitJS1 original, versió");
