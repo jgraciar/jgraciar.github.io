@@ -15,7 +15,10 @@ patch('UIManager.ts',`        this.buttonPanel.appendChild(this.runStopButton);`
         this.jgrScopeInfo = document.createElement('div');
         this.jgrScopeInfo.id = 'jgr-scope-info';
         this.jgrScopeInfo.style.cssText = 'display:block;padding:6px 8px;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.4 sans-serif;font-variant-numeric:tabular-nums;max-height:180px;overflow-y:auto;';
-        this.verticalPanel.appendChild(this.jgrScopeInfo);`);
+        // La información se sitúa a continuación del nombre del circuito,
+        // que se crea más abajo en el constructor.`);
+patch('UIManager.ts', '        this.verticalPanel.appendChild(this.titleLabel);',
+'        this.verticalPanel.appendChild(this.titleLabel);\\n        this.verticalPanel.appendChild(this.jgrScopeInfo);');
 patch('UIManager.ts',`        g.setColor(CircuitElm.whiteColor);
 
         if (this.app.stopMessage != null) {`,
@@ -31,13 +34,11 @@ patch('UIManager.ts',`        g.setColor(CircuitElm.whiteColor);
 
         if (this.app.stopMessage != null) {`);
 patch('UIManager.ts',`            const ybase = this.app.circuitArea.height - h;`,
-`            if (ct !== 0) {
-                // Los datos del componente complementan, sin sustituir, los valores de tiempo.
-                const jgrDetails = info.slice(0, i).filter(value => value != null);
-                if (this.mouse.getMouseElm() == null) jgrDetails.splice(0, 2);
-                if (jgrDetails.length > 0)
-                    this.jgrScopeInfo.textContent += '\\n' + jgrDetails.join('\\n');
-                return;
-            }
-            const ybase = this.app.circuitArea.height - h;`);
-console.log('OK: scope width remains full; simulation time and timestep persist with or without scopes.');
+`            // Mostrar la información contextual bajo el tiempo y bajo el nombre
+            // del circuito, también cuando no hay ningún osciloscopio.
+            const jgrDetails = info.slice(0, i).filter(value => value != null);
+            if (this.mouse.getMouseElm() == null) jgrDetails.splice(0, 2);
+            if (jgrDetails.length > 0)
+                this.jgrScopeInfo.textContent += '\\n' + jgrDetails.join('\\n');
+            return;`);
+console.log('OK: nombre de circuito, tiempo, paso temporal e información del componente en el panel lateral.');
