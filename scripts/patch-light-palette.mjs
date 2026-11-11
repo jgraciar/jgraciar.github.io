@@ -19,7 +19,7 @@ patch('UIManager.ts',[
                     : (this.menus.conventionCheckItem.getState() ? "#FFFF00" : "#00FFFF")
             );
             for (const scope of this.scopeManager.scopes) {
-                if (scope) { scope.calcVisiblePlots(); scope.resetGraph(); }
+                if (scope) { scope.calcVisiblePlots(); if (scope.plot2d.enabled) scope.plot2d.allocImage(); }
             }
         }
         if (this.menus.printableCheckItem.getState()) {

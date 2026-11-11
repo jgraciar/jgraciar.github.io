@@ -138,3 +138,5 @@ assert(importValidation.status===0,"Import validation patch failed");
 
 const lightPalette=spawnSync(process.execPath,[new URL("./patch-light-palette.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
 assert(lightPalette.status===0,"Light palette patch failed");
+const liveSettings=spawnSync(process.execPath,[new URL("./patch-live-settings.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
+assert(liveSettings.status===0,"Live settings patch failed");
