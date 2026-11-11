@@ -201,7 +201,7 @@ const reserve={
 };
 for(const [before,after] of Object.entries(reserve)){
  assert(uiText.split(before).length===2,"No se encuentra una única referencia de UI para insertar pestañas: "+before);
- uiText=uiText.replace(before,after.replaceAll("\\\\n","\n"));
+ uiText=uiText.replace(before,after.replaceAll("\\n","\n"));
 }
 writeFileSync(uiSource,uiText);
 
