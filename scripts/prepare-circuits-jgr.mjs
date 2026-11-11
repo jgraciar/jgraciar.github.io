@@ -132,6 +132,19 @@ assert(!html.includes("circuits-jgr-identity"),"La identidad se ha insertado dos
 writeFileSync(about,html.replace("<div>","<div>\n"+identity));
 console.log("OK: entrada Vite circuitjgr.html, Circuit JGR 1.0 y Acerca de conservando todos los créditos.");
 
+// El prototipo de pestañas necesita acceder a las instancias internas exclusivamente
+// cuando la página de ensayo las solicita; el simulador normal no expone esta referencia.
+const menuSource=join(dir,"Menus.ts");
+const menuText=readFileSync(menuSource,"utf8");
+const fileMenuAnchor="        const fileMenu = new Menu(this.app);";
+assert(menuText.split(fileMenuAnchor).length===2,
+ "No se puede localizar la inicialización del menú Archivo para el prototipo");
+writeFileSync(menuSource,menuText.replace(fileMenuAnchor,
+ '        if (new URLSearchParams(window.location.search).has("jgr-tabs-prototype"))\n' +
+ '            (window as any).__CircuitJGRExperimentalApp = this.app;\n' +
+ fileMenuAnchor));
+
+
 // Validate before clearing the current circuit on all import routes.
 const importValidation=spawnSync(process.execPath,[new URL("./patch-import-validation.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
 assert(importValidation.status===0,"Import validation patch failed");
