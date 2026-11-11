@@ -5,7 +5,7 @@ import {stripTypeScriptTypes} from "node:module";
 import vm from "node:vm";
 const base=process.argv[2];if(!base)throw Error("Usage: verify-generic-sequential-engine <patched-dir>");
 class ChipElm {
- static SIDE_W=2;static SIDE_E=3;
+ static SIDE_N=0;static SIDE_S=1;static SIDE_W=2;static SIDE_E=3;
  constructor(){this.flags=0;this.lastClock=false;this.setupPins();}
  writeOutput(i,value){this.pins[i].value=value;}
  allocNodes(){} setPoints(){}
@@ -16,10 +16,15 @@ class Choice {
  items=[];selected=0;add(s){this.items.push(s);}select(i){this.selected=i;}getSelectedIndex(){return this.selected;}
 }
 class EditInfo {constructor(name){this.name=name;this.choice=null;}}
+const jgrAsyncSource=readFileSync(join(base,"JgrAsyncControls.ts"),"utf8")
+ .replace(/^import .*;\s*$/gm,"").replace(/\bexport\s+/g,"");
+const asyncHelpers=vm.runInNewContext(stripTypeScriptTypes(jgrAsyncSource)
+ +";({jgrAsyncMode,jgrAsyncCount,jgrCreateAsyncPins,jgrAsyncState,jgrAsyncEditInfo,JGR_ASYNC_MASK})",
+ {ChipElm,Pin,Choice,EditInfo});
 function model(name){
  const source=readFileSync(join(base,name+".ts"),"utf8")
   .replace(/^import .*;\s*$/gm,"").replace("export class","class");
- return vm.runInNewContext(stripTypeScriptTypes(source)+";"+name,{ChipElm,Pin,Choice,EditInfo,CircuitElm:{whiteColor:"white"},Graphics:class{},Font:class{}});
+ return vm.runInNewContext(stripTypeScriptTypes(source)+";"+name,{ChipElm,Pin,Choice,EditInfo,...asyncHelpers,CircuitElm:{whiteColor:"white"},Graphics:class{},Font:class{}});
 }
 const D=model("DFlipFlopElm"),T=model("TFlipFlopElm"),JK=model("JKFlipFlopElm"),RS=model("RSGenericElm");
 const BCD=model("BinaryToBCD4Elm"),Reader=model("SevenSegNumericElm");
@@ -91,6 +96,41 @@ for(let mode=0;mode<6;mode++){
  if(mode>=4){p[4].value=!activeLevel;c.execute();p[4].value=activeLevel;}
  c.execute();assert.equal(p[1].value,false,"RS reset "+mode);
 }
+
+for(const [name,C,clockIndex,qIndex,qbarIndex,flags,asyncIndex] of [
+ ["D",D,3,1,2,0,4],
+ ["T",T,3,1,2,0,3],
+ ["JK",JK,1,3,4,0,3],
+ ["RS",RS,4,1,2,4<<7,1]
+]){
+ for(const mode of [1,2]){
+  const c=new C(0,0);c.flags=flags|(mode<<15);c.setupPins();
+  const index=c.jgrAsyncStart(),p=c.pins;
+  assert.equal(c.jgrAsyncMode(),mode,name+" mode "+mode);
+  assert.equal(p[clockIndex].text,"CLK",name+" clock label");
+  assert.equal(p[index].side,ChipElm.SIDE_N,name+" preset above");
+  assert.equal(p[index+1].side,ChipElm.SIDE_S,name+" clear below");
+  assert.equal(p[index].bubble,true);assert.equal(p[index+1].bubble,true);
+  assert.equal(p[index].jgrExternalLabel,mode===1?"SET":"PR");
+  assert.equal(p[index+1].jgrExternalLabel,mode===1?"RESET":"CLR");
+  assert.equal(c.getChipEditInfo(asyncIndex).choice.items.length,3);
+  assert.equal(p[index].value,true);assert.equal(p[index+1].value,true);
+  const textBefore=JSON.stringify(p.map(x=>x.jgrExternalLabel||x.text));
+  const tick=c.pins[clockIndex];tick.value=false;
+  p[index].value=false;c.execute();
+  assert.equal(p[qIndex].value,true,name+" async preset");
+  assert.equal(p[qbarIndex].value,false,name+" async Qbar reset");
+  assert.equal(tick.value,false,name+" no clock needed");
+  p[index].value=true;p[index+1].value=false;c.execute();
+  assert.equal(p[qIndex].value,false,name+" async clear");
+  assert.equal(p[qbarIndex].value,true,name+" async Qbar clear");
+  p[index].value=false;c.execute();
+  assert.equal(p[qIndex].value,false,name+" simultaneous prohibited");
+  assert.equal(p[qbarIndex].value,false,name+" simultaneous Qbar prohibited");
+  assert.equal(JSON.stringify(p.map(x=>x.jgrExternalLabel||x.text)),textBefore,"pin names stable");
+ }
+}
+
 const bcd=new BCD(0,0);for(let n=0;n<16;n++){
  for(let i=0;i<4;i++)bcd.pins[i].value=!!(n&(1<<i));
  bcd.execute();
@@ -104,4 +144,4 @@ const reader=new Reader(0,0);for(let n=0;n<10;n++){
 }
 for(let i=0;i<7;i++)reader.pins[i].value=false;
 assert.equal(reader.digit(),null);
-console.log("OK: D/T/JK in 4 modes, RS in 6 modes, symbols, legacy defaults, 16 BCD codes, ten seven-segment patterns");
+console.log("OK: D/T/JK/RS, CLK, preset y clear asíncronos a nivel bajo en caras superior/inferior, BCD y displays");
