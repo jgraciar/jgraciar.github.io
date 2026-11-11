@@ -34,12 +34,13 @@ patch('UIManager.ts',`        g.setColor(CircuitElm.whiteColor);
             + Locale.LS("time step = ") + CircuitElm.getTimeText(this.app.sim.timeStep);
 
         if (this.app.stopMessage != null) {`);
-patch('UIManager.ts',`            const ybase = this.app.circuitArea.height - h;`,
-`            // Mostrar la información contextual bajo el tiempo y bajo el nombre
-            // del circuito, también cuando no hay ningún osciloscopio.
+patch('UIManager.ts',`            const ybase = this.app.circuitArea.height - h;
+            for (i = 0; info[i] != null; i++)
+                g.drawString(info[i]!, x, ybase + 15 * (i + 1));`,
+`            // Mostrar la información contextual bajo el tiempo y el nombre
+            // del circuito, tanto si hay osciloscopios como si no.
             const jgrDetails = info.slice(0, i).filter(value => value != null);
             if (this.mouse.getMouseElm() == null) jgrDetails.splice(0, 2);
             if (jgrDetails.length > 0)
-                this.jgrScopeInfo.textContent += '\\n' + jgrDetails.join('\\n');
-            return;`);
+                this.jgrScopeInfo.textContent += '\\n' + jgrDetails.join('\\n');`);
 console.log('OK: nombre de circuito, tiempo, paso temporal e información del componente en el panel lateral.');
