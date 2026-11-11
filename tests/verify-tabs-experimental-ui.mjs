@@ -220,7 +220,7 @@ try{
  await page.waitForFunction(()=>{
   const frame=document.querySelector('iframe[data-tab-id="jgr-4"]');
   return frame?.contentDocument?.querySelector('#jgr-scope-info')
-   ?.textContent?.split('\\n').length>2;
+   ?.textContent?.split('\n').length>2;
  },null,{timeout:15000});
  const componentInfo=await sidebarInfo("jgr-4");
  assert(componentInfo.lines?.[0]?.startsWith("t = "),"El tiempo precede al componente");
