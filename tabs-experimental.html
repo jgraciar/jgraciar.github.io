@@ -28,14 +28,17 @@ body{background:white}
 <script>
 "use strict";
 (() => {
- const TAB_CSS="#jgr-tab-strip{position:absolute;left:0;right:0;height:33px;box-sizing:border-box;display:flex;align-items:end;gap:2px;overflow-x:auto;overflow-y:hidden;padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc;z-index:5;font-family:Arial,Helvetica,sans-serif;color:#202020}\n#jgr-tab-strip .tab{height:29px;flex:none;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:85px}\n#jgr-tab-strip .tab.active{background:white;border-color:#999}\n#jgr-tab-strip .tab.modified .choose::after{content:\" *\"}\n#jgr-tab-strip .tab button{font:inherit;background:none;border:0;color:#202020;cursor:pointer}\n#jgr-tab-strip .tab .choose{padding:5px 8px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:205px;min-width:55px}\n#jgr-tab-strip .tab .close{padding:2px 7px;font-size:17px}\n#jgr-tab-strip .tab .close:hover{color:#a50000;background:#e6d3d3}\n#jgr-tab-strip #add-tab{height:27px;min-width:30px;flex:none;font-size:19px;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #add-tab:hover{background:#d3d3d3}\n#jgr-tab-strip button:focus-visible{outline:2px solid #225d9b;outline-offset:-2px}";
+ const TAB_CSS="#jgr-tab-strip{position:absolute;left:0;right:0;height:33px;box-sizing:border-box;display:flex;align-items:end;gap:2px;overflow-x:auto;overflow-y:hidden;padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc;z-index:5;font-family:Arial,Helvetica,sans-serif;color:#202020}\n#jgr-tab-strip .tab{height:29px;flex:none;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:85px}\n#jgr-tab-strip .tab.active{background:white;border-color:#999}\n#jgr-tab-strip .tab.modified .choose::after{content:\" *\"}\n#jgr-tab-strip .tab button{font:inherit;background:none;border:0;color:#202020;cursor:pointer}\n#jgr-tab-strip .tab .choose{padding:5px 8px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:205px;min-width:55px}\n#jgr-tab-strip .tab .close{padding:2px 7px;font-size:17px}\n#jgr-tab-strip .tab .close:hover{color:#a50000;background:#e6d3d3}\n#jgr-tab-strip #add-tab{height:27px;min-width:30px;flex:none;font-size:19px;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #add-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #jgr-sidebar-toggle{position:sticky;right:0;z-index:2;flex:none;align-self:center;margin-left:auto;padding:4px 9px;border:1px solid #aaa;border-radius:3px;background:#f8f8f8;color:#333;font:12px Arial,Helvetica,sans-serif;white-space:nowrap;cursor:pointer}
+#jgr-tab-strip #jgr-sidebar-toggle:hover{background:#fff}
+#jgr-tab-strip button:focus-visible{outline:2px solid #225d9b;outline-offset:-2px}
+@media(max-width:600px){.layoutPanel > .triggerLabel{display:none!important}.layoutPanel > #painel{width:128px!important;z-index:4;transition:none;background:#fff;border-left:1px solid #bbb}}";
  const workspace=document.querySelector("#workspace");
  const openInput=document.querySelector("#open-files");
  const notice=document.querySelector("#notice");
  const tabs=[];
  const MAX_TABS=8;
  const BLANK='<cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11"></cir>';
- let active=null, serial=0, unnamed=0;
+ let active=null, serial=0, unnamed=0, sidebarVisible=true;
  function message(text){notice.textContent=text||"";}
  function find(id){return tabs.find(t=>t.id===id);}
  function appFor(t){try{return t?.frame.contentWindow.__CircuitJGRExperimentalApp||null;}catch{return null;}}
@@ -70,6 +73,24 @@ body{background:white}
   if(!app||!strip)return;
   const top=(app.ui.hideMenu?0:30)+(app.menus.toolbarCheckItem.getState()?40:0);
   strip.style.top=top+"px";
+  // Toda la cabecera ocupa el ancho disponible; el panel empieza bajo las pestañas.
+  const panel=app.ui.verticalPanel;
+  panel.style.top=(top+33)+"px";
+  panel.style.display=sidebarVisible?"":"none";
+  app.ui.toolbar.element.style.right="0px";
+  const width=app.ui.constructor.VERTICALPANELWIDTH;
+  app.ui.canvasWrapper.style.right=sidebarVisible?width+"px":"0px";
+ }
+ function toggleSidebar(){
+  sidebarVisible=!sidebarVisible;
+  for(const session of tabs){
+   const app=appFor(session);
+   if(!app?.ui?.cv)continue;
+   positionStrip(session);
+   app.ui.setCanvasSize();
+   app.ui.repaint();
+  }
+  renderTabs();
  }
  function renderTabs(){
   for(const session of tabs){
@@ -101,6 +122,14 @@ body{background:white}
    plus.disabled=tabs.length>=MAX_TABS;
    plus.onclick=()=>newBlank();
    tabsEl.append(plus);
+   const sideToggle=doc.createElement("button");
+   sideToggle.type="button";sideToggle.id="jgr-sidebar-toggle";
+   sideToggle.textContent=sidebarVisible?"Ocultar panel lateral":"Mostrar panel lateral";
+   sideToggle.setAttribute("aria-label",sideToggle.textContent);
+   sideToggle.setAttribute("aria-expanded",String(sidebarVisible));
+   sideToggle.title=sideToggle.textContent;
+   sideToggle.onclick=toggleSidebar;
+   tabsEl.append(sideToggle);
   }
   document.title=(active?.name?active.name+" - ":"")+"Circuit JGR 1.0 (pestañas experimentales)";
  }
