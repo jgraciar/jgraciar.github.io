@@ -72,6 +72,7 @@ jobs:
           node --experimental-strip-types adaptacion/scripts/patch-digital-ics.mjs circuitjs-src/ts
           node adaptacion/scripts/patch-generic-sequential.mjs circuitjs-src/ts
           node adaptacion/tests/verify-generic-sequential-static.mjs circuitjs-src/ts
+          node --experimental-strip-types adaptacion/tests/verify-generic-sequential-engine.mjs circuitjs-src/ts
           node adaptacion/scripts/patch-lab-localization.mjs circuitjs-src/ts adaptacion/scripts/LabTranslations.ts
           node adaptacion/scripts/prepare-circuits-jgr.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-edit-regional-numbers.mjs circuitjs-src/ts
