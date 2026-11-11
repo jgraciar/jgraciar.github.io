@@ -181,3 +181,27 @@ const fullWidthScopes=spawnSync(process.execPath,[new URL("./patch-scope-full-wi
 assert(fullWidthScopes.status===0,"Full-width scopes patch failed");
 const scopeScaleBadge=spawnSync(process.execPath,[new URL("./patch-scope-scale-badge.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
 assert(scopeScaleBadge.status===0,"Scope scale badge patch failed");
+
+// Reservar una fila de pestañas dentro de la interfaz SOLO para el prototipo.
+// La página principal conserva exactamente las dimensiones originales.
+// Se hace después de aplicar los parches de osciloscopio para no solaparlos.
+const uiSource=join(dir,"UIManager.ts");
+let uiText=readFileSync(uiSource,"utf8");
+const reserve={
+  '        expectedHeight -= (this.hideMenu ? 0 : UIManager.MENUBARHEIGHT);':
+    '        expectedHeight -= (this.hideMenu ? 0 : UIManager.MENUBARHEIGHT);\\n' +
+    '        if (new URLSearchParams(window.location.search).has("jgr-tabs-prototype")) expectedHeight -= 33;',
+  '        height -= (this.hideMenu ? 0 : UIManager.MENUBARHEIGHT);':
+    '        height -= (this.hideMenu ? 0 : UIManager.MENUBARHEIGHT);\\n' +
+    '        if (new URLSearchParams(window.location.search).has("jgr-tabs-prototype")) height -= 33;',
+  "            this.canvasWrapper.style.top = (mbh + tbh) + 'px';":
+    "            this.canvasWrapper.style.top = (mbh + tbh + (new URLSearchParams(window.location.search).has('jgr-tabs-prototype') ? 33 : 0)) + 'px';",
+  '            this.subcircuitBar.updatePosition(0, barTop, width);':
+    "            this.subcircuitBar.updatePosition(0, barTop + (new URLSearchParams(window.location.search).has('jgr-tabs-prototype') ? 33 : 0), width);"
+};
+for(const [before,after] of Object.entries(reserve)){
+ assert(uiText.split(before).length===2,"No se encuentra una única referencia de UI para insertar pestañas: "+before);
+ uiText=uiText.replace(before,after.replaceAll("\\\\n","\n"));
+}
+writeFileSync(uiSource,uiText);
+
