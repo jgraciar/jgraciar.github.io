@@ -19,10 +19,10 @@ patch('Scope.ts',`            if (t === null)
             const elementIndex = source?.elm ? this.app.locateElm(source.elm) : -1;
             return Locale.LS(t) + (elementIndex >= 0 ? " · E" + (elementIndex + 1) : "");`);
 // Las leyendas de osciloscopios combinados deben indicar el origen de cada curva.
-patch('ScopeOverlays.ts',`            const label = (plot.elm !== null) ? Locale.LS(plot.elm.getScopeText(plot.value)) : ("Plot " + (i + 1));`,
+patch('ScopeOverlays.ts',`            const label = (plot.elm !== null) ? Locale.LS(plot.elm.getScopeText(plot.value)) : (Locale.LS("Plot ") + (i + 1));`,
 `            const sourceIndex = plot.elm ? this.scope.app.locateElm(plot.elm) : -1;
             const label = (plot.elm !== null) ? Locale.LS(plot.elm.getScopeText(plot.value))
-                + (sourceIndex >= 0 ? " · E" + (sourceIndex + 1) : "") : ("Plot " + (i + 1));`);
+                + (sourceIndex >= 0 ? " · E" + (sourceIndex + 1) : "") : (Locale.LS("Plot ") + (i + 1));`);
 patch('ScopeOverlays.ts','        const t = embedded ? this.scope.text : this.scope.getScopeLabelOrText(true);',
  '        const t = embedded ? (this.scope.text ?? this.scope.getScopeLabelOrText(true)) : this.scope.getScopeLabelOrText(true);');
 // Marcador temporal junto al elemento cuando el cursor está sobre una curva.
