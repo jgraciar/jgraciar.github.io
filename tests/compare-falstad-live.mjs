@@ -22,7 +22,22 @@ try{
  async function run(page,text){
   await page.bringToFront();await page.evaluate(text=>{const a=window.CircuitJS1;a.setSimRunning(false);a.ontimestep=null;a.importCircuit(text,false);a.setMaxTimeStep(.000005);},text);
   const initial=await page.evaluate(()=>{
-   const x=new DOMParser().parseFromString(window.CircuitJS1.exportCircuit(),'application/xml');return Array.from(x.documentElement.children).filter(e=>!['scope','hint','adjustable'].includes(e.tagName)).map(e=>[e.tagName,Array.from(e.attributes).map(a=>[a.name,a.value]).sort()]);
+   const doc=new DOMParser().parseFromString(window.CircuitJS1.exportCircuit(),'application/xml');
+   const nodes=Array.from(doc.documentElement.children);
+   // En el XML real de CircuitJS los osciloscopios se guardan como <o>,
+   // los avisos como <h> y los ajustes como <adj>. El comparador anterior
+   // excluía nombres largos inexistentes y confundía los indicadores de
+   // visualización de los osciloscopios con diferencias eléctricas.
+   // Conservamos en la comparación los modelos y todos los elementos
+   // eléctricos, sin alterar la exportación ni las preferencias de JGR.
+   const metadata=new Set(['o','h','adj','scope','hint','adjustable']);
+   const elements=nodes.filter(e=>!metadata.has(e.tagName))
+    .map(e=>[e.tagName,Array.from(e.attributes).map(a=>[a.name,a.value]).sort()]);
+   // Comprobar también que los osciloscopios siguen conectados a los
+   // mismos elementos; se omiten únicamente sus parámetros visuales.
+   const scopeConnections=nodes.filter(e=>e.tagName==='o')
+    .map(e=>e.getAttribute('en'));
+   return {elements,scopeConnections};
   });
   const samples=[];
   for(const target of [.000137,.001173,.003137]){
