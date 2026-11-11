@@ -8,6 +8,7 @@ try {
    localStorage.setItem('labStartConfigured','1');
    window.paletteColors={};
    window.scopeBackgroundPaints=[];
+   window.scopeScaleLabels={};
    window.scopeGridDirections={};
    window.scopeGridRight=0;
    const proto=CanvasRenderingContext2D.prototype;
@@ -26,11 +27,15 @@ try {
     }
     return line.call(this,x,y);
    };
-   for(const method of ['fillRect','stroke']){
+   for(const method of ['fillRect','stroke','fillText']){
     const original=CanvasRenderingContext2D.prototype[method];
     CanvasRenderingContext2D.prototype[method]=function(...args){
      const color=method==='stroke'?this.strokeStyle:this.fillStyle;
      window.paletteColors[color]=(window.paletteColors[color]||0)+1;
+     if(method==='fillText' && this.textAlign==='right' && String(args[0]).includes('/div')){
+      const point=this.getTransform().transformPoint({x:args[1],y:args[2]});
+      window.scopeScaleLabels[String(args[0])+'@'+point.x]=String(args[0]);
+     }
      if(method==='fillRect' && this.canvas.parentElement?.classList.contains('canvasWrapper') && args[1]>this.canvas.height*.5 && args[2]>this.canvas.width*.7 && args[3]>20){
       window.scopeBackgroundPaints.push(String(color));
      }
@@ -49,6 +54,17 @@ try {
   await page.waitForFunction(()=>window.scopeGridRight>=document.querySelector('.canvasWrapper > canvas').width-15);
   await page.locator('#jgr-scope-info').waitFor({state:'visible'});
   assert.match(await page.locator('#jgr-scope-info').textContent(),/t = /,'Tiempo conservado en el panel de controles');
+  await page.waitForFunction(()=>{
+   const labels=Object.values(window.scopeScaleLabels);
+   return labels.some(s=>s.startsWith('t: ')) && labels.some(s=>/ V\/div$/.test(s)) && labels.some(s=>/ A\/div$/.test(s)) && labels.some(s=>/ W\/div$/.test(s));
+  });
+  const previousTimeScales=await page.evaluate(()=>{
+   const previous=Object.values(window.scopeScaleLabels).filter(s=>s.startsWith('t: '));
+   window.scopeScaleLabels={};
+   window.CircuitJS1.setMaxTimeStep(window.CircuitJS1.getMaxTimeStep()*10);
+   return previous;
+  });
+  await page.waitForFunction(previous=>Object.values(window.scopeScaleLabels).some(s=>s.startsWith('t: ')&&!previous.includes(s)),previousTimeScales);
   const colors=await page.evaluate(()=>window.paletteColors);
   const backgrounds=await page.evaluate(()=>window.scopeBackgroundPaints);
   assert(backgrounds.length>0,'Debe comprobarse el relleno real de la zona de osciloscopios');

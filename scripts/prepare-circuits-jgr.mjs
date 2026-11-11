@@ -142,3 +142,5 @@ const liveSettings=spawnSync(process.execPath,[new URL("./patch-live-settings.mj
 assert(liveSettings.status===0,"Live settings patch failed");
 const fullWidthScopes=spawnSync(process.execPath,[new URL("./patch-scope-full-width.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
 assert(fullWidthScopes.status===0,"Full-width scopes patch failed");
+const scopeScaleBadge=spawnSync(process.execPath,[new URL("./patch-scope-scale-badge.mjs",import.meta.url).pathname,dir],{stdio:"inherit"});
+assert(scopeScaleBadge.status===0,"Scope scale badge patch failed");
