@@ -14,6 +14,7 @@ try{
  const ready=async n=>page.waitForFunction(n=>window.JGRTabsExperimental.list().length===n&&
     window.JGRTabsExperimental.list().every(t=>t.ready),n,{timeout:90000});
  await ready(1);
+ assert.equal(await page.title(),"Circuit JGR","El título de la pestaña debe ser Circuit JGR");
  const accepted=await page.locator("#open-files").getAttribute("accept");
  assert.equal(accepted,".jgr,.txt,.circuitjs,.xml",
   "La extensión .jgr debe figurar primero en Abrir archivo...");
@@ -185,6 +186,7 @@ try{
  const all=await list();
  assert.equal(all[2].name,"red-100.jgr");
  assert.equal(all[3].name,"red-470.txt");
+ assert.equal(await page.title(),"Circuit JGR","El título del navegador no debe cambiar al abrir otro archivo");
  assert.match(await sim("jgr-3","export"),/r="100"/);
  assert.match(await sim("jgr-4","export"),/r="470"/);
  assert.equal(await sim(second,"count"),0,"Abrir archivos no debe sustituir la pestaña anterior");
@@ -273,6 +275,7 @@ try{
   await main.goto(mainURL,{waitUntil:"domcontentloaded"});
   const nativeInput=main.locator("#LoadFileElement");
   await nativeInput.waitFor({state:"attached",timeout:90000});
+  assert.equal(await main.title(),"Circuit JGR","El título del simulador principal debe ser Circuit JGR");
   assert.equal(await nativeInput.getAttribute("accept"),".jgr,.txt,.circuitjs,.xml");
   await nativeInput.setInputFiles({
    name:"esquema-legado.txt",mimeType:"text/plain",buffer:Buffer.from(sample(390))
