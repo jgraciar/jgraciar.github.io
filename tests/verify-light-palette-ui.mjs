@@ -26,8 +26,8 @@ try {
   // Exercise the actual menu twice in the same running simulation.
   for(const nextLight of [!light,light]){
    await page.evaluate(()=>{window.paletteColors={};});
-   await page.getByText('Options',{exact:true}).filter({visible:true}).click();
-   await page.getByText('White Background',{exact:true}).filter({visible:true}).click();
+   await page.locator('.gwt-MenuBar-horizontal > table > tbody > tr > td:nth-child(5)').click();
+   await page.locator('.gwt-MenuBar-horizontal li').filter({hasText:'White Background',visible:true}).click();
    await page.waitForFunction(light=>{
     const c=document.querySelector('.canvasWrapper > canvas');
     return c?.style.backgroundColor===(light?'rgb(255, 255, 255)':'rgb(0, 0, 0)')
