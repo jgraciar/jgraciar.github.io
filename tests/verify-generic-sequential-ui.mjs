@@ -4,9 +4,10 @@ const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({viewport:{width:1450,height:900},locale:"es-ES"}),errors=[];
  page.on("pageerror",e=>errors.push(e.message));
- await page.goto("http://127.0.0.1:8767/circuitjgr-core.html");
+ await page.addInitScript(()=>localStorage.setItem("labStartConfigured","1"));
+ await page.goto("http://127.0.0.1:8767/circuitjgr-core.html?lang=es&jgr-tabs-prototype=generic-editor-test");
  if(await page.locator("#lab-start-accept").count())await page.locator("#lab-start-accept").click({timeout:30000});
- await page.waitForFunction(()=>!!window.CircuitJS1?.getElements);
+ await page.waitForFunction(()=>!!window.CircuitJS1?.getElements&&!!window.__CircuitJGRExperimentalApp?.commands);
  const result=await page.evaluate(()=>{
   const api=window.CircuitJS1,found=[];
   function check(test,description){if(!test)throw Error(description);}
