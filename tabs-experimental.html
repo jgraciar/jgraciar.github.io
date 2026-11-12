@@ -93,6 +93,7 @@ body{background:white}
  }
  function renderTabs(){
   if(tabGesture){renderQueued=true;return;}
+  const modified=new Map(tabs.map(t=>[t.id,isModified(t)]));
   for(const session of tabs){
    const tabsEl=ensureStrip(session);
    if(!tabsEl)continue;
@@ -107,7 +108,7 @@ body{background:white}
    tabsEl.append(tabList);
    for(const t of tabs){
     const item=doc.createElement("div");
-    item.className="tab"+(t===active?" active":"")+(isModified(t)?" modified":"");
+    item.className="tab"+(t===active?" active":"")+(modified.get(t.id)?" modified":"");
     item.dataset.tabId=t.id;
     const choose=doc.createElement("button");
     choose.type="button";choose.className="choose";
@@ -127,7 +128,7 @@ body{background:white}
     const close=doc.createElement("button");
     close.type="button";close.className="close";
     close.textContent="×";close.setAttribute("aria-label",tr(session,"close",t.name));
-    close.onclick=()=>requestClose(t);
+    bindTabAction(close,()=>requestClose(t));
     item.append(choose,close);
     tabList.append(item);
    }
@@ -135,7 +136,7 @@ body{background:white}
    plus.type="button";plus.id="add-tab";plus.textContent="+";
    plus.title=tr(session,"new");
    plus.setAttribute("aria-label",tr(session,"new"));
-   plus.onclick=()=>newBlank();
+   bindTabAction(plus,()=>newBlank());
    tabsEl.append(plus);
    const sideToggle=doc.createElement("button");
    sideToggle.type="button";sideToggle.id="jgr-sidebar-toggle";
@@ -145,12 +146,24 @@ body{background:white}
    sideToggle.setAttribute("aria-label",toggleLabel);
    sideToggle.setAttribute("aria-expanded",String(sidebarVisible));
    sideToggle.title=toggleLabel;
-   sideToggle.onclick=toggleSidebar;
+   bindTabAction(sideToggle,toggleSidebar);
    tabsEl.append(sideToggle);
    tabList.scrollLeft=previousScroll;
   }
   document.title="Circuit JGR";
-  dirtySignature=tabs.map(t=>t.id+":"+isModified(t)).join("|");
+  dirtySignature=tabs.map(t=>t.id+":"+modified.get(t.id)).join("|");
+ }
+ function bindTabAction(button,action){
+  let lastTouch=-Infinity;
+  button.style.touchAction="manipulation";
+  button.onpointerup=event=>{
+   if(event.pointerType!=="touch")return;
+   lastTouch=performance.now();event.preventDefault();event.stopPropagation();action();
+  };
+  button.onclick=event=>{
+   if(performance.now()-lastTouch<500){event.preventDefault();event.stopPropagation();return;}
+   action();
+  };
  }
  function revealTab(t,session){
   const node=session?.frame.contentDocument?.querySelector('.tab[data-tab-id="'+t.id+'"]');

@@ -3,7 +3,10 @@ import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true});
 const sample=r=>`<cir f="0" ts="0.00005"><r x="160 160 256 160" f="0" r="${r}"/></cir>`;
 const setup=page=>page.addInitScript(()=>{localStorage.setItem('labStartConfigured','1');localStorage.setItem('labLanguageMode','manual');localStorage.setItem('language','es');});
-const ready=(page,n)=>page.waitForFunction(n=>window.JGRTabsExperimental?.list().length===n&&window.JGRTabsExperimental.list().every(t=>t.ready),n,{timeout:90000});
+const ready=async(page,n)=>{
+ try{await page.waitForFunction(n=>window.JGRTabsExperimental?.list().length===n&&window.JGRTabsExperimental.list().every(t=>t.ready),n,{timeout:45000});}
+ catch(error){console.log('Tab readiness diagnostic',JSON.stringify(await page.evaluate(()=>({tabs:window.JGRTabsExperimental?.list(),notice:document.querySelector('#notice')?.textContent,frames:[...document.querySelectorAll('iframe')].map(f=>({id:f.dataset.tabId,api:!!f.contentWindow.CircuitJS1}))}))));throw error;}
+};
 const order=page=>page.evaluate(()=>window.JGRTabsExperimental.list().map(t=>t.id));
 const active=page=>page.evaluate(()=>window.JGRTabsExperimental.getActive());
 const strip=async page=>page.frameLocator(`iframe[data-tab-id="${await active(page)}"]`).locator('#jgr-tab-strip');
@@ -80,7 +83,7 @@ try{
   await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  }
  await swipe('jgr-1','jgr-3',true);assert.deepEqual(await order(mobile),['jgr-2','jgr-1','jgr-3']);assert.equal(await active(mobile),'jgr-3');
- for(let n=4;n<=7;n++){await (await strip(mobile)).locator('#add-tab').tap();await ready(mobile,n);}
+ for(let n=4;n<=7;n++){await (await strip(mobile)).locator('#add-tab').tap();console.log('Mobile + tap',n,await order(mobile));await ready(mobile,n);}
  const mobileOrder=await order(mobile),beforeScroll=await (await strip(mobile)).locator('.jgr-tab-list').evaluate(el=>el.scrollLeft);
  assert(beforeScroll>0);await swipe('jgr-6',null,false);
  assert.deepEqual(await order(mobile),mobileOrder,'A short swipe scrolls without reordering');
