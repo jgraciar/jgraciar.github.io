@@ -15,8 +15,9 @@ try{
   const page=await browser.newPage({locale:'es-ES',viewport:mobile?{width:320,height:760}:{width:1450,height:900},hasTouch:mobile,isMobile:mobile});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{localStorage.setItem('labStartConfigured','1');localStorage.setItem('labLanguageMode','manual');localStorage.setItem('language','es');});
-  await page.goto('http://127.0.0.1:8767/circuitjgr.html?cct='+encodeURIComponent(circuit(77)));
+  await page.goto('http://127.0.0.1:8767/circuitjgr.html?cct='+encodeURIComponent(circuit(77))+'&running=false');
   await ready(page,1);
+  assert.equal((await info(page,'jgr-1')).running,false,'Initial URL pause is preserved');
   const press=async selector=>{const b=(await bar(page)).locator(selector);if(mobile)await b.tap();else await b.click();};
   await press('#add-tab');await ready(page,2);await page.waitForTimeout(500);
   assert.equal((await info(page,'jgr-2')).count,0,'+ opens an empty circuit despite the circuit in the URL');
@@ -41,6 +42,12 @@ try{
   assert.deepEqual(await info(page,'jgr-2'),original,'Editing a copy cannot change the source');
   await press('#add-tab');await ready(page,4);await page.waitForTimeout(500);
   assert.equal((await info(page,'jgr-4')).count,0,'+ stays blank after duplicating');
+  await page.evaluate(xml=>{const api=document.querySelector('iframe[data-tab-id="jgr-4"]').contentWindow.CircuitJS1;api.importCircuit(xml,false);api.setSimRunning(true);},circuit(456));
+  await press('#duplicate-tab');await ready(page,5);
+  assert.equal((await info(page,'jgr-5')).running,true,'Duplicate keeps a running source running');
+  assert.equal((await info(page,'jgr-4')).running,false,'Inactive source is paused');
+  await page.evaluate(()=>window.JGRTabsExperimental.activate('jgr-4'));
+  assert.equal((await info(page,'jgr-4')).running,true,'Source resumes when reactivated');
   assert.deepEqual(errors,[]);
   console.log(`OK ${mobile?'mobile':'desktop'}: blank +, independent active-tab copy, paused state, source preservation and duplicate button before side-panel control`);
   await page.close();
