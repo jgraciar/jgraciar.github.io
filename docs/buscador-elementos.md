@@ -13,25 +13,27 @@ componente activa su modo de dibujo; después se coloca en el esquema.
 dos caracteres. El cuadro permite seleccionar con flechas, aceptar con Intro,
 cerrar con Escape y recuperar elecciones recientes.
 
-## Mejoras propuestas
+## Mejoras implementadas
 
-1. Añadir «Buscar elemento…» al principio de Dibujar, reutilizando el comando
-   `edit/search`, para facilitar que se descubra la función.
-2. Ofrecer un filtro «Elementos / Comandos / Ejemplos» dentro del mismo cuadro.
-   El usuario que busca un componente no tendría que revisar resultados de
+1. «Buscar elemento…» al principio de Dibujar abre el mismo cuadro con el filtro
+   de elementos seleccionado. Editar, la lupa y los atajos abren la búsqueda combinada.
+2. Filtros «Todo / Elementos / Comandos / Ejemplos» dentro del mismo cuadro.
+   El usuario que busca un componente no tiene que revisar resultados de
    otros tipos.
-3. Indexar también la ruta de categorías y alias: «display / visualizador»,
+3. Se indexan la ruta de categorías y alias: «display / visualizador»,
    «biestable / flip-flop», referencias «CD4026 / 4026» y funciones como
-   «contador». Mantener los alias junto a los metadatos del componente.
-4. Normalizar tildes y espacios tanto en la consulta como en los textos
-   indexados. Actualmente el cotejo convierte a minúsculas y admite caracteres
-   no consecutivos, pero no elimina diacríticos.
-5. Escuchar el evento `input` además de los eventos de teclado. Actualmente
-   el filtrado depende de `keyup`: pegar con el ratón o ciertas entradas del
-   teclado móvil puede no actualizar los resultados inmediatamente.
-6. Ajustar el ancho del cuadro a pantallas pequeñas, mostrar el número de
-   coincidencias y un mensaje cuando no hay resultados. Conservar la inserción
-   habitual y los identificadores de comandos e historial.
+   «contador». Las funciones de los integrados se extraen de sus metadatos;
+   los alias de componentes genéricos se mantienen en `CircuitJGRSearch.ts`.
+4. Se normalizan diacríticos, mayúsculas, separadores y espacios. Los resultados
+   exactos del nombre se sitúan por delante de alias y coincidencias aproximadas.
+   Los comandos se buscan también por su nombre traducido.
+5. Se escucha `input`, incluida la escritura con teclado móvil y el pegado
+   mediante ratón. La composición de texto IME se procesa cuando termina.
+6. El cuadro se ajusta al espacio visible, incluido el teclado en pantalla,
+   muestra el número de resultados y avisa cuando no hay coincidencias.
+   Se muestran hasta 50 filas y se informa del total encontrado.
 
-Estas mejoras quedan estudiadas; esta modificación publica únicamente los
-accesos del display y verifica la búsqueda existente.
+La selección mantiene la inserción habitual, los identificadores de comandos y
+el historial. Flechas e Intro seleccionan un resultado; Escape cierra el cuadro.
+El selector de tipo conserva su navegación nativa por teclado. Se mantienen los
+22 idiomas del simulador. Los ejemplos requieren al menos dos caracteres.

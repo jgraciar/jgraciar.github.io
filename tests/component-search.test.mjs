@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import {normalizeSearch,searchScore,highlightSearch,componentAliases,searchKind,searchText,searchTranslations} from '../scripts/CircuitJGRSearch.ts';
+import {labLanguageCodes} from '../scripts/LabTranslations.ts';
+assert.equal(normalizeSearch('  CÁTÓDO   común  '),'catodo comun');
+assert.equal(normalizeSearch('FLIP-FLOP'),'flip flop');
+for(const query of ['catodo comun','CÁTODO   COMÚN'])assert(searchScore(query,'Display (Cátodo común)','')>0);
+assert(searchScore('comun catodo','Display (Cátodo común)','')>0,'word order independent');
+assert.equal(searchScore('zzzzzz','Display (Cátodo común)',''),0);
+assert(searchScore('4026','4026 contador decimal','')>searchScore('4026','Otro componente','4026'));
+assert(componentAliases('CD4026Elm').includes('CD4026'));
+assert(componentAliases('IC40106Elm').includes('schmitt'));
+assert(componentAliases('IC7476Elm').includes('biestable'));
+assert(componentAliases('IC74191Elm').includes('74191'));
+assert(componentAliases('SevenSegCommonCathodeElm').includes('visualizador'));
+assert.equal(searchKind({menu:'main',item:'SevenSegElm',category:'Mode'}),'elements');
+assert.equal(searchKind({menu:'main',item:'SubcircuitElm:test',category:'Mode'}),'elements');
+assert.equal(searchKind({menu:'main',item:'DragAll',category:'Mode'}),'commands');
+assert.equal(searchKind({menu:'circuits',item:'setup foo',category:'Circuits'}),'examples');
+assert.equal(highlightSearch('Cátodo común','catodo'),'<b>Cátodo</b> común');
+assert.equal(highlightSearch('Cátodo común','catodo comun'),'<b>Cátodo común</b>');
+assert.equal(highlightSearch('Ca\u0301todo','catodo'),'<b>Ca\u0301todo</b>');
+assert.equal(highlightSearch('<img onerror="x">','img'),'&lt;<b>img</b> onerror=&quot;x&quot;&gt;');
+for(const lang of labLanguageCodes){assert(searchTranslations[lang],lang);for(let i=0;i<11;i++)assert(searchText(i,lang)?.trim(),lang+' '+i);assert(searchText(8,lang).includes('{shown}')&&searchText(8,lang).includes('{total}'));}
+console.log('OK: reference aliases, function names, 22 languages, accent/space normalization, filters, ranking and safe highlights');

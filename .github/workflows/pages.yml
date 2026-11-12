@@ -79,6 +79,8 @@ jobs:
           node adaptacion/scripts/patch-lab-localization.mjs circuitjs-src/ts adaptacion/scripts/LabTranslations.ts
           node adaptacion/scripts/prepare-circuits-jgr.mjs circuitjs-src/ts
           node adaptacion/scripts/patch-menu-viewport.mjs circuitjs-src/ts
+          node adaptacion/scripts/patch-component-search.mjs circuitjs-src/ts
+          node --experimental-strip-types adaptacion/tests/component-search.test.mjs
           node --experimental-strip-types adaptacion/tests/verify-edit-regional-numbers.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-edit-dialog-titles.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-about-and-draw-locales.mjs circuitjs-src/ts
@@ -120,10 +122,16 @@ jobs:
           # Ubuntu runner already provides the browser runtime libraries.
           npx playwright install chromium
 
-      - name: Verificar portada, simulador y Acerca de
+      - name: Iniciar servidor de pruebas
         run: |
           python3 -m http.server 8767 --directory site-root >/tmp/circuitjgr-http.log 2>&1 &
           sleep 2
+
+      - name: Verificar buscador de componentes
+        run: node adaptacion/tests/verify-component-search-ui.mjs
+
+      - name: Verificar portada, simulador y Acerca de
+        run: |
           node adaptacion/tests/verify-seven-seg-presets-ui.mjs
           node adaptacion/tests/verify-counters-ui.mjs
           node adaptacion/tests/verify-tabs-experimental-ui.mjs
