@@ -626,6 +626,8 @@ body{background:white}
    pendingPaste:null,closeAfterSave:false,openedFile,intercepted:false,sidebarVisible:layoutMode!=="vertical"};
   const section=document.createElement("section");
   section.className="session";section.dataset.tabId=t.id;
+  // Conservar el color de fondo elegido mientras se prepara el nuevo motor.
+  section.style.background=apiFor(active)?.getWhiteBackground?.()===false?"#000":"#fff";
   section.setAttribute("aria-hidden","true");
   const iframe=document.createElement("iframe");
   iframe.dataset.tabId=t.id;iframe.title="Circuit JGR: "+name;
@@ -670,6 +672,12 @@ body{background:white}
     a.setSimRunning(t.visible&&t.resume);
     if(options.duplicate){app.unsavedChanges=true;app.savedDump=null;app.savedDumpPending=false;}
     renderTabs();resizeSessions();
+    // Revelar solo después de montar la interfaz y ajustar el lienzo.
+    requestAnimationFrame(()=>{
+     if(!find(t.id))return;
+     positionStrip(t);app.ui.setCanvasSize();app.ui.repaint();
+     section.classList.add("ready");
+    });
     if(t===active)revealTab(t,t);
     message("");
    }catch(error){
