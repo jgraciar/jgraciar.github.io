@@ -26,7 +26,11 @@ const snapshot=page=>page.evaluate(()=>{
   tooltip:[...app.ui.toolbar.element.querySelectorAll('[title]')].map(el=>el.title)
  };
 });
-const state=page=>page.evaluate(()=>({xml:window.CircuitJS1.exportCircuit().split('\n').slice(1).join('\n'),time:window.CircuitJS1.getTime(),running:window.CircuitJS1.isRunning(),name:window.__CircuitJGRExperimentalApp.ui.titleLabel.textContent}));
+// TextElm recomputes its bounding-box endpoint on the first canvas paint.
+// Retain the actual text position/content and every electrical element attribute.
+const circuitState=frame=>frame.evaluate(()=>window.CircuitJS1.exportCircuit().split('\n').slice(1).join('\n')
+ .replace(/(<x\b[^>]*\bx=")(-?\d+) (-?\d+) -?\d+ -?\d+("[^>]*>)/g,'$1$2 $3 $2 $3$4'));
+const state=async page=>({...await page.evaluate(()=>({time:window.CircuitJS1.getTime(),running:window.CircuitJS1.isRunning(),name:window.__CircuitJGRExperimentalApp.ui.titleLabel.textContent})),xml:await circuitState(page)});
 function differences(actual,expected,path='',result=[]){
  if(actual===expected)return result;
  if(actual&&expected&&typeof actual==='object'&&typeof expected==='object'){
@@ -64,14 +68,14 @@ try{
  await tabs.waitForFunction(()=>window.JGRTabsExperimental.list().length===2&&window.JGRTabsExperimental.list().every(t=>t.ready),null,{timeout:90000});
  const frames=tabs.frames().filter(f=>f.url().includes('circuitjgr-core.html'));
  for(const frame of frames)await frame.evaluate(xml=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit(xml,false);window.localeTabApi=window.CircuitJS1;},fixture);
- const original=await Promise.all(frames.map(f=>f.evaluate(()=>window.CircuitJS1.exportCircuit().split('\n').slice(1).join('\n'))));
+ const original=await Promise.all(frames.map(circuitState));
  const active=tabs.frameLocator('iframe[data-tab-id="jgr-2"]');
  await active.locator('.lab-start-settings').click();await active.locator('#lab-start-language').selectOption('es');await active.locator('#lab-start-accept').click();
  await tabs.waitForFunction(()=>[...document.querySelectorAll('iframe')].every(f=>f.contentWindow.CircuitJS1?.getLanguage()==='es'));
  for(const [i,frame]of frames.entries()){
   assert.equal(await frame.locator('#jgr-sidebar-toggle').textContent(),workspaceLabel('hide','es'));
   assert.equal(await frame.locator('#add-tab').getAttribute('title'),workspaceLabel('new','es'));
-  assert.equal(await frame.evaluate(()=>window.CircuitJS1.exportCircuit().split('\n').slice(1).join('\n')),original[i]);
+  assert.equal(await circuitState(frame),original[i]);
   assert(await frame.evaluate(()=>window.CircuitJS1===window.localeTabApi&&!window.CircuitJS1.isRunning()));
  }
  await active.locator('.lab-start-settings').click();assert.equal(await active.locator('#lab-start-language').inputValue(),'es');
