@@ -131,6 +131,7 @@ jobs:
           node adaptacion/tests/verify-scope-status-ui.mjs
           node adaptacion/tests/verify-scope-enhancements-ui.mjs
           node adaptacion/tests/verify-teaching-examples-ui.mjs
+          node adaptacion/tests/inspect-jk-example-behavior.mjs
           node adaptacion/tests/verify-menu-viewport-ui.mjs
           node adaptacion/tests/verify-circuits-jgr-root.mjs site-root
           CIRCUIT_URL=http://127.0.0.1:8767/circuitjgr-core.html FALSTAD_EXAMPLES=circuitjs-src/ts/public/circuits CHECK_REPORT=/tmp/project-checks node adaptacion/tests/verify-project-pending.mjs
