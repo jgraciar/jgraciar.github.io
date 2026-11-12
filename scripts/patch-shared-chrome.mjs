@@ -14,5 +14,7 @@ writeFileSync(p,s);
 p=join(dir,'Toolbar.ts');s=readFileSync(p,'utf8');
 s=s.replace('document.body.appendChild(paletteContainer);','this.element.ownerDocument.body.appendChild(paletteContainer);');
 s=s.replace('UIManager.theUI.mouse.beginToolbarDrag(command.getItemName(), mde.clientX, mde.clientY);', 'UIManager.theUI.mouse.beginToolbarDrag(command.getItemName(), mde.clientX - (iconLabel.ownerDocument!==document ? window.frameElement!.getBoundingClientRect().left : 0), mde.clientY - (iconLabel.ownerDocument!==document ? window.frameElement!.getBoundingClientRect().top : 0));');
+s=s.replaceAll("document.dispatchEvent(new MouseEvent('mousemove', { clientX: t.clientX, clientY: t.clientY", "document.dispatchEvent(new MouseEvent('mousemove', { clientX: t.clientX-((window as any).__JGRSharedChrome?window.frameElement!.getBoundingClientRect().left:0), clientY: t.clientY-((window as any).__JGRSharedChrome?window.frameElement!.getBoundingClientRect().top:0)");
+s=s.replaceAll("document.dispatchEvent(new MouseEvent('mouseup', { clientX: t.clientX, clientY: t.clientY", "document.dispatchEvent(new MouseEvent('mouseup', { clientX: t.clientX-((window as any).__JGRSharedChrome?window.frameElement!.getBoundingClientRect().left:0), clientY: t.clientY-((window as any).__JGRSharedChrome?window.frameElement!.getBoundingClientRect().top:0)");
 writeFileSync(p,s);
 console.log('OK: shared native menu and toolbar support without replacing command handlers');

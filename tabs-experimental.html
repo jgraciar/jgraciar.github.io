@@ -502,6 +502,8 @@ body{background:white}
   // La confirmación de salida ya se ha gestionado en esta interfaz.
   const app=appFor(t);if(app)app.unsavedChanges=false;
   tabs.splice(i,1);
+  if(app){for(const node of [app.menus.menuBar,app.ui.toolbar.element,t.strip])if(node?.ownerDocument===document)app.ui.layoutPanel.append(node);}
+  for(const palette of t.palettes||[])if(palette.ownerDocument===document)t.frame.contentDocument.body.append(palette);
   t.frame.src="about:blank";
   t.section.remove();
   if(wasActive){
