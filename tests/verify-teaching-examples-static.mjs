@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
@@ -6,10 +7,14 @@ assert(dir&&repo);
 const root=join(repo,'examples','circuit-jgr');
 const manifest=JSON.parse(readFileSync(join(root,'manifest.json'),'utf8'));
 const list=readFileSync(join(dir,'public','setuplist.txt'),'utf8');
-assert.equal(manifest.length,48);
+assert.equal(manifest.length,104);
 assert.equal(list.split('+Circuit JGR\n').length-1,1);
 for(const cat of ['comb','feedback','bistable','counter'])assert(manifest.some(x=>x.category===cat));
 const typePaths={
+ dc:['Electrotecnia','Corriente continua'],
+ transient:['Electrotecnia','Condensadores y transitorios'],
+ ac:['Electrotecnia','Corriente alterna','Monofásica'],
+ threephase:['Electrotecnia','Corriente alterna','Trifásica'],
  sop:['Lógica combinacional','Suma de productos (SOP)'],
  pos:['Lógica combinacional','Producto de sumas (POS)'],
  mapa:['Lógica combinacional','Mapas de Karnaugh'],
@@ -41,6 +46,7 @@ for(let i=start;i<lines.length;i++){
 for(const type of Object.keys(typePaths))assert(manifest.some(m=>m.type===type),'Tipo no representado: '+type);
 for(const item of manifest){
  const a=readFileSync(join(root,item.file)),b=readFileSync(join(dir,'public','circuits','jgr',item.file));
+ if(item.sha256)assert.equal(createHash('sha256').update(a).digest('hex'),item.sha256,'Original alterado: '+item.file);
  assert(a.equals(b),'Contenido alterado: '+item.file);
  const entry=entries.get('jgr/'+item.file);
  assert(entry,'Falta el circuito en el índice: '+item.file);
@@ -54,5 +60,5 @@ for(const name of integrated){
  assert.deepEqual(e.path,['Lógica secuencial','Contadores','Circuitos integrados'],
   'Ejemplo integrado mal clasificado: '+name);
 }
-assert.equal(entries.size,51,'El índice debe contener 48 ejemplos docentes y 3 circuitos integrados');
-console.log('OK: 51 circuitos únicos ordenados por tipo; 48 XML preservados y 3 integrados con sus títulos originales.');
+assert.equal(entries.size,107,'El índice debe contener 104 ejemplos docentes y 3 circuitos integrados');
+console.log('OK: 107 circuitos únicos ordenados por tipo; 104 archivos TXT/XML preservados y 3 integrados con sus títulos originales.');

@@ -6,6 +6,7 @@ const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({locale:'es-ES',viewport:{width:1450,height:900}});
  const errors=[];
+ page.on('dialog',async d=>{errors.push(d.message());await d.dismiss();});
  page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>localStorage.setItem('labStartConfigured','1'));
  await page.goto('http://127.0.0.1:8767/circuitjgr-core.html?lang=es');
@@ -16,9 +17,15 @@ try{
    const res=await fetch('/circuitjs/circuits/jgr/'+encodeURIComponent(file));
    if(!res.ok)throw Error(file+': HTTP '+res.status);
    const xml=await res.text();
-   const root=new DOMParser().parseFromString(xml,'application/xml').documentElement;
-   if(root.tagName!=='cir')throw Error(file+': XML no válido');
-   const expected=[...root.children].filter(e=>!['o','h','adj'].includes(e.tagName)).length;
+   let expected;
+   if(xml.trimStart().startsWith('<')){
+    const root=new DOMParser().parseFromString(xml,'application/xml').documentElement;
+    if(root.tagName!=='cir')throw Error(file+': XML no válido');
+    expected=[...root.children].filter(e=>!['o','h','adj'].includes(e.tagName)).length;
+   }else{
+    const metadata=new Set(['$','o','h','!','%','?','B','"','&','.']);
+    expected=xml.split(/\r?\n/).filter(line=>line.trim()&&!metadata.has(line.trim().split(/\s+/)[0])).length;
+   }
    window.CircuitJS1.setSimRunning(false);
    window.CircuitJS1.importCircuit(xml,false);
    return {expected,actual:[...window.CircuitJS1.getElements()].length,roundTrip:window.CircuitJS1.exportCircuit().includes('<cir')};
@@ -28,5 +35,5 @@ try{
   assert(data.roundTrip,item.file+': no se puede exportar');
  }
  assert.deepEqual(errors,[]);
- console.log('OK: 48 ejemplos docentes accesibles, importables y exportables.');
+ console.log('OK: 104 ejemplos docentes accesibles, importables y exportables.');
 }finally{await browser.close();}

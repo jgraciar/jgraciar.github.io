@@ -286,5 +286,453 @@
     "category": "comb",
     "label": "Práctica. Circuito lógico A, B y C",
     "type": "logic"
+  },
+  {
+    "file": "act.-comprobacion-7.1.txt",
+    "category": "electrotechnics",
+    "label": "Act. Comprobación 7.1",
+    "type": "dc",
+    "source": "Act. Comprobación 7.1.txt",
+    "sha256": "6d4e4be6e7d3089ca97c776b585ddb475314f75fcd5e4ae08f77644e4741cd51"
+  },
+  {
+    "file": "act.-comprobacion-7.2.txt",
+    "category": "electrotechnics",
+    "label": "Act. Comprobación 7.2",
+    "type": "dc",
+    "source": "Act. Comprobación 7.2.txt",
+    "sha256": "5cda754ed689d34e64f9a684c9e62303eb268c20acda55c38212e62bc0dd3ff9"
+  },
+  {
+    "file": "act.-comprobacion-7.3.txt",
+    "category": "electrotechnics",
+    "label": "Act. Comprobación 7.3",
+    "type": "dc",
+    "source": "Act. Comprobación 7.3.txt",
+    "sha256": "8b179954e1c63698963729e09fe63cbbf7aecf2a5a7bffa420f400d654a21f31"
+  },
+  {
+    "file": "act.-comprobacion-7.4.txt",
+    "category": "electrotechnics",
+    "label": "Act. Comprobación 7.4",
+    "type": "dc",
+    "source": "Act. Comprobación 7.4.txt",
+    "sha256": "28c8cf1bc476be9209f4ed7fec26f73a4c738e1a0156a34b2bd3304a7dd1a7df"
+  },
+  {
+    "file": "act.-comprobacion-7.5.txt",
+    "category": "electrotechnics",
+    "label": "Act. Comprobación 7.5",
+    "type": "dc",
+    "source": "Act. Comprobación 7.5.txt",
+    "sha256": "b09b3fa5b6471a78dd883056321e5a9c60e71003b0e616fac7fcd55b3f8dcd9d"
+  },
+  {
+    "file": "act.-comprobacion-7.6.txt",
+    "category": "electrotechnics",
+    "label": "Act. Comprobación 7.6",
+    "type": "dc",
+    "source": "Act. Comprobación 7.6.txt",
+    "sha256": "ead13d55ce6729215c7f2fd1e328b6d804d4411fe3c63acc7dadd9817aa6eb50"
+  },
+  {
+    "file": "act.-evaluacion-propuesta-de-ampliacion-7.1.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Propuesta de Ampliación 7.1",
+    "type": "dc",
+    "source": "Act. Evaluación Propuesta de Ampliación 7.1.txt",
+    "sha256": "eda34097265084274d06b907032fa54ab599f3850e0fa7c9b0345782fc3d9f62"
+  },
+  {
+    "file": "act.-evaluacion-propuesta-de-ampliacion-7.2.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Propuesta de Ampliación 7.2",
+    "type": "dc",
+    "source": "Act. Evaluación Propuesta de Ampliación 7.2.txt",
+    "sha256": "4f3a9e9527635b0ac43a24be6640085ba2e9c05c8359b19962919b893eb0e779"
+  },
+  {
+    "file": "act.-evaluacion-propuesta-de-ampliacion-7.3.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Propuesta de Ampliación 7.3",
+    "type": "dc",
+    "source": "Act. Evaluación Propuesta de Ampliación 7.3.txt",
+    "sha256": "d072189b7277a07c5873ec88f30058714419e5e935e5c32fdd1f131553dc9731"
+  },
+  {
+    "file": "act.-evaluacion-propuesta-de-ampliacion-7.13.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Propuesta de Ampliación 7.13",
+    "type": "dc",
+    "source": "Act. Evaluación Propuesta de Ampliación 7.13.txt",
+    "sha256": "a5e1245aa95d4825743501056fff6482b296e454ce5a0062903f65f27ddf5a66"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.1.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.1",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.1.txt",
+    "sha256": "e69b56e8c94b9010e50e9589e661e4cae9ae66e07b347cb74904487cb818b7dd"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.2.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.2",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.2.txt",
+    "sha256": "df221ec84a38baf39db3228b52dd19d0e3a32bc50f8d0bea7e8f443e938ec445"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.3.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.3",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.3.txt",
+    "sha256": "b188e8f8c68a47d72ee09b48e88fe8fe52e75435db3d6dda1aa0f1fd5dfe146f"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.4.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.4",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.4.txt",
+    "sha256": "c6941b00ddad70961dc15d1790e3a99b498e3bf008b943a07cead9ef5fd6ffee"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.5.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.5",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.5.txt",
+    "sha256": "6dd5a8132bfc006438e3cd4c29dbe28da91e66231f1335121ba31ed6266a5f7c"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.6.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.6",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.6.txt",
+    "sha256": "fb12da31564648ba6fa7a89512bb48e08a9f84bd3409641473da174a7d570c41"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.7.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.7",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.7.txt",
+    "sha256": "708c6372745d414935b45947487979f5e66b26ffbac42c6e8cdb03b7828b1b79"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.9.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.9",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.9.txt",
+    "sha256": "ba44f6bacc1cc851de15182770aaa1a741866c3549dfe398c55094e5dc1567e6"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.10.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.10",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.10.txt",
+    "sha256": "2b2f510c373e512c5ffa809b897ded8969c8d966a60410da15c0ca43ee41cf2c"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.11.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.11",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.11.txt",
+    "sha256": "ccc12e54bc31e141b3fc1db9c552d205ba114964dd6db4082aa42da2db7e5ec6"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.12.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.12",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.12.txt",
+    "sha256": "e04f0749a1cc8da3376581b817fd87beca22baaa8d7fe3d3a8bdc096849a8e2a"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-7.13.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 7.13",
+    "type": "dc",
+    "source": "Act. Evaluación Resuelta 7.13.txt",
+    "sha256": "ca26e072ee68013eace2d9003f45de73744270406f63c906cd36446f6b888949"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-9.3.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 9.3",
+    "type": "transient",
+    "source": "Act. Evaluación Resuelta 9.3.txt",
+    "sha256": "30b6ac45120628c7ef28ede2cc0233dafff5f7ae2be9f3f76fd1c3c7e3e38160"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-13.1.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 13.1",
+    "type": "ac",
+    "source": "Act. Evaluación Resuelta 13.1.txt",
+    "sha256": "781d5682c722746152b6a0a6ed105e2ba6f6b7cf1fd79f7aaccb2b2ee7efb36d"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-13.2.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 13.2",
+    "type": "ac",
+    "source": "Act. Evaluación Resuelta 13.2.txt",
+    "sha256": "d8cec28ad2b4e550f216778543ac57b075acb614bcee902b5d7b3a7b54ef574d"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-14.6.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 14.6",
+    "type": "ac",
+    "source": "Act. Evaluación Resuelta 14.6.txt",
+    "sha256": "e7d7be545e464a0b39a5d311646455e243b4598af4fc28f9f888b452b8967269"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-14.12.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 14.12",
+    "type": "ac",
+    "source": "Act. Evaluación Resuelta 14.12.txt",
+    "sha256": "5446cc752a718c110110c6e477be1625f9fb2e6da89b0d8bc85806fb3578cc08"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-14.15.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 14.15",
+    "type": "ac",
+    "source": "Act. Evaluación Resuelta 14.15.txt",
+    "sha256": "7f1a56e0c796e0418e1172af7919cfe03d530d80ab675c704d23113ac0f12a41"
+  },
+  {
+    "file": "act.-evaluacion-resuelta-14.20.txt",
+    "category": "electrotechnics",
+    "label": "Act. Evaluación Resuelta 14.20",
+    "type": "ac",
+    "source": "Act. Evaluación Resuelta 14.20.txt",
+    "sha256": "e3b8efe1fcd100da18fcdff976b4715566448b0b03ab1ed5f384618f6cea19db"
+  },
+  {
+    "file": "act.-propuesta-7.1a.txt",
+    "category": "electrotechnics",
+    "label": "Act. Propuesta 7.1a",
+    "type": "dc",
+    "source": "Act. Propuesta 7.1a.txt",
+    "sha256": "a4d7cbf2cd6a69818a81fa3985b93440a31ce7202faf98a5a3655c3672cc766b"
+  },
+  {
+    "file": "act.-propuesta-7.1b.txt",
+    "category": "electrotechnics",
+    "label": "Act. Propuesta 7.1b",
+    "type": "dc",
+    "source": "Act. Propuesta 7.1b.txt",
+    "sha256": "066c66774bb203568fcab170a53b901afafe317affc6caa6ba75c62bcca914ac"
+  },
+  {
+    "file": "act.-propuesta-7.1c.txt",
+    "category": "electrotechnics",
+    "label": "Act. Propuesta 7.1c",
+    "type": "dc",
+    "source": "Act. Propuesta 7.1c.txt",
+    "sha256": "5f4caec92b25038e3fec6adef82b72f63651ae0064b03b1aecf853760eafb960"
+  },
+  {
+    "file": "act.-propuesta-7.2.txt",
+    "category": "electrotechnics",
+    "label": "Act. Propuesta 7.2",
+    "type": "dc",
+    "source": "Act. Propuesta 7.2.txt",
+    "sha256": "eab7d6a364c3495e38795972ba93520054f74876af90648f8bdc82bda0ac2073"
+  },
+  {
+    "file": "act.-propuesta-9.1c.txt",
+    "category": "electrotechnics",
+    "label": "Act. Propuesta 9.1c",
+    "type": "transient",
+    "source": "Act. Propuesta 9.1c.txt",
+    "sha256": "5ae1114c778e3b9f3ee6f25252ebbbac8f56171aae087be59b7ff248d5c5d13d"
+  },
+  {
+    "file": "act.-propuesta-13.1.txt",
+    "category": "electrotechnics",
+    "label": "Act. Propuesta 13.1",
+    "type": "ac",
+    "source": "Act. Propuesta 13.1.txt",
+    "sha256": "85de7dcf08dcccf3da87bcf17221e68262e043b7637367df75ed8065b0eb24f9"
+  },
+  {
+    "file": "act.-propuesta-14.2.txt",
+    "category": "electrotechnics",
+    "label": "Act. Propuesta 14.2",
+    "type": "ac",
+    "source": "Act. Propuesta 14.2.txt",
+    "sha256": "30e9d04310b47ec3b9cda64a53b680e5d0ed6b7ab52a6f83013eb117d862d89e"
+  },
+  {
+    "file": "act.-propuesta-14.3.txt",
+    "category": "electrotechnics",
+    "label": "Act. Propuesta 14.3",
+    "type": "ac",
+    "source": "Act. Propuesta 14.3.txt",
+    "sha256": "da656664dc261c7a4a382f3282ea82963450f245cb3085cc1195e9da15e67b19"
+  },
+  {
+    "file": "act.-resuelta-6.10.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 6.10",
+    "type": "dc",
+    "source": "Act. Resuelta 6.10.txt",
+    "sha256": "b04aa94f9650da127ec1a7186c133eefd3324ab06283cc0f72df592bd56f2dcd"
+  },
+  {
+    "file": "act.-resuelta-7.1.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 7.1",
+    "type": "dc",
+    "source": "Act. Resuelta 7.1.txt",
+    "sha256": "ef1a66e9a108dfd63efdc93114345b9e9c8b5402dbb136a0b2d5f8b72e76574c"
+  },
+  {
+    "file": "act.-resuelta-7.2.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 7.2",
+    "type": "dc",
+    "source": "Act. Resuelta 7.2.txt",
+    "sha256": "2632c6362528ca11fb93623cb9e02bd8f91cf82ed9294b1a9b039dca776ad140"
+  },
+  {
+    "file": "act.-resuelta-7.3.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 7.3",
+    "type": "dc",
+    "source": "Act. Resuelta 7.3.txt",
+    "sha256": "cde559b2a9fe663e5ad65a949b485f1d5a2bb605d42349a10f35cc859a894b47"
+  },
+  {
+    "file": "act.-resuelta-7.4.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 7.4",
+    "type": "dc",
+    "source": "Act. Resuelta 7.4.txt",
+    "sha256": "d937bd2159e9f359cabcf914e859909d1d8eafac1748ee5f2e68ebf9f79dec1f"
+  },
+  {
+    "file": "act.-resuelta-7.5.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 7.5",
+    "type": "dc",
+    "source": "Act. Resuelta 7.5.txt",
+    "sha256": "aeebfcd2cf0e856f59863c04baa39fb0bad6aa5184ed001afeba33e71778d9c6"
+  },
+  {
+    "file": "act.-resuelta-7.6.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 7.6",
+    "type": "dc",
+    "source": "Act. Resuelta 7.6.txt",
+    "sha256": "daa9b4e0f3543d7466e499cb35d4bbe95a8ee160996c9e3eeb1bac9ccde10715"
+  },
+  {
+    "file": "act.-resuelta-7.7.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 7.7",
+    "type": "dc",
+    "source": "Act. Resuelta 7.7.txt",
+    "sha256": "d0fa19124a219567c552ed519bee77ce885e5d7ececf7e740ac441fbdcb4abdd"
+  },
+  {
+    "file": "act.-resuelta-7.8.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 7.8",
+    "type": "dc",
+    "source": "Act. Resuelta 7.8.txt",
+    "sha256": "6734ec1ea7f73055d74833c366b65c60f1fef1be9d1e26ae75e97f4f5f09571d"
+  },
+  {
+    "file": "act.-resuelta-7.9.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 7.9",
+    "type": "dc",
+    "source": "Act. Resuelta 7.9.txt",
+    "sha256": "85372ea7312c83559759fc426c8306755a4248683f388cebb4d7ae82d848d2e2"
+  },
+  {
+    "file": "act.-resuelta-7.10.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 7.10",
+    "type": "dc",
+    "source": "Act. Resuelta 7.10.txt",
+    "sha256": "ca9312fa12fe3501c371bfa1c113c2db3cd75844388a08c736cfe03f94cd59e8"
+  },
+  {
+    "file": "act.-resuelta-13.5.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 13.5",
+    "type": "ac",
+    "source": "Act. Resuelta 13.5.txt",
+    "sha256": "d14334d8b3afa2709ce4ab548f48518829eeaca6ef51df4f40b2a9a657f751e3"
+  },
+  {
+    "file": "act.-resuelta-13.6.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 13.6",
+    "type": "ac",
+    "source": "Act. Resuelta 13.6.txt",
+    "sha256": "f4a01912072d430aa0ebcf91b7f6ffcb09bf477be6dd5397b6116605d790654a"
+  },
+  {
+    "file": "act.-resuelta-13.7.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 13.7",
+    "type": "ac",
+    "source": "Act. Resuelta 13.7.txt",
+    "sha256": "64af330f9fd4ef67187bf40c489cb432f8c130fa3773eafeb59a87917a122bbb"
+  },
+  {
+    "file": "act.-resuelta-13.8.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 13.8",
+    "type": "ac",
+    "source": "Act. Resuelta 13.8.txt",
+    "sha256": "8de146b733a1e04f8c9753c5ecc59ac3aaefca4fb99a83724a22c540bf163e40"
+  },
+  {
+    "file": "act.-resuelta-14.5.txt",
+    "category": "electrotechnics",
+    "label": "Act. Resuelta 14.5",
+    "type": "ac",
+    "source": "Act. Resuelta 14.5.txt",
+    "sha256": "60576017225c598637dce2c6eb63062f95e26fde30ce94ead94b3f7d23397afb"
+  },
+  {
+    "file": "ejemplo-circuito-mallas.txt",
+    "category": "electrotechnics",
+    "label": "Ejemplo circuito mallas",
+    "type": "dc",
+    "source": "Ejemplo circuito mallas.txt",
+    "sha256": "a63b64521e2ef16bcb2ae8c0b2e53817b7c8d779011434632ff44065e56c831f"
+  },
+  {
+    "file": "ejemplo-circuito-rlc-alterna.txt",
+    "category": "electrotechnics",
+    "label": "Ejemplo Circuito RLC alterna",
+    "type": "ac",
+    "source": "Ejemplo Circuito RLC alterna.txt",
+    "sha256": "d8c3928a3d5572db75e083206dfb4b64841ca05f984d35fcdcc997e2e32a31a6"
+  },
+  {
+    "file": "sistema-iii-n.txt",
+    "category": "electrotechnics",
+    "label": "Sistema III-N",
+    "type": "threephase",
+    "source": "Sistema III-N.txt",
+    "sha256": "f0c377a69d1438dbf8a958b3797aefd015db761292465c8bc9d5fc04092977c7"
   }
 ]

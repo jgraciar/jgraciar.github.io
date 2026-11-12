@@ -5,18 +5,18 @@ const [dir,repo]=process.argv.slice(2);
 assert(dir&&repo,'Uso: add-teaching-examples.mjs <ts-src> <repo>');
 const src=join(repo,'examples','circuit-jgr');
 const manifest=JSON.parse(readFileSync(join(src,'manifest.json'),'utf8'));
-assert.equal(manifest.length,48,'Deben conservarse los 48 ejemplos docentes');
-const types=['sop','pos','mapa','logic','encoder','decoder','mux','feedback','rs','jk','d','t','counter'];
+assert.equal(manifest.length,104,'Deben conservarse los 104 ejemplos docentes');
+const types=['sop','pos','mapa','logic','encoder','decoder','mux','feedback','rs','jk','d','t','counter','dc','transient','ac','threephase'];
 assert(manifest.every(x=>types.includes(x.type)),'Hay ejemplos sin clasificar');
 assert.equal(new Set(manifest.map(x=>x.file)).size,manifest.length,'Ejemplos docentes duplicados');
 const dest=join(dir,'public','circuits','jgr');
 mkdirSync(dest,{recursive:true});
 for(const item of manifest){
  assert(/^[a-zA-Z0-9._-]+\.txt$/.test(item.file));
- assert(item.label&&['comb','feedback','bistable','counter'].includes(item.category));
+ assert(item.label&&['comb','feedback','bistable','counter','electrotechnics'].includes(item.category));
  const from=join(src,item.file),to=join(dest,item.file);
  const original=readFileSync(from,'utf8');
- assert(/^<cir(?:\s|>)/.test(original)&&/<\/cir>\s*$/.test(original),'XML incorrecto: '+item.file);
+ assert((/^<cir(?:\s|>)/.test(original)&&/<\/cir>\s*$/.test(original))||/^\$\s/.test(original),'Circuito incorrecto: '+item.file);
  copyFileSync(from,to);
  assert.equal(readFileSync(to,'utf8'),original,'Se ha modificado el circuito original: '+item.file);
 }
@@ -35,6 +35,14 @@ for(const name of previousFiles){
 }
 const withoutTopLevelCopies=originalLines.filter(line=>!previous.includes(line)).join('\n');
 const extra=[
+ ...group('Electrotecnia',[
+  ...group('Corriente continua',byType('dc')),
+  ...group('Condensadores y transitorios',byType('transient')),
+  ...group('Corriente alterna',[
+   ...group('Monofásica',byType('ac')),
+   ...group('Trifásica',byType('threephase'))
+  ])
+ ]),
  ...group('Lógica combinacional',[
   ...group('Suma de productos (SOP)',byType('sop')),
   ...group('Producto de sumas (POS)',byType('pos')),
@@ -67,4 +75,4 @@ for(const item of manifest)assert.equal(list.split('jgr/'+item.file+' '+item.lab
  'El ejemplo debe aparecer exactamente una vez en el menú: '+item.file);
 for(const previousLine of previous)assert.equal(list.split(previousLine).length-1,1,
  'El ejemplo de integrado debe aparecer exactamente una vez: '+previousLine);
-console.log('OK: 51 ejemplos en Circuit JGR clasificados por función (48 docentes y 3 integrados), sin modificar los archivos ni sus nombres.');
+console.log('OK: 107 ejemplos en Circuit JGR clasificados por función (104 docentes y 3 integrados), sin modificar los archivos ni sus nombres.');

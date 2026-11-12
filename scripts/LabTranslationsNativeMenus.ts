@@ -209,3 +209,33 @@ for(const [code,row] of Object.entries(teachingGroups)){
  if(values.length!==teachingGroupKeys.length)throw Error('Categorías docentes incompletas: '+code);
  Object.assign(nativeMenuExtensions[code]??={},Object.fromEntries(teachingGroupKeys.map((key,i)=>[key,values[i]])));
 }
+const electricalGroupKeys=['Electrotecnia','Corriente continua','Condensadores y transitorios','Corriente alterna','Monofásica','Trifásica'];
+const electricalGroups:Record<string,string>={
+ en:'Electrical engineering|Direct current|Capacitors and transients|Alternating current|Single-phase|Three-phase',
+ es:'Electrotecnia|Corriente continua|Condensadores y transitorios|Corriente alterna|Monofásica|Trifásica',
+ ca:'Electrotècnia|Corrent continu|Condensadors i transitoris|Corrent altern|Monofàsic|Trifàsic',
+ 'ca-es-valencia':'Electrotècnia|Corrent continu|Condensadors i transitoris|Corrent altern|Monofàsic|Trifàsic',
+ gl:'Electrotecnia|Corrente continua|Condensadores e transitorios|Corrente alterna|Monofásica|Trifásica',
+ eu:'Elektroteknia|Korronte zuzena|Kondentsadoreak eta iragankorrak|Korronte alternoa|Monofasikoa|Trifasikoa',
+ fr:'Électrotechnique|Courant continu|Condensateurs et transitoires|Courant alternatif|Monophasé|Triphasé',
+ de:'Elektrotechnik|Gleichstrom|Kondensatoren und Übergangsvorgänge|Wechselstrom|Einphasig|Dreiphasig',
+ it:'Elettrotecnica|Corrente continua|Condensatori e transitori|Corrente alternata|Monofase|Trifase',
+ pt:'Eletrotecnia|Corrente contínua|Condensadores e transitórios|Corrente alternada|Monofásica|Trifásica',
+ nl:'Elektrotechniek|Gelijkstroom|Condensatoren en overgangsverschijnselen|Wisselstroom|Eenfasig|Driefasig',
+ sv:'Elektroteknik|Likström|Kondensatorer och transienter|Växelström|Enfas|Trefas',
+ da:'Elektroteknik|Jævnstrøm|Kondensatorer og transienter|Vekselstrøm|Enfaset|Trefaset',
+ nb:'Elektroteknikk|Likestrøm|Kondensatorer og transienter|Vekselstrøm|Enfaset|Trefaset',
+ fi:'Sähkötekniikka|Tasavirta|Kondensaattorit ja transientit|Vaihtovirta|Yksivaiheinen|Kolmivaiheinen',
+ pl:'Elektrotechnika|Prąd stały|Kondensatory i stany przejściowe|Prąd przemienny|Jednofazowy|Trójfazowy',
+ csx:'Elektrotechnika|Stejnosměrný proud|Kondenzátory a přechodové jevy|Střídavý proud|Jednofázový|Třífázový',
+ ru:'Электротехника|Постоянный ток|Конденсаторы и переходные процессы|Переменный ток|Однофазные цепи|Трёхфазные цепи',
+ zh:'电工技术|直流电路|电容器与暂态|交流电路|单相|三相',
+ 'zh-tw':'電工技術|直流電路|電容器與暫態|交流電路|單相|三相',
+ ja:'電気工学|直流回路|コンデンサと過渡現象|交流回路|単相|三相',
+ kr:'전기공학|직류 회로|커패시터와 과도 현상|교류 회로|단상|삼상'
+};
+for(const [code,row] of Object.entries(electricalGroups)){
+ const values=row.split('|');
+ if(values.length!==electricalGroupKeys.length)throw Error('Categorías eléctricas incompletas: '+code);
+ Object.assign(nativeMenuExtensions[code]??={},Object.fromEntries(electricalGroupKeys.map((key,i)=>[key,values[i]])));
+}
