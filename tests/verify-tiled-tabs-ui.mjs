@@ -4,9 +4,10 @@ const browser=await chromium.launch({headless:true});
 const sample=r=>`<cir f="0" ts="0.00005"><r x="160 160 304 160" f="0" r="${r}"/><v x="160 160 304 160" f="0" wf="0" maxv="5"/></cir>`;
 const ready=(page,n)=>page.waitForFunction(n=>window.JGRTabsExperimental?.list().length===n&&window.JGRTabsExperimental.list().every(t=>t.ready),n,{timeout:60000});
 const frame=(page,id)=>page.frameLocator(`iframe[data-tab-id="${id}"]`);
+const chrome=async page=>(await page.evaluate(()=>window.JGRTabsExperimental.getLayout()))==='single'?frame(page,await current(page)):page;
 const current=page=>page.evaluate(()=>window.JGRTabsExperimental.getActive());
 async function chooseLayout(page,mode,keyboard=false){
- const f=frame(page,await current(page));
+ const f=await chrome(page);
  await f.locator('#arrange-tabs').click();
  const menu=f.locator('#jgr-layout-menu');await menu.waitFor({state:'visible'});
  assert.equal(await f.locator('#arrange-tabs').getAttribute('aria-expanded'),'true');
@@ -22,7 +23,7 @@ const sizes=page=>page.evaluate(()=>[...document.querySelectorAll('.session')].m
  const b=s.getBoundingClientRect(),f=s.querySelector('iframe'),app=f.contentWindow.__CircuitJGRExperimentalApp;
  return {id:s.dataset.tabId,x:b.x,y:b.y,width:b.width,height:b.height,hidden:s.getAttribute('aria-hidden'),visible:getComputedStyle(s).visibility,
  canvasWidth:app.ui.canvasWidth,canvasHeight:app.ui.canvasHeight,innerWidth:f.contentWindow.innerWidth,
- mode:f.contentDocument.querySelector('#arrange-tabs').dataset.layout};
+ mode:window.JGRTabsExperimental.getLayout()};
 }));
 const clocks=page=>page.evaluate(()=>Object.fromEntries([...document.querySelectorAll('iframe')].map(f=>[f.dataset.tabId,{time:f.contentWindow.CircuitJS1.getTime(),running:f.contentWindow.CircuitJS1.isRunning()}])));
 try{
@@ -38,26 +39,41 @@ try{
   window.engines=Object.fromEntries([...document.querySelectorAll('iframe')].map(f=>[f.dataset.tabId,f.contentWindow.CircuitJS1]));
  },sample(100));
  const before=await snapshot(page);
- await chooseLayout(page,'horizontal',true);
+ await chooseLayout(page,'vertical',true);
  let boxes=await sizes(page);
- assert(boxes.every(b=>b.hidden==='false'&&b.visible==='visible'&&b.mode==='horizontal'));
+ assert(boxes.every(b=>b.hidden==='false'&&b.visible==='visible'&&b.mode==='vertical'));
  assert(boxes.every(b=>Math.abs(b.y-boxes[0].y)<1&&Math.abs(b.width-boxes[0].width)<2));
  assert(boxes[1].x>=boxes[0].x+boxes[0].width&&boxes[2].x>=boxes[1].x+boxes[1].width,'Horizontal tiles are side by side');
  assert(boxes.every(b=>b.canvasWidth>100&&b.canvasHeight>100&&Math.abs(b.width-b.innerWidth)<2));
+ assert.equal(await page.locator('#shared-chrome > nav').count(),1);
+ assert.equal(await page.locator('#shared-chrome .mainToolbar').count(),1);
  assert.deepEqual(await snapshot(page),before,'Layout changes preserve paused circuits and simulation clocks');
  // Focus in a circuit selects that session without hiding its neighbours.
  await frame(page,'jgr-2').locator('.canvasWrapper > canvas').click({position:{x:20,y:20}});
- assert.equal(await current(page),'jgr-2');assert((await sizes(page)).every(b=>b.hidden==='false'));
+ assert.equal(await current(page),'jgr-2');
+ assert.equal(await page.locator('#shared-chrome > nav').count(),1);
+ await page.locator('#shared-chrome td.gwt-MenuItem').first().click();
+ assert.equal(await page.locator('#shared-chrome td.gwt-MenuItem.open').count(),1);
+ await page.keyboard.press('Escape');
+ assert.equal(await page.locator('#shared-chrome td.gwt-MenuItem.open').count(),0);
+ const toolbarKey=await page.evaluate(()=>{
+  const app=document.querySelector('iframe[data-tab-id="jgr-2"]').contentWindow.__CircuitJGRExperimentalApp;
+  const [key,button]=[...app.ui.toolbar.highlightableButtons.entries()].find(([key])=>key.includes('Resistor'));
+  button.dataset.sharedTest='component';return key;
+ });
+ await page.locator('[data-shared-test="component"]').click();
+ assert.equal(await page.evaluate(()=>document.querySelector('iframe[data-tab-id="jgr-2"]').contentWindow.__CircuitJGRExperimentalApp.ui.mouseModeStr),toolbarKey);
+assert((await sizes(page)).every(b=>b.hidden==='false'));
  // Menu keyboard navigation and Escape leave the chosen mode intact.
- await frame(page,'jgr-2').locator('#arrange-tabs').click();
- await page.keyboard.press('Escape');assert.equal(await frame(page,'jgr-2').locator('#jgr-layout-menu').count(),0);
- assert.equal(await page.evaluate(()=>window.JGRTabsExperimental.getLayout()),'horizontal');
- await chooseLayout(page,'vertical');boxes=await sizes(page);
- assert(boxes.every(b=>Math.abs(b.x-boxes[0].x)<1&&Math.abs(b.height-boxes[0].height)<2&&b.mode==='vertical'));
+ await page.locator('#arrange-tabs').click();
+ await page.keyboard.press('Escape');assert.equal(await page.locator('#jgr-layout-menu').count(),0);
+ assert.equal(await page.evaluate(()=>window.JGRTabsExperimental.getLayout()),'vertical');
+ await chooseLayout(page,'horizontal');boxes=await sizes(page);
+ assert(boxes.every(b=>Math.abs(b.x-boxes[0].x)<1&&Math.abs(b.height-boxes[0].height)<2&&b.mode==='horizontal'));
  assert(boxes[1].y>=boxes[0].y+boxes[0].height&&boxes[2].y>=boxes[1].y+boxes[1].height,'Vertical tiles are stacked');
  assert.deepEqual(await snapshot(page),before);
  // Visual order follows tab order without recreating any simulator.
- await frame(page,'jgr-2').locator('.tab[data-tab-id="jgr-3"] .choose').press('Alt+Shift+ArrowLeft');
+ await page.locator('.tab[data-tab-id="jgr-3"] .choose').press('Alt+Shift+ArrowLeft');
  assert.deepEqual(await page.evaluate(()=>window.JGRTabsExperimental.list().map(t=>t.id)),['jgr-1','jgr-3','jgr-2']);
  boxes=await sizes(page);assert(boxes.find(b=>b.id==='jgr-3').y<boxes.find(b=>b.id==='jgr-2').y);
  assert(await page.evaluate(()=>[...document.querySelectorAll('iframe')].every(f=>window.engines[f.dataset.tabId]===f.contentWindow.CircuitJS1)));
@@ -73,19 +89,19 @@ try{
  assert.equal(boxes.filter(b=>b.hidden==='false').length,1);assert.equal(boxes.find(b=>b.hidden==='false').id,'jgr-1');
  start=await clocks(page);await page.waitForTimeout(250);end=await clocks(page);
  assert.equal(end['jgr-3'].time,start['jgr-3'].time);assert.equal(end['jgr-3'].running,false);
- await chooseLayout(page,'horizontal');end=await clocks(page);
+ await chooseLayout(page,'vertical');end=await clocks(page);
  assert.equal(end['jgr-2'].running,false);assert.equal(end['jgr-3'].running,true,'Previously running visible sessions resume');
- await (await frame(page,'jgr-1').locator('#add-tab')).click();await ready(page,4);
+ await page.locator('#add-tab').click();await ready(page,4);
  assert.equal(await page.evaluate(()=>[...document.querySelector('iframe[data-tab-id="jgr-4"]').contentWindow.CircuitJS1.getElements()].length),0);
  assert((await sizes(page)).every(b=>b.hidden==='false'));
- await frame(page,'jgr-4').locator('.tab[data-tab-id="jgr-4"] .close').click();await ready(page,3);
- assert.equal(await page.evaluate(()=>window.JGRTabsExperimental.getLayout()),'horizontal');
+ await page.locator('.tab[data-tab-id="jgr-4"] .close').click();await ready(page,3);
+ assert.equal(await page.evaluate(()=>window.JGRTabsExperimental.getLayout()),'vertical');
  await page.setViewportSize({width:390,height:844});await page.waitForTimeout(200);boxes=await sizes(page);
  assert(boxes.every(b=>b.width>=320&&b.canvasWidth>100));
- await chooseLayout(page,'vertical');boxes=await sizes(page);
+ await chooseLayout(page,'horizontal');boxes=await sizes(page);
  assert(boxes.every(b=>b.width>=320&&b.width<=390&&b.height>=280));
  for(const b of boxes){
-  const controls=await frame(page,b.id).locator('#jgr-tab-strip').evaluate(el=>['add-tab','duplicate-tab','arrange-tabs','jgr-sidebar-toggle'].map(id=>{const r=el.querySelector('#'+id).getBoundingClientRect();return r.left>=0&&r.right<=innerWidth;}));
+  const controls=await page.locator('#jgr-tab-strip').evaluate(el=>['add-tab','duplicate-tab','arrange-tabs','jgr-sidebar-toggle'].map(id=>{const r=el.querySelector('#'+id).getBoundingClientRect();return r.left>=0&&r.right<=innerWidth;}));
   assert(controls.every(Boolean),'All controls remain accessible on narrow tiles');
  }
  assert.deepEqual(errors,[]);

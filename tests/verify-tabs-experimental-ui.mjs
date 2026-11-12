@@ -117,11 +117,11 @@ try{
  assert(Math.abs((await geometry(origin)).sidebarTop-originalLayout.sidebarTop)<=1,
   "Al restaurar la barra de herramientas debe moverse también la barra lateral");
  const sidebarButton=stripOf(origin).locator("#jgr-sidebar-toggle");
- assert.equal(await sidebarButton.innerText(),"Ocultar panel lateral");
+ assert.equal(await sidebarButton.textContent(),"Ocultar panel lateral");
  await sidebarButton.click();
  const hiddenLayout=await geometry(origin);
  assert.equal(hiddenLayout.sidebarDisplay,"none");
- assert.equal(await sidebarButton.innerText(),"Mostrar panel lateral");
+ assert.equal(await sidebarButton.textContent(),"Mostrar panel lateral");
  assert(hiddenLayout.canvasWidth>originalLayout.canvasWidth+120,
   "Ocultar el panel debe recuperar el ancho del circuito");
  assert.equal(hiddenLayout.canvasLogicalWidth,Math.round(hiddenLayout.canvasWidth),
@@ -131,7 +131,7 @@ try{
  await sidebarButton.click();
  const restoredLayout=await geometry(origin);
  assert(["block","flex"].includes(restoredLayout.sidebarDisplay));
- assert.equal(await sidebarButton.innerText(),"Ocultar panel lateral");
+ assert.equal(await sidebarButton.textContent(),"Ocultar panel lateral");
  assert(Math.abs(restoredLayout.sidebarTop-restoredLayout.stripBottom)<=1);
  assert(Math.abs(restoredLayout.canvasWidth-originalLayout.canvasWidth)<=1,
   "Mostrar de nuevo el panel debe restaurar la anchura inicial del circuito");

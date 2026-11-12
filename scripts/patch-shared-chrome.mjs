@@ -1,0 +1,18 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+import {join} from 'node:path';
+const dir=process.argv[2];
+let p=join(dir,'UIManager.ts'),s=readFileSync(p,'utf8');
+s=s.replace('height -= (this.hideMenu ? 0 : UIManager.MENUBARHEIGHT);','if (!(window as any).__JGRSharedChrome) height -= (this.hideMenu ? 0 : UIManager.MENUBARHEIGHT);');
+s=s.replace('if (new URLSearchParams(window.location.search).has("jgr-tabs-prototype")) height -= 33;','if (!(window as any).__JGRSharedChrome && new URLSearchParams(window.location.search).has("jgr-tabs-prototype")) height -= 33;');
+s=s.replace('if (this.menus.toolbarCheckItem.getState())\n            height -=','if (!(window as any).__JGRSharedChrome && this.menus.toolbarCheckItem.getState())\n            height -=');
+writeFileSync(p,s);
+p=join(dir,'Menus.ts');s=readFileSync(p,'utf8');
+s=s.replaceAll("document.querySelectorAll('.gwt-MenuItem.open, .topMenuItem.open, li.hasSubmenu.open')", "((window as any).__JGRSharedChrome ? window.parent.document : document).querySelectorAll('.gwt-MenuItem.open, .topMenuItem.open, li.hasSubmenu.open')");
+s=s.replaceAll("document.querySelector('.gwt-MenuItem.open, .topMenuItem.open')", "((window as any).__JGRSharedChrome ? window.parent.document : document).querySelector('.gwt-MenuItem.open, .topMenuItem.open')");
+s=s.replace('    if (window.matchMedia', '    const window = item.ownerDocument.defaultView!; const innerWidth=window.innerWidth, innerHeight=window.innerHeight;\n    if (window.matchMedia');
+writeFileSync(p,s);
+p=join(dir,'Toolbar.ts');s=readFileSync(p,'utf8');
+s=s.replace('document.body.appendChild(paletteContainer);','this.element.ownerDocument.body.appendChild(paletteContainer);');
+s=s.replace('UIManager.theUI.mouse.beginToolbarDrag(command.getItemName(), mde.clientX, mde.clientY);', 'UIManager.theUI.mouse.beginToolbarDrag(command.getItemName(), mde.clientX - (iconLabel.ownerDocument!==document ? window.frameElement!.getBoundingClientRect().left : 0), mde.clientY - (iconLabel.ownerDocument!==document ? window.frameElement!.getBoundingClientRect().top : 0));');
+writeFileSync(p,s);
+console.log('OK: shared native menu and toolbar support without replacing command handlers');
