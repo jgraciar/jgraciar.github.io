@@ -28,14 +28,14 @@ body{background:white}
 <script>
 "use strict";
 (() => {
- const TAB_CSS="#jgr-tab-strip{position:absolute;left:0;right:0;height:33px;box-sizing:border-box;display:flex;align-items:end;gap:2px;overflow-x:auto;overflow-y:hidden;padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc;z-index:5;font-family:Arial,Helvetica,sans-serif;color:#202020}\n#jgr-tab-strip .tab{height:29px;flex:none;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:85px}\n#jgr-tab-strip .tab.active{background:white;border-color:#999}\n#jgr-tab-strip .tab.modified .choose::after{content:\" *\"}\n#jgr-tab-strip .tab button{font:inherit;background:none;border:0;color:#202020;cursor:pointer}\n#jgr-tab-strip .tab .choose{padding:5px 8px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:205px;min-width:55px}\n#jgr-tab-strip .tab .close{padding:2px 7px;font-size:17px}\n#jgr-tab-strip .tab .close:hover{color:#a50000;background:#e6d3d3}\n#jgr-tab-strip #add-tab{height:27px;min-width:30px;flex:none;font-size:19px;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #add-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #jgr-sidebar-toggle{position:sticky;right:0;z-index:2;flex:none;align-self:center;margin-left:auto;padding:4px 9px;border:1px solid #aaa;border-radius:3px;background:#f8f8f8;color:#333;font:12px Arial,Helvetica,sans-serif;white-space:nowrap;cursor:pointer}\n#jgr-tab-strip #jgr-sidebar-toggle:hover{background:#fff}\n#jgr-tab-strip button:focus-visible{outline:2px solid #225d9b;outline-offset:-2px}\n@media(max-width:600px){.layoutPanel > .triggerLabel{display:none!important}.layoutPanel > #painel{width:128px!important;z-index:4;transition:none;background:#fff;border-left:1px solid #bbb}}";
+ const TAB_CSS="#jgr-tab-strip{position:absolute;left:0;right:0;height:33px;box-sizing:border-box;display:flex;align-items:end;gap:4px;overflow:hidden;padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc;z-index:5;font-family:Arial,Helvetica,sans-serif;color:#202020}\n#jgr-tab-strip .jgr-tab-list{display:flex;flex:1 1 0;min-width:0;height:29px;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}\n#jgr-tab-strip .jgr-tab-list::-webkit-scrollbar{display:none}\n#jgr-tab-strip .tab{height:29px;flex:1 1 0;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:48px;box-sizing:border-box;user-select:none}\n#jgr-tab-strip .tab.active{background:white;border-color:#999}\n#jgr-tab-strip .tab.modified .choose::after{content:\" *\"}\n#jgr-tab-strip .tab button{font:inherit;background:none;border:0;color:#202020;cursor:pointer}\n#jgr-tab-strip .tab .choose{flex:1 1 0;min-width:0;padding:5px 4px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:grab;touch-action:none}\n#jgr-tab-strip .tab .close{flex:0 0 20px;min-width:20px;width:20px;padding:2px 0;font-size:17px}\n#jgr-tab-strip .tab .close:hover{color:#a50000;background:#e6d3d3}\n#jgr-tab-strip .tab.dragging{opacity:.5}\n#jgr-tab-strip .tab.drop-before{box-shadow:inset 3px 0 #225d9b}\n#jgr-tab-strip .tab.drop-after{box-shadow:inset -3px 0 #225d9b}\n#jgr-tab-strip #add-tab{height:29px;width:30px;min-width:30px;flex:0 0 30px;font-size:19px;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #add-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #jgr-sidebar-toggle{flex:0 0 auto;align-self:center;padding:4px 9px;border:1px solid #aaa;border-radius:3px;background:#f8f8f8;color:#333;font:12px Arial,Helvetica,sans-serif;white-space:nowrap;cursor:pointer}\n#jgr-tab-strip #jgr-sidebar-toggle svg{display:none}\n#jgr-tab-strip #jgr-sidebar-toggle:hover{background:#fff}\n#jgr-tab-strip button:focus-visible{outline:2px solid #225d9b;outline-offset:-2px}\n@media(max-width:600px){#jgr-tab-strip #jgr-sidebar-toggle{width:30px;min-width:30px;padding:3px 4px}#jgr-tab-strip #jgr-sidebar-toggle svg{display:block}#jgr-tab-strip .sidebar-label{display:none}.layoutPanel > .triggerLabel{display:none!important}.layoutPanel > #painel{width:128px!important;z-index:4;transition:none;background:#fff;border-left:1px solid #bbb}}";
  const workspace=document.querySelector("#workspace");
  const openInput=document.querySelector("#open-files");
  const notice=document.querySelector("#notice");
  const tabs=[];
- const MAX_TABS=8;
  const BLANK='<cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11"></cir>';
  let active=null, serial=0, unnamed=0, sidebarVisible=true;
+ let tabGesture=null, renderQueued=false, suppressTabClickUntil=0, dirtySignature="";
  function message(text){notice.textContent=text||"";}
  function find(id){return tabs.find(t=>t.id===id);}
  function appFor(t){try{return t?.frame.contentWindow.__CircuitJGRExperimentalApp||null;}catch{return null;}}
@@ -61,6 +61,7 @@ body{background:white}
    app.ui.layoutPanel.append(strip);
    // Los menús desplegables originales deben quedar por encima de las pestañas.
    app.menus.menuBar.style.zIndex="20";
+   doc.defaultView.addEventListener("resize",()=>{positionStrip(t);if(active)revealTab(active,t);});
   }
   positionStrip(t);
   return strip;
@@ -91,12 +92,19 @@ body{background:white}
   renderTabs();
  }
  function renderTabs(){
+  if(tabGesture){renderQueued=true;return;}
   for(const session of tabs){
    const tabsEl=ensureStrip(session);
    if(!tabsEl)continue;
    const doc=tabsEl.ownerDocument;
    tabsEl.setAttribute("aria-label",tr(session,"open"));
+   const previousScroll=tabsEl.querySelector(".jgr-tab-list")?.scrollLeft||0;
    tabsEl.replaceChildren();
+   const tabList=doc.createElement("div");tabList.className="jgr-tab-list";
+   tabList.addEventListener("wheel",event=>{
+    if(!event.deltaX&&tabList.scrollWidth>tabList.clientWidth){tabList.scrollLeft+=event.deltaY;event.preventDefault();}
+   },{passive:false});
+   tabsEl.append(tabList);
    for(const t of tabs){
     const item=doc.createElement("div");
     item.className="tab"+(t===active?" active":"")+(isModified(t)?" modified":"");
@@ -106,31 +114,114 @@ body{background:white}
     choose.textContent=t.name;choose.title=t.name;
     choose.setAttribute("aria-label",tr(session,"select",t.name));
     choose.setAttribute("aria-selected",String(t===active));
-    choose.onclick=()=>activate(t);
+    choose.setAttribute("aria-keyshortcuts","Alt+Shift+ArrowLeft Alt+Shift+ArrowRight");
+    choose.onclick=event=>{if(performance.now()<suppressTabClickUntil){event.preventDefault();event.stopPropagation();return;}activate(t);};
+    choose.onkeydown=event=>{
+     if(event.altKey&&event.shiftKey&&["ArrowLeft","ArrowRight"].includes(event.key)){
+      event.preventDefault();event.stopPropagation();
+      moveTab(t.id,tabs.indexOf(t)+(event.key==="ArrowLeft"?-1:1),session);
+     }
+    };
+    choose.onpointerdown=event=>startTabGesture(event,t,session,choose,tabList);
+    choose.oncontextmenu=event=>{event.preventDefault();event.stopPropagation();};
     const close=doc.createElement("button");
     close.type="button";close.className="close";
     close.textContent="×";close.setAttribute("aria-label",tr(session,"close",t.name));
     close.onclick=()=>requestClose(t);
     item.append(choose,close);
-    tabsEl.append(item);
+    tabList.append(item);
    }
    const plus=doc.createElement("button");
    plus.type="button";plus.id="add-tab";plus.textContent="+";
    plus.title=tr(session,"new");
    plus.setAttribute("aria-label",tr(session,"new"));
-   plus.disabled=tabs.length>=MAX_TABS;
    plus.onclick=()=>newBlank();
    tabsEl.append(plus);
    const sideToggle=doc.createElement("button");
    sideToggle.type="button";sideToggle.id="jgr-sidebar-toggle";
-   sideToggle.textContent=tr(session,sidebarVisible?"hide":"show");
-   sideToggle.setAttribute("aria-label",sideToggle.textContent);
+   const toggleLabel=tr(session,sidebarVisible?"hide":"show");
+   sideToggle.innerHTML='<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="1" fill="none" stroke="currentColor"/><path d="M13 3v14" stroke="currentColor"/></svg><span class="sidebar-label"></span>';
+   sideToggle.querySelector(".sidebar-label").textContent=toggleLabel;
+   sideToggle.setAttribute("aria-label",toggleLabel);
    sideToggle.setAttribute("aria-expanded",String(sidebarVisible));
-   sideToggle.title=sideToggle.textContent;
+   sideToggle.title=toggleLabel;
    sideToggle.onclick=toggleSidebar;
    tabsEl.append(sideToggle);
+   tabList.scrollLeft=previousScroll;
   }
   document.title="Circuit JGR";
+  dirtySignature=tabs.map(t=>t.id+":"+isModified(t)).join("|");
+ }
+ function revealTab(t,session){
+  const node=session?.frame.contentDocument?.querySelector('.tab[data-tab-id="'+t.id+'"]');
+  node?.scrollIntoView({block:"nearest",inline:"nearest"});
+ }
+ function moveTab(id,index,session=active){
+  const from=tabs.findIndex(t=>t.id===id);
+  if(from<0)return false;
+  index=Math.max(0,Math.min(tabs.length-1,index));
+  if(index===from)return false;
+  const [tab]=tabs.splice(from,1);tabs.splice(index,0,tab);
+  renderTabs();revealTab(tab,session);
+  session?.frame.contentDocument?.querySelector('.tab[data-tab-id="'+id+'"] .choose')?.focus({preventScroll:true});
+  return true;
+ }
+ function markTabDrop(gesture){
+  const {list,x,id}=gesture;
+  list.querySelectorAll('.drop-before,.drop-after').forEach(node=>node.classList.remove('drop-before','drop-after'));
+  const others=[...list.querySelectorAll('.tab')].filter(node=>node.dataset.tabId!==id);
+  const next=others.findIndex(node=>{const box=node.getBoundingClientRect();return x<box.left+box.width/2;});
+  gesture.index=next<0?others.length:next;
+  if(next>=0)others[next].classList.add('drop-before');else others.at(-1)?.classList.add('drop-after');
+ }
+ function startTabGesture(event,tab,session,button,list){
+  if(event.button!==0||tabGesture)return;
+  const gesture={id:tab.id,session,button,list,pointer:event.pointerId,startX:event.clientX,x:event.clientX,
+   scroll:list.scrollLeft,started:performance.now(),mode:null,index:tabs.indexOf(tab),raf:0};
+  tabGesture=gesture;
+  button.setPointerCapture(event.pointerId);
+  const view=button.ownerDocument.defaultView;
+  function autoScroll(){
+   if(tabGesture!==gesture||gesture.mode!=="reorder")return;
+   const box=list.getBoundingClientRect();
+   if(gesture.x<box.left+22)list.scrollLeft-=10;else if(gesture.x>box.right-22)list.scrollLeft+=10;
+   markTabDrop(gesture);gesture.raf=view.requestAnimationFrame(autoScroll);
+  }
+  function move(e){
+   if(e.pointerId!==gesture.pointer||tabGesture!==gesture)return;
+   gesture.x=e.clientX;
+   const dx=e.clientX-gesture.startX;
+   if(!gesture.mode&&Math.abs(dx)>=6){
+    gesture.mode=e.pointerType==="touch"&&performance.now()-gesture.started<250?"scroll":"reorder";
+    if(gesture.mode==="reorder"){button.closest('.tab').classList.add('dragging');autoScroll();}
+   }
+   if(gesture.mode){e.preventDefault();e.stopPropagation();}
+   if(gesture.mode==="scroll")list.scrollLeft=gesture.scroll-dx;
+   if(gesture.mode==="reorder")markTabDrop(gesture);
+  }
+  function finish(e){
+   if(tabGesture!==gesture||(e.pointerId!==undefined&&e.pointerId!==gesture.pointer))return;
+   tabGesture=null;view.cancelAnimationFrame(gesture.raf);
+   button.removeEventListener('pointermove',move);button.removeEventListener('pointerup',finish);
+   button.removeEventListener('pointercancel',finish);button.removeEventListener('lostpointercapture',cancel);
+   button.ownerDocument.removeEventListener('keydown',cancelKey,true);
+   view.removeEventListener('blur',cancel);
+   if(button.hasPointerCapture(gesture.pointer))button.releasePointerCapture(gesture.pointer);
+   list.querySelectorAll('.dragging,.drop-before,.drop-after').forEach(node=>node.classList.remove('dragging','drop-before','drop-after'));
+   if(gesture.mode)suppressTabClickUntil=performance.now()+300;
+   const queued=renderQueued;renderQueued=false;
+   if(e.type==='pointerup'&&gesture.mode==='reorder'){
+    if(!moveTab(gesture.id,gesture.index,gesture.session)&&queued)renderTabs();
+   }else if(gesture.mode||e.type!=='pointerup'){
+    if(queued)renderTabs();
+   }else if(queued)view.setTimeout(renderTabs,0);
+  }
+  function cancel(){finish({type:'pointercancel'});}
+  function cancelKey(e){if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();cancel();}}
+  button.addEventListener('pointermove',move);button.addEventListener('pointerup',finish);
+  button.addEventListener('pointercancel',finish);button.addEventListener('lostpointercapture',cancel);
+  button.ownerDocument.addEventListener('keydown',cancelKey,true);
+  view.addEventListener('blur',cancel);
  }
  function activate(t){
   if(!t||!find(t.id)||t===active)return;
@@ -149,6 +240,7 @@ body{background:white}
   t.section.setAttribute("aria-hidden","false");
   if(t.ready&&apiFor(t)&&t.resume)apiFor(t).setSimRunning(true);
   renderTabs();
+  revealTab(t,t);
   message("");
  }
  function setName(t,name){
@@ -363,7 +455,6 @@ body{background:white}
   }
  });
  function addTab(name,content,openedFile=false){
-  if(tabs.length>=MAX_TABS){message("Máximo de ocho pestañas abiertas.");return null;}
   const t={id:"jgr-"+(++serial),name,ready:false,resume:true,frame:null,section:null,
    pendingPaste:null,closeAfterSave:false,openedFile,intercepted:false};
   const section=document.createElement("section");
@@ -400,6 +491,7 @@ body{background:white}
     t.ready=true;
     if(t!==active)a.setSimRunning(false);
     renderTabs();
+    if(t===active)revealTab(t,t);
     message("");
    }catch(error){
     message("No se pudo abrir «"+t.name+"»: "+error.message);
@@ -411,7 +503,6 @@ body{background:white}
  async function openFiles(files){
   for(const file of files){
    if(file.size>=1280000){message("Archivo demasiado grande: "+file.name);continue;}
-   if(tabs.length>=MAX_TABS){message("Máximo de ocho pestañas abiertas.");break;}
    try{addTab(file.name,await file.text(),true);}
    catch(error){message("Error al abrir «"+file.name+"»: "+error.message);}
   }
@@ -427,7 +518,6 @@ body{background:white}
   }
  });
  // Actualizar asterisco de cambios mediante el estado nativo, sin tocar el solver.
- let dirtySignature="";
  setInterval(()=>{
   const signature=tabs.map(t=>t.id+":"+isModified(t)).join("|");
   if(signature!==dirtySignature){dirtySignature=signature;renderTabs();}
