@@ -1,3 +1,4 @@
+import {sevenSegMenuLabel} from './SevenSegMenuLabels.ts';
 // Numbered digital ICs use the catalogue number before the translated name.
 const digitalCounterNames: Record<string, string[]> = {
   "en": [
@@ -124,6 +125,8 @@ export function capitalizeDrawComponent(label:string,language:string):string {
 // Se conserva intacta la clave del comando (por ejemplo, «Add Resistor»)
 // y se modifica únicamente su rótulo visible.
 export function circuitJsDrawLabel(sourceKey: string, localized: string, language: string): string {
+    const sevenSeg = sevenSegMenuLabel(sourceKey, language);
+    if (sevenSeg) return sevenSeg;
     // Los accesos de arrastre y las acciones ajenas a «Add» no se cambian.
     if (!/^(?:Add |Añadir |Afegir |Afig |Engadir )/i.test(sourceKey) || !localized) return capitalizeDrawComponent(localized,language);
 

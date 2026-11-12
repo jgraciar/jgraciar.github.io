@@ -147,6 +147,7 @@ jobs:
           node adaptacion/tests/verify-six-pulse-ui.mjs
           node adaptacion/tests/verify-wattmeter-ui.mjs
           node adaptacion/tests/verify-cd4026-ui.mjs
+          node adaptacion/tests/verify-seven-seg-presets-ui.mjs
 
       - name: Preparar GitHub Pages
         uses: actions/configure-pages@v5
