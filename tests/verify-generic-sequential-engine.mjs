@@ -8,6 +8,7 @@ class ChipElm {
  static SIDE_N=0;static SIDE_S=1;static SIDE_W=2;static SIDE_E=3;
  constructor(){this.flags=0;this.lastClock=false;this.setupPins();}
  writeOutput(i,value){this.pins[i].value=value;}
+ getChipEditInfo(){return null;} setChipEditValue(){}
  allocNodes(){} setPoints(){}
  reset(){this.pins.forEach(p=>p.value=false);this.lastClock=false;}
 }
@@ -29,7 +30,7 @@ function model(name){
 const D=model("DFlipFlopElm"),T=model("TFlipFlopElm"),JK=model("JKFlipFlopElm"),RS=model("RSGenericElm");
 const BCD=model("BinaryToBCD4Elm"),Reader=model("SevenSegNumericElm");
 function make(C,mode,shift=8,explicit=0){const c=new C(0,0);c.flags=(mode<<shift)|explicit;c.setupPins();return c;}
-for(const [name,C,clockIndex,optionIndex] of [["D",D,3,3],["T",T,3,2],["JK",JK,1,1]]){
+for(const [name,C,clockIndex,optionIndex] of [["D",D,3,0],["T",T,3,0],["JK",JK,1,0]]){
  for(let mode=0;mode<4;mode++){
   const c=make(C,mode,8,name==="JK"?1<<14:0);
   assert.equal(c.timingMode(),mode);
@@ -98,9 +99,9 @@ for(let mode=0;mode<6;mode++){
 }
 
 for(const [name,C,clockIndex,qIndex,qbarIndex,flags,asyncIndex] of [
- ["D",D,3,1,2,0,4],
- ["T",T,3,1,2,0,3],
- ["JK",JK,1,3,4,0,3],
+ ["D",D,3,1,2,0,1],
+ ["T",T,3,1,2,0,1],
+ ["JK",JK,1,3,4,0,1],
  ["RS",RS,4,1,2,4<<7,1]
 ]){
  for(const mode of [1,2]){
@@ -145,3 +146,22 @@ const reader=new Reader(0,0);for(let n=0;n<10;n++){
 for(let i=0;i<7;i++)reader.pins[i].value=false;
 assert.equal(reader.digit(),null);
 console.log("OK: D/T/JK/RS, CLK, preset y clear asíncronos a nivel bajo en caras superior/inferior, BCD y displays");
+
+for(const C of [D,T,JK]){
+ const c=new C(0,0);
+ assert(c.getChipEditInfo(0).choice);assert(c.getChipEditInfo(1).choice);
+ assert.equal(c.getChipEditInfo(2),null,'No legacy terminal/inversion checkboxes');
+ for(const mode of [0,1,2,0]){
+  const ei=c.getChipEditInfo(1);ei.choice.select(mode);c.setChipEditValue(1,ei);
+  assert.equal(c.sizeX,2);assert.equal(c.sizeY,3);assert.equal(c.jgrAsyncMode(),mode);
+ }
+}
+for(const C of [D,T,JK]){
+ const c=new C(0,0);c.flags|=2;c.setupPins();
+ const flags=c.flags,count=c.getPostCount();c.getChipEditInfo(0);c.getChipEditInfo(1);
+ assert.equal(c.flags,flags,'Reading the editor preserves legacy flags');
+ assert.equal(c.getPostCount(),count,'Legacy terminal topology is retained on load');
+ const ei=c.getChipEditInfo(1);ei.choice.select(0);c.setChipEditValue(1,ei);
+ assert.equal(c.hasReset(),false,'None explicitly removes the old reset option');
+}
+console.log('OK: stable body dimensions, compact editors and preserved legacy terminal flags');

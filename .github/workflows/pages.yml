@@ -74,6 +74,7 @@ jobs:
           node --experimental-strip-types adaptacion/scripts/patch-digital-ics.mjs circuitjs-src/ts
           node adaptacion/scripts/patch-generic-sequential.mjs circuitjs-src/ts
           node adaptacion/scripts/patch-async-flipflops.mjs circuitjs-src/ts
+          node adaptacion/scripts/patch-flipflop-editor-geometry.mjs circuitjs-src/ts
           node adaptacion/tests/verify-generic-sequential-static.mjs circuitjs-src/ts
           node --experimental-strip-types adaptacion/tests/verify-generic-sequential-engine.mjs circuitjs-src/ts
           node adaptacion/scripts/patch-lab-localization.mjs circuitjs-src/ts adaptacion/scripts/LabTranslations.ts
@@ -136,6 +137,7 @@ jobs:
 
       - name: Verificar orden y ancho de pestañas
         run: |
+          node adaptacion/tests/verify-generic-sequential-ui.mjs
           node adaptacion/tests/verify-tiled-tabs-ui.mjs
           node adaptacion/tests/verify-tab-actions-ui.mjs
           node adaptacion/tests/verify-tab-order-width-ui.mjs
@@ -164,7 +166,6 @@ jobs:
           node adaptacion/tests/verify-upstream-505-ui.mjs
           node --experimental-strip-types adaptacion/tests/verify-ic-info-ui.mjs
           node --experimental-strip-types adaptacion/tests/verify-digital-ics-ui.mjs
-          node adaptacion/tests/verify-generic-sequential-ui.mjs
           node adaptacion/tests/verify-edit-regional-ui.mjs
           node adaptacion/tests/verify-circuitjgr-elements.mjs
           node adaptacion/tests/verify-nonlinear-presets-ui.mjs
