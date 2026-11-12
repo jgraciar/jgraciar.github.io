@@ -12,7 +12,7 @@ const start=app.indexOf('function exampleCells(n,kind){');
 const end=app.indexOf("\ndocument.querySelectorAll('[data-example]')",start);
 assert(start>=0&&end>start,'El generador de ejemplos debe existir');
 const source=app.slice(start,end)+'\nexampleCells';
-const values=['1.5','1.25','2.75','1.8','1.375','2.625'];
+const values=['2','-1','3','1','-2','4'];
 let count=0;
 for(const region of ['eu','en']){
  const exampleCells=vm.runInNewContext(source,{Q,z:()=>new Q(0),one:()=>new Q(1),region});
@@ -22,6 +22,7 @@ for(const region of ['eu','en']){
    assert.equal(cells.length,n,'Número de ecuaciones');
    assert(cells.every(row=>row.length===n+1),'Número de coeficientes y términos independientes');
    assert(cells.flat().every(value=>!value.includes('/')),'No deben figurar fracciones en la matriz');
+   assert(cells.flat().every(value=>/^-?\d+$/.test(value)),'Todos los datos del ejemplo deben ser enteros');
    assert(cells.flat().every(value=>!value.includes(region==='eu'?'.':',')),'Separador decimal correcto');
    const data=cells.map(row=>row.map(value=>Q.from(value.replace(',','.'))));
    const A=data.map(row=>row.slice(0,n)),b=data.map(row=>row[n]);
@@ -31,15 +32,14 @@ for(const region of ['eu','en']){
     assert.equal(result.x.length,n);
     result.x.forEach((value,j)=>{
      assert.equal(value.toString(),Q.from(values[j]).toString(),'Solución '+j);
-     assert(value.d>1n,'La solución no debe ser entera');
+     assert.equal(value.d,1n,'La solución de referencia debe ser entera');
     });
-    assert(cells.flat().some(value=>value.includes(region==='eu'?',':'.')),'El ejemplo debe incluir valores decimales');
    }
    if(kind==='infinite'&&n>1){
     const sample=values.slice(0,n).map(Q.from);
     A.forEach((row,i)=>{
      const calculated=row.reduce((sum,q,j)=>sum.add(q.mul(sample[j])),new Q(0));
-     assert.equal(calculated.toString(),b[i].toString(),'Ejemplo compatible con soluciones no enteras');
+     assert.equal(calculated.toString(),b[i].toString(),'Ejemplo compatible con una solución de referencia entera');
     });
    }
    count++;

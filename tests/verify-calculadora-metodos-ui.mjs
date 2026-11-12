@@ -24,6 +24,15 @@ try{
    assert(text.includes('x = 3')&&text.includes('y = 2'),text);
    if(['equalization','elimination','substitution','auto'].includes(method)){
     assert(text.includes('Paso 1.'));assert(!text.includes('Reducción de Gauss-Jordan'));
+    assert(!text.includes('Sistema en forma matricial'));
+    assert(await page.locator('.algebra-step').last().evaluate(node=>Boolean(node.compareDocumentPosition(document.querySelector('.answer'))&Node.DOCUMENT_POSITION_FOLLOWING)),'El resultado aparece después del desarrollo');
+    assert(await page.locator('.algebra-step').count()>8,'Desarrollo con transformaciones individuales');
+    assert(await page.locator('[data-algebra-line]').count()>10,'Se muestran las operaciones intermedias');
+    if(method==='equalization'||method==='substitution'){
+     assert(text.includes('Desarrollar los paréntesis'));
+     assert(text.includes('Calcular los productos'));
+     assert(text.includes('Agrupar los coeficientes'));
+    }
    }
    await page.getByText('Comprobar la solución',{exact:true}).click();
    assert.equal(await page.locator('.check').count(),2);
@@ -48,6 +57,17 @@ try{
  await page.click('button[type="submit"]');assert((await page.locator('#error').innerText()).includes('no es lineal'));
  await page.setViewportSize({width:390,height:844});await page.fill('#equations','x + y = 2\nx - y = 1');await page.click('button[type="submit"]');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Sin desbordamiento horizontal en móvil');
+ for(const region of ['eu','en']){
+  await page.selectOption('#region',region);
+  for(let n=1;n<=6;n++){
+   await page.selectOption('#example-size',String(n));
+   for(const kind of ['unique','infinite','none']){
+    await page.locator('[data-example="'+kind+'"]').click();
+    const values=await page.locator('.coeff').evaluateAll(nodes=>nodes.map(n=>n.value));
+    assert(values.every(value=>/^-?\d+$/.test(value)),'Ejemplo solo con enteros: '+n+' '+kind+' '+region);
+   }
+  }
+ }
  assert.deepEqual(errors,[]);
  console.log('OK: los ocho métodos en ambas pestañas, compatibilidad, comprobación, tres incógnitas, formato regional, fracciones y móvil.');
 }finally{await browser.close();}

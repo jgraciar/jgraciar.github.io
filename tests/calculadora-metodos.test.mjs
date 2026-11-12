@@ -5,9 +5,9 @@ import vm from 'node:vm';
 
 const dir=resolve(process.argv[2]||'site-root/calculadora');
 const context=vm.createContext({});
-vm.runInContext(readFileSync(join(dir,'solver.js'),'utf8')+'\n'+readFileSync(join(dir,'classical.js'),'utf8')+'\nglobalThis.api={Q,solve,classicalSolve,chooseClassical};',context);
-const {Q,solve,classicalSolve,chooseClassical}=context.api;
-let count=0;
+vm.runInContext(readFileSync(join(dir,'solver.js'),'utf8')+'\n'+readFileSync(join(dir,'classical.js'),'utf8')+'\nfunction qhtml(q){return q.d===1n?String(q.n):"("+q.n+"/"+q.d+")"} function variable(v){return v} globalThis.api={Q,solve,classicalSolve,chooseClassical,parseSystem,renderClassical};',context);
+const {Q,solve,classicalSolve,chooseClassical,parseSystem,renderClassical}=context.api;
+let count=0,displayedEquations=0;
 function check(A,b){
  A=A.map(r=>r.map(v=>v instanceof Q?v:new Q(v)));b=b.map(v=>v instanceof Q?v:new Q(v));
  const expected=solve(A,b);
@@ -15,6 +15,16 @@ function check(A,b){
   const actual=classicalSolve(A,b,method);
   assert.equal(actual.kind,expected.kind,method);
   if(actual.x)assert.equal(actual.x.map(String).join(','),expected.x.map(String).join(','),method);
+  if(expected.x){
+   const vars=A[0].map((_,k)=>'x'+k),html=renderClassical(A,b,vars,method);
+   for(const match of html.matchAll(/<p class="math" data-algebra-line>(.*?)<\/p>/g)){
+    const equation=match[1],parsed=parseSystem(equation,vars.join(','));
+    const residual=parsed.A[0].reduce((sum,q,k)=>sum.add(q.mul(expected.x[k])),new Q(0)).sub(parsed.b[0]);
+    assert(residual.zero,method+': igualdad incorrecta mostrada: '+equation);
+    displayedEquations++;
+   }
+   assert(!html.includes('Operamos y agrupamos los términos:'),'No omitir operaciones intermedias');
+  }
   for(const step of actual.steps){
    if(!step.result)continue;
    assert(step.result.a[step.relation.c].zero,'La variable elegida debe desaparecer.');
@@ -44,4 +54,4 @@ for(let n=1;n<=6;n++)for(let m=1;m<=8;m++)for(let trial=0;trial<12;trial++){
  const b=Array.from({length:m},()=>new Q(Number(random()%13)-6,Number(random()%3)+1));
  check(A,b);
 }
-console.log('OK: '+count+' resoluciones exactas por los tres métodos, incluyendo compatibilidad y conservación de las ecuaciones.');
+console.log('OK: '+count+' resoluciones exactas y '+displayedEquations+' igualdades del desarrollo verificadas sustituyendo la solución.');
