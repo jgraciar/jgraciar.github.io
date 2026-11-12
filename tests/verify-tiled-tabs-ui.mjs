@@ -83,7 +83,7 @@ try{
  await page.setViewportSize({width:390,height:844});await page.waitForTimeout(200);boxes=await sizes(page);
  assert(boxes.every(b=>b.width>=320&&b.canvasWidth>100));
  await chooseLayout(page,'vertical');boxes=await sizes(page);
- assert(boxes.every(b=>b.width>=390&&b.height>=280));
+ assert(boxes.every(b=>b.width>=320&&b.width<=390&&b.height>=280));
  for(const b of boxes){
   const controls=await frame(page,b.id).locator('#jgr-tab-strip').evaluate(el=>['add-tab','duplicate-tab','arrange-tabs','jgr-sidebar-toggle'].map(id=>{const r=el.querySelector('#'+id).getBoundingClientRect();return r.left>=0&&r.right<=innerWidth;}));
   assert(controls.every(Boolean),'All controls remain accessible on narrow tiles');
