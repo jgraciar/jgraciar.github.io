@@ -42,7 +42,7 @@ try{
  await chooseLayout(page,'vertical',true);
  const panels=()=>page.evaluate(()=>Object.fromEntries([...document.querySelectorAll('iframe')].map(f=>[f.dataset.tabId,getComputedStyle(f.contentWindow.__CircuitJGRExperimentalApp.ui.verticalPanel).display!=='none'])));
  assert.deepEqual(await panels(),{'jgr-1':false,'jgr-2':false,'jgr-3':false},'Vertical layout automatically hides every side panel');
- assert(await page.locator('#jgr-tab-strip').evaluate(el=>el.firstElementChild.classList.contains('lab-start-settings')),'Settings is the leftmost control');
+ assert(await page.locator('#jgr-tab-strip').evaluate(el=>el.lastElementChild.classList.contains('lab-start-settings')),'Settings is the rightmost control');
  await page.locator('#jgr-sidebar-toggle').click();
  assert.deepEqual(await panels(),{'jgr-1':false,'jgr-2':false,'jgr-3':true},'Side-panel button changes only the active window');
  await page.evaluate(()=>window.JGRTabsExperimental.activate('jgr-2'));
@@ -50,9 +50,26 @@ try{
  await page.locator('#jgr-sidebar-toggle').click();
  assert.deepEqual(await panels(),{'jgr-1':false,'jgr-2':true,'jgr-3':true});
  await page.locator('.lab-start-settings').click();
- await frame(page,'jgr-2').locator('#lab-start-modal').waitFor({state:'visible'});
- await frame(page,'jgr-2').locator('#lab-start-modal').press('Escape');
- await frame(page,'jgr-2').locator('#lab-start-modal').waitFor({state:'hidden'});
+ await page.locator('#lab-start-modal').waitFor({state:'visible'});
+ const modalBox=await page.locator('#lab-start-modal').boundingBox();
+ const viewport=page.viewportSize();
+ assert(Math.abs(modalBox.x+modalBox.width/2-viewport.width/2)<2);
+ assert(Math.abs(modalBox.y+modalBox.height/2-viewport.height/2)<2);
+ assert.equal(await page.locator('#lab-start-modal').evaluate(el=>getComputedStyle(el).fontSize),'12px');
+ assert.equal(await page.locator('#workspace').evaluate(el=>getComputedStyle(el).gap),'2px');
+ await page.locator('input[name="lab-start-background"][value="true"]').check();
+ await page.locator('#lab-start-accept').click();
+ await page.waitForFunction(()=>[...document.querySelectorAll('iframe')].every(f=>f.contentWindow.CircuitJS1.getWhiteBackground())&&document.querySelector('.session.active').dataset.white==='true');
+ const light=await page.locator('.session.active').evaluate(el=>({width:getComputedStyle(el,'::after').borderTopWidth,color:getComputedStyle(el,'::after').borderTopColor}));
+ assert.equal(light.width,'4px');assert.equal(light.color,'rgb(0, 80, 164)');
+ await page.locator('.lab-start-settings').click();
+ await page.locator('input[name="lab-start-background"][value="false"]').check();
+ await page.locator('#lab-start-accept').click();
+ await page.waitForFunction(()=>[...document.querySelectorAll('iframe')].every(f=>!f.contentWindow.CircuitJS1.getWhiteBackground())&&document.querySelector('.session.active').dataset.white==='false');
+ assert.equal(await page.locator('.session.active').evaluate(el=>getComputedStyle(el,'::after').borderTopColor),'rgb(255, 216, 90)');
+ await page.locator('.lab-start-settings').click();
+ await page.locator('#lab-start-modal').press('Escape');
+ await page.locator('#lab-start-modal').waitFor({state:'hidden'});
  const icons=await page.evaluate(()=>{
   const app=document.querySelector('iframe[data-tab-id="jgr-2"]').contentWindow.__CircuitJGRExperimentalApp;
   const run=app.ui.runStopButton,reset=app.ui.resetButton,settings=document.querySelector('#jgr-tab-strip > .lab-start-settings');

@@ -135,6 +135,19 @@ try{
   app.ui.repaint();
  });
  await page.waitForFunction(()=>window.jgrScopeMarkerHits.length>0,null,{timeout:10000});
+ const plates=await page.evaluate(()=>{
+  const app=window.__CircuitJGRExperimentalApp,s=app.scopeManager.scopes[0];
+  // Inspect the actual canvas context used by the renderer, preserving every draw.
+  const context=app.ui.cv.getContext('2d'),original=context.fillRect,hits=[];
+  context.fillRect=function(...args){if(Math.abs(this.globalAlpha-.93)<.01)hits.push({color:this.fillStyle,alpha:this.globalAlpha});return original.apply(this,args);};
+  app.menus.printableCheckItem.setState(false);
+  const {overlays}=s;
+  overlays.textY=24;
+  // Use the existing scope renderer; its next repaint includes scales and values.
+  app.ui.repaint();
+  window.scopePlateHits=hits;return true;
+ });
+ await page.waitForFunction(()=>window.scopePlateHits.some(h=>h.color==='#414141'));
  assert.deepEqual(errors,[],'No deben producirse errores JavaScript');
  console.log('OK: barra blanca con borde gris, Configuración a la izquierda, botones nativos intactos, brillo, (saved), diálogo nativo, grosor por osciloscopio y localización E#');
 }finally{

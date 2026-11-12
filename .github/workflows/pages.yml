@@ -93,6 +93,7 @@ jobs:
           npm ci
           node ../../adaptacion/scripts/patch-live-menu-labels.mjs .
           node ../../adaptacion/scripts/patch-shared-chrome.mjs .
+          node ../../adaptacion/scripts/patch-scope-info-backgrounds.mjs .
           npm run build
           test -s dist/circuitjgr.html
           ! test -f dist/circuitjs.html

@@ -13,11 +13,11 @@ body{background:white}
 #workspace{position:absolute;inset:0;min-height:0;background:white}
 .session{position:absolute;inset:0;visibility:hidden;pointer-events:none}
 .session.active{visibility:visible;pointer-events:auto;z-index:1}
-#workspace[data-layout="horizontal"],#workspace[data-layout="vertical"]{display:grid;gap:4px;overflow:auto;background:#bcbcbc}
+#workspace[data-layout="horizontal"],#workspace[data-layout="vertical"]{display:grid;gap:2px;overflow:auto;background:#bcbcbc}
 #workspace[data-layout="vertical"]{grid-auto-flow:column;grid-auto-columns:minmax(320px,1fr);grid-template-rows:minmax(280px,1fr)}
 #workspace[data-layout="horizontal"]{grid-auto-flow:row;grid-auto-rows:minmax(280px,1fr);grid-template-columns:minmax(320px,1fr)}
 #workspace:not([data-layout="single"]) .session{position:relative;inset:auto;visibility:visible;pointer-events:auto;min-width:0;min-height:0}
-#workspace:not([data-layout="single"]) .session.active{outline:2px solid #225d9b;outline-offset:-2px}
+#workspace:not([data-layout="single"]) .session.active::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:10;border:4px solid #ffd85a;box-sizing:border-box}#workspace:not([data-layout="single"]) .session.active[data-white="true"]::after{border-color:#0050a4}
 #shared-chrome{position:absolute;inset:0 0 auto;height:auto;z-index:50;background:#e8e8e8;overflow:visible} #shared-chrome[hidden]{display:none}
 .session iframe{width:100%;height:100%;border:0;background:white;display:block}
 #open-files{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
@@ -104,6 +104,21 @@ body{background:white}
   const a=appFor(active),height=(a.ui.hideMenu?0:30)+(a.menus.toolbarCheckItem.getState()?40:0)+33;
   host.style.height=height+"px";workspace.style.top=shared()?height+"px":"0px";
  }
+ function presentSettings(modal){
+  if(!document.getElementById("global-settings-style")){
+   const source=[...modal.ownerDocument.querySelectorAll("style")].find(style=>style.textContent.includes(".lab-start-modal"));
+   if(source){const style=source.cloneNode(true);style.id="global-settings-style";document.head.append(style);}
+  }
+  const previous=document.getElementById("lab-start-modal");
+  if(previous&&previous!==modal){previous.close();previous.hidden=true;previous.__jgrHome?.body.append(previous);}
+  modal.__jgrHome??=modal.ownerDocument;
+  document.body.append(modal);
+  modal.style.cssText="position:fixed;inset:0;margin:auto;height:fit-content;width:min(460px,calc(100vw - 32px));max-height:calc(100dvh - 32px);font-size:12px;overflow:auto;z-index:2147483647;";
+  if(!modal.__jgrReturn){
+   modal.__jgrReturn=true;
+   modal.addEventListener("close",()=>{if(modal.open)return;document.body.classList.remove("lab-start-open");modal.hidden=true;if(modal.ownerDocument===document)modal.__jgrHome.body.append(modal);});
+  }
+ }
  function iconButtons(t){
   const app=appFor(t);if(!app)return;
   for(const [button,icon] of [[app.ui.resetButton,"reset"],[app.ui.runStopButton,"runstop"],[t.settings||t.frame.contentWindow.__JGRSettingsButton,"settings"]]){
@@ -138,6 +153,7 @@ body{background:white}
  function layoutSessions(){
   workspace.dataset.layout=layoutMode;
   tabs.forEach((t,index)=>{
+   t.section.dataset.white=String(!!apiFor(t)?.getWhiteBackground?.());
    t.section.style.order=String(index);
    t.section.classList.toggle("active",t===active);
    t.section.setAttribute("aria-hidden",String(!sessionVisible(t)));
@@ -217,7 +233,7 @@ body{background:white}
    const previousScroll=tabsEl.querySelector(".jgr-tab-list")?.scrollLeft||0;
    session.settings??=session.frame.contentWindow.__JGRSettingsButton||session.frame.contentDocument.querySelector('.lab-start-settings');
    tabsEl.replaceChildren();
-   if(session.settings)tabsEl.append(session.settings);
+
    const tabList=doc.createElement("div");tabList.className="jgr-tab-list";
    tabList.style.width=(tabs.length*245+Math.max(0,tabs.length-1)*2)+"px";
    tabList.addEventListener("wheel",event=>{
@@ -279,6 +295,7 @@ body{background:white}
    sideToggle.title=toggleLabel;
    bindTabAction(sideToggle,toggleSidebar);
    tabsEl.append(sideToggle);
+   if(session.settings)tabsEl.append(session.settings);
    tabList.scrollLeft=previousScroll;iconButtons(session);
   }
   syncChrome();
@@ -696,6 +713,7 @@ document.querySelectorAll(".gwt-MenuItem.open,li.hasSubmenu.open").forEach(n=>n.
   duplicateActive,
   setLayout,
   getLayout:()=>layoutMode,
+  presentSettings,
   openFilePicker:()=>openInput.click()
  };
  unnamed=1;

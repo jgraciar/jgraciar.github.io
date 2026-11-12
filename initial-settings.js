@@ -207,17 +207,17 @@ function render(){
  const preview=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,gs)+(parts[1]?ds+parts[1]:"");
  const original=String(sample).split(".");
  const rawPreview=original[0].replace(/\B(?=(\d{3})+(?!\d))/g,gs)+ds+original[1];
- document.getElementById("lab-start-modal").innerHTML='<div class="lab-start-card" role="dialog" aria-modal="true" aria-labelledby="lab-start-title"><h2 id="lab-start-title">'+esc(t[0])+'</h2><p>'+esc(t[1])+'</p><label>'+esc(t[2])+'<select id="lab-start-language"><option value="auto" '+(languageMode==="auto"?"selected":"")+'>'+esc(autoNames[dialogLanguage]||autoNames.en)+' ('+esc(names[detected])+')</option>'+Object.entries(names).map(([code,name])=>'<option value="'+code+'" '+(languageMode==="manual"&&language===code?"selected":"")+'>'+esc(name)+'</option>').join("")+'</select></label><fieldset><legend>'+esc(bg[0])+'</legend>'+[false,true].map((value,i)=>'<label class="lab-start-choice"><input type="radio" name="lab-start-background" value="'+value+'" '+(whiteBackground===value?'checked':'')+'>'+esc(bg[i+1])+'</label>').join('')+'</fieldset><fieldset><legend>'+esc(t[3])+'</legend>'+["eu","uk"].map((v,i)=>'<label class="lab-start-choice"><input type="radio" name="lab-start-format" value="'+v+'" '+(format===v?"checked":"")+'>'+esc(t[i+4])+'</label>').join("")+'</fieldset>'+'<div class="lab-start-digits"><span class="lab-start-digits-label">'+esc(t[7])+'</span><div class="lab-start-stepper"><button type="button" id="lab-start-minus" aria-label="'+esc(({en:"Decrease decimals",sv:"Färre decimaler",es:"Disminuir decimales",fr:"Réduire les décimales",de:"Dezimalstellen verringern",it:"Riduci decimali",pt:"Diminuir casas decimais",nl:"Minder decimalen",pl:"Zmniejsz liczbę miejsc dziesiętnych",csx:"Snížit počet desetinných míst",da:"Færre decimaler",fi:"Vähennä desimaaleja",nb:"Færre desimaler",ru:"Уменьшить число знаков",zh:"减少小数位数","zh-tw":"減少小數位數",ja:"小数桁数を減らす",kr:"소수 자릿수 줄이기"})[dialogLanguage]||"Decrease decimals") +'" '+(digits===0?'disabled':'')+'>−</button><output id="lab-start-digits" aria-live="polite">'+digits+'</output><button type="button" id="lab-start-plus" aria-label="'+esc(({en:"Increase decimals",sv:"Fler decimaler",es:"Aumentar decimales",fr:"Augmenter les décimales",de:"Dezimalstellen erhöhen",it:"Aumenta decimali",pt:"Aumentar casas decimais",nl:"Meer decimalen",pl:"Zwiększ liczbę miejsc dziesiętnych",csx:"Zvýšit počet desetinných míst",da:"Flere decimaler",fi:"Lisää desimaaleja",nb:"Flere desimaler",ru:"Увеличить число знаков",zh:"增加小数位数","zh-tw":"增加小數位數",ja:"小数桁数を増やす",kr:"소수 자릿수 늘리기"})[dialogLanguage]||"Increase decimals") +'" '+(digits===12?'disabled':'')+'>+</button></div><small>0–12</small></div><p class="lab-start-precision">'+esc(precisionNotes[dialogLanguage]||precisionNotes.en)+'</p><div class="lab-start-preview"><small>'+esc(t[10])+'</small><strong>'+esc(preview)+'</strong></div><p class="lab-start-settings-help">'+esc(inSimulator?"":(settingsHelp[dialogLanguage]||settingsHelp.en))+'</p><button type="button" id="lab-start-accept">'+esc(inSimulator?(saveLabels[dialogLanguage]||saveLabels.en):t[11])+'</button></div>';
- document.getElementById("lab-start-language").onchange=e=>{
+ settingsDocument().getElementById("lab-start-modal").innerHTML='<div class="lab-start-card" role="dialog" aria-modal="true" aria-labelledby="lab-start-title"><h2 id="lab-start-title">'+esc(t[0])+'</h2><p>'+esc(t[1])+'</p><label>'+esc(t[2])+'<select id="lab-start-language"><option value="auto" '+(languageMode==="auto"?"selected":"")+'>'+esc(autoNames[dialogLanguage]||autoNames.en)+' ('+esc(names[detected])+')</option>'+Object.entries(names).map(([code,name])=>'<option value="'+code+'" '+(languageMode==="manual"&&language===code?"selected":"")+'>'+esc(name)+'</option>').join("")+'</select></label><fieldset><legend>'+esc(bg[0])+'</legend>'+[false,true].map((value,i)=>'<label class="lab-start-choice"><input type="radio" name="lab-start-background" value="'+value+'" '+(whiteBackground===value?'checked':'')+'>'+esc(bg[i+1])+'</label>').join('')+'</fieldset><fieldset><legend>'+esc(t[3])+'</legend>'+["eu","uk"].map((v,i)=>'<label class="lab-start-choice"><input type="radio" name="lab-start-format" value="'+v+'" '+(format===v?"checked":"")+'>'+esc(t[i+4])+'</label>').join("")+'</fieldset>'+'<div class="lab-start-digits"><span class="lab-start-digits-label">'+esc(t[7])+'</span><div class="lab-start-stepper"><button type="button" id="lab-start-minus" aria-label="'+esc(({en:"Decrease decimals",sv:"Färre decimaler",es:"Disminuir decimales",fr:"Réduire les décimales",de:"Dezimalstellen verringern",it:"Riduci decimali",pt:"Diminuir casas decimais",nl:"Minder decimalen",pl:"Zmniejsz liczbę miejsc dziesiętnych",csx:"Snížit počet desetinných míst",da:"Færre decimaler",fi:"Vähennä desimaaleja",nb:"Færre desimaler",ru:"Уменьшить число знаков",zh:"减少小数位数","zh-tw":"減少小數位數",ja:"小数桁数を減らす",kr:"소수 자릿수 줄이기"})[dialogLanguage]||"Decrease decimals") +'" '+(digits===0?'disabled':'')+'>−</button><output id="lab-start-digits" aria-live="polite">'+digits+'</output><button type="button" id="lab-start-plus" aria-label="'+esc(({en:"Increase decimals",sv:"Fler decimaler",es:"Aumentar decimales",fr:"Augmenter les décimales",de:"Dezimalstellen erhöhen",it:"Aumenta decimali",pt:"Aumentar casas decimais",nl:"Meer decimalen",pl:"Zwiększ liczbę miejsc dziesiętnych",csx:"Zvýšit počet desetinných míst",da:"Flere decimaler",fi:"Lisää desimaaleja",nb:"Flere desimaler",ru:"Увеличить число знаков",zh:"增加小数位数","zh-tw":"增加小數位數",ja:"小数桁数を増やす",kr:"소수 자릿수 늘리기"})[dialogLanguage]||"Increase decimals") +'" '+(digits===12?'disabled':'')+'>+</button></div><small>0–12</small></div><p class="lab-start-precision">'+esc(precisionNotes[dialogLanguage]||precisionNotes.en)+'</p><div class="lab-start-preview"><small>'+esc(t[10])+'</small><strong>'+esc(preview)+'</strong></div><p class="lab-start-settings-help">'+esc(inSimulator?"":(settingsHelp[dialogLanguage]||settingsHelp.en))+'</p><button type="button" id="lab-start-accept">'+esc(inSimulator?(saveLabels[dialogLanguage]||saveLabels.en):t[11])+'</button></div>';
+ settingsDocument().getElementById("lab-start-language").onchange=e=>{
  languageMode=e.target.value==="auto"?"auto":"manual";
  language=languageMode==="auto"?detect():e.target.value;
  dialogLanguage=language;format=language==="en"?"uk":"eu";render();
 };
- document.querySelectorAll('input[name="lab-start-background"]').forEach(el=>el.onchange=e=>{whiteBackground=e.target.value==="true";});
- document.querySelectorAll('input[name="lab-start-format"]').forEach(el=>el.onchange=e=>{format=e.target.value;render()});
- document.getElementById("lab-start-minus").onclick=()=>{digits=Math.max(0,digits-1);render()};
- document.getElementById("lab-start-plus").onclick=()=>{digits=Math.min(12,digits+1);render()};
- document.getElementById("lab-start-accept").onclick=async()=>{
+ settingsDocument().querySelectorAll('input[name="lab-start-background"]').forEach(el=>el.onchange=e=>{whiteBackground=e.target.value==="true";});
+ settingsDocument().querySelectorAll('input[name="lab-start-format"]').forEach(el=>el.onchange=e=>{format=e.target.value;render()});
+ settingsDocument().getElementById("lab-start-minus").onclick=()=>{digits=Math.max(0,digits-1);render()};
+ settingsDocument().getElementById("lab-start-plus").onclick=()=>{digits=Math.min(12,digits+1);render()};
+ settingsDocument().getElementById("lab-start-accept").onclick=async()=>{
  set("labLanguageMode",languageMode);set("language",language);
  set("labRegionalFormat",format);set("labDecimalSeparator",ds);set("labGroupingSeparator",gs);set("labDecimalDigits",String(digits));set("labDisplayUnitScale","auto");set("labStartConfigured","1");set("whiteBackground",String(whiteBackground));
  const url=new URL(location.href);
@@ -226,19 +226,19 @@ function render(){
  }
  if(url.searchParams.has("lang")){url.searchParams.set("lang",language);history.replaceState(null,"",url);}
  if(inSimulator){
-  const button=document.getElementById("lab-start-accept");button.disabled=true;
+  const button=settingsDocument().getElementById("lab-start-accept");button.disabled=true;
   try{
    // Wait for the engine on first launch; never reload or reimport the open circuit.
    const api=await new Promise(resolve=>{
     const poll=()=>window.CircuitJS1?.applyInitialSettings?resolve(window.CircuitJS1):setTimeout(poll,50);poll();
    });
    await api.applyInitialSettings({language,whiteBackground,digits,decimal:ds,grouping:gs});
-   {const setupDialog=document.getElementById("lab-start-modal");if(setupDialog.open)setupDialog.close();setupDialog.hidden=true;}
-   document.body.classList.remove("lab-start-open");
+   {const setupDialog=settingsDocument().getElementById("lab-start-modal");if(setupDialog.open)setupDialog.close();setupDialog.hidden=true;}
+   settingsDocument().body.classList.remove("lab-start-open");
    (window.__JGRSettingsButton||document.querySelector(".lab-start-settings")).textContent=(catalogs[language]||catalogs.en)[13];
   }finally{button.disabled=false;}
  }else{
-  {const setupDialog=document.getElementById("lab-start-modal");if(setupDialog.open)setupDialog.close();setupDialog.hidden=true;}document.body.classList.remove("lab-start-open");
+  {const setupDialog=settingsDocument().getElementById("lab-start-modal");if(setupDialog.open)setupDialog.close();setupDialog.hidden=true;}settingsDocument().body.classList.remove("lab-start-open");
  }
  };
 }
@@ -253,14 +253,17 @@ window.addEventListener("circuit-jgr-settings-applied",event=>{
  if(button)button.textContent=(catalogs[language]||catalogs.en)[13];
 });
 window.addEventListener("keydown",event=>{
- const modal=document.getElementById("lab-start-modal");
+ const modal=settingsDocument().getElementById("lab-start-modal");
  if(event.key!=="Escape"||!modal?.open)return;
  event.preventDefault();event.stopImmediatePropagation();
  if(get("labStartConfigured")!=="1")return;
- modal.close();modal.hidden=true;document.body.classList.remove("lab-start-open");
+ modal.close();modal.hidden=true;settingsDocument().body.classList.remove("lab-start-open");
  window.__JGRSettingsButton?.focus({preventScroll:true});
 },true);
-function show(){whiteBackground=savedBackground()==="true";const modal=document.getElementById("lab-start-modal");modal.hidden=false;document.body.classList.add("lab-start-open");render();if(!modal.open)modal.showModal()}
+function settingsDocument(){return window.__JGRSettingsDialog?.ownerDocument||document;}
+function show(){whiteBackground=savedBackground()==="true";const modal=settingsDocument().getElementById("lab-start-modal");
+ if(window.parent!==window&&window.parent.JGRTabsExperimental?.presentSettings)window.parent.JGRTabsExperimental.presentSettings(modal);
+ modal.hidden=false;settingsDocument().body.classList.add("lab-start-open");render();if(!modal.open)modal.showModal()}
 function init(){
   // Idioma BCP 47 correcto para lectores de pantalla; CircuitJS mantiene códigos históricos.
   document.documentElement.lang=language==="csx"?"cs":language==="kr"?"ko":language==="zh"?"zh-Hans":language==="zh-tw"?"zh-Hant":language;
@@ -268,18 +271,18 @@ function init(){
  style.textContent='.lab-start-settings-help{font-size:13px;line-height:1.5;color:#35435a;margin:8px 0 14px}.lab-start-precision{font-size:12px;line-height:1.45;color:#505d70;margin:6px 0 12px}.lab-start-open{overflow:hidden}.lab-start-modal[hidden]{display:none}.lab-start-modal{position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.7);display:grid;place-items:center;padding:16px;overflow:auto}.lab-start-card{background:#fff;color:#202936;border-radius:14px;padding:24px;width:min(100%,440px);max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 20px 70px #0007;font:15px system-ui,sans-serif}.lab-start-card h2{font-size:22px;margin:0 0 8px}.lab-start-card p{margin:0 0 16px}.lab-start-card label{display:block;margin:12px 0;font-weight:600}.lab-start-card select,.lab-start-card input[type=number]{display:block;width:100%;padding:9px;margin-top:6px;font:inherit;box-sizing:border-box}.lab-start-card fieldset{border:0;padding:0;margin:14px 0}.lab-start-card legend{font-weight:600}.lab-start-card .lab-start-choice{display:flex;align-items:center;gap:8px;font-weight:400;margin:9px 0}.lab-start-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.lab-start-preview{background:#eef1f5;padding:12px;border-radius:8px;margin:14px 0}.lab-start-preview small{display:block}.lab-start-preview strong{display:block;font-size:24px;font-variant-numeric:tabular-nums;margin-top:5px}.lab-start-digits{margin:14px 0}.lab-start-digits-label{display:block;font-weight:600;margin-bottom:9px}.lab-start-stepper{display:flex;align-items:center;justify-content:center;gap:14px}.lab-start-card .lab-start-stepper button{width:52px;height:48px;padding:0;font-size:28px;border-radius:9px;background:#fff;color:#202936;border:1px solid #8c98a9}.lab-start-card .lab-start-stepper button:disabled{opacity:.35;cursor:default}.lab-start-stepper output{display:grid;place-items:center;min-width:76px;height:48px;border:1px solid #8c98a9;border-radius:9px;font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}.lab-start-digits>small{display:block;text-align:center;margin-top:7px;color:#505d70}.lab-start-original{display:block;margin-top:7px;color:#505d70;font-variant-numeric:tabular-nums}.lab-start-arrow{display:block;color:#505d70}.lab-start-card button{width:100%;padding:12px;border:0;border-radius:8px;background:#175fba;color:white;font:inherit;cursor:pointer}.lab-start-settings{position:fixed;bottom:12px;right:12px;z-index:1000;padding:8px 12px;border:1px solid #888;border-radius:8px;background:#fff;color:#222;cursor:pointer}';
  style.textContent += '.verticalPanel{background:#fff!important;border-left:1px solid #bcbcbc;box-sizing:border-box;display:flex;flex-direction:column}'+
    '.verticalPanel .lab-start-settings{position:sticky;bottom:0;align-self:flex-start;margin-top:auto;margin-left:5px;margin-bottom:5px;z-index:3;width:auto;padding:5px 7px;background:#e7e7e7;border:1px solid #bbb;border-bottom:1px solid #a0a0a0;border-radius:3px;color:#222;font-size:small;white-space:normal;text-align:left}'+
-   '.lab-start-modal:not([hidden]){display:block;inset:auto;max-height:85vh;overflow:auto;box-sizing:border-box;width:min(490px,calc(100vw - 24px));padding:18px;background:white;color:#222;border:1px solid #999;border-radius:4px;box-shadow:0 8px 28px #0005;font:small Arial Unicode MS,Arial,sans-serif}'+
+   '.lab-start-modal:not([hidden]){display:block;inset:0;margin:auto;height:fit-content;max-height:calc(100dvh - 32px);overflow:auto;box-sizing:border-box;width:min(490px,calc(100vw - 24px));padding:18px;background:white;color:#222;border:1px solid #999;border-radius:4px;box-shadow:0 8px 28px #0005;font:12px Arial Unicode MS,Arial,sans-serif}'+
    '.lab-start-modal::backdrop{background:#0006}'+
    '.lab-start-modal .lab-start-card{width:100%;max-height:none;overflow:visible;box-sizing:border-box;padding:0;border:0;box-shadow:none;border-radius:0;background:white;color:#222;font:inherit}'+
    '.lab-start-modal .lab-start-card h2{font-size:1.2em;font-weight:600;margin:0 0 12px}'+
    '.lab-start-modal .lab-start-card button{width:auto;padding:5px 9px;border:1px solid #bbb;border-bottom:1px solid #a0a0a0;border-radius:3px;background:#e7e7e7;color:#222;font:inherit}'+
    '.lab-start-modal .lab-start-card #lab-start-accept{display:block;margin:12px 0 0 auto;padding:6px 10px}'+
-   '.lab-start-modal .lab-start-stepper button{width:42px;height:35px;padding:0;font-size:22px;border-radius:3px}'+
-   '.lab-start-modal .lab-start-stepper output{height:35px;font-size:21px;border-radius:3px}'+
+   '.lab-start-modal .lab-start-stepper button{width:42px;height:35px;padding:0;font-size:18px;border-radius:3px}'+
+   '.lab-start-modal .lab-start-stepper output{height:35px;font-size:18px;border-radius:3px}'+
    '.lab-start-modal .lab-start-preview{background:#f0f0f0;border:1px solid #ccc;border-radius:3px}';
   document.head.appendChild(style);
- const modal=document.createElement("dialog");modal.id="lab-start-modal";modal.className="circuitDialog lab-start-modal";modal.hidden=true;
-  modal.addEventListener("cancel",e=>{if(get("labStartConfigured")!=="1")e.preventDefault();else{modal.hidden=true;document.body.classList.remove("lab-start-open")}});
+ const modal=document.createElement("dialog");modal.id="lab-start-modal";modal.className="circuitDialog lab-start-modal";modal.hidden=true;window.__JGRSettingsDialog=modal;
+  modal.addEventListener("cancel",e=>{if(get("labStartConfigured")!=="1")e.preventDefault();else{modal.hidden=true;settingsDocument().body.classList.remove("lab-start-open")}});
   document.body.appendChild(modal);
  const settings=document.createElement("button");settings.className="lab-start-settings topButton";settings.type="button";settings.textContent=(catalogs[language]||catalogs.en)[13];settings.onclick=show;window.__JGRSettingsButton=settings;
   const attachSettings=()=>{const sidebar=document.querySelector(".verticalPanel");if(!sidebar)return false;if(settings.parentElement!==sidebar)sidebar.appendChild(settings);return true;};

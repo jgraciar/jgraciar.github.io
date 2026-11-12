@@ -55,3 +55,8 @@ Configuración ocupa el extremo izquierdo de la barra de pestañas, con un
 engranaje de seis dientes. Marcha/paro usa un triángulo y una barra vertical.
 Los iconos comparten trazo fino y fondo transparente; mantienen su función
 y sus etiquetas accesibles.
+
+Configuración se abre en un diálogo global, centrado sobre toda la aplicación,
+con fuente de 12 px. Su icono ocupa el extremo derecho de la barra. El cambio
+de fondo se aplica a todos los circuitos. El separador entre ventanas mide
+2 px y el marco activo mide 4 px, azul sobre blanco y amarillo sobre negro.

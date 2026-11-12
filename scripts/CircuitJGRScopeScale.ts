@@ -36,10 +36,18 @@ export function drawScopeScaleBadge(scope:Scope,g:Graphics):{width:number;height
  g.save();
  g.clipRect(x,gap,width,height);
  g.context.globalAlpha=.93;
- g.setColor(scope.app.isPrintable()?'#ffffff':'#111111');g.fillRect(x,gap,width,height);
+ g.setColor(scope.app.isPrintable()?'#ffffff':'#414141');g.fillRect(x,gap,width,height);
  g.context.globalAlpha=1;
  g.context.textAlign='right';
  rows.forEach((row,i)=>{g.setColor(row.color);g.drawString(row.text,scope.rect.width-gap-6,gap+12+i*line);});
  g.restore();
  return {width:width+gap+6,height:height+gap};
+}
+
+// 20 % más claro que #111111: 17 + (255 - 17) × 0,20 = 65.
+export function drawScopeTextBackground(scope:Scope,g:Graphics,text:string,x:number,y:number,prefix=0):void{
+ const width=Math.min(scope.rect.width-x,Math.ceil(g.measureWidth(text))+prefix+5);
+ g.save();g.context.globalAlpha=.93;
+ g.setColor(scope.app.isPrintable()?'#ffffff':'#414141');
+ g.fillRect(x-2,y-11,width,14);g.restore();
 }

@@ -70,7 +70,7 @@ try{
  for(const frame of frames)await frame.evaluate(xml=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit(xml,false);window.localeTabApi=window.CircuitJS1;},fixture);
  const original=await Promise.all(frames.map(circuitState));
  const active=tabs.frameLocator('iframe[data-tab-id="jgr-2"]');
- await active.locator('.lab-start-settings').click();await active.locator('#lab-start-language').selectOption('es');await active.locator('#lab-start-accept').click();
+ await active.locator('.lab-start-settings').click();await tabs.locator('#lab-start-language').selectOption('es');await tabs.locator('#lab-start-accept').click();
  await tabs.waitForFunction(()=>[...document.querySelectorAll('iframe')].every(f=>f.contentWindow.CircuitJS1?.getLanguage()==='es'));
  for(const [i,frame]of frames.entries()){
   assert.equal(await frame.locator('#jgr-sidebar-toggle').textContent(),workspaceLabel('hide','es'));
@@ -80,7 +80,7 @@ try{
   assert.equal(await circuitState(frame),original[i]);
   assert(await frame.evaluate(()=>window.CircuitJS1===window.localeTabApi&&!window.CircuitJS1.isRunning()));
  }
- await active.locator('.lab-start-settings').click();assert.equal(await active.locator('#lab-start-language').inputValue(),'es');
+ await active.locator('.lab-start-settings').click();assert.equal(await tabs.locator('#lab-start-language').inputValue(),'es');
  assert.deepEqual(errors,[]);
  console.log('OK: all 22 live locales match fresh loads; Valencian→Spanish via Settings; two open tabs synchronize without reload or circuit changes');
 }finally{await browser.close();}
