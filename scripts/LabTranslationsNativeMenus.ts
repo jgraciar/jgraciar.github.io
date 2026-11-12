@@ -178,3 +178,34 @@ const additional: Record<string,Record<string,string>> = {
   }
 };
 for(const [code,values] of Object.entries(additional))Object.assign(nativeMenuExtensions[code],values);
+// Categorías de los ejemplos docentes; los títulos de los archivos se conservan.
+const teachingGroupKeys=['Suma de productos (SOP)','Producto de sumas (POS)','Mapas de Karnaugh','Circuitos lógicos'];
+const teachingGroups:Record<string,string>={
+ en:'Sum of products (SOP)|Product of sums (POS)|Karnaugh maps|Logic circuits',
+ es:'Suma de productos (SOP)|Producto de sumas (POS)|Mapas de Karnaugh|Circuitos lógicos',
+ ca:'Suma de productes (SOP)|Producte de sumes (POS)|Mapes de Karnaugh|Circuits lògics',
+ 'ca-es-valencia':'Suma de productes (SOP)|Producte de sumes (POS)|Mapes de Karnaugh|Circuits lògics',
+ gl:'Suma de produtos (SOP)|Produto de sumas (POS)|Mapas de Karnaugh|Circuítos lóxicos',
+ eu:'Biderkaduren batura (SOP)|Baturen biderkadura (POS)|Karnaugh mapak|Zirkuitu logikoak',
+ fr:'Somme de produits (SOP)|Produit de sommes (POS)|Tableaux de Karnaugh|Circuits logiques',
+ de:'Summe von Produkten (SOP)|Produkt von Summen (POS)|Karnaugh-Diagramme|Logikschaltungen',
+ it:'Somma di prodotti (SOP)|Prodotto di somme (POS)|Mappe di Karnaugh|Circuiti logici',
+ pt:'Soma de produtos (SOP)|Produto de somas (POS)|Mapas de Karnaugh|Circuitos lógicos',
+ nl:'Som van producten (SOP)|Product van sommen (POS)|Karnaughdiagrammen|Logische schakelingen',
+ sv:'Summa av produkter (SOP)|Produkt av summor (POS)|Karnaughdiagram|Logikkretsar',
+ da:'Sum af produkter (SOP)|Produkt af summer (POS)|Karnaughdiagrammer|Logiske kredsløb',
+ nb:'Sum av produkter (SOP)|Produkt av summer (POS)|Karnaughdiagrammer|Logiske kretser',
+ fi:'Tulojen summa (SOP)|Summien tulo (POS)|Karnaugh-kartat|Logiikkapiirit',
+ pl:'Suma iloczynów (SOP)|Iloczyn sum (POS)|Mapy Karnaugha|Układy logiczne',
+ csx:'Součet součinů (SOP)|Součin součtů (POS)|Karnaughovy mapy|Logické obvody',
+ ru:'Сумма произведений (SOP)|Произведение сумм (POS)|Карты Карно|Логические схемы',
+ zh:'与或式 (SOP)|或与式 (POS)|卡诺图|逻辑电路',
+ 'zh-tw':'與或式 (SOP)|或與式 (POS)|卡諾圖|邏輯電路',
+ ja:'積和形 (SOP)|和積形 (POS)|カルノー図|論理回路',
+ kr:'곱의 합 (SOP)|합의 곱 (POS)|카르노 맵|논리 회로'
+};
+for(const [code,row] of Object.entries(teachingGroups)){
+ const values=row.split('|');
+ if(values.length!==teachingGroupKeys.length)throw Error('Categorías docentes incompletas: '+code);
+ Object.assign(nativeMenuExtensions[code]??={},Object.fromEntries(teachingGroupKeys.map((key,i)=>[key,values[i]])));
+}

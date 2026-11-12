@@ -21,3 +21,8 @@ Reordenar mantiene los mismos motores, circuitos, nombres y estados de simulaci�
 La prueba de navegador comprueba arrastre en ambos sentidos, teclado, cancelación,
 conservación de XML y tiempo, apertura de más de ocho pestañas, ajuste entre
 320 y 1500 px, accesibilidad de «+», cierre y gestos táctiles.
+
+«+» abre siempre un circuito vacío. El icono de dos hojas anterior al control
+del panel lateral duplica la pestaña activa en otra independiente, con el sufijo
+«(copia)». La copia conserva el circuito y el estado de marcha o pausa; puede
+guardarse con otro nombre. El circuito original permanece abierto.

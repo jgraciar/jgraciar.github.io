@@ -28,7 +28,7 @@ body{background:white}
 <script>
 "use strict";
 (() => {
- const TAB_CSS="#jgr-tab-strip{position:absolute;left:0;right:0;height:33px;box-sizing:border-box;display:flex;align-items:end;gap:4px;overflow:hidden;padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc;z-index:5;font-family:Arial,Helvetica,sans-serif;color:#202020}\n#jgr-tab-strip .jgr-tab-list{display:flex;flex:0 1 auto;min-width:0;height:29px;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}\n#jgr-tab-strip .jgr-tab-list::-webkit-scrollbar{display:none}\n#jgr-tab-strip .tab{height:29px;flex:1 1 0;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:48px;box-sizing:border-box;user-select:none}\n#jgr-tab-strip .tab.active{background:white;border-color:#999}\n#jgr-tab-strip .tab.modified .choose::after{content:\" *\"}\n#jgr-tab-strip .tab button{font:inherit;background:none;border:0;color:#202020;cursor:pointer}\n#jgr-tab-strip .tab .choose{flex:1 1 0;min-width:0;padding:5px 4px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:grab;touch-action:none}\n#jgr-tab-strip .tab .close{flex:0 0 20px;min-width:20px;width:20px;padding:2px 0;font-size:17px}\n#jgr-tab-strip .tab .close:hover{color:#a50000;background:#e6d3d3}\n#jgr-tab-strip .tab.dragging{opacity:.5}\n#jgr-tab-strip .tab.drop-before{box-shadow:inset 3px 0 #225d9b}\n#jgr-tab-strip .tab.drop-after{box-shadow:inset -3px 0 #225d9b}\n#jgr-tab-strip #add-tab{height:29px;width:30px;min-width:30px;flex:0 0 30px;font-size:19px;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #add-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #jgr-sidebar-toggle{margin-left:auto;flex:0 0 auto;align-self:center;padding:4px 9px;border:1px solid #aaa;border-radius:3px;background:#f8f8f8;color:#333;font:12px Arial,Helvetica,sans-serif;white-space:nowrap;cursor:pointer}\n#jgr-tab-strip #jgr-sidebar-toggle svg{display:none}\n#jgr-tab-strip #jgr-sidebar-toggle:hover{background:#fff}\n#jgr-tab-strip button:focus-visible{outline:2px solid #225d9b;outline-offset:-2px}\n@media(max-width:600px){#jgr-tab-strip #jgr-sidebar-toggle{width:30px;min-width:30px;padding:3px 4px}#jgr-tab-strip #jgr-sidebar-toggle svg{display:block}#jgr-tab-strip .sidebar-label{display:none}.layoutPanel > .triggerLabel{display:none!important}.layoutPanel > #painel{width:128px!important;z-index:4;transition:none;background:#fff;border-left:1px solid #bbb}}";
+ const TAB_CSS="#jgr-tab-strip{position:absolute;left:0;right:0;height:33px;box-sizing:border-box;display:flex;align-items:end;gap:4px;overflow:hidden;padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc;z-index:5;font-family:Arial,Helvetica,sans-serif;color:#202020}\n#jgr-tab-strip .jgr-tab-list{display:flex;flex:0 1 auto;min-width:0;height:29px;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}\n#jgr-tab-strip .jgr-tab-list::-webkit-scrollbar{display:none}\n#jgr-tab-strip .tab{height:29px;flex:1 1 0;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:48px;box-sizing:border-box;user-select:none}\n#jgr-tab-strip .tab.active{background:white;border-color:#999}\n#jgr-tab-strip .tab.modified .choose::after{content:\" *\"}\n#jgr-tab-strip .tab button{font:inherit;background:none;border:0;color:#202020;cursor:pointer}\n#jgr-tab-strip .tab .choose{flex:1 1 0;min-width:0;padding:5px 4px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:grab;touch-action:none}\n#jgr-tab-strip .tab .close{flex:0 0 20px;min-width:20px;width:20px;padding:2px 0;font-size:17px}\n#jgr-tab-strip .tab .close:hover{color:#a50000;background:#e6d3d3}\n#jgr-tab-strip .tab.dragging{opacity:.5}\n#jgr-tab-strip .tab.drop-before{box-shadow:inset 3px 0 #225d9b}\n#jgr-tab-strip .tab.drop-after{box-shadow:inset -3px 0 #225d9b}\n#jgr-tab-strip #add-tab{height:29px;width:30px;min-width:30px;flex:0 0 30px;font-size:19px;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #duplicate-tab{margin-left:auto;flex:0 0 30px;width:30px;height:29px;align-self:center;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #duplicate-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #add-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #jgr-sidebar-toggle{flex:0 0 auto;align-self:center;padding:4px 9px;border:1px solid #aaa;border-radius:3px;background:#f8f8f8;color:#333;font:12px Arial,Helvetica,sans-serif;white-space:nowrap;cursor:pointer}\n#jgr-tab-strip #jgr-sidebar-toggle svg{display:none}\n#jgr-tab-strip #jgr-sidebar-toggle:hover{background:#fff}\n#jgr-tab-strip button:focus-visible{outline:2px solid #225d9b;outline-offset:-2px}\n@media(max-width:600px){#jgr-tab-strip #jgr-sidebar-toggle{width:30px;min-width:30px;padding:3px 4px}#jgr-tab-strip #jgr-sidebar-toggle svg{display:block}#jgr-tab-strip .sidebar-label{display:none}.layoutPanel > .triggerLabel{display:none!important}.layoutPanel > #painel{width:128px!important;z-index:4;transition:none;background:#fff;border-left:1px solid #bbb}}";
  const workspace=document.querySelector("#workspace");
  const openInput=document.querySelector("#open-files");
  const notice=document.querySelector("#notice");
@@ -139,6 +139,13 @@ body{background:white}
    plus.setAttribute("aria-label",tr(session,"new"));
    bindTabAction(plus,()=>newBlank());
    tabsEl.append(plus);
+   const duplicate=doc.createElement("button");
+   duplicate.type="button";duplicate.id="duplicate-tab";
+   duplicate.title=tr(session,"duplicate");duplicate.setAttribute("aria-label",duplicate.title);
+   duplicate.disabled=!active?.ready;
+   duplicate.innerHTML='<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1" fill="none" stroke="currentColor"/><path d="M4 13H3V3h10v1" fill="none" stroke="currentColor"/></svg>';
+   bindTabAction(duplicate,duplicateActive);
+   tabsEl.append(duplicate);
    const sideToggle=doc.createElement("button");
    sideToggle.type="button";sideToggle.id="jgr-sidebar-toggle";
    const toggleLabel=tr(session,sidebarVisible?"hide":"show");
@@ -468,8 +475,8 @@ body{background:white}
    t.closeAfterSave=false;
   }
  });
- function addTab(name,content,openedFile=false){
-  const t={id:"jgr-"+(++serial),name,ready:false,resume:true,frame:null,section:null,
+ function addTab(name,content,openedFile=false,options={}){
+  const t={id:"jgr-"+(++serial),name,ready:false,resume:options.running??true,frame:null,section:null,
    pendingPaste:null,closeAfterSave:false,openedFile,intercepted:false};
   const section=document.createElement("section");
   section.className="session";section.dataset.tabId=t.id;
@@ -478,7 +485,11 @@ body{background:white}
   iframe.dataset.tabId=t.id;iframe.title="Circuit JGR: "+name;
   const url=new URL("./circuitjgr.html",location.href);
   url.searchParams.set("jgr-tabs-prototype",t.id);
-  // Prevent an example from the URL being loaded over a new independent tab.
+  // Las nuevas pestañas arrancan vacías, sin heredar ejemplos de la URL.
+  if(content!==null){
+   for(const key of ["cct","ctz","startCircuit","startCircuitLink"])url.searchParams.delete(key);
+   url.searchParams.set("cct",BLANK);
+  }
   iframe.src=url.href;
   section.append(iframe);workspace.append(section);
   t.section=section;t.frame=iframe;
@@ -503,7 +514,8 @@ body{background:white}
     app.unsavedChanges=false;
     app.savedDumpPending=true;
     t.ready=true;
-    if(t!==active)a.setSimRunning(false);
+    a.setSimRunning(t===active&&t.resume);
+    if(options.duplicate){app.unsavedChanges=true;app.savedDump=null;app.savedDumpPending=false;}
     renderTabs();
     if(t===active)revealTab(t,t);
     message("");
@@ -514,6 +526,12 @@ body{background:white}
   return t;
  }
  function newBlank(){return addTab("Sin título "+(++unnamed),BLANK,false);}
+ function duplicateActive(){
+  const source=active,api=apiFor(source);
+  if(!source?.ready||!api)return;
+  const content=api.exportCircuit(),running=api.isRunning();
+  return addTab(tr(source,"copyName",source.name),content,false,{running,duplicate:true});
+ }
  async function openFiles(files){
   for(const file of files){
    if(file.size>=1280000){message("Archivo demasiado grande: "+file.name);continue;}
@@ -541,6 +559,7 @@ body{background:white}
   activate:id=>activate(find(id)),
   getActive:()=>active?.id??null,
   newBlank,
+  duplicateActive,
   openFilePicker:()=>openInput.click()
  };
  unnamed=1;

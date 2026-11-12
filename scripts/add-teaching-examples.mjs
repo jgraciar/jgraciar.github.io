@@ -5,10 +5,10 @@ const [dir,repo]=process.argv.slice(2);
 assert(dir&&repo,'Uso: add-teaching-examples.mjs <ts-src> <repo>');
 const src=join(repo,'examples','circuit-jgr');
 const manifest=JSON.parse(readFileSync(join(src,'manifest.json'),'utf8'));
-assert.equal(manifest.length,16,'Deben conservarse los 16 ejemplos originales');
-const types=['encoder','decoder','mux','feedback','rs','jk','d','t','counter'];
+assert.equal(manifest.length,48,'Deben conservarse los 48 ejemplos docentes');
+const types=['sop','pos','mapa','logic','encoder','decoder','mux','feedback','rs','jk','d','t','counter'];
 assert(manifest.every(x=>types.includes(x.type)),'Hay ejemplos sin clasificar');
-assert.equal(new Set(manifest.map(x=>x.file)).size,16,'Ejemplos docentes duplicados');
+assert.equal(new Set(manifest.map(x=>x.file)).size,manifest.length,'Ejemplos docentes duplicados');
 const dest=join(dir,'public','circuits','jgr');
 mkdirSync(dest,{recursive:true});
 for(const item of manifest){
@@ -36,6 +36,10 @@ for(const name of previousFiles){
 const withoutTopLevelCopies=originalLines.filter(line=>!previous.includes(line)).join('\n');
 const extra=[
  ...group('Lógica combinacional',[
+  ...group('Suma de productos (SOP)',byType('sop')),
+  ...group('Producto de sumas (POS)',byType('pos')),
+  ...group('Mapas de Karnaugh',byType('mapa')),
+  ...group('Circuitos lógicos',byType('logic')),
   ...group('Codificadores',byType('encoder')),
   ...group('Decodificadores',byType('decoder')),
   ...group('Multiplexores y demultiplexores',byType('mux'))
@@ -63,4 +67,4 @@ for(const item of manifest)assert.equal(list.split('jgr/'+item.file+' '+item.lab
  'El ejemplo debe aparecer exactamente una vez en el menú: '+item.file);
 for(const previousLine of previous)assert.equal(list.split(previousLine).length-1,1,
  'El ejemplo de integrado debe aparecer exactamente una vez: '+previousLine);
-console.log('OK: 19 ejemplos en Circuit JGR clasificados por función (16 docentes y 3 integrados), sin modificar los archivos ni sus nombres.');
+console.log('OK: 51 ejemplos en Circuit JGR clasificados por función (48 docentes y 3 integrados), sin modificar los archivos ni sus nombres.');

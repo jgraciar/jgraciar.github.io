@@ -133,7 +133,9 @@ jobs:
         run: node adaptacion/tests/verify-component-search-ui.mjs
 
       - name: Verificar orden y ancho de pestañas
-        run: node adaptacion/tests/verify-tab-order-width-ui.mjs
+        run: |
+          node adaptacion/tests/verify-tab-actions-ui.mjs
+          node adaptacion/tests/verify-tab-order-width-ui.mjs
 
       - name: Verificar los ocho métodos de la calculadora en ambas pestañas
         run: node adaptacion/tests/verify-calculadora-metodos-ui.mjs

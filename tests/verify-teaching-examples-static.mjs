@@ -6,10 +6,14 @@ assert(dir&&repo);
 const root=join(repo,'examples','circuit-jgr');
 const manifest=JSON.parse(readFileSync(join(root,'manifest.json'),'utf8'));
 const list=readFileSync(join(dir,'public','setuplist.txt'),'utf8');
-assert.equal(manifest.length,16);
+assert.equal(manifest.length,48);
 assert.equal(list.split('+Circuit JGR\n').length-1,1);
 for(const cat of ['comb','feedback','bistable','counter'])assert(manifest.some(x=>x.category===cat));
 const typePaths={
+ sop:['Lógica combinacional','Suma de productos (SOP)'],
+ pos:['Lógica combinacional','Producto de sumas (POS)'],
+ mapa:['Lógica combinacional','Mapas de Karnaugh'],
+ logic:['Lógica combinacional','Circuitos lógicos'],
  encoder:['Lógica combinacional','Codificadores'],
  decoder:['Lógica combinacional','Decodificadores'],
  mux:['Lógica combinacional','Multiplexores y demultiplexores'],
@@ -50,5 +54,5 @@ for(const name of integrated){
  assert.deepEqual(e.path,['Lógica secuencial','Contadores','Circuitos integrados'],
   'Ejemplo integrado mal clasificado: '+name);
 }
-assert.equal(entries.size,19,'El índice debe contener 16 ejemplos docentes y 3 circuitos integrados');
-console.log('OK: 19 circuitos únicos ordenados por tipo; 16 XML preservados y 3 integrados con sus títulos originales.');
+assert.equal(entries.size,51,'El índice debe contener 48 ejemplos docentes y 3 circuitos integrados');
+console.log('OK: 51 circuitos únicos ordenados por tipo; 48 XML preservados y 3 integrados con sus títulos originales.');

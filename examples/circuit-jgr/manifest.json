@@ -94,5 +94,197 @@
     "category": "counter",
     "label": "8.7.3.3. 7493 equivalente con cuatro JK",
     "type": "counter"
+  },
+  {
+    "file": "8.3.5-pos-falstad.txt",
+    "category": "comb",
+    "label": "8.3.5. POS",
+    "type": "pos"
+  },
+  {
+    "file": "8.3.5-sop-falstad.txt",
+    "category": "comb",
+    "label": "8.3.5. SOP",
+    "type": "sop"
+  },
+  {
+    "file": "8.3.6-pos-falstad.txt",
+    "category": "comb",
+    "label": "8.3.6. POS",
+    "type": "pos"
+  },
+  {
+    "file": "8.3.6-sop-falstad.txt",
+    "category": "comb",
+    "label": "8.3.6. SOP",
+    "type": "sop"
+  },
+  {
+    "file": "8.3.7-pos-falstad.txt",
+    "category": "comb",
+    "label": "8.3.7. POS",
+    "type": "pos"
+  },
+  {
+    "file": "8.3.7-sop-falstad.txt",
+    "category": "comb",
+    "label": "8.3.7. SOP",
+    "type": "sop"
+  },
+  {
+    "file": "8.3.8-mapa-1-falstad.txt",
+    "category": "comb",
+    "label": "8.3.8. Mapa de Karnaugh 1",
+    "type": "mapa"
+  },
+  {
+    "file": "8.3.8-mapa-2-falstad.txt",
+    "category": "comb",
+    "label": "8.3.8. Mapa de Karnaugh 2",
+    "type": "mapa"
+  },
+  {
+    "file": "8.3.8-mapa-3-falstad.txt",
+    "category": "comb",
+    "label": "8.3.8. Mapa de Karnaugh 3",
+    "type": "mapa"
+  },
+  {
+    "file": "8.3.8-mapa-4-falstad.txt",
+    "category": "comb",
+    "label": "8.3.8. Mapa de Karnaugh 4",
+    "type": "mapa"
+  },
+  {
+    "file": "8.3.8-mapa-5-falstad.txt",
+    "category": "comb",
+    "label": "8.3.8. Mapa de Karnaugh 5",
+    "type": "mapa"
+  },
+  {
+    "file": "8.3.8-mapa-6-falstad.txt",
+    "category": "comb",
+    "label": "8.3.8. Mapa de Karnaugh 6",
+    "type": "mapa"
+  },
+  {
+    "file": "8.3.8-mapa-7-falstad.txt",
+    "category": "comb",
+    "label": "8.3.8. Mapa de Karnaugh 7",
+    "type": "mapa"
+  },
+  {
+    "file": "8.3.8-mapa-8-falstad.txt",
+    "category": "comb",
+    "label": "8.3.8. Mapa de Karnaugh 8",
+    "type": "mapa"
+  },
+  {
+    "file": "8.3.8-pos-falstad.txt",
+    "category": "comb",
+    "label": "8.3.8. POS",
+    "type": "pos"
+  },
+  {
+    "file": "8.3.8-sop-falstad.txt",
+    "category": "comb",
+    "label": "8.3.8. SOP",
+    "type": "sop"
+  },
+  {
+    "file": "actividad-8.2-c1-pos-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.2 · C1 · POS",
+    "type": "pos"
+  },
+  {
+    "file": "actividad-8.2-c1-sop-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.2 · C1 · SOP",
+    "type": "sop"
+  },
+  {
+    "file": "actividad-8.2-c2-pos-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.2 · C2 · POS",
+    "type": "pos"
+  },
+  {
+    "file": "actividad-8.2-c2-sop-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.2 · C2 · SOP",
+    "type": "sop"
+  },
+  {
+    "file": "actividad-8.3a-pos-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.3a · POS",
+    "type": "pos"
+  },
+  {
+    "file": "actividad-8.3a-sop-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.3a · SOP",
+    "type": "sop"
+  },
+  {
+    "file": "actividad-8.3b-pos-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.3b · POS",
+    "type": "pos"
+  },
+  {
+    "file": "actividad-8.3b-sop-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.3b · SOP",
+    "type": "sop"
+  },
+  {
+    "file": "actividad-8.3c-pos-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.3c · POS",
+    "type": "pos"
+  },
+  {
+    "file": "actividad-8.3c-sop-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.3c · SOP",
+    "type": "sop"
+  },
+  {
+    "file": "actividad-8.4-8.5-8.6-a-pos-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.4, 8.5 y 8.6 · a · POS",
+    "type": "pos"
+  },
+  {
+    "file": "actividad-8.4-8.5-8.6-a-sop-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.4, 8.5 y 8.6 · a · SOP",
+    "type": "sop"
+  },
+  {
+    "file": "actividad-8.4-8.5-8.6-b-pos-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.4, 8.5 y 8.6 · b · POS",
+    "type": "pos"
+  },
+  {
+    "file": "actividad-8.4-8.5-8.6-b-sop-falstad.txt",
+    "category": "comb",
+    "label": "Actividad 8.4, 8.5 y 8.6 · b · SOP",
+    "type": "sop"
+  },
+  {
+    "file": "actividad-8.7-decodificador-binario-2a4.txt",
+    "category": "comb",
+    "label": "Actividad 8.7. Decodificador binario 2 a 4",
+    "type": "decoder"
+  },
+  {
+    "file": "practica-circuito-logico-a-b-c.txt",
+    "category": "comb",
+    "label": "Práctica. Circuito lógico A, B y C",
+    "type": "logic"
   }
 ]

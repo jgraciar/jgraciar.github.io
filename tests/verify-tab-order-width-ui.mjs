@@ -18,10 +18,10 @@ async function geometry(page){return (await strip(page)).evaluate(el=>{
  const box=node=>{const r=node.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};};
  const list=el.querySelector('.jgr-tab-list');
  return {width:innerWidth,strip:box(el),list:box(list),scroll:list.scrollWidth,visible:list.clientWidth,
-  plus:box(el.querySelector('#add-tab')),side:box(el.querySelector('#jgr-sidebar-toggle')),
+  plus:box(el.querySelector('#add-tab')),duplicate:box(el.querySelector('#duplicate-tab')),side:box(el.querySelector('#jgr-sidebar-toggle')),
   tabs:[...list.querySelectorAll('.tab')].map(box),enabled:!el.querySelector('#add-tab').disabled};
  });}
-function accessible(g){assert(g.strip.left>=0&&g.strip.right<=g.width+1);assert(g.plus.left>=0&&g.plus.right<=g.width);assert(g.side.right<=g.width);assert(g.list.right<=g.plus.left+1);assert(g.plus.right<=g.side.left+1);assert(g.enabled);}
+function accessible(g){assert(g.strip.left>=0&&g.strip.right<=g.width+1);assert(g.plus.left>=0&&g.plus.right<=g.width);assert(g.side.right<=g.width);assert(g.list.right<=g.plus.left+1);assert(g.plus.right<=g.duplicate.left+1);assert(g.duplicate.right<=g.side.left+1);assert(g.duplicate.left>=0);assert(g.enabled);}
 function adjacent(g){
  accessible(g);
  assert(Math.abs(g.plus.left-g.tabs.at(-1).right-4)<2,'The + button follows the last tab without unused space');

@@ -28,5 +28,5 @@ try{
   assert(data.roundTrip,item.file+': no se puede exportar');
  }
  assert.deepEqual(errors,[]);
- console.log('OK: 16 ejemplos docentes accesibles, importables y exportables.');
+ console.log('OK: 48 ejemplos docentes accesibles, importables y exportables.');
 }finally{await browser.close();}
