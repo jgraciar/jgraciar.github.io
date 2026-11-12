@@ -124,9 +124,12 @@ body{background:white}
   const app=appFor(t);if(!app)return;
   for(const [button,icon] of [[app.ui.resetButton,"reset"],[app.ui.runStopButton,"runstop"],[t.settings||t.frame.contentWindow.__JGRSettingsButton,"settings"]]){
    if(!button)continue;
-   const running=!!apiFor(t)?.isRunning();
+   const running=!!app.ui.simIsRunning();
    const label=icon==="runstop"?button.textContent.split("/")[running?1:0].trim():button.textContent.trim();
-   if(icon==="runstop")button.setAttribute("aria-pressed",String(running));
+   if(icon==="runstop"){
+    button.setAttribute("aria-pressed",String(running));
+    button.style.setProperty("background",running?"#d8efd9":"#f8d7da","important");
+   }
    button.dataset.jgrIcon=icon;button.title=label;button.setAttribute("aria-label",label);
   }
  }
@@ -481,6 +484,9 @@ body{background:white}
    for(const session of tabs){const other=appFor(session);if(!session.ready||!other)continue;other.menus.printableCheckItem.setState(light);other.ui.setOptionInStorage("whiteBackground",light);other.repaint();}
    renderTabs();
   };
+  const runObserver=new t.frame.contentWindow.MutationObserver(()=>iconButtons(t));
+  runObserver.observe(app.ui.runStopButton,{attributes:true,attributeFilter:["class"],childList:true});
+  t.runObserver=runObserver;
   const nativeRun=app.ui.setSimRunning.bind(app.ui);
   app.ui.setSimRunning=function(state){const result=nativeRun(state);iconButtons(t);return result;};
   const originalToolbar=app.ui.setToolbar.bind(app.ui);
@@ -529,6 +535,7 @@ body{background:white}
   tabs.splice(i,1);
   if(app){for(const node of [app.menus.menuBar,app.ui.toolbar.element,t.strip])if(node?.ownerDocument===document)app.ui.layoutPanel.append(node);}
   for(const palette of t.palettes||[])if(palette.ownerDocument===document)t.frame.contentDocument.body.append(palette);
+  t.runObserver?.disconnect();
   t.frame.src="about:blank";
   t.section.remove();
   if(wasActive){
@@ -709,6 +716,7 @@ document.querySelectorAll(".gwt-MenuItem.open,li.hasSubmenu.open").forEach(n=>n.
  });
  // Actualizar asterisco de cambios mediante el estado nativo, sin tocar el solver.
  setInterval(()=>{
+  tabs.filter(t=>t.ready).forEach(iconButtons);
   const signature=tabs.map(t=>t.id+":"+isModified(t)).join("|");
   if(signature!==dirtySignature){dirtySignature=signature;renderTabs();}
  },900);

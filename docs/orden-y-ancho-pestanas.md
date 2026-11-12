@@ -66,3 +66,9 @@ Marcha/paro utiliza un fondo verde pastel (#d8efd9) en marcha y rojo claro
 estado accesible y gobierna el color. La pestaña del simulador y el motor
 usan el icono original de https://www.falstad.com/circuit/favicon.ico mediante
 un enlace directo al archivo de Falstad.
+
+El color de marcha/paro se actualiza directamente desde `simIsRunning()`, con
+prioridad de estilo sobre el fondo genérico de los iconos. Se resincroniza
+al cambiar la clase o el contenido del botón y durante la actualización
+periódica de la interfaz. Así también se conservan los colores tras cambios
+de idioma o actualizaciones nativas del control.

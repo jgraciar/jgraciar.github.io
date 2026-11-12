@@ -26,6 +26,21 @@ try{
   if(!mobile){await run.hover();assert.equal(await run.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(216, 239, 217)');}
   if(mobile)await run.tap();else await run.click();
   assert.equal(await run.getAttribute('aria-pressed'),'false');
+  assert.equal(await run.evaluate(el=>el.style.getPropertyPriority('background')),'important');
+  // Exercise a native DOM refresh that bypasses the wrapper's run/stop hook.
+  await page.evaluate(()=>{
+   const app=document.querySelector('iframe[data-tab-id="jgr-1"]').contentWindow.__CircuitJGRExperimentalApp;
+   app.simRunning=true;app.ui.runStopButton.className='topButton';
+  });
+  await page.waitForFunction(()=>document.querySelector('iframe').contentDocument.querySelector('[data-jgr-icon="runstop"]').getAttribute('aria-pressed')==='true');
+  assert.equal(await run.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(216, 239, 217)');
+  await page.evaluate(()=>{
+   const app=document.querySelector('iframe[data-tab-id="jgr-1"]').contentWindow.__CircuitJGRExperimentalApp;
+   app.simRunning=false;app.ui.runStopButton.className='topButton-red';
+  });
+  await page.waitForFunction(()=>document.querySelector('iframe').contentDocument.querySelector('[data-jgr-icon="runstop"]').getAttribute('aria-pressed')==='false');
+  if(!mobile)await run.hover();
+
   assert.equal(await run.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(248, 215, 218)');
 
   assert.equal((await info(page,'jgr-1')).running,false,'Initial URL pause is preserved');
