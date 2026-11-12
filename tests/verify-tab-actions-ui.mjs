@@ -49,7 +49,16 @@ try{
 
   assert.equal((await info(page,'jgr-1')).running,false,'Initial URL pause is preserved');
   const press=async selector=>{const b=(await bar(page)).locator(selector);if(mobile)await b.tap();else await b.click();};
-  await press('#add-tab');await ready(page,2);await page.waitForTimeout(500);
+  await press('#add-tab');
+  // La interfaz nativa no debe hacerse visible antes de terminar de adaptar la nueva pestaña.
+  const boot=await page.locator('.session[data-tab-id="jgr-2"]').evaluate(el=>({
+   ready:el.classList.contains('ready'),visibility:getComputedStyle(el.querySelector('iframe')).visibility
+  }));
+  if(!boot.ready)assert.equal(boot.visibility,'hidden','The new iframe must stay hidden during initialization');
+  await ready(page,2);
+  await page.waitForFunction(()=>document.querySelector('.session[data-tab-id="jgr-2"]').classList.contains('ready'));
+  assert.equal(await page.locator('.session[data-tab-id="jgr-2"] iframe').evaluate(el=>getComputedStyle(el).visibility),'visible');
+  await page.waitForTimeout(500);
   assert.equal((await info(page,'jgr-2')).count,0,'+ opens an empty circuit despite the circuit in the URL');
   assert.equal((await info(page,'jgr-2')).modified,false,'A blank tab starts clean');
   await page.evaluate(xml=>{const api=document.querySelector('iframe[data-tab-id="jgr-2"]').contentWindow.CircuitJS1;api.importCircuit(xml,false);api.setSimRunning(false);window.sourceApi=api;},circuit(1234));
