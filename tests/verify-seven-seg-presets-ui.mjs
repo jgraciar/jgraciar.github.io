@@ -13,7 +13,7 @@ try {
    window.CircuitJS1.importCircuit('<cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11"/>',false);
    window.CircuitJS1.setSimRunning(false);
   });
-  await page.locator('td.gwt-MenuItem').filter({hasText:/^Dibujar$/}).click();
+  await page.locator('td.gwt-MenuItem').filter({hasText:/Dibujar/}).first().click();
   await page.locator('td.gwt-MenuItem.open > ul > li.hasSubmenu').filter({hasText:/Circuitos integrados digitales/}).hover();
   await page.locator('td.gwt-MenuItem.open li.hasSubmenu.open > ul > li.hasSubmenu').filter({hasText:/Otros componentes digitales/}).hover();
   const submenu=page.locator('td.gwt-MenuItem.open li.hasSubmenu.open li.hasSubmenu.open > ul');

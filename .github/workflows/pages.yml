@@ -124,6 +124,7 @@ jobs:
         run: |
           python3 -m http.server 8767 --directory site-root >/tmp/circuitjgr-http.log 2>&1 &
           sleep 2
+          node adaptacion/tests/verify-seven-seg-presets-ui.mjs
           node adaptacion/tests/verify-counters-ui.mjs
           node adaptacion/tests/verify-tabs-experimental-ui.mjs
           node adaptacion/tests/verify-live-settings-ui.mjs
@@ -147,7 +148,6 @@ jobs:
           node adaptacion/tests/verify-six-pulse-ui.mjs
           node adaptacion/tests/verify-wattmeter-ui.mjs
           node adaptacion/tests/verify-cd4026-ui.mjs
-          node adaptacion/tests/verify-seven-seg-presets-ui.mjs
 
       - name: Preparar GitHub Pages
         uses: actions/configure-pages@v5
