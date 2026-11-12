@@ -17,7 +17,11 @@ try{
   await page.addInitScript(()=>{localStorage.setItem('labStartConfigured','1');localStorage.setItem('labLanguageMode','manual');localStorage.setItem('language','es');});
   await page.goto('http://127.0.0.1:8767/circuitjgr.html?cct='+encodeURIComponent(circuit(77))+'&running=false');
   await ready(page,1);
-  assert.equal(await page.locator('link[rel="icon"]').getAttribute('href'),'https://www.falstad.com/circuit/favicon.ico');
+  assert.equal(await page.locator('link[rel="icon"]').getAttribute('href'),'./favicon.ico');
+  const iconResponse=await page.request.get(new URL('./favicon.ico',page.url()).href);
+  assert.equal(iconResponse.status(),200);
+  const iconBytes=await iconResponse.body();
+  assert.equal(iconBytes.readUInt32LE(0),0x00010000);
   const run=page.frameLocator('iframe[data-tab-id="jgr-1"]').locator('[data-jgr-icon="runstop"]');
   assert.equal(await run.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(248, 215, 218)');
   if(mobile)await run.tap();else await run.click();

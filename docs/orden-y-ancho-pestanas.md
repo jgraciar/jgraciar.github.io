@@ -64,8 +64,9 @@ de fondo se aplica a todos los circuitos. El separador entre ventanas mide
 Marcha/paro utiliza un fondo verde pastel (#d8efd9) en marcha y rojo claro
 (#f8d7da) en parada, también al pasar el ratón. `aria-pressed` mantiene el
 estado accesible y gobierna el color. La pestaña del simulador y el motor
-usan el icono original de https://www.falstad.com/circuit/favicon.ico mediante
-un enlace directo al archivo de Falstad.
+usan una copia local del icono original de Falstad, servida como `./favicon.ico`.
+El archivo original se conserva en `assets/favicon.ico` y se copia sin
+modificaciones al preparar la publicación. No se solicita el icono a servidores de terceros.
 
 El color de marcha/paro se actualiza directamente desde `simIsRunning()`, con
 prioridad de estilo sobre el fondo genérico de los iconos. Se resincroniza

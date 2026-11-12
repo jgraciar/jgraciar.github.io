@@ -17,6 +17,7 @@ assert(!existsSync(join(dist,"circuitjs.html")),
 if(existsSync(site))rmSync(site,{recursive:true,force:true});
 mkdirSync(site,{recursive:true});
 cpSync(dist,site,{recursive:true,force:true});
+cpSync(join(repo,"assets","favicon.ico"),join(site,"favicon.ico"));
 const target=join(site,"circuitjgr.html");
 const html=readFileSync(target,"utf8");
 assert(/<title>\s*Circuit JGR\s*<\/title>/i.test(html),"El título de la pestaña debe ser Circuit JGR");
