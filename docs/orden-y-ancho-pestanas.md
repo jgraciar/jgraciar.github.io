@@ -44,3 +44,14 @@ comunes y actúan sobre el circuito activo. Seleccionar otro circuito cambia
 el destino de esos controles. El panel lateral se controla siempre mediante
 un icono. Configuración, reinicio e inicio/parada se muestran mediante iconos
 con etiquetas accesibles y títulos emergentes traducidos.
+
+El panel lateral pertenece a cada ventana. Su control actúa solo sobre el
+circuito activo y conserva la visibilidad de las demás ventanas. Al entrar
+en vertical se ocultan todos los paneles automáticamente; las ventanas nuevas
+en esa disposición también empiezan sin panel. El usuario puede mostrar
+el panel de la ventana activa sin alterar las demás.
+
+Configuración ocupa el extremo izquierdo de la barra de pestañas, con un
+engranaje de seis dientes. Marcha/paro usa un triángulo y una barra vertical.
+Los iconos comparten trazo fino y fondo transparente; mantienen su función
+y sus etiquetas accesibles.

@@ -235,7 +235,7 @@ function render(){
    await api.applyInitialSettings({language,whiteBackground,digits,decimal:ds,grouping:gs});
    {const setupDialog=document.getElementById("lab-start-modal");if(setupDialog.open)setupDialog.close();setupDialog.hidden=true;}
    document.body.classList.remove("lab-start-open");
-   document.querySelector(".lab-start-settings").textContent=(catalogs[language]||catalogs.en)[13];
+   (window.__JGRSettingsButton||document.querySelector(".lab-start-settings")).textContent=(catalogs[language]||catalogs.en)[13];
   }finally{button.disabled=false;}
  }else{
   {const setupDialog=document.getElementById("lab-start-modal");if(setupDialog.open)setupDialog.close();setupDialog.hidden=true;}document.body.classList.remove("lab-start-open");
@@ -249,7 +249,7 @@ window.addEventListener("circuit-jgr-settings-applied",event=>{
  whiteBackground=next.whiteBackground;digits=next.digits;
  decimal=next.decimal;grouping=next.grouping;
  format=decimal===","&&grouping==="."?"eu":decimal==="."&&grouping===","?"uk":"custom";
- const button=document.querySelector(".lab-start-settings");
+ const button=(window.__JGRSettingsButton||document.querySelector(".lab-start-settings"));
  if(button)button.textContent=(catalogs[language]||catalogs.en)[13];
 });
 function show(){whiteBackground=savedBackground()==="true";const modal=document.getElementById("lab-start-modal");modal.hidden=false;document.body.classList.add("lab-start-open");render();if(!modal.open)modal.showModal()}
@@ -273,7 +273,7 @@ function init(){
  const modal=document.createElement("dialog");modal.id="lab-start-modal";modal.className="circuitDialog lab-start-modal";modal.hidden=true;
   modal.addEventListener("cancel",e=>{if(get("labStartConfigured")!=="1")e.preventDefault();else{modal.hidden=true;document.body.classList.remove("lab-start-open")}});
   document.body.appendChild(modal);
- const settings=document.createElement("button");settings.className="lab-start-settings topButton";settings.type="button";settings.textContent=(catalogs[language]||catalogs.en)[13];settings.onclick=show;
+ const settings=document.createElement("button");settings.className="lab-start-settings topButton";settings.type="button";settings.textContent=(catalogs[language]||catalogs.en)[13];settings.onclick=show;window.__JGRSettingsButton=settings;
   const attachSettings=()=>{const sidebar=document.querySelector(".verticalPanel");if(!sidebar)return false;if(settings.parentElement!==sidebar)sidebar.appendChild(settings);return true;};
   if(!attachSettings()){const watch=new MutationObserver(()=>{if(attachSettings())watch.disconnect()});watch.observe(document.body,{childList:true,subtree:true})}
  if(get("labStartConfigured")!=="1")show();

@@ -40,6 +40,27 @@ try{
  },sample(100));
  const before=await snapshot(page);
  await chooseLayout(page,'vertical',true);
+ const panels=()=>page.evaluate(()=>Object.fromEntries([...document.querySelectorAll('iframe')].map(f=>[f.dataset.tabId,getComputedStyle(f.contentWindow.__CircuitJGRExperimentalApp.ui.verticalPanel).display!=='none'])));
+ assert.deepEqual(await panels(),{'jgr-1':false,'jgr-2':false,'jgr-3':false},'Vertical layout automatically hides every side panel');
+ assert(await page.locator('#jgr-tab-strip').evaluate(el=>el.firstElementChild.classList.contains('lab-start-settings')),'Settings is the leftmost control');
+ await page.locator('#jgr-sidebar-toggle').click();
+ assert.deepEqual(await panels(),{'jgr-1':false,'jgr-2':false,'jgr-3':true},'Side-panel button changes only the active window');
+ await page.evaluate(()=>window.JGRTabsExperimental.activate('jgr-2'));
+ assert.equal(await page.locator('#jgr-sidebar-toggle').getAttribute('aria-expanded'),'false');
+ await page.locator('#jgr-sidebar-toggle').click();
+ assert.deepEqual(await panels(),{'jgr-1':false,'jgr-2':true,'jgr-3':true});
+ await page.locator('.lab-start-settings').click();
+ await frame(page,'jgr-2').locator('#lab-start-modal').waitFor({state:'visible'});
+ await frame(page,'jgr-2').locator('#lab-start-modal').press('Escape');
+ await frame(page,'jgr-2').locator('#lab-start-modal').waitFor({state:'hidden'});
+ const icons=await page.evaluate(()=>{
+  const app=document.querySelector('iframe[data-tab-id="jgr-2"]').contentWindow.__CircuitJGRExperimentalApp;
+  const run=app.ui.runStopButton,reset=app.ui.resetButton,settings=document.querySelector('#jgr-tab-strip > .lab-start-settings');
+  return {run:run.dataset.jgrIcon,reset:reset.dataset.jgrIcon,settings:settings.dataset.jgrIcon,mask:getComputedStyle(run,'::before').maskImage,font:getComputedStyle(run).fontSize};
+ });
+ assert.equal(icons.run,'runstop');assert.equal(icons.reset,'reset');assert.equal(icons.settings,'settings');assert.equal(icons.font,'0px');assert(icons.mask.includes('svg'));
+ await page.evaluate(()=>window.JGRTabsExperimental.activate('jgr-3'));
+
  let boxes=await sizes(page);
  assert(boxes.every(b=>b.hidden==='false'&&b.visible==='visible'&&b.mode==='vertical'));
  assert(boxes.every(b=>Math.abs(b.y-boxes[0].y)<1&&Math.abs(b.width-boxes[0].width)<2));

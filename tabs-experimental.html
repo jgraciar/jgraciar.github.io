@@ -35,13 +35,13 @@ body{background:white}
 <script>
 "use strict";
 (() => {
- const TAB_CSS="#jgr-tab-strip{position:absolute;left:0;right:0;height:33px;box-sizing:border-box;display:flex;align-items:end;gap:4px;overflow:hidden;padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc;z-index:5;font-family:Arial,Helvetica,sans-serif;color:#202020}\n#jgr-tab-strip .jgr-tab-list{display:flex;flex:0 1 auto;min-width:0;height:29px;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}\n#jgr-tab-strip .jgr-tab-list::-webkit-scrollbar{display:none}\n#jgr-tab-strip .tab{height:29px;flex:1 1 0;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:48px;box-sizing:border-box;user-select:none}\n#jgr-tab-strip .tab.active{background:white;border-color:#999}\n#jgr-tab-strip .tab.modified .choose::after{content:\" *\"}\n#jgr-tab-strip .tab button{font:inherit;background:none;border:0;color:#202020;cursor:pointer}\n#jgr-tab-strip .tab .choose{flex:1 1 0;min-width:0;padding:5px 4px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:grab;touch-action:none}\n#jgr-tab-strip .tab .close{flex:0 0 20px;min-width:20px;width:20px;padding:2px 0;font-size:17px}\n#jgr-tab-strip .tab .close:hover{color:#a50000;background:#e6d3d3}\n#jgr-tab-strip .tab.dragging{opacity:.5}\n#jgr-tab-strip .tab.drop-before{box-shadow:inset 3px 0 #225d9b}\n#jgr-tab-strip .tab.drop-after{box-shadow:inset -3px 0 #225d9b}\n#jgr-tab-strip #add-tab{height:29px;width:30px;min-width:30px;flex:0 0 30px;font-size:19px;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #duplicate-tab{margin-left:auto;flex:0 0 30px;width:30px;height:29px;align-self:center;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #duplicate-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #add-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #jgr-sidebar-toggle{flex:0 0 auto;align-self:center;padding:4px 9px;border:1px solid #aaa;border-radius:3px;background:#f8f8f8;color:#333;font:12px Arial,Helvetica,sans-serif;white-space:nowrap;cursor:pointer}\n#jgr-tab-strip #jgr-sidebar-toggle svg{display:none}\n#jgr-tab-strip #jgr-sidebar-toggle:hover{background:#fff}\n#jgr-tab-strip button:focus-visible{outline:2px solid #225d9b;outline-offset:-2px}\n@media(max-width:600px){#jgr-tab-strip #jgr-sidebar-toggle{width:30px;min-width:30px;padding:3px 4px}#jgr-tab-strip #jgr-sidebar-toggle svg{display:block}#jgr-tab-strip .sidebar-label{display:none}.layoutPanel > .triggerLabel{display:none!important}.layoutPanel > #painel{width:128px!important;z-index:4;transition:none;background:#fff;border-left:1px solid #bbb}}\n#jgr-tab-strip #arrange-tabs{flex:0 0 30px;width:30px;height:29px;align-self:center;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #arrange-tabs:hover,#jgr-tab-strip #arrange-tabs[aria-expanded=\"true\"]{background:#d3d3d3}\n#jgr-tab-strip #arrange-tabs[data-layout=\"horizontal\"],#jgr-tab-strip #arrange-tabs[data-layout=\"vertical\"]{background:#d9e7f6}\n.jgr-layout-menu{position:fixed;z-index:10000;display:flex;flex-direction:column;min-width:190px;max-width:calc(100vw - 12px);padding:3px;border:1px solid #999;background:#f8f8f8;box-shadow:2px 3px 6px #0003;font:12px Arial,Helvetica,sans-serif;color:#202020}\n.jgr-layout-menu button{display:flex;align-items:center;gap:8px;min-height:30px;padding:5px 8px;text-align:left;white-space:normal;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer}\n.jgr-layout-menu button:hover,.jgr-layout-menu button:focus-visible{background:#d9e7f6;outline:1px solid #225d9b;outline-offset:-1px}\n.jgr-layout-menu .layout-mark{width:12px;flex:0 0 12px}\n\n#jgr-tab-strip #jgr-sidebar-toggle{width:30px;min-width:30px;padding:3px 4px}#jgr-tab-strip #jgr-sidebar-toggle svg{display:block}#jgr-tab-strip .sidebar-label{display:none}\n\n[data-jgr-icon=\"reset\"]::before{content:\"\";display:inline-block;width:22px;height:22px;background:currentColor;mask:url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M5%207a7%207%200%201%201-1%208M5%202v5h5%22%2F%3E%3C%2Fsvg%3E\") center/contain no-repeat;vertical-align:middle}\n[data-jgr-icon=\"settings\"]::before{content:\"\";display:inline-block;width:22px;height:22px;background:currentColor;mask:url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M9%202h6l1%204%204%202v5l-4%202-1%205H9l-1-5-4-2V8l4-2z%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2211%22%20r%3D%223%22%2F%3E%3C%2Fsvg%3E\") center/contain no-repeat;vertical-align:middle}\n[data-jgr-icon=\"run\"]::before{content:\"\";display:inline-block;width:22px;height:22px;background:currentColor;mask:url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M7%203v18l14-9z%22%2F%3E%3C%2Fsvg%3E\") center/contain no-repeat;vertical-align:middle}\n[data-jgr-icon=\"stop\"]::before{content:\"\";display:inline-block;width:22px;height:22px;background:currentColor;mask:url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M5%205h14v14H5z%22%2F%3E%3C%2Fsvg%3E\") center/contain no-repeat;vertical-align:middle}\n[data-jgr-icon]{font-size:0!important;min-width:32px!important;width:34px!important;height:30px!important;padding:3px!important}[data-jgr-icon] *{font-size:0!important}";
+ const TAB_CSS="#jgr-tab-strip{position:absolute;left:0;right:0;height:33px;box-sizing:border-box;display:flex;align-items:end;gap:4px;overflow:hidden;padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc;z-index:5;font-family:Arial,Helvetica,sans-serif;color:#202020}\n#jgr-tab-strip .jgr-tab-list{display:flex;flex:0 1 auto;min-width:0;height:29px;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}\n#jgr-tab-strip .jgr-tab-list::-webkit-scrollbar{display:none}\n#jgr-tab-strip .tab{height:29px;flex:1 1 0;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:48px;box-sizing:border-box;user-select:none}\n#jgr-tab-strip .tab.active{background:white;border-color:#999}\n#jgr-tab-strip .tab.modified .choose::after{content:\" *\"}\n#jgr-tab-strip .tab button{font:inherit;background:none;border:0;color:#202020;cursor:pointer}\n#jgr-tab-strip .tab .choose{flex:1 1 0;min-width:0;padding:5px 4px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:grab;touch-action:none}\n#jgr-tab-strip .tab .close{flex:0 0 20px;min-width:20px;width:20px;padding:2px 0;font-size:17px}\n#jgr-tab-strip .tab .close:hover{color:#a50000;background:#e6d3d3}\n#jgr-tab-strip .tab.dragging{opacity:.5}\n#jgr-tab-strip .tab.drop-before{box-shadow:inset 3px 0 #225d9b}\n#jgr-tab-strip .tab.drop-after{box-shadow:inset -3px 0 #225d9b}\n#jgr-tab-strip #add-tab{height:29px;width:30px;min-width:30px;flex:0 0 30px;font-size:19px;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #duplicate-tab{margin-left:auto;flex:0 0 30px;width:30px;height:29px;align-self:center;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #duplicate-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #add-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #jgr-sidebar-toggle{flex:0 0 auto;align-self:center;padding:4px 9px;border:1px solid #aaa;border-radius:3px;background:#f8f8f8;color:#333;font:12px Arial,Helvetica,sans-serif;white-space:nowrap;cursor:pointer}\n#jgr-tab-strip #jgr-sidebar-toggle svg{display:none}\n#jgr-tab-strip #jgr-sidebar-toggle:hover{background:#fff}\n#jgr-tab-strip button:focus-visible{outline:2px solid #225d9b;outline-offset:-2px}\n@media(max-width:600px){#jgr-tab-strip #jgr-sidebar-toggle{width:30px;min-width:30px;padding:3px 4px}#jgr-tab-strip #jgr-sidebar-toggle svg{display:block}#jgr-tab-strip .sidebar-label{display:none}.layoutPanel > .triggerLabel{display:none!important}.layoutPanel > #painel{width:128px!important;z-index:4;transition:none;background:#fff;border-left:1px solid #bbb}}\n#jgr-tab-strip #arrange-tabs{flex:0 0 30px;width:30px;height:29px;align-self:center;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #arrange-tabs:hover,#jgr-tab-strip #arrange-tabs[aria-expanded=\"true\"]{background:#d3d3d3}\n#jgr-tab-strip #arrange-tabs[data-layout=\"horizontal\"],#jgr-tab-strip #arrange-tabs[data-layout=\"vertical\"]{background:#d9e7f6}\n.jgr-layout-menu{position:fixed;z-index:10000;display:flex;flex-direction:column;min-width:190px;max-width:calc(100vw - 12px);padding:3px;border:1px solid #999;background:#f8f8f8;box-shadow:2px 3px 6px #0003;font:12px Arial,Helvetica,sans-serif;color:#202020}\n.jgr-layout-menu button{display:flex;align-items:center;gap:8px;min-height:30px;padding:5px 8px;text-align:left;white-space:normal;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer}\n.jgr-layout-menu button:hover,.jgr-layout-menu button:focus-visible{background:#d9e7f6;outline:1px solid #225d9b;outline-offset:-1px}\n.jgr-layout-menu .layout-mark{width:12px;flex:0 0 12px}\n\n#jgr-tab-strip #jgr-sidebar-toggle{width:30px;min-width:30px;padding:3px 4px}#jgr-tab-strip #jgr-sidebar-toggle svg{display:block}#jgr-tab-strip .sidebar-label{display:none}\n\n\n\n\n\n[data-jgr-icon]{font-size:0!important;min-width:32px!important;width:34px!important;height:30px!important;padding:3px!important}[data-jgr-icon] *{font-size:0!important}\n[data-jgr-icon=\"settings\"]::before{content:\"\";display:inline-block;width:20px;height:20px;background:currentColor;mask:url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M16.32%206.35%20L17.05%208.11%20L18.89%207.62%20L18.89%2012.38%20L17.05%2011.89%20L16.32%2013.65%20L16.32%2013.65%20L15.16%2015.16%20L16.51%2016.51%20L12.38%2018.89%20L11.89%2017.05%20L10.00%2017.30%20L10.00%2017.30%20L8.11%2017.05%20L7.62%2018.89%20L3.49%2016.51%20L4.84%2015.16%20L3.68%2013.65%20L3.68%2013.65%20L2.95%2011.89%20L1.11%2012.38%20L1.11%207.62%20L2.95%208.11%20L3.68%206.35%20L3.68%206.35%20L4.84%204.84%20L3.49%203.49%20L7.62%201.11%20L8.11%202.95%20L10.00%202.70%20L10.00%202.70%20L11.89%202.95%20L12.38%201.11%20L16.51%203.49%20L15.16%204.84%20L16.32%206.35%20Z%22%2F%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2210%22%20r%3D%222.7%22%2F%3E%3C%2Fsvg%3E\") center/contain no-repeat;vertical-align:middle}\n[data-jgr-icon=\"reset\"]::before{content:\"\";display:inline-block;width:20px;height:20px;background:currentColor;mask:url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M4%206a7%207%200%201%201-1%207M4%201v5h5%22%2F%3E%3C%2Fsvg%3E\") center/contain no-repeat;vertical-align:middle}\n[data-jgr-icon=\"runstop\"]::before{content:\"\";display:inline-block;width:20px;height:20px;background:currentColor;mask:url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%221%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M3%203v14l10-7zM17%203v14%22%2F%3E%3C%2Fsvg%3E\") center/contain no-repeat;vertical-align:middle}\n[data-jgr-icon]{background:transparent!important;border:0!important;border-radius:0!important;color:#333!important;box-shadow:none!important}[data-jgr-icon]:hover{background:#d3d3d3!important}#jgr-tab-strip > .lab-start-settings{position:static!important;flex:0 0 30px!important;width:30px!important;min-width:30px!important;height:29px!important;margin:0!important;padding:3px!important;align-self:center}";
  const workspace=document.querySelector("#workspace");
  const openInput=document.querySelector("#open-files");
  const notice=document.querySelector("#notice");
  const tabs=[];
  const BLANK='<cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11"></cir>';
- let active=null, serial=0, unnamed=0, sidebarVisible=true, layoutMode="single", layoutMenuCleanup=null;
+ let active=null, serial=0, unnamed=0, layoutMode="single", layoutMenuCleanup=null;
  let tabGesture=null, renderQueued=false, suppressTabClickUntil=0, dirtySignature="";
  function message(text){notice.textContent=text||"";}
  function find(id){return tabs.find(t=>t.id===id);}
@@ -106,9 +106,12 @@ body{background:white}
  }
  function iconButtons(t){
   const app=appFor(t);if(!app)return;
-  for(const [button,icon] of [[app.ui.resetButton,"reset"],[app.ui.runStopButton,apiFor(t)?.isRunning()?"stop":"run"],[t.frame.contentDocument.querySelector('.lab-start-settings'),"settings"]]){
+  for(const [button,icon] of [[app.ui.resetButton,"reset"],[app.ui.runStopButton,"runstop"],[t.settings||t.frame.contentWindow.__JGRSettingsButton,"settings"]]){
    if(!button)continue;
-   const label=button.textContent.trim();button.dataset.jgrIcon=icon;button.title=label;button.setAttribute("aria-label",label);
+   const running=!!apiFor(t)?.isRunning();
+   const label=icon==="runstop"?button.textContent.split("/")[running?1:0].trim():button.textContent.trim();
+   if(icon==="runstop")button.setAttribute("aria-pressed",String(running));
+   button.dataset.jgrIcon=icon;button.title=label;button.setAttribute("aria-label",label);
   }
  }
  function positionStrip(t){
@@ -121,21 +124,15 @@ body{background:white}
   const panel=app.ui.verticalPanel;
   panel.style.top=(shared()?0:top+33)+"px";
   app.ui.canvasWrapper.style.top=(shared()?0:top+33)+"px";
-  panel.style.display=sidebarVisible?"":"none";
+  panel.style.display=t.sidebarVisible?"":"none";
   app.ui.toolbar.element.style.right="0px";
   const width=app.ui.constructor.VERTICALPANELWIDTH;
-  app.ui.canvasWrapper.style.right=sidebarVisible?width+"px":"0px";
+  app.ui.canvasWrapper.style.right=t.sidebarVisible?width+"px":"0px";
  }
  function toggleSidebar(){
-  sidebarVisible=!sidebarVisible;
-  for(const session of tabs){
-   const app=appFor(session);
-   if(!app?.ui?.cv)continue;
-   positionStrip(session);
-   app.ui.setCanvasSize();
-   app.ui.repaint();
-  }
-  renderTabs();
+  const t=active,app=appFor(t);if(!t||!app)return;
+  t.sidebarVisible=!t.sidebarVisible;
+  positionStrip(t);app.ui.setCanvasSize();app.ui.repaint();renderTabs();
  }
  function sessionVisible(t){return layoutMode!=="single"||t===active;}
  function layoutSessions(){
@@ -166,7 +163,9 @@ body{background:white}
  function closeLayoutMenu(){if(layoutMenuCleanup){const close=layoutMenuCleanup;layoutMenuCleanup=null;close();}}
  function setLayout(mode){
   if(!["single","horizontal","vertical"].includes(mode))return;
-  closeLayoutMenu();layoutMode=mode;
+  closeLayoutMenu();
+  if(mode==="vertical"&&layoutMode!==mode)for(const t of tabs)t.sidebarVisible=false;
+  layoutMode=mode;
   layoutSessions();syncVisibleSimulations();renderTabs();resizeSessions();
  }
  function showLayoutMenu(session,button){
@@ -216,7 +215,9 @@ body{background:white}
    const doc=tabsEl.ownerDocument;
    tabsEl.setAttribute("aria-label",tr(session,"open"));
    const previousScroll=tabsEl.querySelector(".jgr-tab-list")?.scrollLeft||0;
+   session.settings??=session.frame.contentWindow.__JGRSettingsButton||session.frame.contentDocument.querySelector('.lab-start-settings');
    tabsEl.replaceChildren();
+   if(session.settings)tabsEl.append(session.settings);
    const tabList=doc.createElement("div");tabList.className="jgr-tab-list";
    tabList.style.width=(tabs.length*245+Math.max(0,tabs.length-1)*2)+"px";
    tabList.addEventListener("wheel",event=>{
@@ -270,11 +271,11 @@ body{background:white}
    bindTabAction(arrange,()=>showLayoutMenu(session,arrange));tabsEl.append(arrange);
    const sideToggle=doc.createElement("button");
    sideToggle.type="button";sideToggle.id="jgr-sidebar-toggle";
-   const toggleLabel=tr(session,sidebarVisible?"hide":"show");
+   const toggleLabel=tr(session,active?.sidebarVisible?"hide":"show");
    sideToggle.innerHTML='<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="1" fill="none" stroke="currentColor"/><path d="M13 3v14" stroke="currentColor"/></svg><span class="sidebar-label"></span>';
    sideToggle.querySelector(".sidebar-label").textContent=toggleLabel;
    sideToggle.setAttribute("aria-label",toggleLabel);
-   sideToggle.setAttribute("aria-expanded",String(sidebarVisible));
+   sideToggle.setAttribute("aria-expanded",String(!!active?.sidebarVisible));
    sideToggle.title=toggleLabel;
    bindTabAction(sideToggle,toggleSidebar);
    tabsEl.append(sideToggle);
@@ -590,7 +591,7 @@ body{background:white}
  });
  function addTab(name,content,openedFile=false,options={}){
   const t={id:"jgr-"+(++serial),name,ready:false,resume:options.running??true,frame:null,section:null,
-   pendingPaste:null,closeAfterSave:false,openedFile,intercepted:false};
+   pendingPaste:null,closeAfterSave:false,openedFile,intercepted:false,sidebarVisible:layoutMode!=="vertical"};
   const section=document.createElement("section");
   section.className="session";section.dataset.tabId=t.id;
   section.setAttribute("aria-hidden","true");
