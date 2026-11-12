@@ -60,3 +60,9 @@ Configuración se abre en un diálogo global, centrado sobre toda la aplicación
 con fuente de 12 px. Su icono ocupa el extremo derecho de la barra. El cambio
 de fondo se aplica a todos los circuitos. El separador entre ventanas mide
 2 px y el marco activo mide 4 px, azul sobre blanco y amarillo sobre negro.
+
+Marcha/paro utiliza un fondo verde pastel (#d8efd9) en marcha y rojo claro
+(#f8d7da) en parada, también al pasar el ratón. `aria-pressed` mantiene el
+estado accesible y gobierna el color. La pestaña del simulador y el motor
+usan el icono original de https://www.falstad.com/circuit/favicon.ico mediante
+un enlace directo al archivo de Falstad.

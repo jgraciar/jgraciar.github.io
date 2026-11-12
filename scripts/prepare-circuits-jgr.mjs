@@ -16,7 +16,7 @@ assert(src.includes("<title>CircuitJS</title>") && src.includes('src="/main.ts"'
 const branded=src
  .replace("<title>CircuitJS</title>","<title>Circuit JGR</title>")
  .replace("<head>","<head>\n  <meta name=\"application-name\" content=\"Circuit JGR\">");
-writeFileSync(join(dir,"circuitjgr.html"),branded);
+writeFileSync(join(dir,"circuitjgr.html"),branded.replace("</head>",'<link rel="icon" type="image/x-icon" href="https://www.falstad.com/circuit/favicon.ico">\n</head>'));
 const viteFile=join(dir,"vite.config.ts");
 const vite=readFileSync(viteFile,"utf8");
 const entry="circuitjs: 'circuitjs.html',";

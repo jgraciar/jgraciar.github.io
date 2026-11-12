@@ -17,6 +17,17 @@ try{
   await page.addInitScript(()=>{localStorage.setItem('labStartConfigured','1');localStorage.setItem('labLanguageMode','manual');localStorage.setItem('language','es');});
   await page.goto('http://127.0.0.1:8767/circuitjgr.html?cct='+encodeURIComponent(circuit(77))+'&running=false');
   await ready(page,1);
+  assert.equal(await page.locator('link[rel="icon"]').getAttribute('href'),'https://www.falstad.com/circuit/favicon.ico');
+  const run=page.frameLocator('iframe[data-tab-id="jgr-1"]').locator('[data-jgr-icon="runstop"]');
+  assert.equal(await run.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(248, 215, 218)');
+  if(mobile)await run.tap();else await run.click();
+  assert.equal(await run.getAttribute('aria-pressed'),'true');
+  assert.equal(await run.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(216, 239, 217)');
+  if(!mobile){await run.hover();assert.equal(await run.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(216, 239, 217)');}
+  if(mobile)await run.tap();else await run.click();
+  assert.equal(await run.getAttribute('aria-pressed'),'false');
+  assert.equal(await run.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(248, 215, 218)');
+
   assert.equal((await info(page,'jgr-1')).running,false,'Initial URL pause is preserved');
   const press=async selector=>{const b=(await bar(page)).locator(selector);if(mobile)await b.tap();else await b.click();};
   await press('#add-tab');await ready(page,2);await page.waitForTimeout(500);
