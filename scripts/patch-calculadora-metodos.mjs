@@ -22,14 +22,24 @@ if(!html.includes('value="equalization"')){
  writeFileSync(join(dir,'app.js'),app);
 }
 copyFileSync(join(dirname(fileURLToPath(import.meta.url)),'CalculatorClassical.js'),join(dir,'classical.js'));
-// En los métodos algebraicos, mostrar la resolución antes de la solución.
+// Método inicial automático y solución al principio, como en Cramer.
+if(!html.includes('<option value="auto" selected>')){
+ html=replaceOnce(html,'<option value="cramer" selected>','<option value="cramer">');
+ html=replaceOnce(html,'<option value="auto">','<option value="auto" selected>');
+ writeFileSync(join(dir,'index.html'),html);
+}
 if(!app.includes('const algebraic=Boolean(classicalNames[method]')){
  app=replaceOnce(app," if(classicalNames[method]||method==='auto')html+=renderClassical(A,b,vars,method);\n",'');
  app=replaceOnce(app," if(s.x){html+='<div class=\"answer\">'",
-  " const algebraic=Boolean(classicalNames[method]||method==='auto');\n if(algebraic)html+=renderClassical(A,b,vars,method)+'<h3>Solución</h3>';\n if(s.x){html+='<div class=\"answer\">'");
+  " const algebraic=Boolean(classicalNames[method]||method==='auto');\n if(s.x){html+='<div class=\"answer\">'");
  const matrixLine=app.split('\n').find(line=>line.startsWith(" html+='<h3>Sistema en forma matricial</h3>"));
  assert(matrixLine,'Falta la presentación matricial original');
  app=replaceOnce(app,matrixLine,' if(!algebraic){'+matrixLine.trim()+'}');
- writeFileSync(join(dir,'app.js'),app);
 }
+const oldPosition=" if(algebraic)html+=renderClassical(A,b,vars,method)+'<h3>Solución</h3>';\n";
+if(app.includes(oldPosition))app=replaceOnce(app,oldPosition,'');
+if(!app.includes(' if(algebraic)html+=renderClassical(A,b,vars,method);')){
+ app=replaceOnce(app,' if(useGauss){html+=',' if(algebraic)html+=renderClassical(A,b,vars,method);\n if(useGauss){html+=');
+}
+writeFileSync(join(dir,'app.js'),app);
 console.log('OK: igualación, reducción, sustitución y automático en ambas pestañas; se conservan los cuatro métodos anteriores.');

@@ -217,7 +217,7 @@ function renderClassical(A,b,vars,method){
  }
  if(trace.kind!=='unique'){
   html+='<h3>Compatibilidad del sistema</h3>'+trace.remaining.map(r=>'<p class="math">'+r.label+': '+classicalEquation(r,vars)+'</p>').join('');
-  html+=trace.kind==='none'?'<p>Se obtiene una contradicción: 0 es igual a un número distinto de cero. No existe solución.</p>':'<p>Las ecuaciones restantes son identidades o quedan incógnitas libres. Hay infinitas soluciones; la parametrización se muestra a continuación.</p>';
+  html+=trace.kind==='none'?'<p>Se obtiene una contradicción: 0 es igual a un número distinto de cero. No existe solución.</p>':'<p>Las ecuaciones restantes son identidades o quedan incógnitas libres. Hay infinitas soluciones; la parametrización se muestra al principio.</p>';
  }
  return html;
 }

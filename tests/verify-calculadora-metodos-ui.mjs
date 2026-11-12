@@ -6,6 +6,10 @@ try{
  const page=await browser.newPage();
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(process.env.CALCULATOR_URL||'http://127.0.0.1:8767/calculadora/');
+ assert.equal(await page.locator('#method').inputValue(),'auto','Automático algebraico es el método predeterminado');
+ await page.click('#text-tab');
+ assert.equal(await page.locator('#method').inputValue(),'auto','El editor conserva el método predeterminado');
+ await page.click('#grid-tab');
  const options=await page.locator('#method option').evaluateAll(nodes=>nodes.map(n=>n.value));
  for(const method of ['cramer','direct','inverse','rank','equalization','elimination','substitution','auto'])assert(options.includes(method));
  for(const mode of ['grid','text']){
@@ -25,7 +29,7 @@ try{
    if(['equalization','elimination','substitution','auto'].includes(method)){
     assert(text.includes('Paso 1.'));assert(!text.includes('Reducción de Gauss-Jordan'));
     assert(!text.includes('Sistema en forma matricial'));
-    assert(await page.locator('.algebra-step').last().evaluate(node=>Boolean(node.compareDocumentPosition(document.querySelector('.answer'))&Node.DOCUMENT_POSITION_FOLLOWING)),'El resultado aparece después del desarrollo');
+    assert(await page.locator('.answer').evaluate(node=>Boolean(node.compareDocumentPosition(document.querySelector('.algebra-step'))&Node.DOCUMENT_POSITION_FOLLOWING)),'El resultado aparece antes del desarrollo');
     assert(await page.locator('.algebra-step').count()>8,'Desarrollo con transformaciones individuales');
     assert(await page.locator('[data-algebra-line]').count()>10,'Se muestran las operaciones intermedias');
     if(method==='equalization'||method==='substitution'){
