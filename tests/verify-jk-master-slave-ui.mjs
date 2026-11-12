@@ -13,14 +13,12 @@ try {
  await page.waitForFunction(()=>!!window.CircuitJS1?.getElements);
  for (const j of [0,1]) for (const k of [0,1]) {
   let xml=circuit.replace('ts="0.000005"','ts="0.00005"').replace('fr="15"','fr="120"');
-  xml=xml.replace('<L x="96 176 64 176" f="2" p="1"/>',
-    '<L x="96 176 64 176" f="2" p="'+j+'"/>');
-  xml=xml.replace('<L x="224 368 64 368" f="2" p="1"/>',
-    '<L x="224 368 64 368" f="2" p="'+k+'"/>');
+  // Cargar siempre el estado original consistente con J=K=1.
+  // Cambiar las entradas durante CLK bajo, antes del siguiente ciclo.
   assert.equal((xml.match(/<Nand /g)||[]).length,8);
   assert.equal((xml.match(/<Nand [^>]*pd="0.0001"/g)||[]).length,8,
    'Las ocho NAND deben tener retardo de propagación de 100 µs');
-  await page.evaluate(xml=>{
+  await page.evaluate(({xml,j,k})=>{
    const api=window.CircuitJS1;
    api.setSimRunning(false);
    api.importCircuit(xml,false);
@@ -28,6 +26,9 @@ try {
    const jk=els.find(e=>e.getType()==='JKFlipFlopElm');
    const clk=els.find(e=>e.getType()==='RailElm');
    const nand=els.filter(e=>e.getType()==='NandGateElm');
+   const inputs=els.filter(e=>e.getType()==='LogicInputElm');
+   if(inputs.length!==2)throw Error('Se esperaban las entradas J y K');
+   let inputsChanged=false;
    if(!jk||!clk||nand.length!==8)throw Error('El circuito carece del JK de referencia o de las ocho NAND');
    let lastClock=null,fall=null,recorded=false;
    const checks=[];
@@ -35,10 +36,15 @@ try {
    window.jgrJKComparison=null;
    api.ontimestep=()=>{
     const t=api.getTime();
+    if(t>=0.006&&!inputsChanged){
+     inputs[0].position=j;
+     inputs[1].position=k;
+     inputsChanged=true;
+    }
     const signal=clk.getVoltage(0)>2.5;
     if(lastClock===true&&!signal){fall=t;recorded=false;}
     lastClock=signal;
-    if(fall!=null&&!recorded&&t>=fall+0.001){
+    if(inputsChanged&&fall!=null&&fall>=0.009&&!recorded&&t>=fall+0.001){
      const top=nand[6],bottom=nand[7];
      const measurement={t,qJK:jk.getVoltage(3)>2.5,qbarJK:jk.getVoltage(4)>2.5,
       qGate:top.getVoltage(top.getPostCount()-1)>2.5,
@@ -56,7 +62,7 @@ try {
     }
    };
    api.setSimRunning(true);
-  },xml);
+  },{xml,j,k});
   await page.waitForFunction(()=>window.jgrJKComparisonDone,null,{timeout:30000});
   const results=await page.evaluate(()=>window.jgrJKComparison);
   console.log("JK STATE J="+j+" K="+k+" "+JSON.stringify(results.slice(0,5)));
