@@ -24,7 +24,7 @@ const entries=digitalICParts.map(part=>{
   text=`${JSON.stringify(part+' '+d.gates.length+' × ')} + circuitJsDrawLabel(${key}, Locale.LS(${key}), Locale.activeLanguage) + ${JSON.stringify(' ('+g.inputs.length+'→1)')}`;
  }else if(d.jk)text=`${JSON.stringify(part+' 2 × ')} + circuitJsDrawLabel("Add JK Flip-Flop", Locale.LS("Add JK Flip-Flop"), Locale.activeLanguage)`;
  else text=JSON.stringify(part+' 4 × RS ('+(d.mode==='rs-nor'?'NOR':'NAND')+', Z)');
- return {part,group:d.msi?.group||(d.gates.length?'gate':'latch'),entry:`            ${text}, "IC${part}Elm",`};
+ return {part,group:d.msi?.group||(d.gates.length?(d.gates[0].kind==='SCHMITT'?'schmitt':'gate'):'latch'),entry:`            ${text}, "IC${part}Elm",`};
 });
 // Regroup existing commands without changing their saved shortcut identifiers.
 const menuPath=join(dir,'Menus.ts');let menu=readFileSync(menuPath,'utf8');
@@ -33,7 +33,7 @@ if(start<0||end<0)throw Error('Digital chip menu anchors');
 const original=menu.slice(start,end),generic={latch:['DFlipFlopElm','JKFlipFlopElm','TFlipFlopElm','LatchElm'],register:['SipoShiftElm','PisoShiftElm'],counter:['CounterElm','CD4026Elm','Counter7493Elm','Counter74191Elm','Counter2Elm','DecadeElm'],codec:['SevenSegDecoderElm'],mux:['MultiplexerElm','DeMultiplexerElm'],memory:['FullAdderElm','HalfAdderElm','SRAMElm','ROMElm'],other:['SevenSegElm','SeqGenElm','UserDefinedLogicElm','BusTransceiverElm','BusSplitterElm']};
 const lines=[...original.matchAll(/^.*"Add [^"\n]+",\s*"([^"\n]+Elm)".*$/gm)].map(m=>({line:m[0],name:m[1]}));
 if(lines.length!==Object.values(generic).flat().length)throw Error('Unexpected generic digital commands: '+lines.length);
-const groups=['gate','latch','register','counter','codec','mux','memory','other'];
+const groups=['gate','schmitt','latch','register','counter','codec','mux','memory','other'];
 let grouped='        const chipMenu = new Menu(this.app);\n';
 for(const group of groups){
  grouped+=`        const digital_${group} = new Menu(this.app);\n        this.makeClassCheckItems(digital_${group}, [\n`;
@@ -45,4 +45,4 @@ grouped+='        menu.addSubmenu(subheadHtml + Locale.LS("Digital Chips"), chip
 menu=menu.slice(0,start)+grouped+menu.slice(end);
 menu="import {digitalICGroup,digitalICName} from './DigitalICMenuLabels';\n"+menu;
 writeFileSync(menuPath,menu);
-console.log('OK: '+types.length+' powered digital packages, eight grouped submenus, stable dump IDs');
+console.log('OK: '+types.length+' powered digital packages, nine grouped submenus, Schmitt ICs separated from generic trigger, stable dump IDs');

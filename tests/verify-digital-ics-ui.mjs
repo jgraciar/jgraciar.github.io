@@ -11,14 +11,16 @@ try{
  await page.evaluate(()=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit('<cir f="0" ts="0.00001"></cir>',false);});
  const canvas=page.locator('.canvasWrapper > canvas'),box=await canvas.boundingBox();
  await canvas.click({button:'right',position:{x:box.width-40,y:box.height-40}});
- const groups=['Puertas lógicas','Biestables y latch','Registros de desplazamiento','Contadores','Codificadores y decodificadores','Multiplexores','Memoria y aritmética','Otros componentes digitales'];
+ const groups=['Puertas lógicas','Disparadores Schmitt (circuitos integrados)','Biestables y latch','Registros de desplazamiento','Contadores','Codificadores y decodificadores','Multiplexores','Memoria y aritmética','Otros componentes digitales'];
  const menus=await page.evaluate(heads=>heads.map(head=>Array.from(document.querySelectorAll('li.hasSubmenu')).filter(li=>Array.from(li.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()===head).filter(li=>heads.every(h=>Array.from(li.parentElement.children).some(sib=>Array.from(sib.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()===h))).map(li=>Array.from(li.querySelector(':scope > ul').children).map(item=>(item.querySelector('.itemLabel')?.textContent||item.textContent).trim()))),groups);
  for(let i=0;i<groups.length;i++)assert.equal(menus[i].length,2,'Draw and context submenu '+groups[i]);
  const numbered=menus.flatMap(copies=>copies[0]).map(x=>x.match(/^(\d+N?)\b/)?.[1]).filter(Boolean);
  assert.equal(new Set(numbered).size,45,'45 distinct numbered references including three legacy counters');assert.equal(numbered.length,45,'no duplicate numbered references');
  for(const part of digitalICParts)assert(numbered.includes(part),'menu contains '+part);
- assert(menus[3][0].some(x=>/^4026\s/.test(x)),'4026 number-first label');
- console.log('OK digital menus: eight submenus in Draw and context menu, 45 distinct references');
+ assert(menus[4][0].some(x=>/^4026\s/.test(x)),'4026 number-first label');
+ assert.deepEqual(menus[1][0].map(x=>x.match(/^(7414|40106)\b/)?.[1]).filter(Boolean).sort(),['40106','7414'],'Los integrados Schmitt deben estar en su grupo específico');
+ assert(!menus[0][0].some(x=>/^(7414|40106)\b/.test(x)),'Los integrados Schmitt no deben duplicarse entre puertas lógicas');
+ console.log('OK digital menus: nine submenus in Draw and context menu, 45 distinct references');
  const classified=await page.evaluate(()=>Array.from(document.querySelectorAll('ul[data-draw-group]')).map(ul=>({
   key:ul.dataset.drawGroup,
   heading:Array.from(ul.parentElement.childNodes).filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim(),

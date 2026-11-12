@@ -2,81 +2,97 @@
   {
     "file": "8.6-decodificador-2a4-sin-habilitacion.txt",
     "category": "comb",
-    "label": "8.6. Decodificador 2 a 4 sin habilitación"
+    "label": "8.6. Decodificador 2 a 4 sin habilitación",
+    "type": "decoder"
   },
   {
     "file": "8.6.1-codificador-4a2.txt",
     "category": "comb",
-    "label": "8.6.1. Codificador 4 a 2"
+    "label": "8.6.1. Codificador 4 a 2",
+    "type": "encoder"
   },
   {
     "file": "8.6.2-decodificador-2a4.txt",
     "category": "comb",
-    "label": "8.6.2. Decodificador 2 a 4"
+    "label": "8.6.2. Decodificador 2 a 4",
+    "type": "decoder"
   },
   {
     "file": "8.6.3-multiplexor-4a1.txt",
     "category": "comb",
-    "label": "8.6.3. Multiplexor 4 a 1"
+    "label": "8.6.3. Multiplexor 4 a 1",
+    "type": "mux"
   },
   {
     "file": "8.6.4-demultiplexor-1a4.txt",
     "category": "comb",
-    "label": "8.6.4. Demultiplexor 1 a 4"
+    "label": "8.6.4. Demultiplexor 1 a 4",
+    "type": "mux"
   },
   {
     "file": "8.7-realimentado-or-and-not.txt",
     "category": "feedback",
-    "label": "8.7. Circuito realimentado OR-AND-NOT"
+    "label": "8.7. Circuito realimentado OR-AND-NOT",
+    "type": "feedback"
   },
   {
     "file": "8.7.2.1-biestable-rs-nor.txt",
     "category": "bistable",
-    "label": "8.7.2.1. Biestable RS con NOR"
+    "label": "8.7.2.1. Biestable RS con NOR",
+    "type": "rs"
   },
   {
     "file": "8.7.2.2-biestable-rs-nand.txt",
     "category": "bistable",
-    "label": "8.7.2.2. Biestable RS con NAND"
+    "label": "8.7.2.2. Biestable RS con NAND",
+    "type": "rs"
   },
   {
     "file": "8.7.2.2-biestable-rs-nand-inversores.txt",
     "category": "bistable",
-    "label": "8.7.2.2. Biestable RS NAND con inversores"
+    "label": "8.7.2.2. Biestable RS NAND con inversores",
+    "type": "rs"
   },
   {
     "file": "8.7.2.4-biestable-rs-sincrono-nor.txt",
     "category": "bistable",
-    "label": "8.7.2.4. Biestable RS síncrono con NOR"
+    "label": "8.7.2.4. Biestable RS síncrono con NOR",
+    "type": "rs"
   },
   {
     "file": "8.7.2.5-biestable-jk-sincrono-nor.txt",
     "category": "bistable",
-    "label": "8.7.2.5. Biestable JK síncrono con NOR"
+    "label": "8.7.2.5. Biestable JK síncrono con NOR",
+    "type": "jk"
   },
   {
     "file": "8.7.2.5-biestable-jk-maestro-esclavo.txt",
     "category": "bistable",
-    "label": "8.7.2.5. Biestable JK maestro-esclavo"
+    "label": "8.7.2.5. Biestable JK maestro-esclavo",
+    "type": "jk"
   },
   {
     "file": "8.7.2.6-biestable-d.txt",
     "category": "bistable",
-    "label": "8.7.2.6. Biestable D"
+    "label": "8.7.2.6. Biestable D",
+    "type": "d"
   },
   {
     "file": "8.7.2.7-biestable-t.txt",
     "category": "bistable",
-    "label": "8.7.2.7. Biestable T"
+    "label": "8.7.2.7. Biestable T",
+    "type": "t"
   },
   {
     "file": "8.7.3.1-contador-asincrono-4bit-jk.txt",
     "category": "counter",
-    "label": "8.7.3.1. Contador asíncrono de 4 bits con JK"
+    "label": "8.7.3.1. Contador asíncrono de 4 bits con JK",
+    "type": "counter"
   },
   {
     "file": "8.7.3.3-equivalente-7493-cuatro-jk.txt",
     "category": "counter",
-    "label": "8.7.3.3. 7493 equivalente con cuatro JK"
+    "label": "8.7.3.3. 7493 equivalente con cuatro JK",
+    "type": "counter"
   }
 ]
