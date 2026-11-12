@@ -8,7 +8,9 @@ de arrastrar reordena; un deslizamiento rápido desplaza la lista.
 El ancho se reparte por igual entre las pestañas, hasta un máximo de 245 px.
 Los nombres largos se acortan visualmente con puntos suspensivos y mantienen su
 nombre completo en el título emergente. Cuando no caben a un ancho mínimo de
-48 px, se desplaza únicamente la lista. El botón «+» y el control del panel
+48 px, se desplaza únicamente la lista. El botón «+» se sitúa inmediatamente
+después de la última pestaña, sin ocupar el espacio libre a su derecha.
+El botón «+» y el control del panel
 lateral quedan fuera de ella y siguen accesibles. En pantallas estrechas el
 control del panel se representa mediante un icono y conserva su etiqueta accesible.
 

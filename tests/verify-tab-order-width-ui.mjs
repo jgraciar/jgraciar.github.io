@@ -22,6 +22,10 @@ async function geometry(page){return (await strip(page)).evaluate(el=>{
   tabs:[...list.querySelectorAll('.tab')].map(box),enabled:!el.querySelector('#add-tab').disabled};
  });}
 function accessible(g){assert(g.strip.left>=0&&g.strip.right<=g.width+1);assert(g.plus.left>=0&&g.plus.right<=g.width);assert(g.side.right<=g.width);assert(g.list.right<=g.plus.left+1);assert(g.plus.right<=g.side.left+1);assert(g.enabled);}
+function adjacent(g){
+ accessible(g);
+ assert(Math.abs(g.plus.left-g.tabs.at(-1).right-4)<2,'The + button follows the last tab without unused space');
+}
 async function drag(page,id,target,fraction=.2,hold=false,cancel=false){
  const nav=await strip(page),source=await nav.locator(`.tab[data-tab-id="${id}"] .choose`).boundingBox();
  const destination=await nav.locator(`.tab[data-tab-id="${target}"]`).boundingBox();
@@ -37,9 +41,11 @@ async function drag(page,id,target,fraction=.2,hold=false,cancel=false){
 try{
  const errors=[],page=await browser.newPage({locale:'es-ES',viewport:{width:1500,height:950}});
  page.on('pageerror',e=>errors.push(e.message));await setup(page);await page.goto('http://127.0.0.1:8767/circuitjgr.html');await ready(page,1);
+ adjacent(await geometry(page));
  await page.evaluate(xml=>{const api=document.querySelector('iframe').contentWindow.CircuitJS1;api.setSimRunning(false);api.importCircuit(xml,false);},sample(91));
  await page.locator('#open-files').setInputFiles(Array.from({length:4},(_,i)=>({name:`Circuito_${i+2}_con_un_nombre_largo_para_comprobar_el_ajuste.jgr`,mimeType:'text/plain',buffer:Buffer.from(sample(200+i))})));
  await ready(page,5);
+ adjacent(await geometry(page));
  const before=await snapshot(page);
  await page.evaluate(()=>window.tabApiRefs=Object.fromEntries([...document.querySelectorAll('iframe')].map(f=>[f.dataset.tabId,f.contentWindow.CircuitJS1])));
  assert.equal(await active(page),'jgr-5');
@@ -59,7 +65,7 @@ try{
  for(let n=6;n<=10;n++){
   await (await strip(page)).locator('#add-tab').click();await ready(page,n);await snapshot(page);
  }
- const wide=await geometry(page);accessible(wide);assert(wide.scroll<=wide.visible+1,'Ten tabs fit at desktop width');
+ const wide=await geometry(page);adjacent(wide);assert(wide.scroll<=wide.visible+1,'Ten tabs fit at desktop width');
  assert(Math.max(...wide.tabs.map(t=>t.width))-Math.min(...wide.tabs.map(t=>t.width))<2,'Widths distributed evenly');
  await page.setViewportSize({width:1000,height:800});await page.waitForTimeout(100);const medium=await geometry(page);accessible(medium);assert(medium.tabs[0].width<wide.tabs[0].width);
  for(const width of [560,320]){await page.setViewportSize({width,height:760});await page.waitForTimeout(100);accessible(await geometry(page));}
@@ -67,10 +73,11 @@ try{
  const last=await (await strip(page)).locator('.tab[data-tab-id="jgr-11"]').boundingBox();const small=await geometry(page);
  assert(last.x>=small.list.left-1&&last.x+last.width<=small.list.right+1,'New active tab is revealed automatically');
  await (await strip(page)).locator('.tab[data-tab-id="jgr-11"] .close').click();await ready(page,10);
- console.log('OK desktop: two-way drag, queued state refresh, keyboard, Escape, stable engines/XML/time, ten tabs, 320–1500px widths, accessible + and closing after resize');
+ console.log('OK desktop: two-way drag, queued state refresh, keyboard, Escape, stable engines/XML/time, ten tabs, 320–1500px widths, adjacent and accessible + and closing after resize');
 
  const mobile=await browser.newPage({locale:'es-ES',viewport:{width:390,height:844},hasTouch:true,isMobile:true});
  mobile.on('pageerror',e=>errors.push(e.message));await setup(mobile);await mobile.goto('http://127.0.0.1:8767/circuitjgr.html');await ready(mobile,1);
+ adjacent(await geometry(mobile));
  for(let n=2;n<=3;n++){await (await strip(mobile)).locator('#add-tab').tap();await ready(mobile,n);}
  await snapshot(mobile);const touch=await mobile.context().newCDPSession(mobile);
  async function swipe(id,target,hold){
