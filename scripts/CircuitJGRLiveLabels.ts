@@ -23,7 +23,7 @@ function copyLabel(source:Node,target:Node):void {
     while(target.childNodes.length>children.length)target.removeChild(target.lastChild!);
 }
 export function bindLiveHTML(element:HTMLElement,render:()=>string):void {
-    let owned=Array.from(element.childNodes);
+    let owned:Node[]=Array.from(element.childNodes);
     labels.push(()=>{
         const template=document.createElement('template');template.innerHTML=render();
         const children=Array.from(template.content.childNodes);
