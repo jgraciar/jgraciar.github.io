@@ -53,6 +53,22 @@ try{
   }
   await dialog.press('Escape');
  }
+ for(const [tag,base] of [['DFlipFlop',0],['TFlipFlop',0],['JKFlipFlop',0],['RSGeneric',4<<7]]){
+  const legacy=await page.evaluate(({tag,base})=>{
+   const api=window.CircuitJS1;api.importCircuit(`<cir f="0" ts="0.00005"><${tag} x="160 160 192 160" f="${base|(1<<15)}"/></cir>`,false);
+   const c=window.__CircuitJGRExperimentalApp.elmList[0],compact=[...c.rectPointsX,...c.rectPointsY];
+   const actual=c.pins.map(p=>[p.post.x,p.post.y]);
+   c.sizeX=3;Object.getPrototypeOf(Object.getPrototypeOf(c)).setPoints.call(c);
+   const old=c.pins.map(p=>[p.post.x,p.post.y]);c.sizeX=2;c.setPoints();
+   const xml=api.exportCircuit();api.importCircuit(xml,false);
+   const restored=window.__CircuitJGRExperimentalApp.elmList[0];
+   return {actual,old,restored:restored.pins.map(p=>[p.post.x,p.post.y]),compact,body:[...restored.rectPointsX,...restored.rectPointsY]};
+  },{tag,base});
+  assert.deepEqual(legacy.actual,legacy.old,tag+': old connected terminal positions retained');
+  assert.deepEqual(legacy.restored,legacy.old,tag+': old connections survive saving/reloading');
+  assert.deepEqual(legacy.body,legacy.compact,tag+': compact body survives saving/reloading');
+ }
+ console.log('OK: legacy enlarged-symbol terminal coordinates preserved without moving external wires');
  assert.deepEqual(errors,[]);
  console.log('OK: D/T/JK/RS fixed symbol polygons and existing pin coordinates through SET/RESET, PR/CLR and None; compact native editors');
  console.log("OK new digital models imported, exposed through public API and exported as XML",result);

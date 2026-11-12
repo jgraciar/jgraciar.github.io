@@ -14,3 +14,8 @@ Las banderas de los circuitos antiguos se siguen leyendo y no se cambian al
 abrir el editor. Al modificar expresamente el selector de entradas asíncronas,
 este sustituye la configuración heredada; «Ninguna» retira esas entradas.
 Los encapsulados comerciales conservan su configuración definida.
+
+Al importar símbolos asíncronos guardados con la anchura anterior, se conserva
+la posición eléctrica de sus terminales y se alargan las patillas hasta el
+cuerpo compacto. Así no es necesario mover sus cables. La compatibilidad
+queda registrada en las banderas del circuito y sobrevive al guardado.
