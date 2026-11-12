@@ -26,3 +26,15 @@ conservación de XML y tiempo, apertura de más de ocho pestañas, ajuste entre
 del panel lateral duplica la pestaña activa en otra independiente, con el sufijo
 «(copia)». La copia conserva el circuito y el estado de marcha o pausa; puede
 guardarse con otro nombre. El circuito original permanece abierto.
+
+El botón «Organizar circuitos abiertos», junto a «Duplicar», ofrece tres vistas:
+una sola pestaña, en horizontal (lado a lado) y en vertical (una encima de otra).
+Las vistas agrupadas muestran todos los circuitos y permiten trabajar en cada
+uno. El circuito sobre el que se pulsa pasa a ser el activo. Cada simulación
+visible conserva su estado de marcha o pausa. Al volver a una sola pestaña,
+las ocultas se pausan y recuperan su estado al mostrarlas de nuevo.
+
+La disposición sigue el orden de las pestañas y se actualiza al abrir, cerrar
+o reordenar. Cuando hay muchas ventanas, el área se puede desplazar para
+mantener un tamaño mínimo de 320 × 280 px por circuito. Cambiar de vista
+conserva los motores, los circuitos y los cambios pendientes de guardar.

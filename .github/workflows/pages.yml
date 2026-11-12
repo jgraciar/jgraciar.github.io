@@ -134,6 +134,7 @@ jobs:
 
       - name: Verificar orden y ancho de pestañas
         run: |
+          node adaptacion/tests/verify-tiled-tabs-ui.mjs
           node adaptacion/tests/verify-tab-actions-ui.mjs
           node adaptacion/tests/verify-tab-order-width-ui.mjs
 

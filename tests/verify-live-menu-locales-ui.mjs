@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {labLanguageCodes} from '../scripts/LabTranslations.ts';
 import {workspaceTranslations,workspaceLabel} from '../scripts/CircuitJGRTabsLabels.ts';
-for(const language of labLanguageCodes){assert.equal(workspaceTranslations[language]?.split('|').length,14);assert(workspaceLabel('question',language).includes('{name}'));}
+for(const language of labLanguageCodes){assert.equal(workspaceTranslations[language]?.split('|').length,18);assert(workspaceLabel('question',language).includes('{name}'));}
 const browser=await chromium.launch({headless:true});
 const base='http://127.0.0.1:8767/';
 const fixture='<cir f="0" ts="0.00005"><r x="160 160 256 160" f="0" r="1234.5"/><x x="160 240 160 240" f="0" si="14" te="Text de l’usuari: Guarda els canvis"/></cir>';
@@ -76,6 +76,7 @@ try{
   assert.equal(await frame.locator('#jgr-sidebar-toggle').textContent(),workspaceLabel('hide','es'));
   assert.equal(await frame.locator('#add-tab').getAttribute('title'),workspaceLabel('new','es'));
   assert.equal(await frame.locator('#duplicate-tab').getAttribute('title'),workspaceLabel('duplicate','es'));
+  assert.equal(await frame.locator('#arrange-tabs').getAttribute('title'),workspaceLabel('arrange','es'));
   assert.equal(await circuitState(frame),original[i]);
   assert(await frame.evaluate(()=>window.CircuitJS1===window.localeTabApi&&!window.CircuitJS1.isRunning()));
  }

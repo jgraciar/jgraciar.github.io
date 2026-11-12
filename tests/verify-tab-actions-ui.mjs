@@ -26,7 +26,7 @@ try{
   const original=await info(page,'jgr-2');
   const geometry=await (await bar(page)).evaluate(el=>{
    const d=el.querySelector('#duplicate-tab'),s=el.querySelector('#jgr-sidebar-toggle');
-   return {next:d.nextElementSibling===s,duplicate:d.getBoundingClientRect().right,side:s.getBoundingClientRect().left,width:innerWidth,title:d.title};
+   return {next:d.nextElementSibling?.id==='arrange-tabs'&&d.nextElementSibling.nextElementSibling===s,duplicate:d.getBoundingClientRect().right,side:s.getBoundingClientRect().left,width:innerWidth,title:d.title};
   });
   assert(geometry.next&&geometry.duplicate<=geometry.side&&geometry.side<geometry.width);
   assert.equal(geometry.title,'Duplicar pestaña activa');

@@ -13,6 +13,11 @@ body{background:white}
 #workspace{position:absolute;inset:0;min-height:0;background:white}
 .session{position:absolute;inset:0;visibility:hidden;pointer-events:none}
 .session.active{visibility:visible;pointer-events:auto;z-index:1}
+#workspace[data-layout="horizontal"],#workspace[data-layout="vertical"]{display:grid;gap:4px;overflow:auto;background:#bcbcbc}
+#workspace[data-layout="horizontal"]{grid-auto-flow:column;grid-auto-columns:minmax(320px,1fr);grid-template-rows:minmax(280px,1fr)}
+#workspace[data-layout="vertical"]{grid-auto-flow:row;grid-auto-rows:minmax(280px,1fr);grid-template-columns:minmax(320px,1fr)}
+#workspace:not([data-layout="single"]) .session{position:relative;inset:auto;visibility:visible;pointer-events:auto;min-width:0;min-height:0}
+#workspace:not([data-layout="single"]) .session.active{outline:2px solid #225d9b;outline-offset:-2px}
 .session iframe{width:100%;height:100%;border:0;background:white;display:block}
 #open-files{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 #notice{position:absolute;left:8px;bottom:7px;z-index:3;background:#fffff2;color:#333;
@@ -21,20 +26,20 @@ body{background:white}
 </style>
 </head>
 <body>
-<main id="workspace" aria-label="Circuit JGR">
+<main id="workspace" data-layout="single" aria-label="Circuit JGR">
   <input id="open-files" type="file" accept=".jgr,.txt,.circuitjs,.xml" multiple>
 </main>
 <div id="notice" role="status" aria-live="polite"></div>
 <script>
 "use strict";
 (() => {
- const TAB_CSS="#jgr-tab-strip{position:absolute;left:0;right:0;height:33px;box-sizing:border-box;display:flex;align-items:end;gap:4px;overflow:hidden;padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc;z-index:5;font-family:Arial,Helvetica,sans-serif;color:#202020}\n#jgr-tab-strip .jgr-tab-list{display:flex;flex:0 1 auto;min-width:0;height:29px;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}\n#jgr-tab-strip .jgr-tab-list::-webkit-scrollbar{display:none}\n#jgr-tab-strip .tab{height:29px;flex:1 1 0;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:48px;box-sizing:border-box;user-select:none}\n#jgr-tab-strip .tab.active{background:white;border-color:#999}\n#jgr-tab-strip .tab.modified .choose::after{content:\" *\"}\n#jgr-tab-strip .tab button{font:inherit;background:none;border:0;color:#202020;cursor:pointer}\n#jgr-tab-strip .tab .choose{flex:1 1 0;min-width:0;padding:5px 4px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:grab;touch-action:none}\n#jgr-tab-strip .tab .close{flex:0 0 20px;min-width:20px;width:20px;padding:2px 0;font-size:17px}\n#jgr-tab-strip .tab .close:hover{color:#a50000;background:#e6d3d3}\n#jgr-tab-strip .tab.dragging{opacity:.5}\n#jgr-tab-strip .tab.drop-before{box-shadow:inset 3px 0 #225d9b}\n#jgr-tab-strip .tab.drop-after{box-shadow:inset -3px 0 #225d9b}\n#jgr-tab-strip #add-tab{height:29px;width:30px;min-width:30px;flex:0 0 30px;font-size:19px;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #duplicate-tab{margin-left:auto;flex:0 0 30px;width:30px;height:29px;align-self:center;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #duplicate-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #add-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #jgr-sidebar-toggle{flex:0 0 auto;align-self:center;padding:4px 9px;border:1px solid #aaa;border-radius:3px;background:#f8f8f8;color:#333;font:12px Arial,Helvetica,sans-serif;white-space:nowrap;cursor:pointer}\n#jgr-tab-strip #jgr-sidebar-toggle svg{display:none}\n#jgr-tab-strip #jgr-sidebar-toggle:hover{background:#fff}\n#jgr-tab-strip button:focus-visible{outline:2px solid #225d9b;outline-offset:-2px}\n@media(max-width:600px){#jgr-tab-strip #jgr-sidebar-toggle{width:30px;min-width:30px;padding:3px 4px}#jgr-tab-strip #jgr-sidebar-toggle svg{display:block}#jgr-tab-strip .sidebar-label{display:none}.layoutPanel > .triggerLabel{display:none!important}.layoutPanel > #painel{width:128px!important;z-index:4;transition:none;background:#fff;border-left:1px solid #bbb}}";
+ const TAB_CSS="#jgr-tab-strip{position:absolute;left:0;right:0;height:33px;box-sizing:border-box;display:flex;align-items:end;gap:4px;overflow:hidden;padding:3px 6px 0;background:#e8e8e8;border-bottom:1px solid #bcbcbc;z-index:5;font-family:Arial,Helvetica,sans-serif;color:#202020}\n#jgr-tab-strip .jgr-tab-list{display:flex;flex:0 1 auto;min-width:0;height:29px;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}\n#jgr-tab-strip .jgr-tab-list::-webkit-scrollbar{display:none}\n#jgr-tab-strip .tab{height:29px;flex:1 1 0;display:flex;align-items:center;background:#ddd;border:1px solid #bbb;border-bottom:0;border-radius:4px 4px 0 0;max-width:245px;min-width:48px;box-sizing:border-box;user-select:none}\n#jgr-tab-strip .tab.active{background:white;border-color:#999}\n#jgr-tab-strip .tab.modified .choose::after{content:\" *\"}\n#jgr-tab-strip .tab button{font:inherit;background:none;border:0;color:#202020;cursor:pointer}\n#jgr-tab-strip .tab .choose{flex:1 1 0;min-width:0;padding:5px 4px;font-size:12px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:grab;touch-action:none}\n#jgr-tab-strip .tab .close{flex:0 0 20px;min-width:20px;width:20px;padding:2px 0;font-size:17px}\n#jgr-tab-strip .tab .close:hover{color:#a50000;background:#e6d3d3}\n#jgr-tab-strip .tab.dragging{opacity:.5}\n#jgr-tab-strip .tab.drop-before{box-shadow:inset 3px 0 #225d9b}\n#jgr-tab-strip .tab.drop-after{box-shadow:inset -3px 0 #225d9b}\n#jgr-tab-strip #add-tab{height:29px;width:30px;min-width:30px;flex:0 0 30px;font-size:19px;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #duplicate-tab{margin-left:auto;flex:0 0 30px;width:30px;height:29px;align-self:center;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #duplicate-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #add-tab:hover{background:#d3d3d3}\n#jgr-tab-strip #jgr-sidebar-toggle{flex:0 0 auto;align-self:center;padding:4px 9px;border:1px solid #aaa;border-radius:3px;background:#f8f8f8;color:#333;font:12px Arial,Helvetica,sans-serif;white-space:nowrap;cursor:pointer}\n#jgr-tab-strip #jgr-sidebar-toggle svg{display:none}\n#jgr-tab-strip #jgr-sidebar-toggle:hover{background:#fff}\n#jgr-tab-strip button:focus-visible{outline:2px solid #225d9b;outline-offset:-2px}\n@media(max-width:600px){#jgr-tab-strip #jgr-sidebar-toggle{width:30px;min-width:30px;padding:3px 4px}#jgr-tab-strip #jgr-sidebar-toggle svg{display:block}#jgr-tab-strip .sidebar-label{display:none}.layoutPanel > .triggerLabel{display:none!important}.layoutPanel > #painel{width:128px!important;z-index:4;transition:none;background:#fff;border-left:1px solid #bbb}}\n#jgr-tab-strip #arrange-tabs{flex:0 0 30px;width:30px;height:29px;align-self:center;background:transparent;border:0;color:#333;cursor:pointer}\n#jgr-tab-strip #arrange-tabs:hover,#jgr-tab-strip #arrange-tabs[aria-expanded=\"true\"]{background:#d3d3d3}\n#jgr-tab-strip #arrange-tabs[data-layout=\"horizontal\"],#jgr-tab-strip #arrange-tabs[data-layout=\"vertical\"]{background:#d9e7f6}\n.jgr-layout-menu{position:fixed;z-index:10000;display:flex;flex-direction:column;min-width:190px;max-width:calc(100vw - 12px);padding:3px;border:1px solid #999;background:#f8f8f8;box-shadow:2px 3px 6px #0003;font:12px Arial,Helvetica,sans-serif;color:#202020}\n.jgr-layout-menu button{display:flex;align-items:center;gap:8px;min-height:30px;padding:5px 8px;text-align:left;white-space:normal;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer}\n.jgr-layout-menu button:hover,.jgr-layout-menu button:focus-visible{background:#d9e7f6;outline:1px solid #225d9b;outline-offset:-1px}\n.jgr-layout-menu .layout-mark{width:12px;flex:0 0 12px}\n";
  const workspace=document.querySelector("#workspace");
  const openInput=document.querySelector("#open-files");
  const notice=document.querySelector("#notice");
  const tabs=[];
  const BLANK='<cir f="0" ts="0.00005" ic="125" cb="50" pb="50" vr="5" mts="5e-11"></cir>';
- let active=null, serial=0, unnamed=0, sidebarVisible=true;
+ let active=null, serial=0, unnamed=0, sidebarVisible=true, layoutMode="single", layoutMenuCleanup=null;
  let tabGesture=null, renderQueued=false, suppressTabClickUntil=0, dirtySignature="";
  function message(text){notice.textContent=text||"";}
  function find(id){return tabs.find(t=>t.id===id);}
@@ -91,8 +96,78 @@ body{background:white}
   }
   renderTabs();
  }
+ function sessionVisible(t){return layoutMode!=="single"||t===active;}
+ function layoutSessions(){
+  workspace.dataset.layout=layoutMode;
+  tabs.forEach((t,index)=>{
+   t.section.style.order=String(index);
+   t.section.classList.toggle("active",t===active);
+   t.section.setAttribute("aria-hidden",String(!sessionVisible(t)));
+  });
+ }
+ function syncVisibleSimulations(){
+  for(const t of tabs){
+   if(!t.ready)continue;
+   const api=apiFor(t),visible=sessionVisible(t);
+   if(t.visible&&!visible){t.resume=api.isRunning();api.setSimRunning(false);}
+   else if(!t.visible&&visible)api.setSimRunning(t.resume);
+   t.visible=visible;
+  }
+ }
+ function resizeSessions(){
+  requestAnimationFrame(()=>{
+   for(const t of tabs){
+    const app=appFor(t);if(!t.ready||!app)continue;
+    positionStrip(t);app.ui.setCanvasSize();app.ui.repaint();
+   }
+  });
+ }
+ function closeLayoutMenu(){if(layoutMenuCleanup){const close=layoutMenuCleanup;layoutMenuCleanup=null;close();}}
+ function setLayout(mode){
+  if(!["single","horizontal","vertical"].includes(mode))return;
+  closeLayoutMenu();layoutMode=mode;
+  layoutSessions();syncVisibleSimulations();renderTabs();resizeSessions();
+ }
+ function showLayoutMenu(session,button){
+  if(button.getAttribute("aria-expanded")==="true"){closeLayoutMenu();return;}
+  closeLayoutMenu();
+  const doc=button.ownerDocument,view=doc.defaultView;
+  const menu=doc.createElement("div");menu.className="jgr-layout-menu";
+  menu.setAttribute("role","menu");menu.setAttribute("aria-label",tr(session,"arrange"));
+  menu.id="jgr-layout-menu";button.setAttribute("aria-controls",menu.id);button.setAttribute("aria-expanded","true");
+  const choices=["single","horizontal","vertical"].map(mode=>{
+   const option=doc.createElement("button");option.type="button";option.dataset.layout=mode;
+   option.setAttribute("role","menuitemradio");option.setAttribute("aria-checked",String(layoutMode===mode));
+   const mark=doc.createElement("span");mark.className="layout-mark";mark.setAttribute("aria-hidden","true");mark.textContent=layoutMode===mode?"✓":"";
+   const label=doc.createElement("span");label.textContent=tr(session,mode);option.append(mark,label);
+   bindTabAction(option,()=>{setLayout(mode);session.frame.contentDocument?.querySelector("#arrange-tabs")?.focus({preventScroll:true});});
+   menu.append(option);return option;
+  });
+  doc.body.append(menu);
+  const box=button.getBoundingClientRect(),height=menu.offsetHeight;
+  menu.style.left=Math.max(6,Math.min(box.right-menu.offsetWidth,view.innerWidth-menu.offsetWidth-6))+"px";
+  menu.style.top=Math.max(6,Math.min(box.bottom+2,view.innerHeight-height-6))+"px";
+  function outside(event){if(!menu.contains(event.target)&&!button.contains(event.target))closeLayoutMenu();}
+  function key(event){
+   if(event.key==="Escape"){event.preventDefault();event.stopImmediatePropagation();closeLayoutMenu();button.focus({preventScroll:true});return;}
+   if(event.key==="Tab"){closeLayoutMenu();return;}
+   if(event.key==="Enter"||event.key===" "){
+    event.preventDefault();event.stopImmediatePropagation();choices.find(option=>option===doc.activeElement)?.click();return;
+   }
+   if(!["ArrowUp","ArrowDown","Home","End"].includes(event.key))return;
+   event.preventDefault();event.stopImmediatePropagation();
+   let index=choices.indexOf(doc.activeElement);
+   index=event.key==="Home"?0:event.key==="End"?2:(index+(event.key==="ArrowDown"?1:2))%3;
+   choices[index].focus();
+  }
+  doc.addEventListener("pointerdown",outside,true);doc.addEventListener("keydown",key,true);
+  view.addEventListener("resize",closeLayoutMenu);view.addEventListener("blur",closeLayoutMenu);
+  layoutMenuCleanup=()=>{menu.remove();button.setAttribute("aria-expanded","false");button.removeAttribute("aria-controls");doc.removeEventListener("pointerdown",outside,true);doc.removeEventListener("keydown",key,true);view.removeEventListener("resize",closeLayoutMenu);view.removeEventListener("blur",closeLayoutMenu);};
+  choices[["single","horizontal","vertical"].indexOf(layoutMode)].focus();
+ }
  function renderTabs(){
   if(tabGesture){renderQueued=true;return;}
+  closeLayoutMenu();layoutSessions();
   const modified=new Map(tabs.map(t=>[t.id,isModified(t)]));
   for(const session of tabs){
    const tabsEl=ensureStrip(session);
@@ -146,6 +221,12 @@ body{background:white}
    duplicate.innerHTML='<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1" fill="none" stroke="currentColor"/><path d="M4 13H3V3h10v1" fill="none" stroke="currentColor"/></svg>';
    bindTabAction(duplicate,duplicateActive);
    tabsEl.append(duplicate);
+   const arrange=doc.createElement("button");arrange.type="button";arrange.id="arrange-tabs";
+   arrange.title=tr(session,"arrange");arrange.setAttribute("aria-label",arrange.title);
+   arrange.setAttribute("aria-haspopup","menu");arrange.setAttribute("aria-expanded","false");arrange.dataset.layout=layoutMode;
+   const divider=layoutMode==="horizontal"?'<path d="M10 3v14" stroke="currentColor"/>':layoutMode==="vertical"?'<path d="M2 10h16" stroke="currentColor"/>':'<path d="M2 7h16" stroke="currentColor"/>';
+   arrange.innerHTML='<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="1" fill="none" stroke="currentColor"/>'+divider+'</svg>';
+   bindTabAction(arrange,()=>showLayoutMenu(session,arrange));tabsEl.append(arrange);
    const sideToggle=doc.createElement("button");
    sideToggle.type="button";sideToggle.id="jgr-sidebar-toggle";
    const toggleLabel=tr(session,sidebarVisible?"hide":"show");
@@ -246,23 +327,9 @@ body{background:white}
  }
  function activate(t){
   if(!t||!find(t.id)||t===active)return;
-  if(active){
-   const current=apiFor(active);
-   if(active.ready&&current){
-    active.resume=current.isRunning();
-    current.setSimRunning(false);
-   }
-   active.section.classList.remove("active");
-   active.section.setAttribute("aria-hidden","true");
-   active.pendingPaste=null;
-  }
-  active=t;
-  t.section.classList.add("active");
-  t.section.setAttribute("aria-hidden","false");
-  if(t.ready&&apiFor(t)&&t.resume)apiFor(t).setSimRunning(true);
-  renderTabs();
-  revealTab(t,t);
-  message("");
+  if(active)active.pendingPaste=null;
+  active=t;layoutSessions();syncVisibleSimulations();
+  renderTabs();revealTab(t,t);message("");
  }
  function setName(t,name){
   if(!name||!name.trim())return;
@@ -397,7 +464,7 @@ body{background:white}
    active=null;
    if(tabs.length)activate(tabs[Math.min(i,tabs.length-1)]);
   }
-  renderTabs();
+  renderTabs();resizeSessions();
   if(!tabs.length)message("No hay circuitos abiertos.");
  }
  // Este aviso utiliza el diálogo nativo del propio CircuitJS.
@@ -507,6 +574,11 @@ body{background:white}
    clearInterval(waiter);
    try{
     interceptNativeFileMenu(t);
+    const selectSession=event=>{
+     if(layoutMode!=="single"&&t!==active&&!event.target.closest?.("#jgr-tab-strip,.jgr-layout-menu"))activate(t);
+    };
+    t.frame.contentDocument.addEventListener("pointerdown",selectSession,true);
+    t.frame.contentDocument.addEventListener("focusin",selectSession,true);
     // No sobrescribir el circuito inicial con un circuito vacío.
     // Nuevo circuito y Abrir archivo siguen importando su contenido.
     if(content!==null)a.importCircuit(content,false);
@@ -514,9 +586,11 @@ body{background:white}
     app.unsavedChanges=false;
     app.savedDumpPending=true;
     t.ready=true;
-    if(t!==active||options.running!==undefined)a.setSimRunning(t===active&&t.resume);
+    t.visible=sessionVisible(t);
+    if(!t.visible||options.running!==undefined)a.setSimRunning(t.visible&&t.resume);
+    if(t.visible)t.resume=a.isRunning();
     if(options.duplicate){app.unsavedChanges=true;app.savedDump=null;app.savedDumpPending=false;}
-    renderTabs();
+    renderTabs();resizeSessions();
     if(t===active)revealTab(t,t);
     message("");
    }catch(error){
@@ -560,6 +634,8 @@ body{background:white}
   getActive:()=>active?.id??null,
   newBlank,
   duplicateActive,
+  setLayout,
+  getLayout:()=>layoutMode,
   openFilePicker:()=>openInput.click()
  };
  unnamed=1;
