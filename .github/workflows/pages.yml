@@ -102,6 +102,7 @@ jobs:
           node adaptacion/scripts/promote-tabbed-workspace.mjs site-root
           node adaptacion/tests/calculadora-decimales.test.mjs site-root/calculadora
           node adaptacion/tests/calculadora-ejemplos.test.mjs site-root/calculadora
+          node adaptacion/tests/calculadora-metodos.test.mjs site-root/calculadora
           test -s site-root/index.html
           test -s site-root/circuitjgr.html
           test -s site-root/circuitjgr-core.html
@@ -130,6 +131,9 @@ jobs:
 
       - name: Verificar buscador de componentes
         run: node adaptacion/tests/verify-component-search-ui.mjs
+
+      - name: Verificar los ocho métodos de la calculadora en ambas pestañas
+        run: node adaptacion/tests/verify-calculadora-metodos-ui.mjs
 
       - name: Verificar cambios sucesivos de idioma
         run: node --experimental-strip-types adaptacion/tests/verify-live-menu-locales-ui.mjs
