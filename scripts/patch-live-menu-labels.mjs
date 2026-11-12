@@ -60,7 +60,7 @@ visit(ast);
 for(const e of edits.sort((a,b)=>b.start-a.start))menu=menu.slice(0,e.start)+e.text+menu.slice(e.end);
 menu=menu.replaceAll('addCommand(html: string,','addCommand(html: LiveLabel,').replaceAll('addMenuItem(item: MenuItem, html: string,','addMenuItem(item: MenuItem, html: LiveLabel,').replaceAll('addSubmenu(html: string,','addSubmenu(html: LiveLabel,');
 menu=menu.replace('const li = this.makeLi(html + \'<span class="submenuArrow">&#9658;</span>\');',
- 'const li = this.makeLi(() => (typeof html === "function" ? html() : html) + \'<span class="submenuArrow">&#9658;</span>\');');
+ 'const li = this.makeLi(typeof html === "function" ? () => html() + \'<span class="submenuArrow">&#9658;</span>\' : html + \'<span class="submenuArrow">&#9658;</span>\');');
 menu=menu.replace('private makeLi(html: string): HTMLLIElement {','private makeLi(html: LiveLabel): HTMLLIElement {');
 menu=menu.replace('        li.innerHTML = html;',
  '        li.innerHTML = typeof html === "function" ? html() : html;\n        if(typeof html === "function")bindLiveHTML(li,html);');
@@ -77,13 +77,13 @@ menu=menu.replace('this.app.commands.menuPerformed(menuName, cmdName);',
  'this.app.commands.menuPerformed(menuName,menuName === "circuits" && typeof html === "function" ? cmdName.split(" ").slice(0,2).join(" ")+" "+html() : cmdName);');
 writeFileSync(join(dir,'Menus.ts'),menu);
 once('UIManager.ts','    getLabel(): string { return this._label; }',
- '    getLabel(): string { return this._label; }\n    setLabel(s:string):void {this._label=s;const label=this._li?.querySelector(".itemLabel");if(label)label.textContent=s;}');
+ '    getLabel(): string { return this._label; }\n    setLabel(s:string):void {this._label=s;const label=this._li?.querySelector(".itemLabel");if(label)label.textContent=Locale.LS(s);}');
 once('UIManager.ts','    setShortcut(s: string): void { this._shortcut = s; }',
  '    setShortcut(s:string|(()=>string)):void {if(typeof s === "function"){bindLiveValue(s,value=>this.setShortcut(value));return;}this._shortcut=s;const hint=this._li?.querySelector(".shortcutHint");if(hint)hint.textContent=s;}');
 const ui=join(dir,'UIManager.ts');writeFileSync(ui,'import {bindLiveValue} from "./CircuitJGRLiveLabels";\n'+readFileSync(ui,'utf8'));
 const toolbar=join(dir,'Toolbar.ts');writeFileSync(toolbar,'import {bindLiveAttribute} from "./CircuitJGRLiveLabels";\n'+readFileSync(toolbar,'utf8'));
 once('Toolbar.ts','        iconLabel.title = Locale.LS(tooltip);',
- '        bindLiveAttribute(iconLabel,"title",()=>command.getMenuName()==="main"?(CirSim.theApp.getLabelTextForClass(command.getItemName())??Locale.LS(tooltip)):Locale.LS(tooltip));');
+ '        bindLiveAttribute(iconLabel,"title",()=>Locale.LS(command.getMenuName()==="main"?(CirSim.theApp.getLabelTextForClass(command.getItemName())??tooltip):tooltip));');
 once('Toolbar.ts','            variantButton.title = app.getLabelTextForClass(info[i + 1]) ?? info[i + 1];',
  '            bindLiveAttribute(variantButton,"title",()=>app.getLabelTextForClass(info[i+1])??info[i+1]);');
 // Dutch and Swedish have built-in dictionaries rather than native catalog files.

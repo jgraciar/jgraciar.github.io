@@ -27,6 +27,13 @@ const snapshot=page=>page.evaluate(()=>{
  };
 });
 const state=page=>page.evaluate(()=>({xml:window.CircuitJS1.exportCircuit().split('\n').slice(1).join('\n'),time:window.CircuitJS1.getTime(),running:window.CircuitJS1.isRunning(),name:window.__CircuitJGRExperimentalApp.ui.titleLabel.textContent}));
+function differences(actual,expected,path='',result=[]){
+ if(actual===expected)return result;
+ if(actual&&expected&&typeof actual==='object'&&typeof expected==='object'){
+  for(const key of new Set([...Object.keys(actual),...Object.keys(expected)]))differences(actual[key],expected[key],path+'.'+key,result);
+ }else result.push({path,actual,expected});
+ return result;
+}
 try{
  const page=await open('ca-es-valencia');
  await page.evaluate(xml=>{window.CircuitJS1.setSimRunning(false);window.CircuitJS1.importCircuit(xml,false);window.__CircuitJGRExperimentalApp.setCircuitTitle('Circuit de l’usuari');window.localeOriginalApi=window.CircuitJS1;},fixture);
@@ -38,7 +45,7 @@ try{
  for(const language of languages){
   await page.evaluate(language=>window.CircuitJS1.applyInitialSettings({language,whiteBackground:true,digits:4,decimal:',',grouping:'.'}),language);
   const fresh=await open(language);
-  assert.deepEqual(await snapshot(page),await snapshot(fresh),'Live menus differ from fresh '+language);
+  assert.deepEqual(differences(await snapshot(page),await snapshot(fresh)),[],'Live menus differ from fresh '+language);
   assert.deepEqual(await state(page),before,'Changing '+language+' must preserve circuit, time, pause and user title');
   assert(await page.evaluate(()=>window.CircuitJS1===window.localeOriginalApi),'engine identity');
   await page.evaluate(()=>window.__CircuitJGRExperimentalApp.commands.menuPerformed('edit','search'));
