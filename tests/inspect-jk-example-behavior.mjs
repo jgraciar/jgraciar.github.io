@@ -20,7 +20,7 @@ try{
   const fixture=original.replace('ts="0.000005"','ts="0.00005"')
       .replace('fr="15"','fr="120"')
       .replace(/<(And|Nor|Nand) ([^>]*?)\/>/g,(match,gate,attrs)=>
-        delay ? '<'+gate+' '+attrs+' pd="'+delay+'"/>' : match);
+        delay ? '<'+gate+' '+attrs.replace(/\s+pd="[^"]*"/g,'')+' pd="'+delay+'"/>' : match);
   const data=await page.evaluate(async xml=>{
    const api=window.CircuitJS1;api.setSimRunning(false);api.importCircuit(xml,false);
    const elms=Array.from(api.getElements());

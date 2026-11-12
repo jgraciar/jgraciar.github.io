@@ -42,7 +42,11 @@ try {
      const top=nand[6],bottom=nand[7];
      const measurement={t,qJK:jk.getVoltage(3)>2.5,qbarJK:jk.getVoltage(4)>2.5,
       qGate:top.getVoltage(top.getPostCount()-1)>2.5,
-      qbarGate:bottom.getVoltage(bottom.getPostCount()-1)>2.5};
+      qbarGate:bottom.getVoltage(bottom.getPostCount()-1)>2.5,
+      nandOutputs:nand.map(g=>g.getVoltage(g.getPostCount()-1)),
+      jkOutputs:[jk.getVoltage(3),jk.getVoltage(4)],
+      inputVolts:els.filter(e=>e.getType()==="LogicInputElm").map(e=>e.getVoltage(0)),
+      inverter:els.find(e=>e.getType()==="InverterElm")?.getVoltage(1)};
      checks.push(measurement);
      recorded=true;
     }
@@ -55,6 +59,7 @@ try {
   },xml);
   await page.waitForFunction(()=>window.jgrJKComparisonDone,null,{timeout:30000});
   const results=await page.evaluate(()=>window.jgrJKComparison);
+  console.log("JK STATE J="+j+" K="+k+" "+JSON.stringify(results.slice(0,5)));
   assert(results.length>=3,'J='+j+' K='+k+': faltan flancos verificados');
   for(const data of results){
    assert.equal(data.qGate,data.qJK,'J='+j+' K='+k+' t='+data.t+': salida Q del montaje invertida');
