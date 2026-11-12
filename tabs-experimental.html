@@ -586,9 +586,9 @@ body{background:white}
     app.unsavedChanges=false;
     app.savedDumpPending=true;
     t.ready=true;
+    if(options.running===undefined)t.resume=a.isRunning();
     t.visible=sessionVisible(t);
-    if(!t.visible||options.running!==undefined)a.setSimRunning(t.visible&&t.resume);
-    if(t.visible)t.resume=a.isRunning();
+    a.setSimRunning(t.visible&&t.resume);
     if(options.duplicate){app.unsavedChanges=true;app.savedDump=null;app.savedDumpPending=false;}
     renderTabs();resizeSessions();
     if(t===active)revealTab(t,t);

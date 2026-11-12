@@ -33,7 +33,7 @@ try{
  await page.locator('#open-files').setInputFiles([1,2].map((r,i)=>({name:`Circuito ${i+2}.jgr`,mimeType:'text/plain',buffer:Buffer.from(sample(500+r))})));
  await ready(page,3);
  await page.evaluate(xml=>{
-  for(const f of document.querySelectorAll('iframe'))f.contentWindow.CircuitJS1.setSimRunning(false);
+  for(const f of document.querySelectorAll('iframe')){window.JGRTabsExperimental.activate(f.dataset.tabId);f.contentWindow.CircuitJS1.setSimRunning(false);}
   document.querySelector('iframe').contentWindow.CircuitJS1.importCircuit(xml,false);
   window.engines=Object.fromEntries([...document.querySelectorAll('iframe')].map(f=>[f.dataset.tabId,f.contentWindow.CircuitJS1]));
  },sample(100));
