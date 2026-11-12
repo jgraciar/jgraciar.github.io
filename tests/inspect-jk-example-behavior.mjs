@@ -9,13 +9,18 @@ try{
  await page.addInitScript(()=>localStorage.setItem('labStartConfigured','1'));
  await page.goto('http://127.0.0.1:8767/circuitjgr-core.html?lang=es');
  await page.waitForFunction(()=>window.CircuitJS1?.getElements);
- for(const file of [
-  '8.7.2.5-biestable-jk-sincrono-nor.txt',
-  '8.7.2.5-biestable-jk-maestro-esclavo.txt'
+ for(const [file,relative,delay] of [
+  ['jk-nor-original','../examples/circuit-jgr/8.7.2.5-biestable-jk-sincrono-nor.txt',0],
+  ['jk-nand-original','../examples/circuit-jgr/8.7.2.5-biestable-jk-maestro-esclavo.txt',0],
+  ['jk-nor-master-slave','./fixtures/jk-nor-master-slave-candidate.xml',0],
+  ['jk-nor-master-slave-delay','./fixtures/jk-nor-master-slave-candidate.xml',0.0001],
+  ['jk-nand-master-slave-delay','../examples/circuit-jgr/8.7.2.5-biestable-jk-maestro-esclavo.txt',0.0001]
  ]){
-  const original=readFileSync(new URL('../examples/circuit-jgr/'+file,import.meta.url),'utf8');
+  const original=readFileSync(new URL(relative,import.meta.url),'utf8');
   const fixture=original.replace('ts="0.000005"','ts="0.00005"')
-      .replace('fr="15"','fr="120"');
+      .replace('fr="15"','fr="120"')
+      .replace(/<(And|Nor|Nand) ([^>]*?)\/>/g,(match,gate,attrs)=>
+        delay ? '<'+gate+' '+attrs+' pd="'+delay+'"/>' : match);
   const data=await page.evaluate(async xml=>{
    const api=window.CircuitJS1;api.setSimRunning(false);api.importCircuit(xml,false);
    const elms=Array.from(api.getElements());
@@ -45,7 +50,9 @@ try{
   },fixture);
   await page.waitForFunction(()=>window.jgrJKDiagDone,null,{timeout:30000});
   const result=await page.evaluate(()=>window.jgrJKDiagResult);
-  console.log('JK-EXAMPLE '+file+' '+JSON.stringify({...result,elmTypes:data.elmTypes}));
+  console.log('JK-EXAMPLE '+file+' '+JSON.stringify({delay,counts:result.counts,atEnd:result.atEnd,
+   gateName:result.gateName,first:result.samples.slice(0,6),last:result.samples.slice(-6),
+   elementCounts:data.elmTypes}));
  }
  assert.deepEqual(errors,[]);
 }finally{await browser.close();}
