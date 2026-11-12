@@ -46,7 +46,7 @@ try{
  assert(boxes.every(b=>b.canvasWidth>100&&b.canvasHeight>100&&Math.abs(b.width-b.innerWidth)<2));
  assert.deepEqual(await snapshot(page),before,'Layout changes preserve paused circuits and simulation clocks');
  // Focus in a circuit selects that session without hiding its neighbours.
- await frame(page,'jgr-2').locator('canvas').first().click({position:{x:20,y:20}});
+ await frame(page,'jgr-2').locator('.canvasWrapper > canvas').click({position:{x:20,y:20}});
  assert.equal(await current(page),'jgr-2');assert((await sizes(page)).every(b=>b.hidden==='false'));
  // Menu keyboard navigation and Escape leave the chosen mode intact.
  await frame(page,'jgr-2').locator('#arrange-tabs').click();
