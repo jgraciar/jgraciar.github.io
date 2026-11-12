@@ -474,6 +474,12 @@ body{background:white}
   const app=appFor(t);
   if(!app||!app.commands||t.intercepted)return;
   t.intercepted=true;
+  const nativeBackground=app.menus.printableCheckItem.toggle.bind(app.menus.printableCheckItem);
+  app.menus.printableCheckItem.toggle=function(){
+   nativeBackground();const light=apiFor(t).getWhiteBackground();
+   for(const session of tabs){const other=appFor(session);if(!session.ready||!other)continue;other.menus.printableCheckItem.setState(light);other.ui.setOptionInStorage("whiteBackground",light);other.repaint();}
+   renderTabs();
+  };
   const nativeRun=app.ui.setSimRunning.bind(app.ui);
   app.ui.setSimRunning=function(state){const result=nativeRun(state);iconButtons(t);return result;};
   const originalToolbar=app.ui.setToolbar.bind(app.ui);

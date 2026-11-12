@@ -64,6 +64,6 @@ export async function applyCircuitJGRSettings(app:any, settings:{language:string
     app.repaint();
     const applied={...settings,language:Locale.activeLanguage};
     window.dispatchEvent(new CustomEvent('circuit-jgr-settings-applied',{detail:applied}));
-    if(languageChanged&&settings.notify!==false&&window.parent!==window)
+    if(settings.notify!==false&&window.parent!==window)
         window.parent.postMessage({source:'circuit-jgr-tabs',action:'settings-changed',settings:applied},location.origin);
 }
