@@ -5,7 +5,10 @@ const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH
 try{
  const page=await browser.newPage();
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ // Simular un archivo antiguo disponible en su URL sin versión.
+ await page.route('**/app.js',route=>route.fulfill({contentType:'application/javascript',body:'throw Error("Se ha cargado app.js antiguo");'}));
  await page.goto(process.env.CALCULATOR_URL||'http://127.0.0.1:8767/calculadora/');
+ for(const name of ['solver','classical','app'])assert.equal(await page.locator('script[src^="'+name+'.js?v="]').count(),1,'Los scripts tienen URL de versión');
  assert.equal(await page.locator('#method').inputValue(),'auto','Automático algebraico es el método predeterminado');
  await page.click('#text-tab');
  assert.equal(await page.locator('#method').inputValue(),'auto','El editor conserva el método predeterminado');
@@ -26,16 +29,17 @@ try{
    const text=await page.locator('#result').innerText();
    assert(text.includes('una única solución'),mode+' '+method);
    assert(text.includes('x = 3')&&text.includes('y = 2'),text);
+   assert(await page.locator('.answer').evaluate(node=>node===node.parentElement.firstElementChild),'La solución es el primer bloque del resultado');
    if(['equalization','elimination','substitution','auto'].includes(method)){
     assert(text.includes('Paso 1.'));assert(!text.includes('Reducción de Gauss-Jordan'));
     assert(!text.includes('Sistema en forma matricial'));
     assert(await page.locator('.answer').evaluate(node=>Boolean(node.compareDocumentPosition(document.querySelector('.algebra-step'))&Node.DOCUMENT_POSITION_FOLLOWING)),'El resultado aparece antes del desarrollo');
-    assert(await page.locator('.algebra-step').count()>8,'Desarrollo con transformaciones individuales');
-    assert(await page.locator('[data-algebra-line]').count()>10,'Se muestran las operaciones intermedias');
+    const steps=await page.locator('.algebra-step').count();
+    assert(steps>=3&&steps<=6,'El sistema 2×2 se explica en pasos útiles, sin fragmentar cálculos elementales');
+    assert(await page.locator('[data-algebra-line]').count()>=5,'Se mantienen las transformaciones necesarias');
+    assert(!text.includes('Dividir los dos miembros entre 1'));
     if(method==='equalization'||method==='substitution'){
-     assert(text.includes('Desarrollar los paréntesis'));
-     assert(text.includes('Calcular los productos'));
-     assert(text.includes('Agrupar los coeficientes'));
+     assert(text.includes('simplificar para obtener'));
     }
    }
    await page.getByText('Comprobar la solución',{exact:true}).click();
@@ -69,6 +73,10 @@ try{
     await page.locator('[data-example="'+kind+'"]').click();
     const values=await page.locator('.coeff').evaluateAll(nodes=>nodes.map(n=>n.value));
     assert(values.every(value=>/^-?\d+$/.test(value)),'Ejemplo solo con enteros: '+n+' '+kind+' '+region);
+    await page.locator('[data-example="'+kind+'"]').click();
+    const next=await page.locator('.coeff').evaluateAll(nodes=>nodes.map(n=>n.value));
+    if(n===1&&kind==='infinite')assert((await page.locator('#example-notice').innerText()).includes('0 = 0'));
+    else assert.notDeepEqual(next,values,'Nueva pulsación, nuevo sistema');
    }
   }
  }

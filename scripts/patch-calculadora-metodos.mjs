@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,copyFileSync} from 'node:fs';
 import {resolve,join,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {createHash} from 'node:crypto';
 
 const dir=resolve(process.argv[2]||'');
 assert(process.argv[2],'Uso: node patch-calculadora-metodos.mjs <directorio>');
@@ -42,4 +43,18 @@ if(!app.includes(' if(algebraic)html+=renderClassical(A,b,vars,method);')){
  app=replaceOnce(app,' if(useGauss){html+=',' if(algebraic)html+=renderClassical(A,b,vars,method);\n if(useGauss){html+=');
 }
 writeFileSync(join(dir,'app.js'),app);
+// Situar la solución como primer elemento real del resultado en todos los métodos.
+if(!app.includes("if(answer)result.prepend(answer)")){
+ app=replaceOnce(app," $('result').innerHTML=html;$('result').hidden=false;",
+  " const result=$('result');result.innerHTML=html;const answer=result.querySelector('.answer');if(answer)result.prepend(answer);result.hidden=false;");
+ writeFileSync(join(dir,'app.js'),app);
+}
+// Cada cambio de contenido obtiene una URL distinta y evita reutilizar JS antiguo.
+for(const name of ['solver.js','classical.js','app.js','style.css']){
+ const hash=createHash('sha256').update(readFileSync(join(dir,name))).digest('hex').slice(0,12);
+ const pattern=new RegExp('(src|href)="'+name.replace('.','\\.')+'(?:\\?[^\"]*)?"','g');
+ assert.equal([...html.matchAll(pattern)].length,1,'Referencia única para '+name);
+ html=html.replace(pattern,(_,attr)=>attr+'="'+name+'?v='+hash+'"');
+}
+writeFileSync(join(dir,'index.html'),html);
 console.log('OK: igualación, reducción, sustitución y automático en ambas pestañas; se conservan los cuatro métodos anteriores.');

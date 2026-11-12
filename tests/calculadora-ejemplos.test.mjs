@@ -12,38 +12,30 @@ const start=app.indexOf('function exampleCells(n,kind){');
 const end=app.indexOf("\ndocument.querySelectorAll('[data-example]')",start);
 assert(start>=0&&end>start,'El generador de ejemplos debe existir');
 const source=app.slice(start,end)+'\nexampleCells';
-const values=['2','-1','3','1','-2','4'];
-let count=0;
-for(const region of ['eu','en']){
- const exampleCells=vm.runInNewContext(source,{Q,z:()=>new Q(0),one:()=>new Q(1),region});
- for(let n=1;n<=6;n++){
-  for(const kind of ['unique','infinite','none']){
-   const cells=exampleCells(n,kind);
-   assert.equal(cells.length,n,'Número de ecuaciones');
-   assert(cells.every(row=>row.length===n+1),'Número de coeficientes y términos independientes');
-   assert(cells.flat().every(value=>!value.includes('/')),'No deben figurar fracciones en la matriz');
-   assert(cells.flat().every(value=>/^-?\d+$/.test(value)),'Todos los datos del ejemplo deben ser enteros');
-   assert(cells.flat().every(value=>!value.includes(region==='eu'?'.':',')),'Separador decimal correcto');
-   const data=cells.map(row=>row.map(value=>Q.from(value.replace(',','.'))));
-   const A=data.map(row=>row.slice(0,n)),b=data.map(row=>row[n]);
-   const result=solve(A,b);
-   assert.equal(result.kind,kind,'Clasificación '+kind+' con '+n+' incógnitas y '+region);
-   if(kind==='unique'){
-    assert.equal(result.x.length,n);
-    result.x.forEach((value,j)=>{
-     assert.equal(value.toString(),Q.from(values[j]).toString(),'Solución '+j);
-     assert.equal(value.d,1n,'La solución de referencia debe ser entera');
-    });
+let count=0,seed=20261112;
+const seededMath=Object.create(Math);
+seededMath.random=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296;};
+// Semilla reproducible y fuente constante para comprobar también la no repetición.
+for(const math of [seededMath,Object.assign(Object.create(Math),{random:()=>0})]){
+ for(const region of ['eu','en']){
+  const exampleCells=vm.runInNewContext(source,{Q,z:()=>new Q(0),one:()=>new Q(1),region,Math:math});
+  for(let n=1;n<=6;n++)for(const kind of ['unique','infinite','none']){
+   let previous;
+   for(let trial=0;trial<30;trial++){
+    const cells=exampleCells(n,kind),signature=JSON.stringify(cells);
+    assert.equal(cells.length,n);
+    assert(cells.every(row=>row.length===n+1));
+    assert(cells.flat().every(value=>/^-?\d+$/.test(value)),'Datos enteros');
+    if(previous&&!(n===1&&kind==='infinite'))assert.notEqual(signature,previous,'Cada pulsación genera un sistema diferente');
+    previous=signature;
+    const data=cells.map(row=>row.map(Q.from)),A=data.map(row=>row.slice(0,n)),b=data.map(row=>row[n]);
+    const result=solve(A,b);
+    assert.equal(result.kind,kind,'Compatibilidad garantizada '+kind+' con '+n+' incógnitas');
+    if(kind==='unique')assert(result.x.every(q=>q.d===1n),'Soluciones de referencia enteras');
+    else assert.equal(result.pivots.length,n-1,'Exactamente una relación dependiente');
+    count++;
    }
-   if(kind==='infinite'&&n>1){
-    const sample=values.slice(0,n).map(Q.from);
-    A.forEach((row,i)=>{
-     const calculated=row.reduce((sum,q,j)=>sum.add(q.mul(sample[j])),new Q(0));
-     assert.equal(calculated.toString(),b[i].toString(),'Ejemplo compatible con una solución de referencia entera');
-    });
-   }
-   count++;
   }
  }
 }
-console.log('OK: '+count+' casos verificados para dos formatos regionales, sin fracciones en la matriz.');
+console.log('OK: '+count+' sistemas aleatorios y de fuente constante: enteros, compatibilidad y no repetición (excepto la identidad 0 = 0).');

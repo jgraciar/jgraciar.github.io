@@ -114,110 +114,73 @@ function classicalDistributed(f,row,c,vars,withConstant=false){
 function renderClassical(A,b,vars,method){
  const trace=method==='auto'?chooseClassical(A,b):classicalSolve(A,b,method);
  let html='<h3>Resolución por '+classicalNames[trace.method].toLowerCase()+'</h3>',number=0;
- const line=equation=>'<p class="math" data-algebra-line>'+equation+'</p>';
  function addStep(title,equations){
-  html+='<details class="solution-step algebra-step" open><summary>Paso '+(++number)+'. '+title+'</summary>'+equations.map(line).join('')+'</details>';
+  const unique=[...new Set(equations)];
+  html+='<details class="solution-step algebra-step" open><summary>Paso '+(++number)+'. '+title+'</summary>'+unique.map(equation=>'<p class="math" data-algebra-line>'+equation+'</p>').join('')+'</details>';
  }
  const coefficient=(q,c)=>classicalLinear(vars.map((_,k)=>k===c?q:z()),vars);
  function isolate(row,c){
   const v=variable(vars[c]),p=row.a[c],terms=row.a.map((q,k)=>k===c?z():q.neg());
-  const rhs=classicalAffine(row.b,terms,vars);
-  addStep('Despejar '+v+' en '+row.label+': pasar los demás términos al segundo miembro',[
-   classicalEquation(row,vars),coefficient(p,c)+' = '+rhs
-  ]);
-  if(p.n===p.d)return;
-  addStep('Dividir los dos miembros entre '+qhtml(p),[v+' = ('+rhs+') / ('+qhtml(p)+')']);
-  addStep('Simplificar el despeje de '+v,[v+' = '+classicalAffine(row.b.div(p),terms.map(q=>q.div(p)),vars)]);
+  const rhs=classicalAffine(row.b,terms,vars),lines=[];
+  if(p.n!==p.d)lines.push(coefficient(p,c)+' = '+rhs);
+  lines.push(v+' = '+classicalIsolated(row,c,vars));
+  addStep('Despejar '+v+' en '+row.label,lines);
  }
- if(method==='auto')html+='<p>Automático: se ha elegido '+classicalNames[trace.method].toLowerCase()+' al comparar las operaciones algebraicas estimadas de los tres métodos.</p>';
+ if(method==='auto')html+='<p>Automático: método elegido, '+classicalNames[trace.method].toLowerCase()+'.</p>';
  html+='<p>Sistema inicial:</p><div class="algebra-equations">'+A.map((a,i)=>'<p class="math">E'+(i+1)+': '+classicalEquation({a,b:b[i]},vars)+'</p>').join('')+'</div>';
  for(const step of trace.steps){
   const c=step.relation.c,v=variable(vars[c]);
-  if(step.type==='isolate'){
-   isolate(step.row,c);continue;
-  }
+  if(step.type==='isolate'){isolate(step.row,c);continue;}
   if(step.type==='back'){
    const source=step.relation.source,p=source.a[c];
-   const known=source.a.map((q,k)=>({q,k})).filter(t=>t.k!==c&&!t.q.zero);
-   let rhs=source.b;
+   const known=source.a.map((q,k)=>({q,k})).filter(t=>t.k!==c&&!t.q.zero),lines=[];
    if(known.length){
-    const products=known.map(({q,k})=>({q:q.mul(step.values[k]),k:null}));
     const substitutions=known.map(({q,k})=>classicalProduct(q,step.values[k]));
-    addStep('Sustituir los valores conocidos en '+source.label,[
-     classicalEquation(source,vars),coefficient(p,c)+' + '+substitutions.join(' + ')+' = '+qhtml(source.b)
-    ]);
-    addStep('Calcular los productos numéricos',[
-     classicalTerms([{q:p,k:c},...products],vars)+' = '+qhtml(source.b)
-    ]);
-    addStep('Pasar los términos numéricos al segundo miembro',[
-     coefficient(p,c)+' = '+qhtml(source.b)+products.map(t=>' − ('+qhtml(t.q)+')').join('')
-    ]);
-    rhs=products.reduce((acc,t)=>acc.sub(t.q),source.b);
-    if(p.n!==p.d)addStep('Calcular el término independiente',[coefficient(p,c)+' = '+qhtml(rhs)]);
-   }else addStep('Resolver la ecuación de una incógnita '+source.label,[classicalEquation(source,vars)]);
-   if(p.n!==p.d)addStep('Dividir los dos miembros entre '+qhtml(p)+' para obtener '+v,[v+' = ('+qhtml(rhs)+') / ('+qhtml(p)+')']);
-   addStep('Obtener el valor de '+v,[v+' = '+qhtml(step.value)]);
+    const products=known.map(({q,k})=>({q:q.mul(step.values[k]),k:null}));
+    lines.push(coefficient(p,c)+' + '+substitutions.join(' + ')+' = '+qhtml(source.b));
+    const rhs=products.reduce((acc,t)=>acc.sub(t.q),source.b);
+    if(p.n!==p.d)lines.push(coefficient(p,c)+' = '+qhtml(rhs),v+' = ('+qhtml(rhs)+') / ('+qhtml(p)+')');
+   }else if(p.n!==p.d)lines.push(v+' = ('+qhtml(source.b)+') / ('+qhtml(p)+')');
+   lines.push(v+' = '+qhtml(step.value));
+   addStep(known.length?'Sustituir los valores conocidos en '+source.label+' y obtener '+v:'Obtener '+v,lines);
    continue;
   }
   const row=step.row,pivot=step.pivot,p=pivot.a[c],q=row.a[c];
   if(step.type==='elimination'){
    const [f,h]=step.multipliers;
    const first={a:row.a.map(t=>t.mul(f)),b:row.b.mul(f)},second={a:pivot.a.map(t=>t.mul(h)),b:pivot.b.mul(h)};
-   addStep('Elegir multiplicadores para eliminar '+v,[classicalProduct(f,q)+' + '+classicalProduct(h,p)+' = 0']);
-   addStep('Multiplicar '+row.label+' por '+qhtml(f),[
-    classicalDistributed(f,row,-1,vars)+' = '+classicalProduct(f,row.b),classicalEquation(first,vars)
+   addStep('Eliminar '+v+': ('+qhtml(f)+') · '+row.label+' + ('+qhtml(h)+') · '+pivot.label,[
+    classicalEquation(first,vars),classicalEquation(second,vars),classicalEquation(step.result,vars)
    ]);
-   addStep('Multiplicar '+pivot.label+' por '+qhtml(h),[
-    classicalDistributed(h,pivot,-1,vars)+' = '+classicalProduct(h,pivot.b),classicalEquation(second,vars)
-   ]);
-   const sums=vars.map((name,k)=>first.a[k].zero&&second.a[k].zero?'':'(('+qhtml(first.a[k])+') + ('+qhtml(second.a[k])+')) · '+variable(name)).filter(Boolean);
-   addStep('Sumar las ecuaciones miembro a miembro',[(sums.join(' + ')||'0')+' = ('+qhtml(first.b)+') + ('+qhtml(second.b)+')']);
-   addStep('Calcular las sumas y obtener '+step.label,[classicalEquation(step.result,vars)]);
    continue;
   }
+  const lines=[];
   if(step.type==='equalization'){
    isolate(row,c);
-   addStep('Igualar los dos despejes de '+v,[classicalIsolated(pivot,c,vars)+' = '+classicalIsolated(row,c,vars)]);
+   lines.push(classicalIsolated(pivot,c,vars)+' = '+classicalIsolated(row,c,vars));
    const pivotNumerator=classicalAffine(pivot.b,pivot.a.map((t,k)=>k===c?z():t.neg()),vars);
    const rowNumerator=classicalAffine(row.b,row.a.map((t,k)=>k===c?z():t.neg()),vars);
-   if(p.n!==p.d||q.n!==q.d)addStep('Quitar denominadores multiplicando los dos miembros por ('+qhtml(p)+') · ('+qhtml(q)+')',[
-    '('+qhtml(q)+') · ('+pivotNumerator+') = ('+qhtml(p)+') · ('+rowNumerator+')'
-   ]);
-   addStep('Desarrollar los paréntesis con la propiedad distributiva',[
-    classicalDistributed(q,pivot,c,vars,true)+' = '+classicalDistributed(p,row,c,vars,true)
-   ]);
+   if(p.n!==p.d||q.n!==q.d)lines.push('('+qhtml(q)+') · ('+pivotNumerator+') = ('+qhtml(p)+') · ('+rowNumerator+')');
    const left=[{q:q.mul(pivot.b),k:null},...pivot.a.map((t,k)=>({q:k===c?z():q.mul(t).neg(),k}))];
    const right=[{q:p.mul(row.b),k:null},...row.a.map((t,k)=>({q:k===c?z():p.mul(t).neg(),k}))];
-   addStep('Calcular los productos',[classicalTerms(left,vars)+' = '+classicalTerms(right,vars)]);
+   lines.push(classicalTerms(left,vars)+' = '+classicalTerms(right,vars));
   }else{
    const other=row.a.map((t,k)=>k===c?z():t),otherText=classicalLinear(other,vars);
-   addStep('Sustituir el despeje de '+v+' en '+row.label,[
-    '('+qhtml(q)+') · ('+classicalIsolated(pivot,c,vars)+') + ('+otherText+') = '+qhtml(row.b)
-   ]);
-   const numerator=classicalAffine(pivot.b,pivot.a.map((t,k)=>k===c?z():t.neg()),vars);
-   if(p.n!==p.d)addStep('Quitar el denominador multiplicando los dos miembros por '+qhtml(p),[
-    '('+qhtml(q)+') · ('+numerator+') + ('+qhtml(p)+') · ('+otherText+') = '+classicalProduct(p,row.b)
-   ]);
-   addStep('Desarrollar los paréntesis con la propiedad distributiva',[
-    classicalDistributed(q,pivot,c,vars,true)+' + '+classicalDistributed(p,row,c,vars)+' = '+classicalProduct(p,row.b)
-   ]);
+   lines.push('('+qhtml(q)+') · ('+classicalIsolated(pivot,c,vars)+')'+(otherText==='0'?'':' + ('+otherText+')')+' = '+qhtml(row.b));
+   if(p.n!==p.d){
+    const numerator=classicalAffine(pivot.b,pivot.a.map((t,k)=>k===c?z():t.neg()),vars);
+    lines.push('('+qhtml(q)+') · ('+numerator+')'+(otherText==='0'?'':' + ('+qhtml(p)+') · ('+otherText+')')+' = '+qhtml(p.mul(row.b)));
+   }
    const products=[{q:q.mul(pivot.b),k:null}];
    vars.forEach((_,k)=>{if(k!==c)products.push({q:q.mul(pivot.a[k]).neg(),k},{q:p.mul(row.a[k]),k})});
-   addStep('Calcular los productos',[classicalTerms(products,vars)+' = '+qhtml(p.mul(row.b))]);
+   lines.push(classicalTerms(products,vars)+' = '+qhtml(p.mul(row.b)));
   }
-  const items=[];
-  vars.forEach((_,k)=>{if(k!==c)items.push({q:q.mul(pivot.a[k]).neg(),k},{q:p.mul(row.a[k]),k})});
-  const right='('+qhtml(p.mul(row.b))+') − ('+qhtml(q.mul(pivot.b))+')';
-  addStep('Pasar las incógnitas al primer miembro y los números al segundo',[
-   classicalTerms(items,vars)+' = '+right
-  ]);
-  const grouped=vars.map((name,k)=>k===c||(pivot.a[k].zero&&row.a[k].zero)?'':'(('+qhtml(q.mul(pivot.a[k]).neg())+') + ('+qhtml(p.mul(row.a[k]))+')) · '+variable(name)).filter(Boolean);
-  addStep('Agrupar los coeficientes de cada incógnita',[(grouped.join(' + ')||'0')+' = '+right]);
-  addStep('Calcular las sumas y restas y obtener '+step.label,[classicalEquation(step.result,vars)]);
+  lines.push(classicalEquation(step.result,vars));
+  addStep((step.type==='equalization'?'Igualar los despejes de '+v:'Sustituir '+v+' en '+row.label)+' y simplificar para obtener '+step.label,lines);
  }
  if(trace.kind!=='unique'){
   html+='<h3>Compatibilidad del sistema</h3>'+trace.remaining.map(r=>'<p class="math">'+r.label+': '+classicalEquation(r,vars)+'</p>').join('');
-  html+=trace.kind==='none'?'<p>Se obtiene una contradicción: 0 es igual a un número distinto de cero. No existe solución.</p>':'<p>Las ecuaciones restantes son identidades o quedan incógnitas libres. Hay infinitas soluciones; la parametrización se muestra al principio.</p>';
+  html+=trace.kind==='none'?'<p>La contradicción 0 igual a un número distinto de cero indica que no existe solución.</p>':'<p>Quedan identidades o incógnitas libres. La solución general se muestra al principio.</p>';
  }
  return html;
 }
