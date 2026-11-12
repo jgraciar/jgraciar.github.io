@@ -8,6 +8,10 @@ on:
       - assets/calculadora-sistemas.br.b64
       - scripts/layout-calculadora.mjs
       - scripts/calculadora-ejemplos-fraccionarios.mjs
+      - scripts/CalculatorClassical.js
+      - scripts/patch-calculadora-metodos.mjs
+      - tests/calculadora-metodos.test.mjs
+      - tests/verify-calculadora-metodos-ui.mjs
       - tests/calculadora-ejemplos.test.mjs
       - tests/calculadora-decimales.test.mjs
       - scripts/package-circuits-jgr.mjs
@@ -33,11 +37,27 @@ jobs:
     steps:
       - name: Obtener corrección del trabajador de servicio
         uses: actions/checkout@v4
+      - name: Seleccionar la última compilación completa aprobada con artefacto disponible
+        id: verified
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const runs = await github.rest.actions.listWorkflowRuns({owner, repo, workflow_id:'pages.yml', status:'success', per_page:30});
+            for (const run of runs.data.workflow_runs) {
+              const {data} = await github.rest.actions.listWorkflowRunArtifacts({owner, repo, run_id:run.id});
+              if (data.artifacts.some(a => a.name === 'github-pages' && !a.expired)) {
+                core.setOutput('run_id', String(run.id));
+                core.info('Sitio verificado: '+run.html_url);
+                return;
+              }
+            }
+            core.setFailed('No hay un sitio completo verificado con artefacto disponible.');
       - name: Recuperar la última compilación completa aprobada
         uses: actions/download-artifact@v4
         with:
           name: github-pages
-          run-id: 42850079092
+          run-id: ${{ steps.verified.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: verified-site
       - name: Preparar Node.js para la calculadora
@@ -66,8 +86,10 @@ jobs:
           '
           node scripts/layout-calculadora.mjs site-root/calculadora
           node scripts/calculadora-ejemplos-fraccionarios.mjs site-root/calculadora
+          node scripts/patch-calculadora-metodos.mjs site-root/calculadora
           node tests/calculadora-ejemplos.test.mjs site-root/calculadora
           node tests/calculadora-decimales.test.mjs site-root/calculadora
+          node tests/calculadora-metodos.test.mjs site-root/calculadora
           test -s site-root/calculadora/style.css
           grep -Fq 'class="workbench"' site-root/calculadora/index.html
           grep -Fq 'class="entry-pane"' site-root/calculadora/index.html
@@ -93,6 +115,23 @@ jobs:
           grep -Fq 'name.startsWith("circuitjs-cache")' site-root/service-worker.js
           grep -Fq 'cache:"no-store"' site-root/service-worker.js
           echo 'Portal, simulador y calculadora verificados; corrección de caché incluida'
+      - name: Verificar los ocho métodos en ambas pestañas con Chromium
+        run: |
+          cd tests
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install chromium
+          cd ..
+          python3 -m http.server 8767 --directory site-root >/tmp/calculadora-http.log 2>&1 &
+          node tests/verify-calculadora-metodos-ui.mjs
+      - name: Evitar sustituir una compilación completa publicada mientras se verificaba la calculadora
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const {data} = await github.rest.actions.listWorkflowRuns({owner, repo, workflow_id:'pages.yml', status:'success', per_page:1});
+            if (String(data.workflow_runs[0]?.id) !== '${{ steps.verified.outputs.run_id }}') {
+              core.setFailed('Se ha publicado un sitio completo más reciente. No se reemplaza por el anterior.');
+            }
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
       - name: Empaquetar sitio
