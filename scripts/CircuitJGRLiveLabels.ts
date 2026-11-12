@@ -20,17 +20,23 @@ function copyLabel(source:Node,target:Node):void {
         else if(child.nodeType!==existing.nodeType||child.nodeName!==existing.nodeName)target.replaceChild(child.cloneNode(true),existing);
         else copyLabel(child,existing);
     }
+    while(target.childNodes.length>children.length)target.removeChild(target.lastChild!);
 }
 export function bindLiveHTML(element:HTMLElement,render:()=>string):void {
+    let owned=Array.from(element.childNodes);
     labels.push(()=>{
         const template=document.createElement('template');template.innerHTML=render();
         const children=Array.from(template.content.childNodes);
+        const anchor=owned[owned.length-1]?.nextSibling||null;
+        const nextOwned:Node[]=[];
         for(let i=0;i<children.length;i++){
-            const existing=element.childNodes[i],next=children[i];
-            if(!existing)element.appendChild(next.cloneNode(true));
-            else if(existing.nodeName!==next.nodeName||existing.nodeType!==next.nodeType)element.replaceChild(next.cloneNode(true),existing);
-            else copyLabel(next,existing);
+            const existing=owned[i],next=children[i];
+            if(!existing||existing.parentNode!==element){const added=next.cloneNode(true);element.insertBefore(added,anchor?.parentNode===element?anchor:null);nextOwned.push(added);}
+            else if(existing.nodeName!==next.nodeName||existing.nodeType!==next.nodeType){const added=next.cloneNode(true);element.replaceChild(added,existing);nextOwned.push(added);}
+            else {copyLabel(next,existing);nextOwned.push(existing);}
         }
+        for(const obsolete of owned.slice(children.length))if(obsolete.parentNode===element)element.removeChild(obsolete);
+        owned=nextOwned;
     });
 }
 export function bindLiveAttribute(element:HTMLElement,name:string,resolve:()=>string):void {

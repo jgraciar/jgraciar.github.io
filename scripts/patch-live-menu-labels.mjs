@@ -77,9 +77,9 @@ menu=menu.replace('this.app.commands.menuPerformed(menuName, cmdName);',
  'this.app.commands.menuPerformed(menuName,menuName === "circuits" && typeof html === "function" ? cmdName.split(" ").slice(0,2).join(" ")+" "+html() : cmdName);');
 writeFileSync(join(dir,'Menus.ts'),menu);
 once('UIManager.ts','    getLabel(): string { return this._label; }',
- '    getLabel(): string { return this._label; }\n    setLabel(s:string):void {this._label=s;const label=this._li?.querySelector(".itemLabel");if(label)label.textContent=Locale.LS(s);}');
+ '    getLabel(): string { return this._label; }\n    setLabel(s:string):void {this._label=s;const label=this._li?.querySelector(".itemLabel");if(label)label.innerHTML=Locale.LS(s);}');
 once('UIManager.ts','    setShortcut(s: string): void { this._shortcut = s; }',
- '    setShortcut(s:string|(()=>string)):void {if(typeof s === "function"){bindLiveValue(s,value=>this.setShortcut(value));return;}this._shortcut=s;const hint=this._li?.querySelector(".shortcutHint");if(hint)hint.textContent=s;}');
+ '    setShortcut(s:string|(()=>string)):void {if(typeof s === "function"){bindLiveValue(s,value=>this.setShortcut(value));return;}this._shortcut=s;const hint=this._li?.querySelector(".shortcutHint");if(hint)hint.innerHTML=s;}');
 const ui=join(dir,'UIManager.ts');writeFileSync(ui,'import {bindLiveValue} from "./CircuitJGRLiveLabels";\n'+readFileSync(ui,'utf8'));
 const toolbar=join(dir,'Toolbar.ts');writeFileSync(toolbar,'import {bindLiveAttribute} from "./CircuitJGRLiveLabels";\n'+readFileSync(toolbar,'utf8'));
 once('Toolbar.ts','        iconLabel.title = Locale.LS(tooltip);',
