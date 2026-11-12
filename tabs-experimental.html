@@ -40,6 +40,7 @@ body{background:white}
  function find(id){return tabs.find(t=>t.id===id);}
  function appFor(t){try{return t?.frame.contentWindow.__CircuitJGRExperimentalApp||null;}catch{return null;}}
  function apiFor(t){try{return t?.frame.contentWindow.CircuitJS1||null;}catch{return null;}}
+ function tr(t,key,name=""){return (apiFor(t)?.workspaceLabel?.(key)||key).replace("{name}",name);}
  function isModified(t){
   const app=appFor(t);
   if(!t?.ready||!app)return false;
@@ -56,7 +57,7 @@ body{background:white}
    doc.head.append(style);
    strip=doc.createElement("nav");
    strip.id="jgr-tab-strip";
-   strip.setAttribute("aria-label","Circuitos abiertos");
+   strip.setAttribute("aria-label",tr(t,"open"));
    app.ui.layoutPanel.append(strip);
    // Los menús desplegables originales deben quedar por encima de las pestañas.
    app.menus.menuBar.style.zIndex="20";
@@ -94,6 +95,7 @@ body{background:white}
    const tabsEl=ensureStrip(session);
    if(!tabsEl)continue;
    const doc=tabsEl.ownerDocument;
+   tabsEl.setAttribute("aria-label",tr(session,"open"));
    tabsEl.replaceChildren();
    for(const t of tabs){
     const item=doc.createElement("div");
@@ -102,26 +104,26 @@ body{background:white}
     const choose=doc.createElement("button");
     choose.type="button";choose.className="choose";
     choose.textContent=t.name;choose.title=t.name;
-    choose.setAttribute("aria-label","Seleccionar "+t.name);
+    choose.setAttribute("aria-label",tr(session,"select",t.name));
     choose.setAttribute("aria-selected",String(t===active));
     choose.onclick=()=>activate(t);
     const close=doc.createElement("button");
     close.type="button";close.className="close";
-    close.textContent="×";close.setAttribute("aria-label","Cerrar "+t.name);
+    close.textContent="×";close.setAttribute("aria-label",tr(session,"close",t.name));
     close.onclick=()=>requestClose(t);
     item.append(choose,close);
     tabsEl.append(item);
    }
    const plus=doc.createElement("button");
    plus.type="button";plus.id="add-tab";plus.textContent="+";
-   plus.title="Nuevo circuito en blanco";
-   plus.setAttribute("aria-label","Nuevo circuito en blanco");
+   plus.title=tr(session,"new");
+   plus.setAttribute("aria-label",tr(session,"new"));
    plus.disabled=tabs.length>=MAX_TABS;
    plus.onclick=()=>newBlank();
    tabsEl.append(plus);
    const sideToggle=doc.createElement("button");
    sideToggle.type="button";sideToggle.id="jgr-sidebar-toggle";
-   sideToggle.textContent=sidebarVisible?"Ocultar panel lateral":"Mostrar panel lateral";
+   sideToggle.textContent=tr(session,sidebarVisible?"hide":"show");
    sideToggle.setAttribute("aria-label",sideToggle.textContent);
    sideToggle.setAttribute("aria-expanded",String(sidebarVisible));
    sideToggle.title=sideToggle.textContent;
@@ -300,15 +302,15 @@ body{background:white}
   dialog.setAttribute("aria-labelledby","jgr-close-title");
   const title=doc.createElement("h3");
   title.id="jgr-close-title";
-  title.textContent="Guardar cambios";
+  title.textContent=tr(t,"saveTitle");
   title.style.margin="0 0 8px 0";
   dialog.append(title);
   const question=doc.createElement("div");
   question.id="jgr-close-question";
-  question.textContent="¿Quieres guardar los cambios realizados en «"+t.name+"»?";
+  question.textContent=tr(t,"question",t.name);
   dialog.append(question);
   const detail=doc.createElement("div");
-  detail.textContent="Si no guardas los cambios, se perderán.";
+  detail.textContent=tr(t,"loss");
   detail.style.marginTop="8px";
   dialog.append(detail);
   const actions=doc.createElement("div");
@@ -317,11 +319,11 @@ body{background:white}
   actions.style.gap="8px";
   actions.style.marginTop="8px";
   const save=doc.createElement("button");
-  save.type="button";save.id="jgr-close-save";save.textContent="Guardar";
+  save.type="button";save.id="jgr-close-save";save.textContent=tr(t,"save");
   const discard=doc.createElement("button");
-  discard.type="button";discard.id="jgr-close-discard";discard.textContent="No guardar";
+  discard.type="button";discard.id="jgr-close-discard";discard.textContent=tr(t,"discard");
   const cancel=doc.createElement("button");
-  cancel.type="button";cancel.id="jgr-close-cancel";cancel.textContent="Cancelar";
+  cancel.type="button";cancel.id="jgr-close-cancel";cancel.textContent=tr(t,"cancel");
   actions.append(save,discard,cancel);
   dialog.append(actions);
   const dismiss=()=>{if(dialog.open)dialog.close();else dialog.remove();};
@@ -343,11 +345,14 @@ body{background:white}
   dialog.showModal();
   save.focus();
  }
- window.addEventListener("message",event=>{
+ window.addEventListener("message",async event=>{
   if(event.origin!==location.origin||event.data?.source!=="circuit-jgr-tabs")return;
   const t=tabs.find(item=>item.frame.contentWindow===event.source);
   if(!t)return;
-  if(event.data.action==="saved"){
+  if(event.data.action==="settings-changed"){
+   await Promise.all(tabs.filter(other=>other!==t&&other.ready).map(other=>apiFor(other).applyInitialSettings({...event.data.settings,notify:false})));
+   renderTabs();
+  }else if(event.data.action==="saved"){
    const a=appFor(t);
    if(a){a.unsavedChanges=false;a.savedDumpPending=true;}
    setName(t,event.data.name);

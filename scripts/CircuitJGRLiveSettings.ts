@@ -2,9 +2,15 @@ import {Locale} from './Locale';
 import {CircuitElm} from './CircuitElm';
 import {NumberFormat} from './NumberFormat';
 import {CommandPaletteRegistry} from './CommandPaletteRegistry';
+import {refreshLiveLabels,refreshExampleSearch} from './CircuitJGRLiveLabels';
 
-export async function applyCircuitJGRSettings(app:any, settings:{language:string;whiteBackground:boolean;digits:number;decimal:'.'|',';grouping:'.'|','|''}):Promise<void>{
-    if (settings.language !== Locale.activeLanguage) {
+const textBindings=new WeakMap<Node,{source:string;last:string}>();
+const attributeBindings=new WeakMap<Element,Map<string,{source:string;last:string}>>();
+
+export async function applyCircuitJGRSettings(app:any, settings:{language:string;whiteBackground:boolean;digits:number;decimal:'.'|',';grouping:'.'|','|'';notify?:boolean}):Promise<void>{
+    const languageChanged=settings.language!==Locale.activeLanguage;
+    if (languageChanged) {
+        (app.constructor as any).commandPalette?.close();
         // Keep the existing controls and their commands; translate their labels in place.
         const sources = new Map<string,string>();
         for (const [source,translated] of Locale.liveTranslations)
@@ -18,28 +24,37 @@ export async function applyCircuitJGRSettings(app:any, settings:{language:string
         let node:Node|null;
         while((node=walker.nextNode())){
             const parent=node.parentElement;
-            if(!parent || parent.closest('#lab-start-modal,script,style,textarea,input,[contenteditable]'))continue;
+            if(!parent || parent===app.ui.titleLabel || parent.closest('#lab-start-modal,#jgr-tab-strip,#jgr-scope-info,script,style,textarea,input,[contenteditable]'))continue;
             const text=node.textContent||'';
-            const source=sources.get(text.trim());
+            const bound=textBindings.get(node);
+            const source=bound?.last===text?bound.source:sources.get(text.trim());
             if(source!==undefined)nodes.push({node:node as Text,source,prefix:text.match(/^\s*/)?.[0]||'',suffix:text.match(/\s*$/)?.[0]||''});
         }
         const attrs:Array<{el:Element;name:string;source:string}>=[];
         for(const el of Array.from(document.querySelectorAll('[title],[aria-label]'))){
-            if(el.closest('#lab-start-modal'))continue;
+            if(el===app.ui.titleLabel||el.closest('#lab-start-modal,#jgr-tab-strip,#jgr-scope-info'))continue;
             for(const name of ['title','aria-label']){
-                const source=sources.get(el.getAttribute(name)||'');
+                const text=el.getAttribute(name)||'',bound=attributeBindings.get(el)?.get(name);
+                const source=bound?.last===text?bound.source:sources.get(text);
                 if(source!==undefined)attrs.push({el,name,source});
             }
         }
+        Locale.liveTranslations.clear();
         await Locale.load(settings.language);
-        for(const item of nodes)if(item.node.isConnected)item.node.textContent=item.prefix+Locale.LS(item.source)+item.suffix;
-        for(const item of attrs)item.el.setAttribute(item.name,Locale.LS(item.source));
-        for(const [key,label]of app.classToLabelMap){
-            const source=sources.get(label);
-            if(source!==undefined)app.classToLabelMap.set(key,Locale.LS(source));
+        Locale.liveTranslations.clear();
+        for(const item of nodes)if(item.node.isConnected){
+            const text=item.prefix+Locale.LS(item.source)+item.suffix;item.node.textContent=text;
+            textBindings.set(item.node,{source:item.source,last:text});
         }
+        for(const item of attrs){
+            const text=Locale.LS(item.source);item.el.setAttribute(item.name,text);
+            if(!attributeBindings.has(item.el))attributeBindings.set(item.el,new Map());
+            attributeBindings.get(item.el)!.set(item.name,{source:item.source,last:text});
+        }
+        refreshLiveLabels(app);
         CommandPaletteRegistry.buildStatic(app);
-        document.documentElement.lang=settings.language==='csx'?'cs':settings.language==='kr'?'ko':settings.language;
+        refreshExampleSearch(app.menus.jgrSetupListText||'');
+        document.documentElement.lang=Locale.activeLanguage==='csx'?'cs':Locale.activeLanguage==='kr'?'ko':Locale.activeLanguage;
     }
     NumberFormat.setSeparators(settings.decimal,settings.grouping);
     CircuitElm.setDecimalDigits(settings.digits,false,true);
@@ -47,4 +62,8 @@ export async function applyCircuitJGRSettings(app:any, settings:{language:string
     app.menus.printableCheckItem.setState(settings.whiteBackground);
     app.ui.setOptionInStorage('whiteBackground',settings.whiteBackground);
     app.repaint();
+    const applied={...settings,language:Locale.activeLanguage};
+    window.dispatchEvent(new CustomEvent('circuit-jgr-settings-applied',{detail:applied}));
+    if(languageChanged&&settings.notify!==false&&window.parent!==window)
+        window.parent.postMessage({source:'circuit-jgr-tabs',action:'settings-changed',settings:applied},location.origin);
 }

@@ -242,6 +242,16 @@ function render(){
  }
  };
 }
+window.addEventListener("circuit-jgr-settings-applied",event=>{
+ const next=event.detail;
+ language=normalizeLanguage(next.language);dialogLanguage=language;
+ languageMode=get("labLanguageMode")||"manual";
+ whiteBackground=next.whiteBackground;digits=next.digits;
+ decimal=next.decimal;grouping=next.grouping;
+ format=decimal===","&&grouping==="."?"eu":decimal==="."&&grouping===","?"uk":"custom";
+ const button=document.querySelector(".lab-start-settings");
+ if(button)button.textContent=(catalogs[language]||catalogs.en)[13];
+});
 function show(){whiteBackground=savedBackground()==="true";const modal=document.getElementById("lab-start-modal");modal.hidden=false;document.body.classList.add("lab-start-open");render();if(!modal.open)modal.showModal()}
 function init(){
   // Idioma BCP 47 correcto para lectores de pantalla; CircuitJS mantiene códigos históricos.

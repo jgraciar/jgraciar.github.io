@@ -91,6 +91,7 @@ jobs:
         working-directory: circuitjs-src/ts
         run: |
           npm ci
+          node ../../adaptacion/scripts/patch-live-menu-labels.mjs .
           npm run build
           test -s dist/circuitjgr.html
           ! test -f dist/circuitjs.html
@@ -129,6 +130,9 @@ jobs:
 
       - name: Verificar buscador de componentes
         run: node adaptacion/tests/verify-component-search-ui.mjs
+
+      - name: Verificar cambios sucesivos de idioma
+        run: node --experimental-strip-types adaptacion/tests/verify-live-menu-locales-ui.mjs
 
       - name: Verificar portada, simulador y Acerca de
         run: |
