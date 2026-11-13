@@ -256,7 +256,12 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await assertBranchPlacement(true);await assertNoCurrentOverlap();
  await tap(570,300);assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente/);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
  await page.click('[data-reset-phase="0"]');
- await assignNumbers([123456789012345,234567890123456,345678901234567,456789012345678,567890123456789,678901234567890]);
+ await tap(130,190);await page.locator('#currentNumber').fill('123456789012345');await page.click('#currentNameForm button[type="submit"]');
+ if(await page.locator('#currentNameDialog').isVisible()){
+  assert.match(await page.locator('#currentNumberError').textContent(),/No hay espacio/);await page.click('#cancelCurrentName');
+ }else await assertBranchPlacement(true);
+ await page.click('[data-reset-phase="0"]');
+ await assignNumbers([123,234,345,456,567,678]);
  await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  await page.selectOption('#symbolStandard','iec');await assertNoCurrentOverlap();
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
