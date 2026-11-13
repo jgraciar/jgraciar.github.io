@@ -32,8 +32,8 @@ try{
  assert.match(await page.locator("#workspace iframe").first().getAttribute("src"),/circuitjgr-core\.html/);
  await page.goto("http://127.0.0.1:8767/circuitjgr-core.html",{waitUntil:"domcontentloaded"});
  await page.locator("#lab-start-modal").waitFor({state:"visible",timeout:30000});
- assert.equal(await page.locator('#lab-start-language option').count(),23,
-  "Deben conservarse 22 idiomas más la selección automática");
+ assert.equal(await page.locator('#lab-start-language option').count(),24,
+  "Deben mostrarse 23 idiomas, incluido el árabe, más la selección automática");
  assert.equal(await page.locator('input[name="lab-start-format"]').count(),2);
  await page.locator("#lab-start-accept").click();
  await page.waitForFunction(()=>!!(window.CircuitJS1?.getElements),null,{timeout:90000});
