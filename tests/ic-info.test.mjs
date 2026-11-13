@@ -31,12 +31,13 @@ assert.equal(numberedICInfo('74189').table[1][1],'RAM[A] ← D; Q=Z');
 for(const [lang,labels]of Object.entries(icInfoTranslations)){
  assert.equal(labels.length,22,lang+' complete card labels');assert(labels.every(x=>x.trim()));assert(icInfoLabel('pinout',lang));
 }
-assert.equal(Object.keys(icInfoTranslations).length,22);
+assert.equal(Object.keys(icInfoTranslations).length,23);
+assert(icInfoTranslations.ar?.every(x=>x.trim()),'Arabic IC information labels complete');
 assert.equal(svgEscape('<img onerror="x">&'), '&lt;img onerror=&quot;x&quot;&gt;&amp;');
 const attack={...ttl,part:'<script>alert(1)</script>',stages:['<img onerror=x>'],blocks:[],pins:ttl.pins.map(p=>({...p,name:p.number===1?'"/><script>x</script>':p.name}))};
 const safe=icInfoDiagram(attack,'<unsafe>');assert(!safe.includes('<script>'));assert(safe.includes('&lt;script&gt;'));
 assert.equal(numberedICInfo('unknown'),null);
-console.log('OK IC information: 46 physical pinouts, complete internal wiring, function tables, supply/logic distinction, 22 languages and escaped SVG');
+console.log('OK IC information: 46 physical pinouts, complete internal wiring, function tables, supply/logic distinction, 23 languages and escaped SVG');
 
 for(const language of ['es','en']){
  assert(numberedICInfo('74138',language).table[0][1].includes('/Y[CBA]=0; /Y[m≠CBA]=1'));
