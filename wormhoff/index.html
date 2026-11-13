@@ -2328,7 +2328,10 @@
       let chosen=null;
       const metric=el=>{el.setAttribute('x','0');el.setAttribute('y','0');el.setAttribute('text-anchor','start');el.removeAttribute('transform');return el.getBBox();};
       for(const fontSize of [17,15,13,11]){
-        label.style.fontSize=(fontSize*columnTextScales.circuit)+'px';if(value)value.style.fontSize=((six?15:17)*columnTextScales.circuit)+'px';const l=metric(label),v=value?metric(value):null;
+        label.style.fontSize=(fontSize*columnTextScales.circuit)+'px';if(value)value.style.fontSize=((six?15:17)*columnTextScales.circuit)+'px';
+        label.removeAttribute('textLength');label.removeAttribute('lengthAdjust');
+        if(label.getComputedTextLength()>80*columnTextScales.circuit){label.setAttribute('textLength',80*columnTextScales.circuit);label.setAttribute('lengthAdjust','spacingAndGlyphs');}
+        const l=metric(label),v=value?metric(value):null;
         for(const c of candidates){
           const half=6,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
           const arrow={x:c.x-Math.abs(vx)*half-Math.abs(vy)*4-1.5,y:c.y-Math.abs(vy)*half-Math.abs(vx)*4-1.5,w:Math.abs(vx)*2*half+Math.abs(vy)*8+3,h:Math.abs(vy)*2*half+Math.abs(vx)*8+3};
