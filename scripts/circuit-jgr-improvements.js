@@ -94,7 +94,7 @@
     "TTL eta CMOS zirkuitu integratu digitalak: 45 erreferentzia zenbakitu, ateak, biegonkorrak, kontagailuak, erregistroak, kodetzaileak, multiplexadoreak, memoriak eta ALU barne; elikadura-pin esplizituak DIP eredu berrietan.",
     "Integratuen informazioa testuinguru-menuan: pin fisikoak definituta daudenean, barneko ateak edo blokeak, funtzionamendu-taulak eta uneko tentsioak.",
     "Menuen eta azpimenuen berrantolaketa",
-    "Itzulpen hobetua eta 22 hizkuntzatara zabaldua"
+    "Itzulpen hobetua eta 23 hizkuntzatara zabaldua"
   ],
   "fr": [
     "Améliorations par rapport à CircuitJS1 5.0.5ts",
@@ -154,7 +154,7 @@
     "Digitale TTL- en CMOS-IC’s: 45 genummerde typen, met poorten, flipflops, tellers, registers, encoders, multiplexers, geheugens en ALU; expliciete voedingspinnen op nieuwe DIP-modellen.",
     "IC-informatie via het contextmenu: gedefinieerde fysieke pinaansluitingen, interne poorten of blokken, functietabellen en momentane spanningen.",
     "Herindeling van menu’s en submenu’s",
-    "Verbeterde en uitgebreide vertaling naar 22 talen"
+    "Verbeterde en uitgebreide vertaling naar 23 talen"
   ],
   "sv": [
     "Förbättringar jämfört med CircuitJS1 5.0.5ts",
@@ -166,7 +166,7 @@
     "Digitala TTL- och CMOS-kretsar: 45 numrerade typer med grindar, vippor, räknare, register, kodare, multiplexrar, minnen och ALU; uttryckliga matningsstift på nya DIP-modeller.",
     "Kretsinformation i snabbmenyn: definierade fysiska stift, interna grindar eller block, funktionstabeller och momentanspänningar.",
     "Omorganisering av menyer och undermenyer",
-    "Förbättrad och utökad översättning till 22 språk"
+    "Förbättrad och utökad översättning till 23 språk"
   ],
   "da": [
     "Forbedringer i forhold til CircuitJS1 5.0.5ts",
@@ -178,7 +178,7 @@
     "Digitale TTL- og CMOS-kredse: 45 nummererede typer med porte, flip-flops, tællere, registre, kodere, multipleksere, hukommelser og ALU; eksplicit forsyning på nye DIP-modeller.",
     "Kredsinformation i genvejsmenuen: definerede fysiske ben, interne porte eller blokke, funktionstabeller og øjebliksspændinger.",
     "Omorganisering af menuer og undermenuer",
-    "Forbedret og udvidet oversættelse til 22 sprog"
+    "Forbedret og udvidet oversættelse til 23 sprog"
   ],
   "nb": [
     "Forbedringer sammenlignet med CircuitJS1 5.0.5ts",
@@ -190,7 +190,7 @@
     "Digitale TTL- og CMOS-kretser: 45 nummererte typer med porter, vipper, tellere, registre, kodere, multipleksere, minner og ALU; eksplisitt forsyning på nye DIP-modeller.",
     "Kretsinformasjon i kontekstmenyen: definerte fysiske pinner, interne porter eller blokker, funksjonstabeller og øyeblikksspenninger.",
     "Omorganisering av menyer og undermenyer",
-    "Forbedret og utvidet oversettelse til 22 språk"
+    "Forbedret og utvidet oversettelse til 23 språk"
   ],
   "fi": [
     "CircuitJS1 5.0.5ts -versioon tehdyt parannukset",
@@ -202,7 +202,7 @@
     "Digitaaliset TTL- ja CMOS-piirit: 45 numeroitua tyyppiä, kuten portit, kiikut, laskurit, rekisterit, kooderit, multiplekserit, muistit ja ALU; erilliset syöttönastat uusissa DIP-malleissa.",
     "Piiritiedot pikavalikosta: määritellyt fyysiset nastat, sisäiset portit tai lohkot, toimintataulukot ja hetkelliset jännitteet.",
     "Valikoiden ja alivalikoiden uudelleenjärjestely",
-    "Parannettu ja 22 kieleen laajennettu käännös"
+    "Parannettu ja 23 kieleen laajennettu käännös"
   ],
   "pl": [
     "Ulepszenia względem CircuitJS1 5.0.5ts",
@@ -214,7 +214,7 @@
     "Cyfrowe układy TTL i CMOS: 45 numerowanych typów, w tym bramki, przerzutniki, liczniki, rejestry, kodery, multipleksery, pamięci i ALU; jawne piny zasilania w nowych modelach DIP.",
     "Informacje o układach w menu kontekstowym: zdefiniowane fizyczne wyprowadzenia, wewnętrzne bramki lub bloki, tablice działania i napięcia chwilowe.",
     "Reorganizacja menu i podmenu",
-    "Ulepszone i rozszerzone tłumaczenie na 22 języki"
+    "Ulepszone i rozszerzone tłumaczenie na 23 języki"
   ],
   "csx": [
     "Vylepšení oproti CircuitJS1 5.0.5ts",
@@ -226,7 +226,7 @@
     "Digitální obvody TTL a CMOS: 45 číslovaných typů, včetně hradel, klopných obvodů, čítačů, registrů, kodérů, multiplexorů, pamětí a ALU; explicitní napájecí vývody nových modelů DIP.",
     "Informace o obvodech v místní nabídce: definované fyzické vývody, vnitřní hradla nebo bloky, funkční tabulky a okamžitá napětí.",
     "Reorganizace nabídek a podnabídek",
-    "Vylepšený a rozšířený překlad do 22 jazyků"
+    "Vylepšený a rozšířený překlad do 23 jazyků"
   ],
   "ru": [
     "Улучшения по сравнению с CircuitJS1 5.0.5ts",
@@ -238,7 +238,7 @@
     "Цифровые микросхемы TTL и CMOS: 45 нумерованных типов, включая вентили, триггеры, счётчики, регистры, кодеры, мультиплексоры, память и ALU; явные выводы питания у новых моделей DIP.",
     "Информация о микросхемах в контекстном меню: заданная физическая цоколёвка, внутренние вентили или блоки, таблицы работы и мгновенные напряжения.",
     "Реорганизация меню и подменю",
-    "Улучшенный и расширенный перевод на 22 языка"
+    "Улучшенный и расширенный перевод на 23 языка"
   ],
   "zh": [
     "相对于 CircuitJS1 5.0.5ts 的改进",
@@ -250,7 +250,7 @@
     "TTL 和 CMOS 数字集成电路：45 个编号型号，包括逻辑门、触发器、计数器、寄存器、编码器、多路选择器、存储器和 ALU；新增 DIP 模型具有明确的电源引脚。",
     "通过右键菜单查看芯片信息：已定义的物理引脚、内部逻辑门或功能框图、功能表和瞬时电压。",
     "菜单和子菜单重新组织",
-    "改进并扩展至 22 种语言的翻译"
+    "改进并扩展至 23 种语言的翻译"
   ],
   "zh-tw": [
     "相對於 CircuitJS1 5.0.5ts 的改進",
@@ -262,7 +262,7 @@
     "TTL 和 CMOS 數位積體電路：45 個編號型號，包括邏輯閘、正反器、計數器、暫存器、編碼器、多工器、記憶體和 ALU；新增 DIP 模型具有明確的電源接腳。",
     "透過右鍵選單查看晶片資訊：已定義的實體接腳、內部邏輯閘或功能方塊圖、功能表和瞬時電壓。",
     "選單和子選單重新整理",
-    "改進並擴充至 22 種語言的翻譯"
+    "改進並擴充至 23 種語言的翻譯"
   ],
   "ja": [
     "CircuitJS1 5.0.5ts からの改良点",
@@ -274,7 +274,7 @@
     "TTL・CMOS デジタル IC：論理ゲート、フリップフロップ、カウンタ、レジスタ、エンコーダ、マルチプレクサ、メモリ、ALU を含む番号付き45品種。新しい DIP モデルには電源端子を明示。",
     "コンテキストメニューの IC 情報：定義された物理ピン配置、内部ゲートや機能ブロック、動作表、瞬時電圧を表示。",
     "メニューとサブメニューの再編成",
-    "翻訳を改善し22言語に拡充"
+    "翻訳を改善し23言語に拡充"
   ],
   "kr": [
     "CircuitJS1 5.0.5ts 대비 개선 사항",
@@ -286,7 +286,7 @@
     "TTL 및 CMOS 디지털 IC: 게이트, 플립플롭, 카운터, 레지스터, 인코더, 멀티플렉서, 메모리 및 ALU를 포함한 번호형 45종. 새 DIP 모델에 전원 핀을 명시합니다.",
     "상황별 메뉴의 IC 정보: 정의된 실제 핀 배치, 내부 게이트 또는 기능 블록, 동작표와 순간 전압을 표시합니다.",
     "메뉴 및 하위 메뉴 재구성",
-    "22개 언어로 개선 및 확장된 번역"
+    "23개 언어로 개선 및 확장된 번역"
   ]
 };
   const strings=improvements[lang]||improvements.en;
