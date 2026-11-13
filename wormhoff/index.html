@@ -2330,7 +2330,7 @@
         }
         if(chosen)break;
       }
-      if(!chosen){group.dataset.placementUnavailable='true';group.style.display='none';continue;}
+      if(!chosen){console.warn('PLACEMENT',JSON.stringify({index,wanted,points,occupied,fixed:fixed.filter(b=>overlap({x:wanted.x-6,y:wanted.y-7,w:12,h:14},b)),textFixed:fixed.filter(b=>overlap({x:wanted.x+13,y:wanted.y-10,w:30,h:20},b)),textWire:wires.filter(b=>overlap({x:wanted.x+13,y:wanted.y-10,w:30,h:20},b)),metric:label.getBBox().toJSON?.(),candidates:candidates.slice(0,3)}));group.dataset.placementUnavailable='true';group.style.display='none';continue;}
       const c=chosen;
       const stem=`M${c.x-c.vx*c.half} ${c.y-c.vy*c.half} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half}`;
       const tip=`M${c.x+c.vx*(c.half-6)-c.vy*4} ${c.y+c.vy*(c.half-6)+c.vx*4} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half} L${c.x+c.vx*(c.half-6)+c.vy*4} ${c.y+c.vy*(c.half-6)-c.vx*4}`;
