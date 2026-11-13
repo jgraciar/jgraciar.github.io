@@ -155,6 +155,10 @@ once(dropbox,"la.textContent = \"You can open a shared Dropbox file if you have 
 // Mantener los índices 1..16 existentes para evitar alterar su semántica.
 const options=join(dir,"EditOptions.ts");
 once(options,
+ '            ei.choice.add("Русский"); // Russian',
+ '            ei.choice.add("Русский"); // Russian\n'+
+ '            ei.choice.add("العربية"); // Arabic');
+once(options,
  '            ei.choice.add("한국어"); // Korean\n            return ei;',
  '            ei.choice.add("한국어"); // Korean\n'+
  '            ei.choice.add("Català");\n'+
@@ -165,14 +169,21 @@ once(options,
  '            ei.choice.add("Svenska");\n'+
  '            return ei;');
 once(options,
+ '            case 13: langString = "zh";  break;\n'+
+ '            case 14: langString = "zh-tw"; break;\n'+
+ '            case 15: langString = "ja";  break;\n'+
  '            case 16: langString = "kr";  break;',
- '            case 16: langString = "kr";  break;\n'+
- '            case 17: langString = "ca"; break;\n'+
- '            case 18: langString = "ca-es-valencia"; break;\n'+
- '            case 19: langString = "gl"; break;\n'+
- '            case 20: langString = "eu"; break;\n'+
- '            case 21: langString = "nl"; break;\n'+
- '            case 22: langString = "sv"; break;');
+ '            case 13: langString = "ar"; break;\n'+
+ '            case 14: langString = "zh";  break;\n'+
+ '            case 15: langString = "zh-tw"; break;\n'+
+ '            case 16: langString = "ja";  break;\n'+
+ '            case 17: langString = "kr";  break;\n'+
+ '            case 18: langString = "ca"; break;\n'+
+ '            case 19: langString = "ca-es-valencia"; break;\n'+
+ '            case 20: langString = "gl"; break;\n'+
+ '            case 21: langString = "eu"; break;\n'+
+ '            case 22: langString = "nl"; break;\n'+
+ '            case 23: langString = "sv"; break;');
 once(options,
  '            stor.setItem("language", langString);',
  '            stor.setItem("language", langString);\n'+
