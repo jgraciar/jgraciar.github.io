@@ -9,8 +9,21 @@
     value.startsWith("cs")?"csx":value.startsWith("ko")?"kr":
     ["no","nn","nb"].some(x=>value===x||value.startsWith(x+"-"))?"nb":
     value.split("-")[0];
-  // Un único bloque por función, con el mismo contenido en los 22 idiomas.
+  // Un único bloque por función, con el mismo contenido en los 23 idiomas.
   const improvements={
+  "ar": [
+    "تحسينات مقارنةً بمحاكي CircuitJS1 5.0.5ts",
+    "مقياس قدرة موسّع: القدرة الفعّالة (P) وغير الفعّالة للمركبة الأساسية (Q) والظاهرية (S)، وجيب تمام إزاحة الطور ومعامل القدرة الحقيقي وأنماط قراءة قابلة للاختيار، مع قياس التشوّه التوافقي الكلي للجهد والتيار والقدرة المتبقية غير الأساسية D*.",
+    "ممانعة التيار المتردد Z: الشكل R ± jX، والمقدار وزاوية الطور، والتمثيلات المكافئة بالمقاومة R والمحاثة L والسعة C.",
+    "عنصر عاكس كهروضوئي يعمل متصلًا بالشبكة أو بصورة مستقلة عنها.",
+    "إدخال الأعداد وعرضها بالتنسيق الإقليمي: الفواصل العشرية وفواصل الآلاف، ودقة قابلة للضبط وتفضيلات أولية. عرض القيم الكهربائية بأربع منازل عشرية افتراضيًا دون أصفار زائدة، وبادئات وحدات تلقائية أو قابلة للاختيار، مع دعم الصيغة العلمية وبادئات النظام الدولي والقيم الفعّالة RMS.",
+    "أحمال غير خطية: مقوّم جسري أحادي الطور قابل للضبط مع أمثلة لمصابيح LED ومزوّدات طاقة الحاسوب دون تصحيح معامل القدرة PFC، ومعامل لعدد الوحدات، ومقوّم ثلاثي الطور بست نبضات لمداخل مغيرات السرعة (دون عاكس أو محرّك).",
+    "دوائر متكاملة رقمية من عائلتي TTL وCMOS: 45 مرجعًا مرقّمًا تشمل البوابات والقلابات والعدّادات والسجلات والمرمّزات ومعدّدات الإرسال والذاكرات ووحدة الحساب والمنطق ALU، مع أطراف تغذية صريحة للنماذج الجديدة بتغليف DIP.",
+    "معلومات الدوائر المتكاملة من القائمة السياقية: توزيع الأطراف الفعلي حيثما كان محددًا، والبوابات الداخلية أو الكتل الوظيفية، وجداول التشغيل والجهود اللحظية.",
+    "إعادة تنظيم القوائم والقوائم الفرعية",
+    "تحسين الترجمة وتوسيعها إلى 23 لغة"
+  ],
+
   "en": [
     "Improvements over CircuitJS1 5.0.5ts",
     "Extended wattmeter: active (P), fundamental reactive (Q) and apparent (S) power, phase-displacement cosine, true power factor and selectable reading modes; voltage and current THD and non-fundamental residual D*.",
@@ -21,7 +34,7 @@
     "TTL and CMOS digital ICs: 45 numbered references, including gates, flip-flops, counters, registers, encoders, multiplexers, memories and ALU; explicit supply pins on the new DIP models.",
     "IC information from the context menu: physical pinouts where defined, internal gates or functional blocks, operation tables and instantaneous voltages.",
     "Reorganization of menus and submenus",
-    "Improved and expanded translation into 22 languages"
+    "Improved and expanded translation into 23 languages"
   ],
   "ca-es-valencia": [
     "Millores respecte de CircuitJS1 5.0.5ts",
@@ -33,7 +46,7 @@
     "Integrats digitals TTL i CMOS: 45 referències numerades, incloent-hi portes, biestables, comptadors, registres, codificadors, multiplexors, memòries i ALU; alimentació explícita en els nous models DIP.",
     "Informació dels integrats des del menú contextual: patillatges físics quan estan definits, portes o blocs interns, taules de funcionament i tensions instantànies.",
     "Reorganització de menús i submenús",
-    "Traducció millorada i ampliada a 22 idiomes"
+    "Traducció millorada i ampliada a 23 idiomes"
   ],
   "es": [
     "Mejoras respecto a CircuitJS1 5.0.5ts",
@@ -45,7 +58,7 @@
     "Integrados digitales TTL y CMOS: 45 referencias numeradas, incluidas puertas, biestables, contadores, registros, codificadores, multiplexores, memorias y ALU; encapsulados alimentados en los nuevos modelos DIP.",
     "Información de integrados desde el menú contextual: patillajes físicos cuando están definidos, puertas o bloques internos, tablas de funcionamiento y tensiones instantáneas.",
     "Reorganización de menús y submenús",
-    "Traducción mejorada y ampliada a 22 idiomas"
+    "Traducción mejorada y ampliada a 23 idiomas"
   ],
   "ca": [
     "Millores respecte de CircuitJS1 5.0.5ts",
@@ -57,7 +70,7 @@
     "Integrats digitals TTL i CMOS: 45 referències numerades, incloent portes, biestables, comptadors, registres, codificadors, multiplexors, memòries i ALU; alimentació explícita als nous models DIP.",
     "Informació dels integrats des del menú contextual: patillatges físics quan estan definits, portes o blocs interns, taules de funcionament i tensions instantànies.",
     "Reorganització de menús i submenús",
-    "Traducció millorada i ampliada a 22 idiomes"
+    "Traducció millorada i ampliada a 23 idiomes"
   ],
   "gl": [
     "Melloras respecto de CircuitJS1 5.0.5ts",
@@ -69,7 +82,7 @@
     "Integrados dixitais TTL e CMOS: 45 referencias numeradas, con portas, biestables, contadores, rexistros, codificadores, multiplexores, memorias e ALU; alimentación explícita nos novos modelos DIP.",
     "Información dos integrados no menú contextual: patillaxes físicas cando están definidas, portas ou bloques internos, táboas de funcionamento e tensións instantáneas.",
     "Reorganización de menús e submenús",
-    "Tradución mellorada e ampliada a 22 idiomas"
+    "Tradución mellorada e ampliada a 23 idiomas"
   ],
   "eu": [
     "CircuitJS1 5.0.5ts bertsioarekiko hobekuntzak",
@@ -93,7 +106,7 @@
     "Circuits intégrés numériques TTL et CMOS : 45 références numérotées, avec portes, bascules, compteurs, registres, codeurs, multiplexeurs, mémoires et ALU ; alimentation explicite des nouveaux modèles DIP.",
     "Informations des circuits intégrés par le menu contextuel : brochages physiques définis, portes ou blocs internes, tables de fonctionnement et tensions instantanées.",
     "Réorganisation des menus et sous-menus",
-    "Traduction améliorée et étendue à 22 langues"
+    "Traduction améliorée et étendue à 23 langues"
   ],
   "de": [
     "Erweiterungen gegenüber CircuitJS1 5.0.5ts",
@@ -105,7 +118,7 @@
     "Digitale TTL- und CMOS-ICs: 45 nummerierte Typen mit Gattern, Flipflops, Zählern, Registern, Codierern, Multiplexern, Speichern und ALU; explizite Versorgungspins bei neuen DIP-Modellen.",
     "IC-Informationen im Kontextmenü: definierte physische Pinbelegungen, interne Gatter oder Funktionsblöcke, Funktionstabellen und Momentanspannungen.",
     "Neuordnung der Menüs und Untermenüs",
-    "Verbesserte und auf 22 Sprachen erweiterte Übersetzung"
+    "Verbesserte und auf 23 Sprachen erweiterte Übersetzung"
   ],
   "it": [
     "Miglioramenti rispetto a CircuitJS1 5.0.5ts",
@@ -117,7 +130,7 @@
     "Integrati digitali TTL e CMOS: 45 riferimenti numerati, con porte, flip-flop, contatori, registri, codificatori, multiplexer, memorie e ALU; alimentazione esplicita nei nuovi modelli DIP.",
     "Informazioni sugli integrati dal menu contestuale: piedinature fisiche definite, porte o blocchi interni, tabelle di funzionamento e tensioni istantanee.",
     "Riorganizzazione di menu e sottomenu",
-    "Traduzione migliorata e ampliata a 22 lingue"
+    "Traduzione migliorata e ampliata a 23 lingue"
   ],
   "pt": [
     "Melhorias face ao CircuitJS1 5.0.5ts",
@@ -129,7 +142,7 @@
     "Integrados digitais TTL e CMOS: 45 referências numeradas, com portas, biestáveis, contadores, registos, codificadores, multiplexadores, memórias e ALU; alimentação explícita nos novos modelos DIP.",
     "Informações dos integrados no menu de contexto: pinagens físicas definidas, portas ou blocos internos, tabelas de funcionamento e tensões instantâneas.",
     "Reorganização de menus e submenus",
-    "Tradução melhorada e alargada a 22 idiomas"
+    "Tradução melhorada e alargada a 23 idiomas"
   ],
   "nl": [
     "Verbeteringen ten opzichte van CircuitJS1 5.0.5ts",
