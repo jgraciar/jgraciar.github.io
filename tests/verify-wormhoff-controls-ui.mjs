@@ -16,6 +16,12 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const context=await browser.newContext({viewport:mobile?{width:430,height:932}:{width:1440,height:1100},hasTouch:mobile,isMobile:mobile,reducedMotion});
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8767/wormhoff/');
+ const circuitCard=await page.locator('#circuitCard').boundingBox(),equationsCard=await page.locator('#equationsCard').boundingBox();
+ if(mobile)assert(equationsCard.y>=circuitCard.y+circuitCard.height-1,'Ecuaciones debajo en móvil');
+ else assert(equationsCard.x>=circuitCard.x+circuitCard.width-1,'Ecuaciones a la derecha en escritorio');
+ for(const [button,matrix] of [['fillMatrix','matrixInputs'],['advFill','advMatInputs']]){
+  assert(await page.locator('#'+button).evaluate((el,matrix)=>!el.closest('#boardActions')&&!!(document.getElementById(matrix).compareDocumentPosition(el)&Node.DOCUMENT_POSITION_FOLLOWING),matrix),'Rellenar se mantiene bajo su matriz');
+ }
  const checkAction=async id=>{
   await page.locator('#'+id).waitFor({state:'visible'});
   assert(await page.locator('#'+id).evaluate(el=>!!el.closest('#boardActions')),'Acción bajo el circuito: '+id);
@@ -47,7 +53,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  for(const [i,x,y] of [[0,249,74],[1,345,103],[2,454,74]]){
   const sel='#currentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
- await checkAction('confirmDirs');await page.click('#confirmDirs');await checkAction('goLoops');await page.click('#goLoops');await checkAction('advance');
+ await checkAction('confirmDirs');await page.click('#confirmDirs');await checkAction('goLoops');await page.click('#goLoops');await checkAction('advance');assert(await page.locator('#equationsCard #nodeEqPanel [data-equation="E1"]').isVisible());
  await tap(490,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'355');
  await tap(445,164);assert.match(await page.locator('#boardState').textContent(),/antihorario/);
  await tap(490,290);assert.match(await page.locator('#boardState').textContent(),/antihorario/,'Pulsar la malla activa conserva el progreso');
@@ -56,6 +62,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await tap(210,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'156');
  await page.click('#advance');await tap(490,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'156','No cambiar malla durante el recorrido');
  await page.waitForFunction(()=>document.querySelector('#hero').classList.contains('hero-happy'));
+ assert(await page.locator('#equationsCard #boardEquations [data-equation="E2"]').isVisible());
  const reaction=await page.evaluate(()=>{
   const style=sel=>{const s=getComputedStyle(document.querySelector(sel));return {name:s.animationName,duration:s.animationDuration,transition:s.transitionDuration}};
   return {face:style('.hero-face'),mouth:style('.hero-open-smile'),eyes:style('.hero-eyes'),term:style('.flash-term'),arrow:style('.flash-arrow')};
@@ -67,14 +74,19 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const sel='#sixCurrentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente avanzada '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
  await checkAction('advStart');await page.click('#advStart');
+ let verifiedNodes=0;
  for(const eq of ['I1=I2+I3','I2+I4=I5','I1+I4+I6=0']){
-  await page.locator('#sixNodeChallenge .kcl-answer').fill(eq);await page.click('#sixNodeChallenge .kcl-check');
+  await page.locator('#sixNodeChallenge .kcl-answer').fill(eq);await page.click('#sixNodeChallenge .kcl-check');verifiedNodes++;assert.equal(await page.locator('#equationsCard #advKCL [data-equation]').count(),verifiedNodes);
  }
  await tap(460,290);assert.match(await page.locator('#advLap').textContent(),/Malla 3/);
  await tap(352,294);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
  await tap(460,290);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
  await tap(477,130);assert.match(await page.locator('#advLap').textContent(),/Malla 2/);assert.match(await page.locator('#sixLoops [data-mesh-turn="1"]').textContent(),/↺/);
  await checkAction('advNext');await page.click('#advNext');await tap(300,190);assert.match(await page.locator('#advLap').textContent(),/Malla 2/,'No cambiar malla avanzada durante el recorrido');
+ await page.locator('#sixTermChallenge .term-answer').waitFor({state:'visible'});
+ await page.locator('#sixTermChallenge .term-answer').fill('5I5');await page.click('#sixTermChallenge .term-check');
+ await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').waitFor({state:'visible'});
+ assert.match(await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').textContent(),/E5:/);
  assert.deepEqual(errors,[]);await context.close();console.log('OK: despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
 }finally{await browser.close()}

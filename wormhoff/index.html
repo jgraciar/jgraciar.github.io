@@ -23,7 +23,16 @@
   .stage.active{border-color:var(--cyan);color:var(--txt);background:#163045;box-shadow:inset 0 0 0 1px #5ce6f02a}
   .stage.done{color:var(--lime);border-color:#53843e}
   .stage b{margin-right:8px;color:inherit}
-  .layout{display:grid;grid-template-columns:1fr;gap:17px;align-items:start}
+  .layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-areas:"circuit equations" "circuit phase";grid-template-rows:auto 1fr;gap:17px;align-items:start}
+  #circuitCard{grid-area:circuit;position:sticky;top:12px;min-width:0}
+  #equationsCard{grid-area:equations;min-width:0}
+  #phaseCard{grid-area:phase;min-width:0}
+  .layout.network-mode{grid-template-areas:"circuit phase";grid-template-rows:auto}
+  .layout.network-mode #equationsCard{display:none}
+  .equations-body{padding:0}
+  .equation-placeholder{padding:16px;margin:0;color:var(--muted);font-size:13px}
+  .matrix-actions{justify-content:center}
+  .board-eq-label small,.node-eq-label small{display:block;font:500 10px system-ui,sans-serif;color:#8faac2}
   .card{background:linear-gradient(145deg,#111e33,#0c1729);border:1px solid var(--border);border-radius:17px;box-shadow:0 16px 33px #0000001f;overflow:hidden}
   .cardhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 17px;border-bottom:1px solid var(--border);background:#15253b}
   .cardhead strong{font-size:14px}
@@ -228,7 +237,7 @@
   .hide{display:none!important}
   .flexbetween{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .key{font:12px ui-monospace,monospace;border:1px solid #55718a;border-radius:4px;padding:1px 5px;color:#b7cee4}
-  @media(max-width:970px){.layout{grid-template-columns:1fr}.stages{flex-wrap:wrap}.stage{flex:1 1 30%}}
+  @media(max-width:970px){.layout{grid-template-columns:1fr;grid-template-areas:"circuit" "equations" "phase";grid-template-rows:auto}.layout.network-mode{grid-template-areas:"circuit" "phase"}#circuitCard{position:static}.stages{flex-wrap:wrap}.stage{flex:1 1 30%}}
   @media(max-width:640px){
     .card,.body,.steps,.step-main,.eqpanel{min-width:0}
     .algebra-desktop{display:none}
@@ -309,8 +318,8 @@
     </div>
   </div>
   <p class="helper" id="difficultyInfo">Demo: observación guiada. Primer ejercicio: nivel 1. Resto: nivel 2.</p>
-  <main class="layout">
-    <section class="card">
+  <main class="layout" id="gameLayout">
+    <section class="card" id="circuitCard">
       <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span></div>
       <div class="board">
         <svg id="circuit" viewBox="0 0 700 430" role="group" aria-label="Circuito de corriente continua con símbolos IEC y flechas seleccionables">
@@ -362,12 +371,6 @@
           </g>
         </svg>
       </div>
-      <div id="boardEquations" class="board-equations hide" aria-live="polite">
-        <div class="eqtitle">Ecuaciones de malla · se completan durante el recorrido</div>
-        <div class="board-eq-row"><div class="board-eq-label">Malla 1</div><div class="board-eq-formula"><span class="board-eq-left" id="boardM0R"></span><span class="board-eq-equal">=</span><span class="board-eq-right" id="boardM0E"></span></div></div>
-        <div class="board-eq-row"><div class="board-eq-label">Malla 2</div><div class="board-eq-formula"><span class="board-eq-left" id="boardM1R"></span><span class="board-eq-equal">=</span><span class="board-eq-right" id="boardM1E"></span></div></div>
-      </div>
-      <div id="advBoardEquations" class="board-equations hide" aria-live="polite"><div class="eqtitle">Actividad 7.6 · ecuaciones construidas debajo del circuito</div><div id="advBoardRows"></div></div>
       <div id="circuitControls" class="circuit-controls hide" aria-label="Controles del recorrido bajo el circuito">
         <div id="standardCircuitControls" class="circuit-controls-inner hide">
           <div class="control-groups">
@@ -388,6 +391,20 @@
       <div id="boardActions" class="board-actions hide" aria-label="Acciones del circuito"></div>
       <div class="boardfoot"><span id="boardState">Selecciona las flechas: cualquier referencia es válida.</span><span id="boardSummary">Fuentes: 18 V, 6 V · R: 2 Ω</span></div>
     </section>
+    <section class="card" id="equationsCard" aria-label="Ecuaciones del circuito" aria-live="polite">
+      <div class="cardhead"><strong>Ecuaciones del circuito</strong><span class="chip">KCL · KVL</span></div>
+      <div class="equations-body">
+        <p id="equationPlaceholder" class="equation-placeholder">Las ecuaciones aparecerán al analizar los nudos y recorrer las mallas.</p>
+      <div class="board-equations hide" id="nodeEqPanel"><div class="eqtitle">Ley de nudos · n − 1 = 1</div><div class="board-eq-row" data-equation="E1"><div class="board-eq-label">E1:<small>Nudo A</small></div><div class="board-eq-formula" id="nodeEq"></div></div></div>
+      <div id="advKCL" class="board-equations hide"><div class="eqtitle">Primera ley · 3 ecuaciones independientes</div><div  id="advKCLtext"></div></div>
+      <div id="boardEquations" class="board-equations hide" aria-live="polite">
+        <div class="eqtitle">Ecuaciones de malla</div>
+        <div class="board-eq-row" data-equation="E2"><div class="board-eq-label">E2:<small>Malla 1</small></div><div class="board-eq-formula"><span class="board-eq-left" id="boardM0R"></span><span class="board-eq-equal">=</span><span class="board-eq-right" id="boardM0E"></span></div></div>
+        <div class="board-eq-row" data-equation="E3"><div class="board-eq-label">E3:<small>Malla 2</small></div><div class="board-eq-formula"><span class="board-eq-left" id="boardM1R"></span><span class="board-eq-equal">=</span><span class="board-eq-right" id="boardM1E"></span></div></div>
+      </div>
+      <div id="advBoardEquations" class="board-equations hide" aria-live="polite"><div class="eqtitle">Ecuaciones de malla</div><div id="advBoardRows"></div></div>
+      </div>
+    </section>
     <section class="card" aria-live="polite" id="phaseCard">
       <div class="cardhead"><strong id="phaseHead">Fase 1 · Sentidos de referencia</strong><span class="chip" id="phaseChip">ELIGE</span></div>
       <div class="body">
@@ -398,17 +415,17 @@
           <p class="message" id="advInfo"></p>
           <button class="primary" id="advStart">Confirmar sentidos y obtener ecuaciones de nudos →</button>
           <div id="sixNodeChallenge" class="challenge hide" aria-live="polite"></div>
-          <div id="advKCL" class="eqpanel hide"><div class="eqtitle">Primera ley · 3 ecuaciones independientes</div><div class="eq" style="font-size:14px" id="advKCLtext"></div></div>
+
           <div id="advLoops" class="hide">
             <h2 class="phase-title" style="font-size:19px">Mallas · dos vueltas por malla</h2>
-            <p class="desc">Selecciona la malla, el sentido de recorrido y continúa las animaciones con los controles situados debajo del circuito. Las ecuaciones se construyen en un único lugar, bajo el esquema.</p>
+            <p class="desc">Selecciona la malla, el sentido de recorrido y continúa las animaciones con los controles situados debajo del circuito. Las ecuaciones se construyen en el panel de ecuaciones, a la derecha en ordenador.</p>
           </div>
           <div id="advMatrix" class="hide">
             <h2 class="phase-title">Sistema matricial 6 × 6</h2>
             <p class="desc">Las ecuaciones de nudo se normalizan con todas las incógnitas a la izquierda y cero a la derecha. Escribe los coeficientes de cada ecuación.</p>
             <div class="eqlist"><div class="eqtitle">Tres nudos + tres mallas</div><div id="advMatEqs"></div></div>
             <div class="adv-mat-overflow"><div id="advMatInputs"></div></div>
-            <div class="btnrow"><button class="primary" id="advMatVerify">Comprobar matriz</button><button class="ghost small" id="advFill">Rellenar para probar</button></div>
+            <div class="btnrow matrix-actions"><button class="primary" id="advMatVerify">Comprobar matriz</button><button class="ghost small" id="advFill">Rellenar para probar</button></div>
             <div class="message" id="advMatFeedback"></div>
             <button class="success hide" id="advSolveBtn">Resolver mediante sustitución y reducción →</button>
           </div>
@@ -449,14 +466,14 @@
           <p class="desc">Construye la igualdad: <b>corrientes que entran = corrientes que salen</b>. Hay 2 nudos, por tanto <b>n − 1 = 1 ecuación independiente</b>.</p>
           <div class="btnrow hide"><button id="selectA" class="primary">Analizar nudo A</button><button id="selectB" class="ghost">Analizar nudo B</button></div>
           <div id="nodeChallenge" class="challenge hide" aria-live="polite"></div>
-          <div class="eqpanel hide" id="nodeEqPanel"><div class="eqtitle">Ecuación KCL · n − 1 = 1</div><div class="eq" id="nodeEq"></div></div>
+
           <div class="message" id="nodeFeedback">Los dos nudos proporcionan ecuaciones equivalentes; basta una independiente.</div>
           <button id="goLoops" class="primary hide">Continuar a las mallas →</button>
         </div>
         <div id="phase2" class="hide">
           <h1 class="phase-title">Recorre las mallas</h1>
           <p class="desc">Cada malla requiere <b>dos vueltas completas</b>: primero construye los términos <b>R·I</b> y después recoge las tensiones de las fuentes. <b>Ambas mallas comienzan siempre en el nudo B</b>. Pulsa dentro de una malla para seleccionarla y sobre su icono ↻/↺ para invertir el giro. Las caídas de tensión quedan a la izquierda del signo igual y las fuentes a la derecha.</p>
-          <div class="helper" id="loopHelper">Las dos mallas comienzan en B. Debajo del circuito se construyen las ecuaciones. En la vuelta Σ R·I se iluminan las resistencias y circulan las bolitas amarillas; en Σ U se iluminan las fuentes. El término nuevo parpadea hasta continuar. Los botones para avanzar también están debajo del circuito.</div>
+          <div class="helper" id="loopHelper">Las dos mallas comienzan en B. Las ecuaciones se construyen en su panel. En la vuelta Σ R·I se iluminan las resistencias y circulan las bolitas amarillas; en Σ U se iluminan las fuentes. El término nuevo parpadea hasta continuar. Los botones para avanzar también están debajo del circuito.</div>
           <!-- Compatibilidad con el motor de ecuaciones: campos no visibles. Solo el panel del circuito muestra las ecuaciones. -->
           <div class="hide" aria-hidden="true"><span id="resBuild"></span><span id="sourceBuild"></span><span id="finishedLoops"></span></div>
         </div>
@@ -465,7 +482,7 @@
           <p class="desc">Ya tienes <b>3 ecuaciones independientes para 3 incógnitas</b>. Escribe los coeficientes de I₁, I₂, I₃ y el término independiente de cada ecuación, en el orden mostrado.</p>
           <div class="eqlist"><div class="eqtitle">Sistema obtenido</div><div id="matrixEqs"></div></div>
           <div class="eqpanel"><div class="eqtitle">A · I = b</div><div class="matrix" id="matrixInputs"></div></div>
-          <div class="btnrow"><button class="primary" id="verifyMatrix">Comprobar matriz</button><button class="ghost small" id="fillMatrix">Rellenar para probar</button></div>
+          <div class="btnrow matrix-actions"><button class="primary" id="verifyMatrix">Comprobar matriz</button><button class="ghost small" id="fillMatrix">Rellenar para probar</button></div>
           <div class="message" id="matrixFeedback">Utiliza números con signo. Los huecos de coeficientes nulos son 0.</div>
           <button class="success hide" id="goSolve">Resolver algebraicamente →</button>
         </div>
@@ -919,16 +936,20 @@
     }).join('');
   }
   function renderBoardEquations(flashKind=null){
-    if(S.phase!==2){show('boardEquations',false);return}
-    show('boardEquations',true);
+    if(S.phase<2||S.phase>4){show('boardEquations',false);return}
+    let visibleRows=0;
     for(let k=0;k<2;k++){
       const finished=S.loops[k];
       const activeNow=k===S.loop&&!finished;
       const rs=finished?.resistors??(activeNow?S.rs:[]);
       const es=finished?.sources??(activeNow?S.es:[]);
+      const visible=rs.length>0||es.length>0;
+      $('boardM'+k+'R').closest('.board-eq-row').classList.toggle('hide',!visible);
+      if(visible)visibleRows++;
       $('boardM'+k+'R').innerHTML=rs.length?(activeNow&&flashKind==='R'?termsHtml(rs,'R'):escapeHtml(terms(rs,'R'))):'';
       $('boardM'+k+'E').innerHTML=es.length?(activeNow&&flashKind==='E'?termsHtml(es,'E'):escapeHtml(terms(es,'E'))):'';
     }
+    show('boardEquations',visibleRows>0);
   }
   function highlightElement(branch){
     clearElementHighlight();
@@ -1600,6 +1621,8 @@
   function newGame(){
      endHeroPress();
     flowToken++;stopFlow();if(S.pausedResume){S.pausedResume();S.pausedResume=null}
+    $('gameLayout').classList.toggle('network-mode',active.kind==='network');
+    show('nodeEqPanel',false);show('advKCL',false);
     clearChallenge();S.phase=0;S.signs=[1,-1,-1];S.score=0;S.nodeDone=false;
     S.loops=[null,null];S.scoredLoops=[false,false];S.loopBonusAwarded=false;S.loop=0;S.cw=true;
     S.pass='resistors';S.route=null;S.legIndex=0;S.es=[];S.rs=[];S.animating=false;
@@ -1786,14 +1809,15 @@
         const t=(o.v<0?(j?' − ':'−'):(j?' + ':''))+fmt6(Math.abs(o.v))+' V';
         return `<span class="${k===A6.loop&&A6.stage==='loops'&&A6.pass==='U'&&j===A6.rowsU[k].length-1&&A6.waiting?'flash-term':''}">${t}</span>`;
       }).join('');
-      out.push(`<div class="board-eq-row"><div class="board-eq-label">Malla ${k+1}</div><div class="board-eq-formula">${rr} <b class="board-eq-equal">=</b> ${uu}</div></div>`);
+      if(!rr&&!uu&&!A6.done[k])continue;
+      out.push(`<div class="board-eq-row" data-equation="E${k+4}"><div class="board-eq-label">E${k+4}:<small>Malla ${k+1}</small></div><div class="board-eq-formula">${rr} <b class="board-eq-equal">=</b> ${uu}</div></div>`);
     }
-    $('advBoardRows').innerHTML=out.join('');
+    $('advBoardRows').innerHTML=out.join('');show('advBoardEquations',out.length>0);
   }
   function sixStart(){
     sixCancel();
     S.phase=6;S.score=0;
-    A6.stage='dirs';A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
+    A6.stage='dirs';A6.nodeCount=0;$('advKCLtext').innerHTML='';A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
     $('stagebar').classList.add('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
     $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
     $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();
@@ -1817,9 +1841,9 @@
     });
     return (incoming.join(' + ')||'0')+' = '+(outgoing.join(' + ')||'0');
   }
-  function sixKCLRows(){
-    return '<div class="node-eq-list">'+KCL6.map((row,i)=>
-      `<div class="node-eq-row"><span class="node-eq-label">Nudo ${['A','C','B'][i]}</span><span class="node-eq-formula">${sixNodeSides(row)}</span></div>`
+  function sixKCLRows(count=3){
+    return '<div class="node-eq-list">'+KCL6.slice(0,count).map((row,i)=>
+      `<div class="node-eq-row" data-equation="E${i+1}"><span class="node-eq-label">E${i+1}:<small>Nudo ${['A','C','B'][i]}</small></span><span class="node-eq-formula">${sixNodeSides(row)}</span></div>`
     ).join('')+'</div>';
   }
   function sixNodeStart(){
@@ -1831,7 +1855,7 @@
       const ask=()=>{
         if(current===3){show('sixNodeChallenge',false);sixNodeStartVerified();return}
         const row=KCL6[current].map((v,i)=>v*A6.signs[i]);
-        kclChoices('sixNodeChallenge',row,NAMES6,()=>{current++;ask()});
+        kclChoices('sixNodeChallenge',row,NAMES6,()=>{current++;A6.nodeCount=current;$('advKCLtext').innerHTML=sixKCLRows(current);show('advKCL',true);ask()});
         $('sixNodeChallenge').querySelector('h3').textContent='Nivel 2 · Nudo '+order[current]+' ('+(current+1)+'/3)';
       };
       ask();return;
@@ -1839,7 +1863,7 @@
     sixNodeStartVerified();
   }
   function sixNodeStartVerified(){
-    A6.stage='loops';show('advStart',false);show('advKCL',true);show('advLoops',true);show('circuitControls',true);show('standardCircuitControls',false);show('advancedCircuitControls',true);
+    A6.nodeCount=3;A6.stage='loops';show('advStart',false);show('advKCL',true);show('advLoops',true);show('circuitControls',true);show('standardCircuitControls',false);show('advancedCircuitControls',true);
     $('advKCLtext').innerHTML=sixKCLRows();
     sixText('advInfo','4 nudos ⇒ n−1 = 3 ecuaciones independientes; 6 ramas ⇒ 6 incógnitas; 3 mallas ⇒ 3 ecuaciones más.');
     sixRefArrow();sixSelectLoop(0);
@@ -1997,7 +2021,7 @@
   function sixNext(){if(A6.waiting){let f=A6.waiting;A6.waiting=null;f();return}if(A6.running)return;sixPlay()}
   function sixMatrix(){
     if(A6.stage!=='loops'||!A6.done.every(Boolean))return;
-    A6.stage='matrix';sixCancel();sixMeshArrows();show('advLoops',false);show('advMatrix',true);show('advFill',difficulty()===0);show('advToMatrix',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);show('advBoardEquations',false);show('advKCL',false);
+    A6.stage='matrix';sixCancel();sixMeshArrows();show('advLoops',false);show('advMatrix',true);show('advFill',difficulty()===0);show('advToMatrix',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);show('advBoardEquations',A6.rowsR.some(row=>row.length)||A6.rowsU.some(row=>row.length));show('advKCL',true);
     const {A,b}=sixSystem();
     $('advMatEqs').innerHTML=A.map((row,i)=>'<div class="eq" style="font-size:13px">'+(i<3?'Nudo '+['A','C','B'][i]:'Malla '+(i-2))+': '+sixEq(row,b[i])+'</div>').join('');
     $('advMatInputs').innerHTML='<div class="adv-mat-head">'+[...NAMES6,'b'].map(x=>'<span>'+x+'</span>').join('')+'</div>'+A.map((row,i)=>'<div class="adv-mat-row">'+[...row,b[i]].map((v,j)=>`<input data-ar="${i}" data-ac="${j}" aria-label="Fila ${i+1} columna ${j+1}" placeholder="?" inputmode="decimal"/>`).join('')+'</div>').join('');
@@ -2113,7 +2137,7 @@
 
   function initBoardActions(){
     const ids=['confirmDirs','advStart','goLoops','resetLoop','advance','advNext','goMatrix','advToMatrix',
-      'verifyMatrix','fillMatrix','advMatVerify','advFill','goSolve','advSolveBtn',
+      'verifyMatrix','advMatVerify','goSolve','advSolveBtn',
       'nextStep','restartSteps','advSolveNext','playAgain'];
     const actions=$('boardActions'),entries=[];
     for(const id of ids){
@@ -2136,6 +2160,17 @@
     entries.forEach(({button})=>observer.observe(button,{attributes:true,attributeFilter:['class']}));
     sync();return sync;
   }
+  function initEquationPlaceholder(){
+    const placeholder=$('equationPlaceholder');
+    function sync(){
+      const hasEquations=['nodeEqPanel','advKCL','boardEquations','advBoardEquations'].some(id=>!$(id).classList.contains('hide'));
+      if(placeholder.classList.contains('hide')!==hasEquations)placeholder.classList.toggle('hide',hasEquations);
+    }
+    const observer=new MutationObserver(sync);
+    for(const id of ['nodeEqPanel','advKCL','boardEquations','advBoardEquations'])observer.observe($(id),{attributes:true,attributeFilter:['class']});
+    sync();return sync;
+  }
+  const syncEquationPlaceholder=initEquationPlaceholder();
   const syncBoardActions=initBoardActions();
   initExercises();
   // Resolver el sistema por potencial de nudo y verificar todas las ramas.
@@ -2146,7 +2181,7 @@
     if(j.some(x=>!Number.isFinite(x))||Math.abs(j.reduce((a,b)=>a+b,0))>1e-8)throw Error('Datos inconsistentes en '+ex.id);
     active=oldActive;R=oldR;E=oldE;
   }
-  newGame();syncBoardActions();
+  newGame();syncBoardActions();syncEquationPlaceholder();
 })();
 </script>
 </body>
