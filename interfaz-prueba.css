@@ -1,0 +1,22 @@
+/* Prototipo aislado: exclusivamente interfaz, menús, cinta y pestañas. */
+:root{font-family:Inter,"Segoe UI",Arial,sans-serif;color-scheme:light}
+#shared-chrome{background:#f8fafc!important;border-bottom:1px solid #e2e8f0!important;box-shadow:0 2px 12px #0f172a0b}
+#shared-chrome .gwt-MenuBar-horizontal,#shared-chrome .gwt-MenuBar-horizontal>table{background:#f8fafc!important;background-image:none!important}
+#shared-chrome td.gwt-MenuItem{font:500 13px/1.4 Inter,"Segoe UI",sans-serif!important;color:#334155!important;border-radius:8px!important;padding:8px 12px!important;transition:background .12s,color .12s}
+#shared-chrome td.gwt-MenuItem:hover,#shared-chrome td.gwt-MenuItem.open{background:#e7edf5!important;color:#0f172a!important}
+#shared-chrome .menuDropdown,#shared-chrome .elmContextMenu{background:#fff!important;border:1px solid #e2e8f0!important;border-radius:12px!important;box-shadow:0 14px 35px #0f172a24!important;padding:5px!important;max-height:calc(100dvh - 22px)!important;overflow-y:auto!important}
+#shared-chrome .menuDropdown .menuItem,#shared-chrome .menuDropdown li,#shared-chrome .menuDropdown .itemLabel{font:400 13px/1.45 Inter,"Segoe UI","Noto Sans Arabic",sans-serif!important;color:#334155!important}
+#shared-chrome .menuDropdown .menuItem{border-radius:7px!important;padding:7px 10px!important;min-height:29px}
+#shared-chrome .menuDropdown .menuItem:hover,#shared-chrome .menuDropdown .hasSubmenu.open{background:#eff6ff!important;color:#1d4ed8!important}
+#shared-chrome .menuDropdown .menuItemDisabled{color:#94a3b8!important}
+#shared-chrome .menuDropdown .shortcutHint{color:#64748b!important;font-size:11px!important}
+#shared-chrome .jgr-ribbon-unified{background:#f8fafc!important;color:#334155!important;border-color:#e2e8f0!important}
+#shared-chrome .jgr-ribbon-unified button,#shared-chrome .jgr-toolbar-actions>button{border-radius:8px!important;border-color:transparent!important;background:transparent!important;color:#334155!important}
+#shared-chrome .jgr-ribbon-unified button:hover,#shared-chrome .jgr-toolbar-actions>button:hover{background:#e7edf5!important}
+#shared-chrome .jgr-toolbar-separator{background:#cbd5e1!important}
+#jgr-tab-strip{background:#f1f5f9!important;border-bottom:1px solid #dbe3ed!important}
+#jgr-tab-strip .tab{border-radius:9px 9px 0 0!important;background:#e2e8f0!important;color:#475569!important;border-color:#dbe3ed!important}
+#jgr-tab-strip .tab.active{background:#fff!important;color:#0f172a!important;border-bottom-color:#fff!important}
+#jgr-tab-strip .jgr-toolbar-actions{background:#f1f5f9!important}
+#jgr-preview-label{position:fixed;bottom:12px;right:12px;z-index:200;background:#0f172a;color:white;border-radius:999px;padding:8px 13px;font:500 12px Inter,"Segoe UI",sans-serif;box-shadow:0 4px 18px #0f172a33;pointer-events:none}
+@media(max-width:650px){#shared-chrome td.gwt-MenuItem{padding:7px 8px!important;font-size:12px!important}#shared-chrome .menuDropdown{max-width:calc(100vw - 12px)!important}#jgr-preview-label{font-size:10px;bottom:7px;right:7px}}
