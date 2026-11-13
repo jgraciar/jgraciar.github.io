@@ -8,24 +8,54 @@ const prefix=/^(\d+(?:\.\d+)*\.\s*)/;
 export function teachingExampleTranslation(language:string,label:string):string|null {
  const code=language.toLowerCase();
  if(!entries[code])return null;
+ const groups:Record<string,string>={
+  "Electrotecnia":"Electrotecnia","Corriente continua":"DC","Corriente alterna":"AC",
+  "Monofásica":"1φ","Trifásica":"3φ",
+  "Lógica combinacional":"combinational","Lógica secuencial":"sequential",
+  "Condensadores y transitorios":"capacitors",
+  "Circuitos integrados":"integrated",
+  "Circuitos realimentados":"feedback",
+  "Circuitos lógicos":"logic",
+  "Codificadores":"encoder","Decodificadores":"decoder",
+  "Multiplexores y demultiplexores":"mux",
+  "Biestables":"flipflop","Contadores":"counter",
+  "Con biestables JK":"withJK",
+  "Suma de productos (SOP)":"SOP","Producto de sumas (POS)":"POS",
+  "Mapas de Karnaugh":"karnaugh"
+ };
+ if(Object.hasOwn(groups,label)){
+  if(code==="es")return label;
+  const t=entries[code];
+  const names:Record<string,string>={
+   Electrotecnia:"Electrotechnics",DC:"DC",AC:"AC","1φ":"1φ","3φ":"3φ",
+   combinational:t[30],sequential:t[31],capacitors:t[29],integrated:t[32],
+   feedback:t[3]+" "+t[24],logic:t[3]+" "+t[25],
+   encoder:t[6],decoder:t[7],mux:t[8]+" / "+t[9],
+   flipflop:t[4],counter:t[5],withJK:t[4]+" JK",
+   SOP:"SOP",POS:"POS",karnaugh:t[10]
+  };
+  return names[groups[label]];
+ }
  if(!/^(?:\d+\.|Act\.|Actividad |Práctica\.|Ejemplo |Sistema III-N)/.test(label))return null;
  if(code==="es")return label;
  const p=label.match(prefix)?.[0]||"";
  let body=label.slice(p.length);
  if(body==="Sistema III-N")return label;
  body=body.replace(/^Act\. /,"Actividad ");
+ const joiners:Record<string,[string,string,string,string,string]>={
+ en:[" of "," and "," to "," without "," bits"],fr:[" de "," et "," à "," sans "," bits"],de:[" von "," und "," zu "," ohne "," Bit"],it:[" di "," e "," a "," senza "," bit"],pt:[" de "," e "," a "," sem "," bits"],ca:[" de "," i "," a "," sense "," bits"],"ca-es-valencia":[" de "," i "," a "," sense "," bits"],gl:[" de "," e "," a "," sen "," bits"],nl:[" van "," en "," naar "," zonder "," bits"],sv:[" av "," och "," till "," utan "," bit"],da:[" af "," og "," til "," uden "," bit"],nb:[" av "," og "," til "," uten "," bit"],fi:[" - "," ja "," → "," ilman "," bittiä"],pl:[" z "," i "," do "," bez "," bity"],ru:[" из "," и "," к "," без "," бита"],csx:[" z "," a "," na "," bez "," bity"],eu:[" - "," eta "," → "," gabe "," bit"],zh:["的","和","到","无","位"],"zh-tw":["的","與","到","無","位元"],ja:["の","と","から","なし","ビット"],kr:["의","및","에서","없이","비트"],ar:[" من "," و "," إلى "," دون "," بتات"]};
+ const j=joiners[code]||joiners.en;
  const protectedTokens:string[]=[];
  body=body.replace(/\b(?:SOP|POS|NOR|NAND|AND|NOT|OR|JK|RS|RLC)\b/g,x=>{protectedTokens.push(x);return "§"+(protectedTokens.length-1)+"§";});
+ // Sustituir conectores ANTES de traducir para no alterar palabras del idioma destino.
+ const connectors:Record<string,string>={de:"§DE§",del:"§DEL§",y:"§Y§",a:"§A§",sin:"§SIN§",bits:"§BITS§"};
+ body=body.replace(/\b(de|del|y|a|sin|bits)\b/gi,x=>connectors[x.toLowerCase()]||x);
  const translations=entries[code];
  for(const [i,term] of [...terms.entries()].sort((a,b)=>b[1].length-a[1].length)){
    const re=new RegExp("(?<![\p{L}])"+escape(term)+"(?![\p{L}])","giu");
    body=body.replace(re,translations[i]);
  }
- // Resto de estructuras españolas de los títulos.
- const joiners:Record<string,[string,string,string,string,string]>={
- en:[" of "," and "," to "," without "," bits"],fr:[" de "," et "," à "," sans "," bits"],de:[" von "," und "," zu "," ohne "," Bit"],it:[" di "," e "," a "," senza "," bit"],pt:[" de "," e "," a "," sem "," bits"],ca:[" de "," i "," a "," sense "," bits"],"ca-es-valencia":[" de "," i "," a "," sense "," bits"],gl:[" de "," e "," a "," sen "," bits"],nl:[" van "," en "," naar "," zonder "," bits"],sv:[" av "," och "," till "," utan "," bit"],da:[" af "," og "," til "," uden "," bit"],nb:[" av "," og "," til "," uten "," bit"],fi:[" - "," ja "," → "," ilman "," bittiä"],pl:[" z "," i "," do "," bez "," bity"],ru:[" из "," и "," к "," без "," бита"],csx:[" z "," a "," na "," bez "," bity"],eu:[" - "," eta "," → "," gabe "," bit"],zh:["的","和","到","无","位"],"zh-tw":["的","與","到","無","位元"],ja:["の","と","から","なし","ビット"],kr:["의","및","에서","없이","비트"],ar:[" من "," و "," إلى "," دون "," بتات"]};
- const j=joiners[code]||joiners.en;
- body=body.replace(/\bde\b/gi,j[0]).replace(/\by\b/gi,j[1]).replace(/\ba\b/gi,j[2]).replace(/\bsin\b/gi,j[3]).replace(/\bbits\b/gi,j[4]);
+ body=body.replace(/§(DE|DEL|Y|A|SIN|BITS)§/g,(_,key)=>({DE:j[0],DEL:j[0],Y:j[1],A:j[2],SIN:j[3],BITS:j[4]} as Record<string,string>)[key]);
  body=body.replace(/§(\d+)§/g,(_,n)=>protectedTokens[Number(n)]);
  return p+body.replace(/ {2,}/g," ").trim();
 }
