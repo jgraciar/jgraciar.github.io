@@ -266,7 +266,8 @@
   .adv-mat-row input.correct{border-color:#93cd72;background:#153528}
   .adv-mat-row input.wrong{border-color:#f47c8b;background:#3a1b2b}
   .adv-eqline{font:600 13px/1.65 ui-monospace,Consolas,monospace;white-space:normal;word-break:break-word;padding:4px 6px;border-bottom:1px solid #2e4560}
-  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}.flash-term{opacity:1!important;background:#99681b!important;color:#ffe083!important}.flash-arrow{opacity:1!important}}
+  /* Los parpadeos didácticos y los gestos del gusano comparten tiempos en todos los dispositivos. */
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
