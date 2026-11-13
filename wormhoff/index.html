@@ -1071,12 +1071,14 @@
     if($('circuit').hasPointerCapture(drag.pointerId))$('circuit').releasePointerCapture(drag.pointerId);
     suppressedCurrentClick={index:drag.index,six:drag.six,until:performance.now()+500};
     if(cancelled)return;
-    if(drag.moved){$('boardState').textContent='Corriente '+(drag.six?NAMES6:names)[drag.index]+' desplazada dentro de su rama.';return;}
+    if(drag.moved)return;
     if(drag.six){if(A6.stage==='dirs'){A6.signs[drag.index]*=-1;sixRefArrow();}}
     else reverse(drag.index);
   }
   function initCurrentArrowDragging(){
     const svg=$('circuit');
+    svg.addEventListener('touchstart',event=>{if(currentArrowDrag||event.target.closest?.('[data-current-index]'))event.preventDefault();},{passive:false});
+    svg.addEventListener('touchmove',event=>{if(currentArrowDrag)event.preventDefault();},{passive:false});
     svg.addEventListener('pointerdown',event=>{
       const group=event.target.closest?.('[data-current-index]');
       if(!group||!event.isPrimary||event.button!==0||currentArrowDrag)return;

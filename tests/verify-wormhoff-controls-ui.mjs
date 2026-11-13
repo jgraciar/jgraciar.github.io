@@ -133,7 +133,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    await page.mouse.move(points.start.x,points.start.y);await page.mouse.down();await page.mouse.move(points.end.x,points.end.y,{steps:7});await page.mouse.up();
   }
   assert.equal(await page.locator('#circuit').evaluate(el=>el.classList.contains('dragging-current')),false,'Arrastre finalizado');
-  assert(Math.abs((await page.evaluate(()=>scrollY))-scrollBefore)<2,'Arrastrar una corriente no desplaza la página');
+  assert(Math.abs((await page.evaluate(()=>scrollY))-scrollBefore)<2,'Arrastrar una corriente no desplaza la página: '+JSON.stringify({before:scrollBefore,after:await page.evaluate(()=>scrollY),points,position:await page.locator(selector).evaluate(el=>({x:el.dataset.arrowX,y:el.dataset.arrowY}))}));
   return page.locator(selector).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
  };
  const pauseResume=async id=>{
