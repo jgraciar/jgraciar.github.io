@@ -103,6 +103,7 @@ jobs:
         run: |
           node adaptacion/scripts/package-circuits-jgr.mjs circuitjs-src/ts site-root adaptacion
           node adaptacion/scripts/promote-tabbed-workspace.mjs site-root
+          node adaptacion/scripts/publish-interface-preview.mjs site-root
           node adaptacion/scripts/publish-kirchhoff.mjs site-root adaptacion
           node adaptacion/tests/calculadora-decimales.test.mjs site-root/calculadora
           node adaptacion/tests/calculadora-ejemplos.test.mjs site-root/calculadora
@@ -113,6 +114,8 @@ jobs:
           test -s site-root/circuitjgr.html
           test -s site-root/circuitjgr-core.html
           test -s site-root/tabs-experimental.html
+          test -s site-root/interfaz-prueba.html
+          test -s site-root/interfaz-prueba.css
           test -s site-root/circuitjs/about.html
           test -s site-root/LICENSE-GPLv3.txt
           test -s site-root/COPYING-CircuitJS.txt
