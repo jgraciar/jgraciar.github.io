@@ -114,6 +114,28 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const p=await page.locator('#circuit').evaluate((svg,[x,y])=>{const p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());return {x:p.x,y:p.y}},[x,y]);
   if(mobile)await page.touchscreen.tap(p.x,p.y);else await page.mouse.click(p.x,p.y);
  };
+ const dragCurrent=async(selector,x,y,byLabel=false)=>{
+  await page.locator('#circuit').scrollIntoViewIfNeeded();
+  const points=await page.locator(selector).evaluate((group,{x,y,byLabel})=>{
+   const svg=document.getElementById('circuit'),matrix=svg.getScreenCTM(),arrow=new DOMPoint(Number(group.dataset.arrowX),Number(group.dataset.arrowY)).matrixTransform(matrix);
+   const label=group.querySelector('.dirlabel').getBoundingClientRect(),start=byLabel?{x:label.x+label.width/2,y:label.y+label.height/2}:{x:arrow.x,y:arrow.y};
+   const target=new DOMPoint(x,y).matrixTransform(matrix);
+   return {start,end:{x:target.x+start.x-arrow.x,y:target.y+start.y-arrow.y}};
+  },{x,y,byLabel});
+  const scrollBefore=await page.evaluate(()=>scrollY);
+  if(mobile){
+   const session=await context.newCDPSession(page);
+   const touch=(type,x,y)=>session.send('Input.dispatchTouchEvent',{type,touchPoints:type==='touchEnd'?[]:[{x,y,id:9,radiusX:1,radiusY:1}]});
+   await touch('touchStart',points.start.x,points.start.y);
+   for(let step=1;step<=7;step++)await touch('touchMove',points.start.x+(points.end.x-points.start.x)*step/7,points.start.y+(points.end.y-points.start.y)*step/7);
+   await touch('touchEnd',points.end.x,points.end.y);await session.detach();
+  }else{
+   await page.mouse.move(points.start.x,points.start.y);await page.mouse.down();await page.mouse.move(points.end.x,points.end.y,{steps:7});await page.mouse.up();
+  }
+  assert.equal(await page.locator('#circuit').evaluate(el=>el.classList.contains('dragging-current')),false,'Arrastre finalizado');
+  assert(Math.abs((await page.evaluate(()=>scrollY))-scrollBefore)<2,'Arrastrar una corriente no desplaza la página');
+  return page.locator(selector).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
+ };
  const pauseResume=async id=>{
   const button=page.locator('#'+id);
   await page.waitForFunction(id=>document.getElementById(id).dataset.state==='running',id);
@@ -181,13 +203,28 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.waitForFunction(()=>!document.querySelector('#nodeChallenge .blink-three'));
  assert.equal(await term.evaluate(el=>getComputedStyle(el).opacity),'1');
  await page.selectOption('#exerciseSelect','base');await assignNumbers([1,2,3]);
+ let dragged=await dragCurrent('#currentArrow0',146,310);
+ assert(Math.hypot(dragged.x-146,dragged.y-310)<2,'Arrastra flecha por su conductor');
+ let direction=await page.locator('#currentArrow0 .direction').getAttribute('d');
+ assert(Number(direction.split(' ')[1])>Number(direction.split(' L')[1].split(' ')[1]),'Arrastrar conserva el sentido ascendente');
+ dragged=await dragCurrent('#currentArrow0',249,74,true);
+ assert(Math.hypot(dragged.x-249,dragged.y-74)<2,'Arrastra desde el texto y atraviesa la esquina de la misma rama');
+ await dragCurrent('#currentArrow0',345,300);await assertBranchPlacement(false);await assertNoCurrentOverlap();
+ await dragCurrent('#currentArrow0',146,235);await assertNoCurrentOverlap();
+ dragged=await dragCurrent('#currentArrow0',146,310,true);
+ await page.locator('#currentArrow0').focus();await page.locator('#currentArrow0').press('ArrowUp');
+ const keyboard=await page.locator('#currentArrow0').evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
+ assert(keyboard.y<dragged.y-5,'También se puede desplazar con el teclado');
  assert.equal(await page.locator('#resetLoop svg').count(),1);assert.equal(await page.locator('#resetLoop').getAttribute('aria-label'),'Repetir recorrido');
  assert.equal(await page.locator('#dirButtons,#advDirections,#loopButtons,#advLoopButtons,#cw,#ccw,#advCw,#advCcw').count(),0);
  for(const i of [0,1,2]){
   const {x,y}=await page.locator('#currentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   const sel='#currentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
- await checkAction('confirmDirs');await page.click('#confirmDirs');await checkAction('goLoops');await page.click('#goLoops');await checkAction('advance');assert(await page.locator('#equationsCard #nodeEqPanel [data-equation="E1"]').isVisible());
+ await checkAction('confirmDirs');await page.click('#confirmDirs');
+ const fixedEquation=await page.locator('#nodeEq').textContent();
+ await dragCurrent('#currentArrow0',146,300,true);assert.equal(await page.locator('#nodeEq').textContent(),fixedEquation,'Mover la flecha conserva las ecuaciones');
+ await checkAction('goLoops');await page.click('#goLoops');await checkAction('advance');assert(await page.locator('#equationsCard #nodeEqPanel [data-equation="E1"]').isVisible());
  await tap(490,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'355');
  await tap(445,164);assert.match(await page.locator('#boardState').textContent(),/antihorario/);
  await tap(490,290);assert.match(await page.locator('#boardState').textContent(),/antihorario/,'Pulsar la malla activa conserva el progreso');
@@ -210,6 +247,10 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const {x,y}=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   const sel='#sixCurrentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente avanzada '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
+ dragged=await dragCurrent('#sixCurrentArrow4',470,225,true);
+ assert(Math.hypot(dragged.x-470,dragged.y-225)<2,'Arrastra I5 y su texto dentro de su rama');
+ await dragCurrent('#sixCurrentArrow4',130,190);await assertBranchPlacement(true);await assertNoCurrentOverlap();
+ await dragCurrent('#sixCurrentArrow4',470,225);
  await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  for(const resistor of await page.locator('#circuit .component-resistor').all()){
   assert(await resistor.evaluate(el=>{
