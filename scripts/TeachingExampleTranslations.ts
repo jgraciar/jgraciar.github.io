@@ -55,7 +55,7 @@ export function teachingExampleTranslation(language:string,label:string):string|
  body=body.replace(/\b(de|del|y|a|sin|bits)\b/gi,x=>connectors[x.toLowerCase()]||x);
  const translations=entries[code];
  // Traducir también el plural «Mapas» y mantener «Karnaugh» como apellido.
- body=body.replace(/Mapas de Karnaugh/gi,translations[10]+(code==="en"?"s":""));
+ body=body.replace(/Mapas de Karnaugh/gi,({en:"Karnaugh maps",fr:"Cartes de Karnaugh",de:"Karnaugh-Diagramme",it:"Mappe di Karnaugh",pt:"Mapas de Karnaugh",ca:"Mapes de Karnaugh","ca-es-valencia":"Mapes de Karnaugh",gl:"Mapas de Karnaugh",nl:"Karnaughdiagrammen",sv:"Karnaughdiagram",da:"Karnaughdiagrammer",nb:"Karnaughdiagrammer",fi:"Karnaugh’n kartat",pl:"Mapy Karnaugha",ru:"Карты Карно",csx:"Karnaughovy mapy",eu:"Karnaugh-en mapak",zh:"卡诺图","zh-tw":"卡諾圖",ja:"カルノー図",kr:"카르노 맵",ar:"خرائط كارنوف"} as Record<string,string>)[code]||translations[10]);
  body=body.replace(/Mapa de Karnaugh/gi,translations[10]);
  for(const [i,term] of [...terms.entries()].sort((a,b)=>b[1].length-a[1].length)){
    const re=new RegExp("(?<![\\p{L}])"+escape(term)+"(?![\\p{L}])","giu");
