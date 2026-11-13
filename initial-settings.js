@@ -204,6 +204,7 @@ const simulatorAccept={
 const saveLabels={ar:"حفظ التغييرات",es:"Guardar cambios",en:"Save changes",ca:"Desa els canvis","ca-es-valencia":"Guarda els canvis",gl:"Gardar cambios",eu:"Gorde aldaketak",fr:"Enregistrer les modifications",de:"Änderungen speichern",it:"Salva modifiche",pt:"Guardar alterações",nl:"Wijzigingen opslaan",sv:"Spara ändringar",da:"Gem ændringer",fi:"Tallenna muutokset",nb:"Lagre endringer",pl:"Zapisz zmiany",csx:"Uložit změny",ru:"Сохранить изменения",zh:"保存更改","zh-tw":"儲存變更",ja:"変更を保存",kr:"변경 사항 저장"};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function render(){
+ settingsDocument().getElementById("lab-start-modal").dir=dialogLanguage==="ar"?"rtl":"ltr";
  const t=catalogs[dialogLanguage]||catalogs.en;
  const bg=backgroundLabels[dialogLanguage]||backgroundLabels.en;
  const ds=format==="uk"?".":format==="eu"?",":decimal;
