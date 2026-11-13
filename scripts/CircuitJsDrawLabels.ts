@@ -144,6 +144,7 @@ export function circuitJsDrawLabel(sourceKey: string, localized: string, languag
 
     const prefixes: Record<string, string[]> = {
         en: ["Add "],
+        ar: ["إضافة ", "أضف "],
         es: ["Añadir ", "Agregar "],
         ca: ["Afegir ", "Afig ", "Añadir "],
         "ca-es-valencia": ["Afig ", "Afegir ", "Añadir "],
