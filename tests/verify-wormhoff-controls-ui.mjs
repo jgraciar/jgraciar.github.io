@@ -8,6 +8,19 @@ vm.createContext(algebraContext);
 vm.runInContext(gameSource.slice(gameSource.indexOf('  function algebraIsolation('),gameSource.indexOf('  function algebraStepsHTML('))+';globalThis.render=algebraTable;',algebraContext);
 const isolationCases=[{label:'Resultado',row:[0,6,0],b:24},{label:'Sustitución',row:[0,4,0],b:6}];
 const isolationMarkup=algebraContext.render(isolationCases);
+const meshElements={};
+algebraContext.$=id=>meshElements[id]??={innerHTML:''};
+algebraContext.S={phase:2,loops:[{cw:true},null],loop:0,cw:true,pass:'sources'};
+algebraContext.A6={stage:'loops',done:[null,{cw:true},null],loop:1,cw:true,pass:'U'};
+algebraContext.drawMeshTargets=()=>{};algebraContext.bindMeshTurns=()=>{};algebraContext.meshTurnIcon=()=>'';
+vm.runInContext(
+ gameSource.slice(gameSource.indexOf('  function meshCompleteMark('),gameSource.indexOf('  function setTransportState('))+
+ gameSource.slice(gameSource.indexOf('  function updateLoopsArrows('),gameSource.indexOf('  const fmt='))+
+ gameSource.slice(gameSource.indexOf('  function sixMeshArrows('),gameSource.indexOf('  function sixText('))+
+ ';updateLoopsArrows();sixMeshArrows();',algebraContext);
+const completedMarkup=meshElements.loopArrows.innerHTML+meshElements.sixLoops.innerHTML;
+assert(completedMarkup.includes('data-mesh-complete="0"'));assert(completedMarkup.includes('data-mesh-complete="1"'));
+assert(completedMarkup.includes('stroke="#8df09c"'));assert(!/FINALIZADA|HECHA/.test(completedMarkup));
 assert(isolationMarkup.includes('I₂ = 4 A'));assert(isolationMarkup.includes('I₂ = 1,5 A'));
 const browser=await chromium.launch({headless:true});
 let animationReference=null;
@@ -39,6 +52,22 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const p=await page.locator('#circuit').evaluate((svg,[x,y])=>{const p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());return {x:p.x,y:p.y}},[x,y]);
   if(mobile)await page.touchscreen.tap(p.x,p.y);else await page.mouse.click(p.x,p.y);
  };
+ const pauseResume=async id=>{
+  const button=page.locator('#'+id);
+  await page.waitForFunction(id=>document.getElementById(id).dataset.state==='running',id);
+  await page.waitForTimeout(80);
+  const runningColor=await button.evaluate(el=>getComputedStyle(el).backgroundColor);
+  await button.click();assert.equal(await button.getAttribute('data-state'),'paused');
+  assert(await button.locator('.transport-play').isVisible());assert.equal(await button.locator('.transport-stop').isVisible(),false);
+  const position=await page.locator('#hero').getAttribute('transform');
+  const dots=await page.locator('.fx-current-dot').evaluateAll(nodes=>nodes.map(n=>[n.getAttribute('cx'),n.getAttribute('cy')]));
+  await page.waitForTimeout(220);
+  assert.equal(await page.locator('#hero').getAttribute('transform'),position,'El gusano se detiene');
+  assert.deepEqual(await page.locator('.fx-current-dot').evaluateAll(nodes=>nodes.map(n=>[n.getAttribute('cx'),n.getAttribute('cy')])),dots,'Las partículas se detienen');
+  assert.notEqual(await button.evaluate(el=>getComputedStyle(el).backgroundColor),runningColor,'Color diferente en parada');
+  await button.click();assert.equal(await button.getAttribute('data-state'),'running');assert(await button.locator('.transport-stop').isVisible());
+  await page.waitForFunction(position=>document.getElementById('hero').getAttribute('transform')!==position,position);
+ };
  const arrow=async s=>page.locator(s+' .direction').getAttribute('d');
  await page.selectOption('#exerciseSelect','c71');
  await page.locator('[data-reduce="2"]').fill('12');await page.click('#checkReductions');await page.click('#confirmDirs');
@@ -49,6 +78,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.waitForFunction(()=>!document.querySelector('#nodeChallenge .blink-three'));
  assert.equal(await term.evaluate(el=>getComputedStyle(el).opacity),'1');
  await page.selectOption('#exerciseSelect','base');
+ assert.equal(await page.locator('#resetLoop svg').count(),1);assert.equal(await page.locator('#resetLoop').getAttribute('aria-label'),'Repetir recorrido');
  assert.equal(await page.locator('#dirButtons,#advDirections,#loopButtons,#advLoopButtons,#cw,#ccw,#advCw,#advCcw').count(),0);
  for(const [i,x,y] of [[0,249,74],[1,345,103],[2,454,74]]){
   const sel='#currentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente '+i);await tap(x,y);assert.equal(await arrow(sel),before);
@@ -61,7 +91,9 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.match(await page.locator('#boardState').textContent(),/horario/);assert.equal(await page.locator('#advance').isEnabled(),true,'Espacio cambia el giro sin iniciar el recorrido');
  await tap(210,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'156');
  await page.click('#advance');await tap(490,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'156','No cambiar malla durante el recorrido');
+ await pauseResume('advance');
  await page.waitForFunction(()=>document.querySelector('#hero').classList.contains('hero-happy'));
+ assert.equal(await page.locator('#advance').getAttribute('data-state'),'waiting');
  assert(await page.locator('#equationsCard #boardEquations [data-equation="E2"]').isVisible());
  const reaction=await page.evaluate(()=>{
   const style=sel=>{const s=getComputedStyle(document.querySelector(sel));return {name:s.animationName,duration:s.animationDuration,transition:s.transitionDuration}};
@@ -83,10 +115,11 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await tap(460,290);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
  await tap(477,130);assert.match(await page.locator('#advLap').textContent(),/Malla 2/);assert.match(await page.locator('#sixLoops [data-mesh-turn="1"]').textContent(),/↺/);
  await checkAction('advNext');await page.click('#advNext');await tap(300,190);assert.match(await page.locator('#advLap').textContent(),/Malla 2/,'No cambiar malla avanzada durante el recorrido');
+ await pauseResume('advNext');
  await page.locator('#sixTermChallenge .term-answer').waitFor({state:'visible'});
  await page.locator('#sixTermChallenge .term-answer').fill('5I5');await page.click('#sixTermChallenge .term-check');
  await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').waitFor({state:'visible'});
  assert.match(await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').textContent(),/E5:/);
- assert.deepEqual(errors,[]);await context.close();console.log('OK: despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
+ assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
 }finally{await browser.close()}

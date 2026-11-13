@@ -162,6 +162,16 @@
   .circuit-controls-inner{display:grid;gap:10px}
   .circuit-controls .control-groups{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center}
   .circuit-controls .control-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .icon-button,.transport-button{display:inline-flex;align-items:center;justify-content:center;min-width:52px;min-height:48px;padding:9px 15px}
+  .icon-button svg,.transport-button svg{width:26px;height:26px;pointer-events:none}
+  .transport-button[data-state="running"]{background:#235c3c;border-color:#89df99;color:#d7ffe2}
+  .transport-button[data-state="ready"],.transport-button[data-state="paused"],.transport-button[data-state="waiting"]{background:#59421f;border-color:#ffcf78;color:#ffe0a1}
+  .transport-button[data-state="blocked"],.transport-button[data-state="complete"]{background:#223449;border-color:#52677c;color:#b8c7d6}
+  .transport-button .transport-play{display:block}.transport-button .transport-stop{display:none}
+  .transport-button[data-state="running"] .transport-play{display:none}
+  .transport-button[data-state="running"] .transport-stop{display:block}
+  .mesh-complete{pointer-events:none}
   .board-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;padding:15px 16px;background:#102139;border-top:1px solid #3d5772}
   .board-action-item{display:flex;justify-content:center;max-width:100%}
   .board-action-item[hidden]{display:none}
@@ -374,7 +384,7 @@
       <div id="circuitControls" class="circuit-controls hide" aria-label="Controles del recorrido bajo el circuito">
         <div id="standardCircuitControls" class="circuit-controls-inner hide">
           <div class="control-groups">
-            <button id="resetLoop" class="small ghost">Repetir recorrido</button>
+            <button id="resetLoop" class="small ghost icon-button" title="Repetir recorrido" aria-label="Repetir recorrido"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg><span class="sr-only">Repetir recorrido</span></button>
           </div>
           <div class="lap-chip" id="lapLabel">Vuelta 1/2 · resistencias (R·I)</div>
           <div class="message" id="loopFeedback">Comienza el recorrido de la malla 1.</div>
@@ -533,7 +543,7 @@
   document.addEventListener('pointercancel',endHeroPress);
   window.addEventListener('blur',()=>endHeroPress());
   $('hero').addEventListener('contextmenu',e=>e.preventDefault());
-  const S={phase:0,signs:[1,-1,-1],score:0,nodeDone:false,loops:[null,null],scoredLoops:[false,false],loopBonusAwarded:false,loop:0,cw:true,pass:"resistors",route:null,waypoint:-1,legIndex:0,flowBranch:null,flowReq:null,es:[],rs:[],animating:false,finished:false,step:0};
+  const S={phase:0,signs:[1,-1,-1],score:0,nodeDone:false,loops:[null,null],scoredLoops:[false,false],loopBonusAwarded:false,loop:0,cw:true,pass:"resistors",route:null,waypoint:-1,legIndex:0,flowBranch:null,flowReq:null,es:[],rs:[],animating:false,motionActive:false,manualPaused:false,finished:false,step:0};
   const X=[146,345,544],TOP=74,BOT=360,SY=136,RY=235;
   const names=['I₁','I₂','I₃'];
   const exercises=[
@@ -776,12 +786,11 @@
     $('loopArrows').innerHTML=[0,1].map(k=>{
       const chosen=S.loops[k]?.cw??(S.loop===k?S.cw:true);
       const x=k===0?246:445;
-      const state=S.loops[k]?'FINALIZADA':S.loop!==k?'PENDIENTE':S.pass==='resistors'?'Σ R·I':'Σ U';
+      const state=S.loop!==k?'PENDIENTE':S.pass==='resistors'?'Σ R·I':'Σ U';
       const accent=S.loop===k&&!S.loops[k]?'#ffe2a0':'#9cb5c9';
       return meshTurnIcon(k,x,164,chosen,!!S.loops[k])+
         `<text class="mesh-label" x="${x}" y="199" text-anchor="middle" style="fill:#8ce7ef;font:600 11px sans-serif">MALLA ${k+1}</text>`+
-        `<rect class="mesh-label" x="${x-50}" y="208" width="100" height="22" rx="8" fill="#12263a" stroke="${accent}" stroke-width="1"/>`+
-        `<text class="mesh-label" x="${x}" y="223" text-anchor="middle" style="fill:${accent};font:700 14px ui-monospace,monospace">${state}</text>`;
+        (S.loops[k]?meshCompleteMark(k,x,219):`<rect class="mesh-label" x="${x-50}" y="208" width="100" height="22" rx="8" fill="#12263a" stroke="${accent}" stroke-width="1"/><text class="mesh-label" x="${x}" y="223" text-anchor="middle" style="fill:${accent};font:700 14px ui-monospace,monospace">${state}</text>`);
     }).join('');
     bindMeshTurns($('loopArrows'));
   }
@@ -986,6 +995,25 @@
   }
   function nodeSides(){const into=[],out=[];S.signs.forEach((s,i)=>(s===1?into:out).push(names[i]));return (into.join(' + ')||'0')+' = '+(out.join(' + ')||'0')}
   function bindClickable(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+  function meshCompleteMark(index,x,y){
+    return `<g class="mesh-complete" data-mesh-complete="${index}" role="img" aria-label="Malla ${index+1} completada"><circle cx="${x}" cy="${y}" r="13" fill="#173d2a" stroke="#66c77c"/><path d="M${x-7} ${y} L${x-2} ${y+5} L${x+8} ${y-6}" fill="none" stroke="#8df09c" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+  }
+  function setTransportState(id,state){
+    const button=$(id),labels={ready:'Iniciar recorrido',running:'Detener recorrido',paused:'Reanudar recorrido',waiting:'Continuar recorrido',blocked:'Recorrido detenido: completa el término para continuar',complete:'Malla completada'};
+    button.dataset.state=state;button.classList.add('transport-button');
+    button.disabled=state==='blocked'||state==='complete';
+    button.title=labels[state];button.setAttribute('aria-label',labels[state]);button.setAttribute('aria-pressed',String(state==='running'));
+    button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path class="transport-play" d="M7 4L21 12L7 20Z" fill="currentColor"/><rect class="transport-stop" x="5" y="5" width="14" height="14" rx="1" fill="currentColor"/></svg><span class="sr-only">'+labels[state]+'</span>';
+  }
+  function toggleTransport(id){
+    const model=id==='advance'?S:A6;
+    if(model.motionActive){
+      model.manualPaused=!model.manualPaused;
+      if(model.manualPaused)setHeroGait(false);
+      setTransportState(id,model.manualPaused?'paused':'running');return;
+    }
+    if(id==='advance')nextInLoop();else sixNext();
+  }
   function meshTurnIcon(index,x,y,cw,done,enabled=true){
     const disabled=!enabled||done;
     return `<g class="mesh-turn" data-mesh-turn="${index}" role="button" tabindex="${disabled?-1:0}" aria-label="Invertir giro de malla ${index+1}" aria-disabled="${disabled}"><rect class="mesh-turn-hit" x="${x-25}" y="${y-24}" width="50" height="48" rx="9"/><text class="mesh-label" x="${x}" y="${y+14}" text-anchor="middle" style="fill:#8ce7ef;font:700 36px sans-serif">${cw?'↻':'↺'}</text></g>`;
@@ -1034,8 +1062,7 @@
   function updateLoopSelect(){
     // El sombreado queda dentro del contorno, sin tapar sus símbolos IEC.
     $('loopHighlight').setAttribute('x',String(S.loop===0?156:355));
-    $('advance').disabled=!!S.loops[S.loop]||S.animating;
-    $('advance').textContent='Avanzar al siguiente elemento →';
+    setTransportState('advance',S.loops[S.loop]?'complete':S.animating?'blocked':'ready');
     $('lapLabel').textContent=S.pass==='resistors'?'Vuelta 1/2 · resistencias (R·I)':'Vuelta 2/2 · fuentes de tensión';
     if(S.loops[S.loop]){$('sourceBuild').textContent=terms(S.loops[S.loop].sources,'E');$('resBuild').textContent=terms(S.loops[S.loop].resistors,'R');$('lapLabel').textContent='Dos vueltas completadas';msg('loopFeedback','Esta malla ya está cerrada y verificada. Selecciona otra malla pendiente.','good')}
     $('boardState').textContent='Malla '+(S.loop+1)+' · '+(S.cw?'horario':'antihorario')+' · inicio en B.';
@@ -1046,7 +1073,7 @@
     S.loop=i;S.cw=S.loops[i]?.cw??true;
     resetCurrentLoop(false);updateLoopSelect();
     if(S.loops[i])msg('loopFeedback','Malla '+(i+1)+' completa. Puedes pasar a la siguiente fase si ambas están resueltas.','good');
-    else msg('loopFeedback','Malla '+(i+1)+' preparada: desde B, primero recorre las resistencias (R·I) y después las fuentes. Pulsa Avanzar.');
+    else msg('loopFeedback','Malla '+(i+1)+' preparada: desde B, primero recorre las resistencias (R·I) y después las fuentes. Pulsa ▶.');
   }
   function resetCurrentLoop(removeCompleted=true){
     if(S.animating)return;
@@ -1263,13 +1290,15 @@
     const dotLayer=$('flowFX');
     dotLayer.innerHTML=Array.from({length:n},()=>'<circle class="fx-current-halo" r="8"/><circle class="fx-current-dot" r="4.8"/>').join('');
     const circles=Array.from(dotLayer.children);
-    let t0=null,last=0;
+    let t0=null,last=0,pausedAt=null,pausedTime=0;
     const frame=t=>{
       if(S.phase!==2||S.pass!=='resistors'||S.flowBranch!==branch)return;
       if(t0===null)t0=t;
+      if(S.manualPaused){if(pausedAt===null)pausedAt=t;S.flowReq=requestAnimationFrame(frame);return;}
+      if(pausedAt!==null){pausedTime+=t-pausedAt;pausedAt=null;}
       if(t-last>=30){
         last=t;
-        const v=((t-t0)*speed/1000)%1;
+        const v=((t-t0-pausedTime)*speed/1000)%1;
         for(let k=0;k<n;k++){
           const pos=pointOnPath(points,v+k/n);
           for(let m=0;m<2;m++){
@@ -1298,8 +1327,8 @@
     return new Promise(resolve=>{
       if(token!==flowToken){resolve();return}
       setHeroGait(false);
-      S.pausedResume=()=>{clearEquationArrowPulse();S.pausedResume=null;$('advance').disabled=true;$('advance').textContent='Recorriendo rama…';document.querySelectorAll('.flash-term').forEach(el=>el.classList.remove('flash-term'));$('componentFX').innerHTML='';resolve()};
-      $('advance').disabled=false;$('advance').textContent='Continuar recorrido →';
+      S.pausedResume=()=>{clearEquationArrowPulse();S.pausedResume=null;setTransportState('advance','blocked');document.querySelectorAll('.flash-term').forEach(el=>el.classList.remove('flash-term'));$('componentFX').innerHTML='';resolve()};
+      setTransportState('advance','waiting');
     });
   }
   // Reducir la velocidad un 10 % implica dividir la velocidad anterior por 0,9.
@@ -1312,11 +1341,14 @@
     const duration=total*HERO_MS_PER_PX;
     const oppositeCurrent=leg.d!==S.signs[leg.branch];
     const token=flowToken;return new Promise(resolve=>{
-      let began=null,segment=0;
+      let previous=null,elapsed=0,segment=0;
+      S.motionActive=true;S.manualPaused=false;setTransportState('advance','running');
       function frame(now){
         if(flowToken!==token){resolve();return}
-        if(began===null)began=now;
-        const travelled=Math.min(total,(now-began)/duration*total);
+        const delta=previous===null?0:now-previous;previous=now;
+        if(S.manualPaused){requestAnimationFrame(frame);return;}
+        elapsed+=delta;
+        const travelled=Math.min(total,elapsed/duration*total);
         // La misma animación continúa atravesando las esquinas; no se reinicia el tiempo.
         while(segment<points.length-2&&travelled>=distances[segment+1]-1e-8)segment++;
         const a=points[segment],b=points[segment+1];
@@ -1327,7 +1359,7 @@
         setHeroGait(travelled<total,travelled);
         // Durante la vuelta de tensiones solo se evalúa la polaridad al atravesar la fuente.
         setHeroMood(S.pass==='resistors'&&oppositeCurrent);
-        if(travelled<total)requestAnimationFrame(frame);else resolve();
+        if(travelled<total)requestAnimationFrame(frame);else{S.motionActive=false;S.manualPaused=false;setTransportState('advance','blocked');resolve();}
       }
       requestAnimationFrame(frame);
     });
@@ -1382,8 +1414,7 @@
     const token=flowToken;
     if(S.legIndex>=S.route.legs.length)return;
     const leg=S.route.legs[S.legIndex];
-    S.animating=true;$('advance').disabled=true;
-    $('advance').textContent='Recorriendo rama '+(leg.branch+1)+'…';
+    S.animating=true;setTransportState('advance','blocked');
     $('componentFX').innerHTML='';
     msg('loopFeedback',`Recorriendo la rama de ${leg.d===1?'B a A':'A a B'}, desde un nudo hasta el otro, sin saltos.`);
     try{await animateLeg(leg)}catch(err){console.error(err);msg('loopFeedback','No se pudo completar la animación: '+err.message,'bad');S.animating=false;return}
@@ -1398,25 +1429,24 @@
         S.pass='sources';S.route=createRoute(S.loop,S.cw);S.legIndex=0;
         updateLoopsArrows();renderBoardEquations();
         $('lapLabel').textContent='Vuelta 2/2 · fuentes de tensión';
-        $('advance').textContent='Iniciar vuelta de fuentes desde B →';
-        $('advance').disabled=false;
+        setTransportState('advance','ready');
         msg('loopFeedback','Primera vuelta de R·I completada en B. Los términos resistivos aparecen a la izquierda de =. Segunda vuelta: tensiones y polaridades de las fuentes.','good');
       }else finishLoop();
       return;
     }
     S.animating=false;
-    $('advance').disabled=true;
+    setTransportState('advance','blocked');
     $('boardState').textContent=`Rama ${leg.branch+1} recorrida. Continúa hacia el siguiente elemento sin detenerse en los nudos.`;
     await nextInLoop();
   }
-  $('advance').onclick=nextInLoop;
+  $('advance').onclick=()=>toggleTransport('advance');
   function finishLoop(){
     // El cuerpo ya está recogido y la cara ha recuperado el reposo.
     setHeroMood(false);
     const source= S.es.reduce((a,p)=>a+p.v,0), row=[0,0,0];
     S.rs.forEach(p=>row[p.i]+=p.v);
     S.loops[S.loop]={sources:S.es.slice(),resistors:S.rs.slice(),source,row,cw:S.cw};
-    $('advance').disabled=true; clearFX();
+    setTransportState('advance','complete'); clearFX();
     if(!S.scoredLoops[S.loop]){S.score+=150;S.scoredLoops[S.loop]=true}updateHeader();
     drawFinished();updateLoopsArrows();renderBoardEquations();
     msg('loopFeedback','Malla '+(S.loop+1)+' completa tras dos vueltas. '+coefEq(row,source)+' · ecuación independiente.','good');
@@ -1626,6 +1656,7 @@
     clearChallenge();S.phase=0;S.signs=[1,-1,-1];S.score=0;S.nodeDone=false;
     S.loops=[null,null];S.scoredLoops=[false,false];S.loopBonusAwarded=false;S.loop=0;S.cw=true;
     S.pass='resistors';S.route=null;S.legIndex=0;S.es=[];S.rs=[];S.animating=false;
+    S.motionActive=false;S.manualPaused=false;setTransportState('advance','ready');
     S.finished=false;S.step=0;S.finalVerified=false;$('finalChallenge').replaceChildren();S.matrixScored=false;S.reductionDone=!hasReduction();
     show('advancedPhase',false);show('advBoardEquations',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);
     if(active.kind==='network'){clearFX();startNetwork();return}
@@ -1646,13 +1677,14 @@
     if(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLButtonElement)return;
     if(S.phase===0&&['1','2','3'].includes(e.key))reverse(Number(e.key)-1);
     else if(e.code==='Space'){
-      if(S.phase===2){e.preventDefault();nextInLoop()}
+      if(S.phase===2){e.preventDefault();toggleTransport('advance')}
+      else if(active.kind==='multi'&&A6.stage==='loops'){e.preventDefault();toggleTransport('advNext')}
       else if(S.phase===4){e.preventDefault();$('nextStep').click()}
     }
   });
   // Actividad resuelta 7.6. Grafo equivalente por contracción de conductores
   // y elementos en serie; conserva las seis ramas y las tres mallas independientes.
-  const A6={stage:'dirs',signs:[1,1,1,1,1,1],loop:0,cw:true,pass:'R',done:[null,null,null],rowsR:[[],[],[]],rowsU:[[],[],[]],running:false,waiting:null,runId:0,animReq:null,flowReq:null,score:0,steps:[],step:0};
+  const A6={stage:'dirs',signs:[1,1,1,1,1,1],loop:0,cw:true,pass:'R',done:[null,null,null],rowsR:[[],[],[]],rowsU:[[],[],[]],running:false,motionActive:false,manualPaused:false,waiting:null,runId:0,animReq:null,flowReq:null,score:0,steps:[],step:0};
   const N6={A:[350,74],B:[130,225],C:[350,225],D:[570,225]};
   const E6=[10,0,-4,-6,12,-2], R6=[4,3,2,2,5,3], NAMES6=['I₁','I₂','I₃','I₄','I₅','I₆'];
   // Por convenio, cada fuente E se expresa como subida algebraica al recorrer
@@ -1705,7 +1737,7 @@
   }
   function sixCancel(){
     clearEquationArrowPulse();
-    clearChallenge();A6.runId++;A6.running=false;
+    clearChallenge();A6.runId++;A6.running=false;A6.motionActive=false;A6.manualPaused=false;setTransportState('advNext','ready');
     if(A6.waiting){const r=A6.waiting;A6.waiting=null;r();}
     if(A6.animReq!==null){cancelAnimationFrame(A6.animReq);A6.animReq=null;}
     if(A6.flowReq!==null){cancelAnimationFrame(A6.flowReq);A6.flowReq=null;}
@@ -1792,8 +1824,8 @@
     const pts=[[232,135],[477,141],[352,305]];
     $('sixLoops').innerHTML=pts.map(([x,y],i)=>{
       const done=A6.done[i],cw=done?.cw??(i===A6.loop?A6.cw:true);
-      const sub=done?'HECHA':i===A6.loop?(A6.pass==='R'?'Σ R·I':'Σ U'):'PENDIENTE';
-      return meshTurnIcon(i,x,y-11,cw,!!done,A6.stage==='loops')+`<text class="mesh-label" x="${x}" y="${y+17}" text-anchor="middle" style="fill:#f5db9b;font:700 11px monospace">M${i+1} · ${sub}</text>`;
+      const sub=i===A6.loop?(A6.pass==='R'?'Σ R·I':'Σ U'):'PENDIENTE';
+      return meshTurnIcon(i,x,y-11,cw,!!done,A6.stage==='loops')+`<text class="mesh-label" x="${x}" y="${y+17}" text-anchor="middle" style="fill:#f5db9b;font:700 11px monospace">M${i+1}${done?'':' · '+sub}</text>`+(done?meshCompleteMark(i,x,y+35):'');
     }).join('');
     bindMeshTurns($('sixLoops'));
   }
@@ -1891,7 +1923,7 @@
     if(!A6.done[index]){A6.rowsR[index]=[];A6.rowsU[index]=[];}
     const start=START6[index];
     sixText('advLap','Vuelta 1/2 · Σ R·I · Malla '+(index+1)+' · salida '+start);
-    $('advNext').disabled=!!A6.done[index];$('advNext').textContent=A6.done[index]?'Malla completada ✓':'Iniciar recorrido desde '+start+' →';
+    setTransportState('advNext',A6.done[index]?'complete':'ready');
     sixMeshArrows();positionHero(...N6[start],0,true);setHeroMood(false);setHeroGait(false);
     sixText('advLoopMsg',A6.done[index]?'Malla '+(index+1)+' completada. Elige otra pendiente.':'Malla '+(index+1)+' preparada. Salida desde el nudo '+start+'. Las bolitas recorrerán todas sus ramas durante Σ R·I.');
     sixRenderRows();
@@ -1909,15 +1941,18 @@
     if(pts.length<2)return Promise.resolve();
     const distances=[0];for(let j=1;j<pts.length;j++)distances.push(distances[j-1]+Math.hypot(pts[j][0]-pts[j-1][0],pts[j][1]-pts[j-1][1]));
     const total=distances[distances.length-1];return new Promise(resolve=>{
-      let start=null;
+      let previous=null,elapsed=0;
+      A6.motionActive=true;A6.manualPaused=false;setTransportState('advNext','running');
       function step(ts){
         if(token!==A6.runId){resolve();return}
-        if(start===null)start=ts;
-        const walked=Math.min(total,(ts-start)/HERO_MS_PER_PX),pos=sixPointAt(pts,distances,walked);
+        const delta=previous===null?0:ts-previous;previous=ts;
+        if(A6.manualPaused){A6.animReq=requestAnimationFrame(step);return;}
+        elapsed+=delta;
+        const walked=Math.min(total,elapsed/HERO_MS_PER_PX),pos=sixPointAt(pts,distances,walked);
         positionHero(pos.x,pos.y,pos.angle);setHeroGait(walked<total,walked);
         setHeroMood(A6.pass==='R'&&opposite);
         if(walked<total)A6.animReq=requestAnimationFrame(step);
-        else{A6.animReq=null;resolve()}
+        else{A6.animReq=null;A6.motionActive=false;A6.manualPaused=false;setTransportState('advNext','blocked');resolve()}
       }
       A6.animReq=requestAnimationFrame(step);
     });
@@ -1936,8 +1971,11 @@
     const layer=$('flowFX');
     layer.innerHTML=Array.from({length:count},()=>'<circle class="fx-current-halo" r="9"/><circle class="fx-current-dot" r="5.2"/>').join('');
     const dots=Array.from(layer.children),t0=performance.now(),speed=57;
+    let pausedAt=null,pausedTime=0;
     function frame(now){if(token!==A6.runId||A6.pass!=='R')return;
-      const advance=((now-t0)*speed/1000)%total;
+      if(A6.manualPaused){if(pausedAt===null)pausedAt=now;A6.flowReq=requestAnimationFrame(frame);return;}
+      if(pausedAt!==null){pausedTime+=now-pausedAt;pausedAt=null;}
+      const advance=((now-t0-pausedTime)*speed/1000)%total;
       for(let i=0;i<count;i++){
         const pos=sixPointAt(pts,distances,(advance+i*total/count)%total);
         for(let h=0;h<2;h++){
@@ -1965,7 +2003,7 @@
   async function sixPlay(){
     if(A6.stage!=='loops'||A6.running||A6.done[A6.loop])return;
     const k=A6.loop,cw=A6.cw,token=++A6.runId,pass=A6.pass;
-    A6.running=true;$('advNext').disabled=true;$('advNext').textContent='Recorriendo...';
+    A6.running=true;setTransportState('advNext','blocked');
     const route=sixOrientRoute(k,cw);
     // El personaje comienza físicamente en el nudo seleccionado, sin teletransporte.
     positionHero(...N6[START6[k]],0,true);setHeroGait(false);setHeroMood(false);
@@ -1989,12 +2027,12 @@
           if(!await challengeTerm('sixTermChallenge',val,id,pass==='U',true))return;
           if(token!==A6.runId)return;
           (pass==='R'?A6.rowsR[k]:A6.rowsU[k]).push({i:id,v:val});
-          $('advLoopMsg').textContent=(pass==='R'?'Resistencia R':'Fuente E')+(id+1)+': '+(val<0?'signo negativo':'signo positivo')+'. Pulsa «Continuar».';
-          await new Promise(resolve=>{A6.waiting=resolve;sixRenderRows();pulseEquationArrow(id,pass==='U');setHeroGait(false);setHeroMood(val<0);$('advNext').disabled=false;$('advNext').textContent='Continuar recorrido →'});
+          $('advLoopMsg').textContent=(pass==='R'?'Resistencia R':'Fuente E')+(id+1)+': '+(val<0?'signo negativo':'signo positivo')+'. Pulsa ▶ para continuar.';
+          await new Promise(resolve=>{A6.waiting=resolve;sixRenderRows();pulseEquationArrow(id,pass==='U');setHeroGait(false);setHeroMood(val<0);setTransportState('advNext','waiting')});
           if(token!==A6.runId)return;
           clearEquationArrowPulse();document.querySelectorAll('.flash-term').forEach(e=>e.classList.remove('flash-term'));
           if(el)el.classList.remove('component-lit');$('componentFX').innerHTML='';$('sourceArrowFX').innerHTML='';
-          sixRenderRows();$('advNext').disabled=true;
+          sixRenderRows();setTransportState('advNext','blocked');
         }
       }
       sixStopFlow();
@@ -2004,14 +2042,14 @@
     A6.running=false;setHeroMood(false);
     if(pass==='R'){
       A6.pass='U';sixText('advLap','Vuelta 2/2 · Σ U · Malla '+(k+1)+' · salida '+START6[k]);sixMeshArrows();
-      $('advNext').disabled=false;$('advNext').textContent='Iniciar vuelta de tensiones desde '+START6[k]+' →';
+      setTransportState('advNext','ready');
       sixText('advLoopMsg','Primera vuelta terminada: los términos R·I quedan a la izquierda de =.');
     }else{
       const row=Array(6).fill(0);
       A6.rowsR[k].forEach(x=>row[x.i]+=x.v/A6.signs[x.i]);
       const b=A6.rowsU[k].reduce((s,x)=>s+x.v,0);
       A6.done[k]={row,b,cw};
-      $('advNext').disabled=true;$('advNext').textContent='Malla terminada ✓';
+      setTransportState('advNext','complete');
       sixText('advLoopMsg','Malla '+(k+1)+' completada. '+sixEq(row.map((v,i)=>v*A6.signs[i]),b));
       sixMeshArrows();S.score+=150;$('score').textContent=String(S.score).padStart(4,'0');
       $('percent').textContent=(18+Math.round(40*A6.done.filter(Boolean).length/3))+'%';
@@ -2130,7 +2168,7 @@
     if(solved){$('percent').textContent='100%';if(!A6.completedScore){A6.completedScore=true;S.score+=250;$('score').textContent=String(S.score).padStart(4,'0')}}
   }
   $('advStart').onclick=sixNodeStart;
-  $('advNext').onclick=sixNext;$('advToMatrix').onclick=sixMatrix;
+  $('advNext').onclick=()=>toggleTransport('advNext');$('advToMatrix').onclick=sixMatrix;
   $('advFill').onclick=()=>{const {A,b}=sixSystem(),t=A.map((row,i)=>[...row,b[i]]);$('advMatInputs').querySelectorAll('input').forEach(x=>{x.value=fmt6(t[Number(x.dataset.ar)][Number(x.dataset.ac)])})};
   $('advMatVerify').onclick=sixVerifyMatrix;$('advSolveBtn').onclick=sixStartSolve;
   $('advSolveNext').onclick=()=>{if(A6.step<A6.steps.length){A6.step++;sixRenderSolve()}};
