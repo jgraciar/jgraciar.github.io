@@ -23,13 +23,23 @@
   .stage.active{border-color:var(--cyan);color:var(--txt);background:#163045;box-shadow:inset 0 0 0 1px #5ce6f02a}
   .stage.done{color:var(--lime);border-color:#53843e}
   .stage b{margin-right:8px;color:inherit}
-  .layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-areas:"circuit equations" "circuit phase";grid-template-rows:auto 1fr;gap:17px;align-items:start}
+  .layout{display:grid;grid-template-columns:minmax(0,var(--left-track,1.1fr)) 18px minmax(0,var(--right-track,1fr));grid-template-areas:"circuit divider equations" "circuit divider phase";grid-template-rows:auto 1fr;row-gap:17px;column-gap:0;align-items:start}
   #circuitCard{grid-area:circuit;position:sticky;top:12px;min-width:0}
   #equationsCard{grid-area:equations;min-width:0}
   #phaseCard{grid-area:phase;min-width:0}
-  .layout.network-mode{grid-template-areas:"circuit phase";grid-template-rows:auto}
+  .layout.network-mode{grid-template-areas:"circuit divider phase";grid-template-rows:auto}
   .layout.network-mode #equationsCard{display:none}
-  .equations-body{padding:0}
+  #equationsCard,#phaseCard{container-type:inline-size}
+  .column-divider{grid-area:divider;align-self:stretch;position:relative;display:flex;justify-content:center;align-items:flex-start;cursor:col-resize;touch-action:none;user-select:none;outline:none;min-height:160px}
+  .column-divider::before{content:"";position:absolute;top:0;bottom:0;left:8px;width:2px;background:#37556b;border-radius:2px}
+  .column-divider:hover::before,.column-divider:focus-visible::before{background:var(--cyan)}
+  .column-divider:focus-visible{outline:2px solid var(--cyan);outline-offset:-3px;border-radius:6px}
+  .resize-grip{position:sticky;top:40vh;width:6px;height:48px;border-radius:5px;background:#6b91aa;box-shadow:0 0 0 3px #13263b;margin:24px 0;pointer-events:none}
+  .is-resizing,.is-resizing *{cursor:col-resize!important;user-select:none!important}
+  .equations-body{padding:0;min-width:0;overflow-wrap:anywhere}
+  .card .body{min-width:0;overflow-wrap:anywhere}
+  .cardhead{flex-wrap:wrap}
+  .cardhead strong{min-width:0;overflow-wrap:anywhere}
   .equation-placeholder{padding:16px;margin:0;color:var(--muted);font-size:13px}
   .matrix-actions{justify-content:center}
   .board-eq-label small,.node-eq-label small{display:block;font:500 10px system-ui,sans-serif;color:#8faac2}
@@ -37,8 +47,8 @@
   .cardhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 17px;border-bottom:1px solid var(--border);background:#15253b}
   .cardhead strong{font-size:14px}
   .chip{border:1px solid #476480;background:#0e2136;border-radius:7px;padding:3px 8px;color:var(--muted);font:11px ui-monospace,Consolas,monospace}
-  .board{padding:10px;background:radial-gradient(circle at 50% 46%,#162d42 0,#0d1a2c 65%);position:relative}
-  #circuit{display:block;width:100%;height:auto;max-height:min(1000px,78vw);overflow:visible}
+  .board{padding:0;background:radial-gradient(circle at 50% 46%,#162d42 0,#0d1a2c 65%);position:relative}
+  #circuit{display:block;width:100%;height:auto;max-width:none;max-height:none;overflow:visible}
   .wire{stroke:#e9f4fd;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
   .symbol{stroke:#f5f6fa;stroke-width:2.8;fill:#15233a;stroke-linejoin:round}
   .source-plate{stroke:#f5f6fa;stroke-width:3;stroke-linecap:square}
@@ -173,6 +183,7 @@
   .transport-button[data-state="running"] .transport-stop{display:block}
   .mesh-complete{pointer-events:none}
   .board-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;padding:15px 16px;background:#102139;border-top:1px solid #3d5772}
+  .circuit-transport{border-top:0;border-bottom:1px solid #3d5772;padding:10px 16px}
   .board-action-item{display:flex;justify-content:center;max-width:100%}
   .board-action-item[hidden]{display:none}
   .board-actions button{max-width:100%;white-space:normal}
@@ -247,7 +258,7 @@
   .hide{display:none!important}
   .flexbetween{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .key{font:12px ui-monospace,monospace;border:1px solid #55718a;border-radius:4px;padding:1px 5px;color:#b7cee4}
-  @media(max-width:970px){.layout{grid-template-columns:1fr;grid-template-areas:"circuit" "equations" "phase";grid-template-rows:auto}.layout.network-mode{grid-template-areas:"circuit" "phase"}#circuitCard{position:static}.stages{flex-wrap:wrap}.stage{flex:1 1 30%}}
+  @media(max-width:970px){.layout{grid-template-columns:1fr;grid-template-areas:"circuit" "equations" "phase";grid-template-rows:auto}.layout.network-mode{grid-template-areas:"circuit" "phase"}.column-divider{display:none}#circuitCard{position:static}.stages{flex-wrap:wrap}.stage{flex:1 1 30%}}
   @media(max-width:640px){
     .card,.body,.steps,.step-main,.eqpanel{min-width:0}
     .algebra-desktop{display:none}
@@ -256,7 +267,7 @@
     .board-eq-row,.node-eq-row{grid-template-columns:58px minmax(0,1fr);gap:6px}
     .result{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
   }
-  @media(max-width:540px){.shell{padding:12px 8px 25px}.body{padding:13px}.logo{font-size:24px}.stage{min-width:90px;padding:8px;font-size:10px}.stat{min-width:76px}.build{grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr)}.board{padding:3px}.cardhead{padding:10px}}
+  @media(max-width:540px){.shell{padding:12px 8px 25px}.body{padding:13px}.logo{font-size:24px}.stage{min-width:90px;padding:8px;font-size:10px}.stat{min-width:76px}.build{grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr)}.board{padding:0}.cardhead{padding:10px}}
   
   .challenge{padding:12px;margin:10px 0;border:1px solid #805b25;border-radius:11px;background:#1d2436;display:grid;gap:10px;min-width:0}
   .challenge h3{margin:0;font-size:15px;color:#ffd88c}
@@ -290,13 +301,26 @@
   .fx-current-dot{fill:#ffe0a0;filter:drop-shadow(0 0 5px #ffd58f)}
   .fx-current-halo{fill:#ffecc6;opacity:.19}
   .adv-mat-overflow{overflow-x:auto;margin:12px 0;padding:10px;background:#0b1c30;border:1px solid #36506a;border-radius:10px}
-  .adv-mat-head,.adv-mat-row{display:grid;grid-template-columns:repeat(7,minmax(48px,1fr));gap:5px;min-width:395px;margin:4px 0}
+  .adv-mat-head,.adv-mat-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;min-width:0;margin:4px 0}
   .adv-mat-head span{font:700 12px monospace;color:#a4cde3;text-align:center}
-  .adv-mat-row input{width:100%;height:36px;text-align:center;background:#081526;color:#fff;border:1px solid #4c6884;border-radius:5px;font:700 13px monospace}
+  .adv-mat-row input{width:100%;min-width:0;height:36px;text-align:center;background:#081526;color:#fff;border:1px solid #4c6884;border-radius:5px;font:700 13px monospace}
   .adv-mat-row input.correct{border-color:#93cd72;background:#153528}
   .adv-mat-row input.wrong{border-color:#f47c8b;background:#3a1b2b}
   .adv-eqline{font:600 13px/1.65 ui-monospace,Consolas,monospace;white-space:normal;word-break:break-word;padding:4px 6px;border-bottom:1px solid #2e4560}
   /* Los parpadeos didácticos y los gestos del gusano comparten tiempos en todos los dispositivos. */
+  @container(max-width:640px){
+    .algebra-desktop{display:none}
+    .algebra-mobile{display:grid;border:1px solid #34506a;border-radius:8px;margin:9px 0;min-width:0;width:100%}
+    .eq,.node-eq-formula,.board-eq-formula,.adv-eqline{overflow-wrap:anywhere;word-break:normal}
+    .board-eq-row,.node-eq-row{grid-template-columns:48px minmax(0,1fr);gap:6px}
+    .board-eq-formula{column-gap:7px;font-size:14px}
+    .result{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
+    .step{padding:8px;gap:7px}
+    .body{padding:12px}
+    .adv-mat-overflow{padding:5px}
+    .adv-mat-head span{font-size:10px;overflow-wrap:anywhere}
+    .adv-mat-row input{font-size:11px;padding:0}
+  }
   @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
@@ -331,6 +355,7 @@
   <main class="layout" id="gameLayout">
     <section class="card" id="circuitCard">
       <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span></div>
+      <div id="circuitTransport" class="board-actions circuit-transport hide" aria-label="Controles de reproducción del circuito"></div>
       <div class="board">
         <svg id="circuit" viewBox="0 0 700 430" role="group" aria-label="Circuito de corriente continua con símbolos IEC y flechas seleccionables">
           <defs><pattern id="dots" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="#34516e" opacity=".8"/></pattern></defs>
@@ -401,6 +426,7 @@
       <div id="boardActions" class="board-actions hide" aria-label="Acciones del circuito"></div>
       <div class="boardfoot"><span id="boardState">Selecciona las flechas: cualquier referencia es válida.</span><span id="boardSummary">Fuentes: 18 V, 6 V · R: 2 Ω</span></div>
     </section>
+    <div id="columnDivider" class="column-divider" role="separator" tabindex="0" aria-label="Ajustar el ancho de las columnas" aria-orientation="vertical" aria-controls="circuitCard equationsCard phaseCard" aria-valuemin="20" aria-valuemax="80" aria-valuenow="52"><span class="resize-grip" aria-hidden="true"></span></div>
     <section class="card" id="equationsCard" aria-label="Ecuaciones del circuito" aria-live="polite">
       <div class="cardhead"><strong>Ecuaciones del circuito</strong><span class="chip">KCL · KVL</span></div>
       <div class="equations-body">
@@ -1652,6 +1678,7 @@
      endHeroPress();
     flowToken++;stopFlow();if(S.pausedResume){S.pausedResume();S.pausedResume=null}
     $('gameLayout').classList.toggle('network-mode',active.kind==='network');
+    $('circuit').setAttribute('viewBox',active.kind==='network'?'0 0 700 430':'60 20 600 410');
     show('nodeEqPanel',false);show('advKCL',false);
     clearChallenge();S.phase=0;S.signs=[1,-1,-1];S.score=0;S.nodeDone=false;
     S.loops=[null,null];S.scoredLoops=[false,false];S.loopBonusAwarded=false;S.loop=0;S.cw=true;
@@ -1674,6 +1701,7 @@
   $('playAgain').onclick=newGame;
   document.addEventListener('keydown',e=>{
     if(e.defaultPrevented)return;
+    if(e.target instanceof Element&&e.target.closest('[role="separator"]'))return;
     if(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLButtonElement)return;
     if(S.phase===0&&['1','2','3'].includes(e.key))reverse(Number(e.key)-1);
     else if(e.code==='Space'){
@@ -2177,21 +2205,22 @@
     const ids=['confirmDirs','advStart','goLoops','resetLoop','advance','advNext','goMatrix','advToMatrix',
       'verifyMatrix','advMatVerify','goSolve','advSolveBtn',
       'nextStep','restartSteps','advSolveNext','playAgain'];
-    const actions=$('boardActions'),entries=[];
+    const actions=$('boardActions'),transport=$('circuitTransport'),entries=[];
     for(const id of ids){
       const button=$(id);if(!button)continue;
       const marker=document.createElement('span');marker.hidden=true;marker.setAttribute('aria-hidden','true');
       button.before(marker);
       const slot=document.createElement('div');slot.className='board-action-item';slot.dataset.boardAction=id;
-      slot.append(button);actions.append(slot);entries.push({button,marker,slot});
+      const target=['resetLoop','advance','advNext'].includes(id)?transport:actions;
+      slot.append(button);target.append(slot);entries.push({button,marker,slot,target});
     }
     function sync(){
-      let visible=0;
-      for(const {button,marker,slot} of entries){
+      let visible=0,transportVisible=0;
+      for(const {button,marker,slot,target} of entries){
         slot.hidden=!!marker.closest('.hide')||button.classList.contains('hide');
-        if(!slot.hidden)visible++;
+        if(!slot.hidden){if(target===transport)transportVisible++;else visible++;}
       }
-      actions.classList.toggle('hide',visible===0);
+      actions.classList.toggle('hide',visible===0);transport.classList.toggle('hide',transportVisible===0);
     }
     const observer=new MutationObserver(sync);
     for(const root of [$('phaseCard'),$('circuitControls')])observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
@@ -2208,6 +2237,46 @@
     for(const id of ['nodeEqPanel','advKCL','boardEquations','advBoardEquations'])observer.observe($(id),{attributes:true,attributeFilter:['class']});
     sync();return sync;
   }
+  function initColumnDivider(){
+    const layout=$('gameLayout'),divider=$('columnDivider'),defaultRatio=1.1/2.1;
+    const storageKey='wormhoff-column-ratio';let ratio=defaultRatio,activePointer=null;
+    try{const saved=Number(localStorage.getItem(storageKey));if(saved>0&&saved<1)ratio=saved;}catch{}
+    let preferredRatio=ratio;
+    function limits(){const available=Math.max(1,layout.clientWidth-18),min=Math.min(280,available*.4);return {available,min:min/available,max:1-min/available};}
+    function apply(value,persist=false){
+      if(!matchMedia('(min-width:971px)').matches){ratio=value;return;}
+      const {min,max}=limits();ratio=Math.max(min,Math.min(max,value));
+      const left=ratio.toFixed(5)+'fr',right=(1-ratio).toFixed(5)+'fr';
+      if(layout.style.getPropertyValue('--left-track')!==left)layout.style.setProperty('--left-track',left);
+      if(layout.style.getPropertyValue('--right-track')!==right)layout.style.setProperty('--right-track',right);
+      divider.setAttribute('aria-valuemin',String(Math.round(min*100)));divider.setAttribute('aria-valuemax',String(Math.round(max*100)));
+      divider.setAttribute('aria-valuenow',String(Math.round(ratio*100)));divider.setAttribute('aria-valuetext','Circuito '+Math.round(ratio*100)+' %, ecuaciones '+Math.round((1-ratio)*100)+' %');
+      if(persist){preferredRatio=ratio;try{localStorage.setItem(storageKey,String(ratio));}catch{}}
+    }
+    function fromPointer(e){const {available}=limits(),rect=layout.getBoundingClientRect();apply((e.clientX-rect.left-9)/available,true);}
+    function end(e){
+      if(activePointer===null||e&&e.pointerId!==undefined&&e.pointerId!==activePointer)return;
+      const id=activePointer;activePointer=null;document.body.classList.remove('is-resizing');
+      if(divider.hasPointerCapture(id))divider.releasePointerCapture(id);
+    }
+    divider.addEventListener('pointerdown',e=>{
+      if(!e.isPrimary||e.button!==0||!matchMedia('(min-width:971px)').matches)return;
+      e.preventDefault();activePointer=e.pointerId;divider.setPointerCapture(e.pointerId);document.body.classList.add('is-resizing');fromPointer(e);
+    });
+    divider.addEventListener('pointermove',e=>{if(e.pointerId===activePointer)fromPointer(e);});
+    divider.addEventListener('pointerup',end);divider.addEventListener('pointercancel',end);divider.addEventListener('lostpointercapture',end);
+    window.addEventListener('blur',()=>end());
+    divider.addEventListener('dblclick',()=>apply(defaultRatio,true));
+    divider.addEventListener('keydown',e=>{
+      const {min,max}=limits(),step=e.shiftKey ? .05 : .02;
+      if(e.key==='ArrowLeft'){e.preventDefault();apply(ratio-step,true);}
+      else if(e.key==='ArrowRight'){e.preventDefault();apply(ratio+step,true);}
+      else if(e.key==='Home'){e.preventDefault();apply(min,true);}
+      else if(e.key==='End'){e.preventDefault();apply(max,true);}
+    });
+    new ResizeObserver(()=>apply(preferredRatio)).observe(layout);apply(preferredRatio);
+  }
+  initColumnDivider();
   const syncEquationPlaceholder=initEquationPlaceholder();
   const syncBoardActions=initBoardActions();
   initExercises();

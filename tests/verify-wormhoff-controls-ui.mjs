@@ -32,14 +32,37 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const circuitCard=await page.locator('#circuitCard').boundingBox(),equationsCard=await page.locator('#equationsCard').boundingBox();
  if(mobile)assert(equationsCard.y>=circuitCard.y+circuitCard.height-1,'Ecuaciones debajo en móvil');
  else assert(equationsCard.x>=circuitCard.x+circuitCard.width-1,'Ecuaciones a la derecha en escritorio');
+ const svgWidth=await page.locator('#circuit').boundingBox();
+ assert(Math.abs(svgWidth.width-circuitCard.width+2)<2,'El circuito ocupa todo el ancho interior de su columna');
+ const divider=page.locator('#columnDivider');
+ if(mobile)assert.equal(await divider.isVisible(),false);
+ else{
+  const beforeLeft=circuitCard.width,beforeRight=equationsCard.width,d=await divider.boundingBox(),dragY=Math.max(10,Math.min(100,d.height/2));
+  await page.mouse.move(d.x+d.width/2,d.y+dragY);await page.mouse.down();await page.mouse.move(d.x+d.width/2+160,d.y+dragY,{steps:6});await page.mouse.up();
+  const larger=await page.locator('#circuitCard').boundingBox(),smaller=await page.locator('#equationsCard').boundingBox();
+  assert(larger.width>beforeLeft+100,'Arrastrar ensancha el circuito');assert(smaller.width<beforeRight-100,'Arrastrar estrecha las ecuaciones');
+  assert.equal(await page.locator('body').evaluate(el=>el.classList.contains('is-resizing')),false);
+  assert(Number(await page.evaluate(()=>localStorage.getItem('wormhoff-column-ratio')))>0);
+  await divider.focus();await divider.press('End');
+  await page.evaluate(markup=>{const p=document.createElement('div');p.id='columnProbe';p.innerHTML=markup;document.querySelector('#phaseCard .body').append(p)},isolationMarkup);
+  assert.equal(await page.locator('#columnProbe .algebra-desktop').isVisible(),false,'La tabla se adapta al ancho de la columna');
+  assert.equal(await page.locator('#columnProbe .algebra-mobile').isVisible(),true);
+  assert(await page.locator('#phaseCard').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Sin desbordamiento lateral');
+  await page.locator('#columnProbe').evaluate(el=>el.remove());
+  await divider.press('Home');const minimum=await page.locator('#circuitCard').boundingBox();assert(minimum.width>=279);
+  await divider.press('ArrowRight');assert((await page.locator('#circuitCard').boundingBox()).width>minimum.width+5);
+  await divider.dblclick();assert(Math.abs((await page.locator('#circuitCard').boundingBox()).width-beforeLeft)<3,'Doble clic restablece el reparto');
+ }
  for(const [button,matrix] of [['fillMatrix','matrixInputs'],['advFill','advMatInputs']]){
   assert(await page.locator('#'+button).evaluate((el,matrix)=>!el.closest('#boardActions')&&!!(document.getElementById(matrix).compareDocumentPosition(el)&Node.DOCUMENT_POSITION_FOLLOWING),matrix),'Rellenar se mantiene bajo su matriz');
  }
  const checkAction=async id=>{
   await page.locator('#'+id).waitFor({state:'visible'});
-  assert(await page.locator('#'+id).evaluate(el=>!!el.closest('#boardActions')),'Acción bajo el circuito: '+id);
-  const diagram=await page.locator('#circuit').boundingBox(),actions=await page.locator('#boardActions').boundingBox();
-  assert(actions.y>=diagram.y+diagram.height-1,'Acciones debajo del esquema');
+  const transport=['resetLoop','advance','advNext'].includes(id),container=transport?'circuitTransport':'boardActions';
+  assert(await page.locator('#'+id).evaluate((el,parent)=>!!el.closest('#'+parent),container),'Acción en su barra: '+id);
+  const diagram=await page.locator('#circuit').boundingBox(),actions=await page.locator('#'+container).boundingBox();
+  if(transport)assert(actions.y+actions.height<=diagram.y+1,'Reproducción encima del circuito');
+  else assert(actions.y>=diagram.y+diagram.height-1,'Navegación debajo del esquema');
   assert(Math.abs(actions.x+actions.width/2-diagram.x-diagram.width/2)<2,'Acciones centradas');
  };
  await page.evaluate(markup=>{const probe=document.createElement('div');probe.id='algebraProbe';probe.innerHTML=markup;document.body.append(probe)},isolationMarkup);
