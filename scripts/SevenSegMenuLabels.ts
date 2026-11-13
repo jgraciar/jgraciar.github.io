@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 const rows:Record<string,string>={
+ ar:'شاشة سباعية المقاطع|رقمية، دون طرف مشترك|مهبط مشترك|مصعد مشترك',
  en:'7-segment display|Digital, no common terminal|Common cathode|Common anode',
  es:'Display de 7 segmentos|Digital, sin terminal común|Cátodo común|Ánodo común',
  ca:'Display de 7 segments|Digital, sense terminal comú|Càtode comú|Ànode comú',
