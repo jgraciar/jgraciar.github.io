@@ -101,7 +101,7 @@ try{
   await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  }
  await swipe('jgr-1','jgr-3',true);assert.deepEqual(await order(mobile),['jgr-2','jgr-1','jgr-3']);assert.equal(await active(mobile),'jgr-3');
- for(let n=4;n<=7;n++){await (await actions(mobile)).locator('#add-tab').tap();console.log('Mobile + tap',n,await order(mobile));await ready(mobile,n);}
+ for(let n=4;n<=10;n++){await (await actions(mobile)).locator('#add-tab').tap();await ready(mobile,n);}
  const mobileOrder=await order(mobile),beforeScroll=await (await strip(mobile)).locator('.jgr-tab-list').evaluate(el=>el.scrollLeft);
  assert(beforeScroll>0);await swipe('jgr-6',null,false);
  assert.deepEqual(await order(mobile),mobileOrder,'A short swipe scrolls without reordering');
