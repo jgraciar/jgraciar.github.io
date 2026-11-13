@@ -70,8 +70,13 @@
   #circuit[data-symbol-standard="ansi"] .resistor-iec{display:none}
   #circuit[data-symbol-standard="ansi"] .resistor-ansi{display:inline}
   .resistor-ansi .symbol{fill:none!important}
-  .current-branch-hit{fill:none;stroke:transparent;stroke-width:28;pointer-events:stroke;cursor:pointer;stroke-linejoin:round}
-  .current-branch-hit:focus-visible{outline:none;stroke:#5ce6f066}
+  .current-branch-hit{outline:none!important;fill:none;stroke:transparent;stroke-width:28;pointer-events:stroke;cursor:pointer;stroke-linejoin:round}
+  .current-branch-hit:focus,.current-branch-hit:focus-visible{outline:none!important;stroke:transparent}
+  .branch-selection{fill:none;stroke:#5ce6f088;stroke-width:12;stroke-linecap:round;pointer-events:none}
+  .column-text-controls{display:flex;align-items:center;gap:4px;margin-left:auto;flex:none}
+  .column-text-controls button{padding:3px 8px;min-width:29px;font:700 17px/1.3 system-ui,sans-serif}
+  .column-text-controls output{min-width:39px;text-align:center;font:11px ui-monospace,monospace;color:var(--muted)}
+  .layout:not(.network-mode) #phaseTextControls{display:none}
   #currentNameDialog{color:var(--txt);background:#112139;border:1px solid #6586a0;border-radius:14px;width:min(350px,calc(100% - 32px));padding:22px;box-shadow:0 15px 60px #0008}
   #currentNameDialog::backdrop{background:#020b18aa}
   .current-number-field{display:flex;align-items:center;gap:8px;font:800 27px ui-monospace,monospace;margin:14px 0}
@@ -382,7 +387,7 @@
   <p class="helper" id="difficultyInfo">Demo: observación guiada. Primer ejercicio: nivel 1. Resto: nivel 2.</p>
   <main class="layout" id="gameLayout">
     <section class="card" id="circuitCard">
-      <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span></div>
+      <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span><div class="column-text-controls" data-text-controls="circuit" aria-label="Tamaño de texto"><button type="button" class="ghost" data-text-change="-1" aria-label="Reducir texto de la columna del circuito">−</button><output>100%</output><button type="button" class="ghost" data-text-change="1" aria-label="Aumentar texto de la columna del circuito">+</button></div></div>
       <div id="circuitTransport" class="board-actions circuit-transport hide" aria-label="Controles de reproducción del circuito"></div>
       <div class="board"><div id="currentPlacementNotice" class="current-placement-notice hide" role="status" aria-live="polite"></div>
         <svg id="circuit" viewBox="0 0 700 430" role="group" aria-label="Circuito de corriente continua con símbolos seleccionables y flechas seleccionables">
@@ -391,7 +396,7 @@
           <rect id="loopHighlight" class="glowloop hide" x="156" y="87" width="179" height="260" rx="11"/>
           <g id="meshTargets"></g>
           <g id="staticCircuit"></g>
-          <g id="currentBranchTargets"></g>
+          <path id="branchSelection" class="branch-selection"/><g id="currentBranchTargets"></g>
           <g id="loopArrows"></g>
           <g id="dirGraphics"></g>
           <g id="flowFX"></g>
@@ -457,7 +462,7 @@
     </section>
     <div id="columnDivider" class="column-divider" role="separator" tabindex="0" aria-label="Ajustar el ancho de las columnas" aria-orientation="vertical" aria-controls="circuitCard equationsCard phaseCard" aria-valuemin="20" aria-valuemax="80" aria-valuenow="52"><span class="resize-grip" aria-hidden="true"></span></div>
     <section class="card" id="equationsCard" aria-label="Ecuaciones del circuito" aria-live="polite">
-      <div class="cardhead"><strong>Ecuaciones del circuito</strong><span class="chip">Nudos · Mallas</span></div>
+      <div class="cardhead"><strong>Ecuaciones del circuito</strong><span class="chip">Nudos · Mallas</span><div class="column-text-controls" data-text-controls="equations" aria-label="Tamaño de texto"><button type="button" class="ghost" data-text-change="-1" aria-label="Reducir texto de la columna de ecuaciones">−</button><output>100%</output><button type="button" class="ghost" data-text-change="1" aria-label="Aumentar texto de la columna de ecuaciones">+</button></div></div>
       <div class="equations-body">
         <div class="law-guide"><strong>Ley de los nudos</strong><div class="law-formula">Σ I que entran − Σ I que salen = 0</div><div class="law-formula">Σ I que entran = Σ I que salen</div><div>Nº de ecuaciones independientes = n − 1 (n: número de nudos)</div><strong>Ley de las mallas</strong><div class="law-formula">Σ (I · R) = Σ U</div><div>Ley de Ohm: U = I · R. Las tensiones de las fuentes se suman con su signo.</div></div>
         <p id="equationPlaceholder" class="equation-placeholder">Las ecuaciones aparecerán al analizar los nudos y recorrer las mallas.</p>
@@ -472,7 +477,7 @@
       </div>
     </section>
     <section class="card" aria-live="polite" id="phaseCard">
-      <div class="cardhead"><strong id="phaseHead">Fase 1 · Numeración y sentidos</strong><span class="chip" id="phaseChip">ELIGE</span></div>
+      <div class="cardhead"><strong id="phaseHead">Fase 1 · Numeración y sentidos</strong><span class="chip" id="phaseChip">ELIGE</span><div class="column-text-controls" id="phaseTextControls" data-text-controls="equations" aria-label="Tamaño de texto"><button type="button" class="ghost" data-text-change="-1" aria-label="Reducir texto de la columna de ecuaciones">−</button><output>100%</output><button type="button" class="ghost" data-text-change="1" aria-label="Aumentar texto de la columna de ecuaciones">+</button></div></div>
       <div class="body">
         <div id="advancedPhase" class="hide">
           <h1 class="phase-title">Actividad resuelta 7.6 · Kirchhoff completo</h1>
@@ -828,6 +833,13 @@
     const model=six?A6:S;
     if(model.currentNumbers[index]!==null){currentPlacementNotice('Esta rama ya tiene la corriente '+(six?NAMES6:names)[index]+'. Pulsa su flecha para invertir el sentido.');return;}
     namingBranch={index,six,point:branchClickPoint(event,six,index)};show('currentPlacementNotice',false);
+    const points=branchPoints(six,index),p=namingBranch.point;let nearest=null;
+    for(let i=1;i<points.length;i++){
+      const a=points[i-1],b=points[i],len=Math.hypot(b.x-a.x,b.y-a.y);if(!len)continue;
+      const dx=(b.x-a.x)/len,dy=(b.y-a.y)/len,t=Math.max(0,Math.min(len,(p.x-a.x)*dx+(p.y-a.y)*dy)),x=a.x+dx*t,y=a.y+dy*t,d=(x-p.x)**2+(y-p.y)**2;
+      if(!nearest||d<nearest.d)nearest={a,dx,dy,t,len,d};
+    }
+    if(nearest){const {a,dx,dy,t,len}=nearest,lo=Math.max(0,t-18),hi=Math.min(len,t+18);$('branchSelection').setAttribute('d',`M${a.x+dx*lo} ${a.y+dy*lo} L${a.x+dx*hi} ${a.y+dy*hi}`);}
     $('currentBranchDescription').textContent='Rama '+(index+1)+'. Escribe un número entero positivo que no esté usado en otra rama.';
     $('currentNumber').value=model.currentNumbers[index]??'';show('currentNumberError',false);
     $('currentNameDialog').showModal();$('currentNumber').focus();
@@ -845,7 +857,7 @@
   }
   function initCurrentNaming(){
     $('cancelCurrentName').onclick=()=>$('currentNameDialog').close();
-    $('currentNameDialog').addEventListener('close',()=>{if(!$('currentNameDialog').open)namingBranch=null;});
+    $('currentNameDialog').addEventListener('close',()=>{if(!$('currentNameDialog').open){namingBranch=null;$('branchSelection').removeAttribute('d');}});
     $('currentNameForm').onsubmit=e=>{
       e.preventDefault();if(!namingBranch)return;
       const {index,six,point}=namingBranch,model=six?A6:S,labels=six?NAMES6:names,raw=$('currentNumber').value.trim(),number=Number(raw);
@@ -1776,7 +1788,7 @@
   $('nextStep').onclick=()=>{const steps=buildSteps();if(S.step<steps.length){S.step++;renderSteps()}};
   $('restartSteps').onclick=()=>{S.step=0;S.finalVerified=false;$('finalChallenge').replaceChildren();renderSteps()};
   function newGame(){
-    phaseScores={0:0};clearTimeout(placementNoticeTimer);show('currentPlacementNotice',false);endHeroPress();
+    phaseScores={0:0};clearTimeout(placementNoticeTimer);show('currentPlacementNotice',false);$('branchSelection').removeAttribute('d');endHeroPress();
     flowToken++;stopFlow();if(S.pausedResume){S.pausedResume();S.pausedResume=null}
     $('currentBranchTargets').innerHTML='';
     $('gameLayout').classList.toggle('network-mode',active.kind==='network');
@@ -2295,6 +2307,7 @@
       const length=wire.getTotalLength(),transform=inverse.multiply(wire.getScreenCTM());
       for(let at=0;at<length;at+=10){
         const a=wire.getPointAtLength(at).matrixTransform(transform),b=wire.getPointAtLength(Math.min(at+10,length)).matrixTransform(transform);
+        if(Math.hypot(b.x-a.x,b.y-a.y)>10.5)continue; // Disconnected SVG subpaths are separate conductors.
         wires.push({x:Math.min(a.x,b.x)-1.5,y:Math.min(a.y,b.y)-1.5,w:Math.abs(b.x-a.x)+3,h:Math.abs(b.y-a.y)+3});
       }
     }
@@ -2315,7 +2328,7 @@
       let chosen=null;
       const metric=el=>{el.setAttribute('x','0');el.setAttribute('y','0');el.setAttribute('text-anchor','start');el.removeAttribute('transform');return el.getBBox();};
       for(const fontSize of [17,15,13,11]){
-        label.style.fontSize=fontSize+'px';const l=metric(label),v=value?metric(value):null;
+        label.style.fontSize=(fontSize*columnTextScales.circuit)+'px';if(value)value.style.fontSize=((six?15:17)*columnTextScales.circuit)+'px';const l=metric(label),v=value?metric(value):null;
         for(const c of candidates){
           const half=6,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
           const arrow={x:c.x-Math.abs(vx)*half-Math.abs(vy)*4-1.5,y:c.y-Math.abs(vy)*half-Math.abs(vx)*4-1.5,w:Math.abs(vx)*2*half+Math.abs(vy)*8+3,h:Math.abs(vy)*2*half+Math.abs(vx)*8+3};
@@ -2330,7 +2343,7 @@
         }
         if(chosen)break;
       }
-      if(!chosen){console.warn('PLACEMENT',JSON.stringify({index,wanted,points,occupied,fixed:fixed.filter(b=>overlap({x:wanted.x-6,y:wanted.y-7,w:12,h:14},b)),textFixed:fixed.filter(b=>overlap({x:wanted.x+13,y:wanted.y-10,w:30,h:20},b)),textWire:wires.filter(b=>overlap({x:wanted.x+13,y:wanted.y-10,w:30,h:20},b)),metric:label.getBBox().toJSON?.(),candidates:candidates.slice(0,3)}));group.dataset.placementUnavailable='true';group.style.display='none';continue;}
+      if(!chosen){group.dataset.placementUnavailable='true';group.style.display='none';continue;}
       const c=chosen;
       const stem=`M${c.x-c.vx*c.half} ${c.y-c.vy*c.half} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half}`;
       const tip=`M${c.x+c.vx*(c.half-6)-c.vy*4} ${c.y+c.vy*(c.half-6)+c.vx*4} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half} L${c.x+c.vx*(c.half-6)+c.vy*4} ${c.y+c.vy*(c.half-6)-c.vx*4}`;
@@ -2344,6 +2357,41 @@
         for(const [key,val] of Object.entries({x:r.x-1,y:r.y-1,width:r.w+2,height:r.h+2}))hit.setAttribute(key,val);group.append(hit);
       }
     }
+  }
+
+  const columnTextScales={circuit:1,equations:1};
+  function initColumnTextControls(){
+    const memory=new WeakMap();let pending=false;
+    try{const saved=JSON.parse(localStorage.getItem('wormhoff-text-scales')||'{}');for(const col of ['circuit','equations'])if(saved[col]>=.8&&saved[col]<=1.5)columnTextScales[col]=saved[col];}catch{}
+    function apply(){
+      pending=false;
+      for(const [col,roots] of [['circuit',[$('circuitCard')]],['equations',[$('equationsCard'),$('phaseCard')]]]){
+        const scale=columnTextScales[col];
+        for(const root of roots)for(const el of root.querySelectorAll('*')){
+          if(el.closest('.column-text-controls')||el.matches('.dirlabel,.dir-result')||el.closest('[data-mesh-turn]'))continue;
+          if(!el.matches('input,select,textarea')&&![...el.childNodes].some(node=>node.nodeType===Node.TEXT_NODE&&node.textContent.trim()))continue;
+          let saved=memory.get(el);
+          if(!saved){saved={base:parseFloat(getComputedStyle(el).fontSize),inline:el.style.fontSize};memory.set(el,saved);}
+          if(!Number.isFinite(saved.base))continue;
+          const next=(saved.base*scale).toFixed(3)+'px';if(el.style.fontSize!==next)el.style.fontSize=next;
+        }
+      }
+      for(const controls of document.querySelectorAll('[data-text-controls]')){
+        const scale=columnTextScales[controls.dataset.textControls],out=controls.querySelector('output'),text=Math.round(scale*100)+'%';
+        if(out.textContent!==text)out.textContent=text;
+        controls.querySelector('[data-text-change="-1"]').disabled=scale<=.8;controls.querySelector('[data-text-change="1"]').disabled=scale>=1.5;
+      }
+      layoutCurrentAnnotations();
+    }
+    const schedule=()=>{if(!pending){pending=true;queueMicrotask(apply);}};
+    const observer=new MutationObserver(schedule);for(const root of [$('circuitCard'),$('equationsCard'),$('phaseCard')])observer.observe(root,{subtree:true,childList:true});
+    document.querySelectorAll('[data-text-change]').forEach(button=>button.onclick=()=>{
+      const col=button.closest('[data-text-controls]').dataset.textControls;
+      columnTextScales[col]=Math.max(.8,Math.min(1.5,Math.round((columnTextScales[col]+Number(button.dataset.textChange)*.1)*10)/10));
+      try{localStorage.setItem('wormhoff-text-scales',JSON.stringify(columnTextScales));}catch{}
+      apply();
+    });
+    return apply;
   }
   let phaseScores={0:0};
   function phaseIndex(){return active.kind==='multi'?({dirs:0,nodes:1,loops:2,matrix:3,solve:4}[A6.stage]??0):S.phase;}
@@ -2498,6 +2546,7 @@
     });
     new ResizeObserver(()=>apply(preferredRatio)).observe(layout);apply(preferredRatio);
   }
+  const syncColumnText=initColumnTextControls();
   initPhaseNavigation();
   initCurrentNaming();
   initColumnDivider();
@@ -2512,7 +2561,7 @@
     if(j.some(x=>!Number.isFinite(x))||Math.abs(j.reduce((a,b)=>a+b,0))>1e-8)throw Error('Datos inconsistentes en '+ex.id);
     active=oldActive;R=oldR;E=oldE;
   }
-  newGame();syncBoardActions();syncEquationPlaceholder();
+  newGame();syncBoardActions();syncEquationPlaceholder();syncColumnText();
 })();
 </script>
 </body>

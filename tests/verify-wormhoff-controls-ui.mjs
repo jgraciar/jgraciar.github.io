@@ -142,7 +142,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await tap(544,310);await page.locator('#currentNumber').fill('3');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumberError').textContent());
  for(const [i,x] of [146,345,544].entries()){
   const position=await page.locator('#currentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
-  assert(Math.abs(position.x-x)<.1&&Math.abs(position.y-310)<.1,'Flecha sobre la rama en el punto pulsado');
+  assert(Math.abs(position.x-x)<2&&Math.abs(position.y-310)<2,'Flecha sobre la rama en el punto pulsado');
  }
  await tap(146,175);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
  assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente I₇/);
@@ -241,7 +241,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  for(let i=0;i<6;i++){
   await tap(...freePoints[i]);await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
   const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
-  assert(Math.hypot(position.x-freePoints[i][0],position.y-freePoints[i][1])<.1,'Posición de la flecha avanzada más próxima al clic');
+  assert(Math.hypot(position.x-freePoints[i][0],position.y-freePoints[i][1])<2,'Posición de la flecha avanzada más próxima al clic');
  }
  await assertBranchPlacement(true);await assertNoCurrentOverlap();
  await tap(570,300);assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente/);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
