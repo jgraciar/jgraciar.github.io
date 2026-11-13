@@ -559,6 +559,22 @@
   const paragraphs=[...document.querySelectorAll("div > p")];
   const indices=[6,7,11,12,13,15];
   indices.forEach((index,i)=>{if(paragraphs[index])paragraphs[index].textContent=row[i]});
+  // Localizar la atribución visible de canvas2svg sin modificar el titular,
+  // la fecha ni el texto jurídico de la licencia original.
+  const copyrightLabels={
+    ar:"حقوق النشر",csx:"Autorská práva",da:"Ophavsret",de:"Urheberrecht",
+    en:"Copyright",es:"Derechos de autor",fi:"Tekijänoikeus",fr:"Droits d’auteur",
+    it:"Diritto d’autore",nb:"Opphavsrett",pl:"Prawa autorskie",
+    pt:"Direitos de autor",ru:"Авторское право",zh:"版权","zh-tw":"版權",
+    ja:"著作権",kr:"저작권",ca:"Drets d’autor",
+    "ca-es-valencia":"Drets d’autor",gl:"Dereitos de autor",
+    eu:"Egile-eskubideak",nl:"Auteursrecht",sv:"Upphovsrätt"
+  };
+  if(paragraphs[14]){
+    const label=copyrightLabels[lang]||copyrightLabels.en;
+    paragraphs[14].textContent=paragraphs[14].textContent.replace(
+      /^canvas2svg:\\s*Copyright\\b/i,"canvas2svg: "+label);
+  }
   const contributions=creditDescriptions[lang];
   if(contributions && paragraphs[4]){
     if(contributions.length!==creditContributors.length)throw Error("Créditos incompletos: "+lang);
