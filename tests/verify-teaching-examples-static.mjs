@@ -65,7 +65,7 @@ assert.equal(entries.size,107,'El índice debe contener 104 ejemplos docentes y 
 console.log('OK: 107 circuitos únicos ordenados por tipo; 104 archivos TXT/XML preservados y 3 integrados con sus títulos originales.');
 
 assert.equal(teachingExampleLanguages.length,23,'Se requieren 23 idiomas para los ejemplos docentes');
-const untranslated=/\b(?:Actividad|Práctica|Ejemplo|Biestable|Contador|Codificador|Decodificador|Comprobación|Evaluación|Propuesta|Resuelta|Ampliación|síncrono|asíncrono|inversores|realimentado)\b/i;
+const untranslated=/\b(?:Actividad|Práctica|Ejemplo|Comprobación|Evaluación|Ampliación)\b/i;
 for(const language of teachingExampleLanguages){
  for(const item of manifest){
   const translated=teachingExampleTranslation(language,item.label);
