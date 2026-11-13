@@ -4,7 +4,7 @@ const browser=await chromium.launch({headless:true});
 const circuit=r=>`<cir f="0" ts="0.00005"><r x="160 160 304 160" f="0" r="${r}"/></cir>`;
 const ready=(page,n)=>page.waitForFunction(n=>window.JGRTabsExperimental?.list().length===n&&window.JGRTabsExperimental.list().every(t=>t.ready),n,{timeout:60000});
 const active=page=>page.evaluate(()=>window.JGRTabsExperimental.getActive());
-const bar=async page=>page.frameLocator(`iframe[data-tab-id="${await active(page)}"]`).locator('#jgr-tab-strip');
+const bar=async page=>page.frameLocator(`iframe[data-tab-id="${await active(page)}"]`).locator('.jgr-toolbar-actions');
 const info=(page,id)=>page.evaluate(id=>{
  const f=document.querySelector(`iframe[data-tab-id="${id}"]`),api=f.contentWindow.CircuitJS1;
  const root=new DOMParser().parseFromString(api.exportCircuit(),'text/xml').documentElement;
@@ -22,7 +22,7 @@ try{
   assert.equal(iconResponse.status(),200);
   const iconBytes=await iconResponse.body();
   assert.equal(iconBytes.readUInt32LE(0),0x00010000);
-  const run=page.frameLocator('iframe[data-tab-id="jgr-1"]').locator('[data-jgr-icon="runstop"]');
+  const run=page.frameLocator('iframe[data-tab-id="jgr-1"]').locator('.jgr-toolbar-actions [data-jgr-icon="runstop"]');
   assert.equal(await run.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(220, 38, 38)');
   if(mobile)await run.tap();else await run.click();
   assert.equal(await run.getAttribute('aria-pressed'),'true');
