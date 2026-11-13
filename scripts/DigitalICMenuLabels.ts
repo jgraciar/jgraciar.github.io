@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 const heads:Record<string,string[]>={
+ ar:['البوابات المنطقية','القلابات والمزالج','سجلات الإزاحة','العدّادات','المرمّزات ومفكّكات الترميز','معدّدات الإرسال','الذاكرة والحساب','مكوّنات رقمية أخرى'],
  en:['Logic gates','Flip-flops and latches','Shift registers','Counters','Encoders and decoders','Multiplexers','Memory and arithmetic','Other digital components'],
  es:['Puertas lógicas','Biestables y latch','Registros de desplazamiento','Contadores','Codificadores y decodificadores','Multiplexores','Memoria y aritmética','Otros componentes digitales'],
  ca:['Portes lògiques','Biestables i latch','Registres de desplaçament','Comptadors','Codificadors i descodificadors','Multiplexors','Memòria i aritmètica','Altres components digitals'],
@@ -24,6 +25,7 @@ const heads:Record<string,string[]>={
 };
 const groups=['gate','latch','register','counter','codec','mux','memory','other'];
 const schmittHeads:Record<string,string>={
+ ar:'مشغّلات شميت (دوائر متكاملة)',
  en:'Schmitt triggers (integrated circuits)',
  es:'Disparadores Schmitt (circuitos integrados)',
  ca:'Disparadors Schmitt (circuits integrats)',
@@ -50,4 +52,23 @@ export function digitalICGroup(group:string,language:string):string{const lang=l
 const english:Record<string,string>={
  '74373':'Octal D latch (3-state)','7475':'Quad D latch (Q, /Q)','74194':'4-bit universal shift register','74164':'8-bit SIPO shift register','74165':'8-bit PISO shift register','74190':'BCD up/down counter','74192':'BCD up/down counter (dual clock)','74168':'Synchronous BCD up/down counter','7447':'BCD → 7 segments (open collector)','74147':'Priority encoder 10 → 4','74138':'Decoder 3 → 8','74151':'Multiplexer 8 → 1 (Y, /Y)','54151':'Multiplexer 8 → 1 (Y, /Y)','74152':'Inverting multiplexer 8 → 1','74150':'Inverting multiplexer 16 → 1','74181':'4-bit ALU','74189':'RAM 16 × 4 (inverting, 3-state)'
 };
-export function digitalICName(part:string,spanish:string,language:string):string{return part+' '+(language==='es'?spanish:english[part]||spanish);}
+const arabic:Record<string,string>={
+ "7447": "مفكّك ترميز BCD إلى سبعة مقاطع (مجمّع مفتوح)",
+ "7475": "أربعة مزاليج D (Q و/Q)",
+ "54151": "معدّد إرسال 8 إلى 1 (Y و/Y)",
+ "74138": "مفكّك ترميز 3 إلى 8",
+ "74147": "مرمّز أولوية 10 إلى 4",
+ "74150": "معدّد إرسال عاكس 16 إلى 1",
+ "74151": "معدّد إرسال 8 إلى 1 (Y و/Y)",
+ "74152": "معدّد إرسال عاكس 8 إلى 1",
+ "74164": "سجل إزاحة 8 بتات من تسلسلي إلى متوازٍ",
+ "74165": "سجل إزاحة 8 بتات من متوازٍ إلى تسلسلي",
+ "74168": "عدّاد BCD متزامن تصاعدي وتنازلي",
+ "74181": "وحدة حساب ومنطق 4 بتات",
+ "74189": "ذاكرة RAM ‏16 × 4 (مخارج معكوسة وثلاثية الحالات)",
+ "74190": "عدّاد BCD تصاعدي وتنازلي",
+ "74192": "عدّاد BCD تصاعدي وتنازلي (ساعتان)",
+ "74194": "سجل إزاحة شامل من 4 بتات",
+ "74373": "مزلاج D ثماني البتات (ثلاثي الحالات)"
+};
+export function digitalICName(part:string,spanish:string,language:string):string{return part+' '+(language==='ar'?(arabic[part]||spanish):language==='es'?spanish:english[part]||spanish);}
