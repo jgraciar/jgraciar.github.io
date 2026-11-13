@@ -9,6 +9,13 @@
     lower.startsWith("cs") ? "csx" : lower.startsWith("ko") ? "kr" :
     lower.startsWith("no") || lower.startsWith("nn") ? "nb" : lower.split("-")[0];
   const strings = {
+    ar: ["محاكي الدوائر، الإصدار ", "البرنامج الأصلي من تطوير Paul Falstad.",
+      "تحويل البرنامج إلى JavaScript بواسطة Iain Sharp.",
+      "مستودع GitHub للإبلاغ عن المشكلات والاطلاع على الشيفرة المصدرية الأصلية: ",
+      "شكر وتقدير: ", "يستخدم هذا البرنامج أيقونات مجانية. راجع ",
+      "مؤلفي الأيقونات وخطوط الويب وتراخيصها",
+      "للاطلاع على شروط الترخيص، زر ", "الشيفرة المصدرية (Paul): ", "الشيفرة المصدرية (Iain): "],
+
     en: ["Original CircuitJS1, version ", "Original by Paul Falstad.",
       "JavaScript conversion by Iain Sharp.",
       "GitHub repository for reporting issues and viewing the original source: ",
@@ -112,6 +119,7 @@
   // Identificar el motor original como tal: la versión propia es Circuit JGR 1.0.
   // No cambiar la versión 5.0.5ts del motor que aparece en el span .ver.
   const baseVersion={
+    ar:"الإصدار الأصلي من CircuitJS1، رقم ",
     en:"Original CircuitJS1, version ",
     es:"CircuitJS1 original, versión ",
     "ca-es-valencia":"CircuitJS1 original, versió ",
