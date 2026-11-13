@@ -53,6 +53,7 @@ for(const [key,translated,language,expected] of [
   "El menú Dibujo conserva verbo de inserción: "+language+" "+translated);
 }
 assert.equal(circuitJsDrawLabel("Adder","Adder","en"),"Adder");
+assert.equal(circuitJsDrawLabel("Add Resistor",labTranslation("ar","Add Resistor"),"ar"),"مقاومة");
 // Auditar los 147 componentes de Dibujo contra los catálogos oficiales,
 // además de los elementos desarrollados para el laboratorio.
 const menuKeys=[...new Set([...menus.matchAll(/"(Add [^"]+)"\s*,\s*"[^"]*Elm(?:[:][^"]*)?"/g)]
@@ -148,7 +149,7 @@ for(const code of labLanguageCodes){
   assert(labels[12].textContent.length>100,"Falta el aviso legal traducido: "+code);
  }
 }
-console.log("OK: ventana Acerca de y textos legales completos en 22 idiomas; créditos íntegros, Dibujo y formatos regionales.");
+console.log("OK: ventana Acerca de y textos legales en 23 idiomas, incluido árabe; créditos íntegros, Dibujo y formatos regionales.");
 
 
 // New headings have complete independent labels for all supported languages.
