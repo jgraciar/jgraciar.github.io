@@ -2,6 +2,7 @@ import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
+import {teachingExampleTranslation,teachingExampleLanguages} from '../scripts/TeachingExampleTranslations.ts';
 const [dir,repo]=process.argv.slice(2);
 assert(dir&&repo);
 const root=join(repo,'examples','circuit-jgr');
@@ -62,3 +63,17 @@ for(const name of integrated){
 }
 assert.equal(entries.size,107,'El índice debe contener 104 ejemplos docentes y 3 circuitos integrados');
 console.log('OK: 107 circuitos únicos ordenados por tipo; 104 archivos TXT/XML preservados y 3 integrados con sus títulos originales.');
+
+assert.equal(teachingExampleLanguages.length,23,'Se requieren 23 idiomas para los ejemplos docentes');
+const untranslated=/\b(?:Actividad|Práctica|Ejemplo|Biestable|Contador|Codificador|Decodificador|Comprobación|Evaluación|Propuesta|Resuelta|Ampliación|síncrono|asíncrono|inversores|realimentado)\b/i;
+for(const language of teachingExampleLanguages){
+ for(const item of manifest){
+  const translated=teachingExampleTranslation(language,item.label);
+  assert(translated&&translated.trim(),language+': falta traducción de '+item.label);
+  if(language!=='es')assert(!untranslated.test(translated),language+': texto español residual '+translated);
+ }
+ for(const category of ['Lógica combinacional','Lógica secuencial','Biestables','Contadores','Circuitos integrados','Codificadores','Decodificadores','Circuitos lógicos']){
+  assert(teachingExampleTranslation(language,category),language+': categoría sin traducción '+category);
+ }
+}
+console.log('OK: 104 títulos docentes y categorías comprobados en 23 idiomas sin modificar los archivos de circuitos.');
