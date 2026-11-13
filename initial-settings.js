@@ -30,6 +30,7 @@ Object.assign(catalogs,{
  gl:["Configuración inicial","Confirma o idioma e o formato numérico.","Idioma","Formato rexional","Europeo","Anglosaxón","Personalizado","Decimais de visualización","Separador decimal","Separador de milleiros","Vista previa","Confirmar e abrir Circuit JGR","Ningún","Configuración"],
  eu:["Hasierako konfigurazioa","Berretsi hizkuntza eta zenbaki-formatua.","Hizkuntza","Eskualdeko formatua","Europakoa","Anglosaxoia","Pertsonalizatua","Bistaratuko diren hamartarrak","Hamartar-bereizlea","Milakoen bereizlea","Aurrebista","Berretsi eta ireki Circuit JGR","Bat ere ez","Ezarpenak"]
 });
+catalogs.ar=["الإعدادات الأولية","اختر اللغة وتنسيق الأرقام.","اللغة","تنسيق الأرقام","أوروبي","أنجلوسكسوني","مخصص","المنازل العشرية المعروضة","الفاصل العشري","فاصل الآلاف","معاينة","تأكيد وفتح Circuit JGR","بلا","الإعدادات"];
 const settingsHelp={sv:"Du kan ändra dessa inställningar senare via Inställningar längst ned till höger i Circuit JGR.",en:"You can change these options later using Settings, at the bottom right of Circuit JGR.",es:"Puedes modificar estas opciones más adelante pulsando el botón «Configuración», situado en la esquina inferior derecha de la pantalla.",fr:"Vous pourrez modifier ces options dans « Paramètres », en bas à droite de Circuit JGR.",de:"Sie können diese Optionen später über „Einstellungen“ unten rechts in Circuit JGR ändern.",it:"Puoi modificare queste opzioni in seguito da «Impostazioni», in basso a destra in Circuit JGR.",pt:"Pode alterar estas opções mais tarde em «Definições», no canto inferior direito do Circuit JGR.",nl:"Je kunt deze opties later wijzigen via «Instellingen», rechtsonder in Circuit JGR.",pl:"Te opcje można później zmienić w «Ustawieniach» w prawym dolnym rogu Circuit JGR."};
 const precisionNotes={sv:"CircuitJS räknar med 64-bitars flyttal med dubbel precision (cirka 15–17 signifikanta siffror). Inställningen påverkar endast visningen. Den sista decimalen avrundas, inte kapas.","en":"CircuitJS calculates using 64-bit double-precision floating-point numbers (approximately 15–17 significant decimal digits). This option changes only how results are displayed. The final displayed decimal digit is rounded, not truncated.","es":"CircuitJS calcula con números de coma flotante de doble precisión (64 bits), aproximadamente 15–17 cifras decimales significativas. Esta opción solo modifica la visualización. El último decimal mostrado se redondea, no se trunca.","fr":"CircuitJS calcule en virgule flottante double précision (64 bits), soit environ 15 à 17 chiffres significatifs. Ce réglage modifie uniquement l'affichage. La dernière décimale affichée est arrondie, et non tronquée.","de":"CircuitJS rechnet mit 64-Bit-Gleitkommazahlen doppelter Genauigkeit (etwa 15–17 signifikante Dezimalziffern). Diese Einstellung betrifft nur die Anzeige. Die letzte angezeigte Dezimalstelle wird gerundet, nicht abgeschnitten.","it":"CircuitJS calcola con numeri in virgola mobile a doppia precisione (64 bit), circa 15–17 cifre significative. Questa impostazione modifica solo la visualizzazione. L'ultima cifra decimale visualizzata viene arrotondata, non troncata.","pt":"O CircuitJS calcula com números de vírgula flutuante de dupla precisão (64 bits), aproximadamente 15–17 algarismos significativos. Esta opção altera apenas a apresentação. A última casa decimal apresentada é arredondada, não truncada.","nl":"CircuitJS rekent met 64-bits drijvendekommagetallen met dubbele precisie (ongeveer 15–17 significante cijfers). Deze instelling verandert alleen de weergave. De laatste weergegeven decimaal wordt afgerond, niet afgekapt.","pl":"CircuitJS oblicza wartości za pomocą 64-bitowych liczb zmiennoprzecinkowych podwójnej precyzji (około 15–17 cyfr znaczących). To ustawienie zmienia tylko wyświetlanie. Ostatnia wyświetlana cyfra po przecinku jest zaokrąglana, a nie obcinana."};
 const unitLabels={
@@ -89,7 +90,9 @@ Object.assign(unitLabels,{
  ja:["表示する単位接頭辞","自動","マイクロ (µ)","ミリ (m)","基本単位","キロ (k)"],
  kr:["표시할 단위 접두어","자동","마이크로 (µ)","밀리 (m)","기본 단위","킬로 (k)"]
 });
-const names={sv:"Svenska",ca:"Català","ca-es-valencia":"Valencià",gl:"Galego",eu:"Euskara",nl:"Nederlands",csx:"Čeština",da:"Dansk",de:"Deutsch",en:"English",
+settingsHelp.ar="يمكنك تغيير هذه الإعدادات لاحقًا من زر الإعدادات في Circuit JGR.";
+precisionNotes.ar="يستخدم CircuitJS أعدادًا بدقة مزدوجة (64 بت)، أي نحو 15–17 رقمًا معنويًا. يؤثر هذا الخيار في العرض فقط، ويُقرَّب آخر رقم عشري.";
+const names={ar:"العربية",sv:"Svenska",ca:"Català","ca-es-valencia":"Valencià",gl:"Galego",eu:"Euskara",nl:"Nederlands",csx:"Čeština",da:"Dansk",de:"Deutsch",en:"English",
  es:"Español",fi:"Suomi",fr:"Français",it:"Italiano",
  nb:"Norsk bokmål",pl:"Polski",pt:"Português",ru:"Русский",
  zh:"中文（中国大陆）","zh-tw":"中文（台灣）",ja:"日本語",kr:"한국어"};
@@ -126,6 +129,7 @@ if(!catalogs[language])language=detected;
 let dialogLanguage=language;
 if(languageMode==="auto")set("language",detected);
 const autoNames={
+ ar:"تلقائي (المتصفح)",
  sv:"Automatiskt (webbläsare)",
  ca:"Automàtic (navegador)","ca-es-valencia":"Automàtic (navegador)",
  gl:"Automático (navegador)",eu:"Automatikoa (arakatzailea)",
@@ -139,6 +143,7 @@ const autoNames={
  "zh-tw":"自動（瀏覽器）",ja:"自動（ブラウザー）",kr:"자동 (브라우저)"
 };
 const backgroundLabels={
+ ar:["خلفية المحاكي وراسم الذبذبات","خلفية سوداء","خلفية بيضاء"],
  es:["Fondo del simulador y del osciloscopio","Fondo negro","Fondo blanco"],
  en:["Simulator and oscilloscope background","Black background","White background"],
  ca:["Fons del simulador i de l’oscil·loscopi","Fons negre","Fons blanc"],
