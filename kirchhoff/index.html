@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>Kirchhoff Arcade · MVP 3.6</title>
+<title>Kirchhoff Arcade · MVP 3.7</title>
 <style>
   :root { --bg:#09101d; --card:#111c30; --card2:#0c182b; --border:#2c415b; --txt:#f0f6ff; --muted:#a7bbd0; --cyan:#5ce6f0; --lime:#b7f75c; --amber:#ffc66b; --red:#ff7786; --purple:#ac98ff; }
   *{box-sizing:border-box}
@@ -54,19 +54,46 @@
   /* Un sombreado violeta tenue distingue la malla activa del ámbar de las corrientes,
      del verde del personaje y del blanco de los símbolos. Detrás de todos ellos. */
   .glowloop{fill:#7569a8;fill-opacity:.28;stroke:#c4b9f0;stroke-opacity:.67;stroke-width:1.8;stroke-dasharray:8 7;pointer-events:none}
-  .hero-body{fill:#b7f75c;stroke:#edffbe;stroke-width:2}
+  #hero{--worm-fill:#b7f75c;--worm-edge:#edffbe;--worm-dark:#619b36;--worm-glow:#b7f755}
+  #hero.hero-sad{--worm-fill:#a64a17;--worm-edge:#e99659;--worm-dark:#723317;--worm-glow:#e9965955}
+  .hero-body,.hero-segment{fill:var(--worm-fill);stroke:var(--worm-edge);stroke-width:1.4}
+  .hero-segment{stroke-width:1.1}
+  .hero-spine{fill:none;stroke:var(--worm-dark);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+  .hero-shine{fill:none;stroke:var(--worm-edge);stroke-width:1.5;stroke-linecap:round;opacity:.5;pointer-events:none}
   .hero-eye{fill:#15233a}
-  .hero-body.sad{fill:#a64a17;stroke:#e99659}
-  .hero-limb{stroke:#d9ffc5;stroke-width:3.3;fill:none;stroke-linecap:round;stroke-linejoin:round}
-  .hero-limb.sad{stroke:#eea16f}
-  .hero-mouth{stroke:#122236;stroke-width:2;fill:none;stroke-linecap:round}
-  .hero-tip{fill:#edffbe;stroke:#b7f75c;stroke-width:2;stroke-linejoin:round}
-  .hero-tip.sad{fill:#e99659;stroke:#a64a17}
+  .hero-eye-light{fill:#fff;opacity:.9}
+  .hero-mouth{stroke:#122236;stroke-width:1.7;fill:none;stroke-linecap:round}
+  .hero-eyes{transform-box:fill-box;transform-origin:center;transition:transform .28s ease-in-out,opacity .25s ease-in-out}
+  #heroMouth{transition:opacity .25s ease-in-out}
+  .hero-open-smile{opacity:0;transform:scaleY(.2);transform-box:fill-box;transform-origin:center;transition:opacity .28s ease-in-out,transform .28s ease-in-out}
+  .hero-hand{opacity:0;transform:translateY(5px) scale(.6);transform-origin:11px 4px;transition:opacity .3s ease-in-out,transform .3s ease-in-out;pointer-events:none}
+  .hero-hand-outline{fill:var(--worm-fill);stroke:var(--worm-edge);stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
+  .hero-greeting .hero-eyes{transform:scaleY(.18)}
+  .hero-greeting #heroMouth{opacity:0}
+  .hero-greeting .hero-open-smile{opacity:1;transform:scaleY(1)}
+  .hero-greeting .hero-hand{opacity:1;transform:translateY(0) scale(1)}
+  .hero-greeting #heroWave{animation:heroWave 1.2s ease-in-out;transform-origin:0 0}
+  @keyframes heroWave{0%,100%{transform:rotate(0deg)}20%,60%{transform:rotate(-17deg)}40%,80%{transform:rotate(18deg)}}
+  .hero-face{transform-box:fill-box;transform-origin:center}
+  .hero-pain{opacity:0;transition:opacity .28s ease-in-out;pointer-events:none}
+  .hero-happy .hero-eyes{transform:scaleY(.3)}
+  .hero-happy #heroMouth{opacity:0}
+  .hero-happy .hero-open-smile{opacity:1;transform:scaleY(1);animation:heroLaugh 1.15s ease-in-out infinite}
+  .hero-happy .hero-face{animation:heroJoy 1.15s ease-in-out infinite}
+  .hero-suffering .hero-eyes,.hero-suffering #heroMouth{opacity:0}
+  .hero-suffering .hero-pain{opacity:1}
+  .hero-suffering .hero-face{animation:heroWince .65s ease-in-out infinite}
+  .hero-suffering .hero-tear{animation:heroTear 1.3s ease-in-out infinite}
+  @keyframes heroJoy{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-.7px) scale(1.04)}}
+  @keyframes heroLaugh{0%,100%{transform:scaleY(.9)}50%{transform:scaleY(1.08)}}
+  @keyframes heroWince{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-2deg)}75%{transform:rotate(2deg)}}
+  @keyframes heroTear{0%{opacity:0;transform:translateY(-1px)}25%{opacity:.9}100%{opacity:0;transform:translateY(5px)}}
+  .hero-tip{fill:var(--worm-edge);stroke:var(--worm-dark);stroke-width:1.5;stroke-linejoin:round}
   .lap-chip{color:var(--amber);font-weight:700;margin:6px 0 0}
   .eq-equals{display:flex;align-items:center;justify-content:center;font:900 30px ui-monospace,monospace;color:var(--cyan)}
-  #hero{filter:drop-shadow(0 0 9px #b7f755);cursor:pointer;pointer-events:all;touch-action:none;user-select:none}
+  #hero{filter:drop-shadow(0 0 6px var(--worm-glow));cursor:pointer;pointer-events:all;touch-action:none;user-select:none}
   #hero.hero-user-hidden{visibility:hidden;pointer-events:none}
-  #heroHit{fill:transparent;pointer-events:all;cursor:pointer}
+  #heroHit{fill:none;stroke:transparent;stroke-width:28;pointer-events:stroke;cursor:pointer}
   .boardfoot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 15px;background:#0d1b2e;border-top:1px solid var(--border);color:var(--muted);font-size:12px}
   .boardfoot b{color:var(--cyan);font-weight:600}
   .body{padding:18px}
@@ -238,7 +265,7 @@
 <body>
 <div class="shell">
   <header class="top">
-    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 3.6 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
+    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 3.7 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
     <div class="score"><div class="stat"><small>Puntos</small><strong id="score">0000</strong></div><div class="stat"><small>Progreso</small><strong id="percent">0%</strong></div></div>
   </header>
   <nav class="stages" id="stagebar" aria-label="Fases">
@@ -282,18 +309,37 @@
           <rect class="dirclick" tabindex="0" role="button" aria-label="Cambiar I2" id="dirHit1" x="353" y="74" width="92" height="67"/>
           <rect class="dirclick" tabindex="0" role="button" aria-label="Cambiar I3" id="dirHit2" x="395" y="43" width="127" height="65"/>
           <circle class="node-hit" id="nodeHit" tabindex="0" role="button" aria-label="Analizar nudo A" cx="345" cy="74" r="29"/>
-          <g id="hero" transform="translate(345 360)"><g id="heroShape">
-            <!-- Articulaciones independientes: brazos relajados hacia abajo en reposo. -->
-            <g id="heroArmLeft"><path class="hero-limb" d="M-10 -5 L-18 6 L-16 12"/></g>
-            <g id="heroArmRight"><path class="hero-limb" d="M10 -5 L18 6 L16 12"/></g>
-            <g id="heroLegLeft"><path class="hero-limb" d="M-6 10 L-9 21 L-14 24"/></g>
-            <g id="heroLegRight"><path class="hero-limb" d="M6 10 L9 21 L14 24"/></g>
-            <path class="hero-limb" d="M0 -12 V-19 M-4 -19 H4"/>
-            <path id="heroTip" class="hero-tip" d="M0 -28 L-7 -18 H7 Z"/>
-            <rect id="heroBody" class="hero-body" x="-12" y="-12" width="24" height="24" rx="7"/>
-            <circle class="hero-eye" cx="-4" cy="-4" r="2.2"/><circle class="hero-eye" cx="4" cy="-4" r="2.2"/>
-            <path id="heroMouth" class="hero-mouth" d="M-5 4 Q0 9 5 4"/>
-          </g><rect id="heroHit" x="-27" y="-29" width="54" height="58" aria-hidden="true"/></g>
+          <g id="hero" transform="translate(345 360)">
+            <g id="heroTail" visibility="hidden" aria-hidden="true">
+              <path id="heroSpine" class="hero-spine"/>
+              <g id="heroSegments"></g>
+            </g>
+            <g id="heroShape">
+              <path id="heroTip" visibility="hidden" class="hero-tip" d="M0 -26 Q-1 -26 -2 -23 L-9 -13 Q-10 -11 -7 -12 L0 -15 L7 -12 Q10 -11 9 -13 L2 -23 Q1 -26 0 -26Z"/>
+              <ellipse id="heroBody" class="hero-body" cx="0" cy="-3" rx="10.5" ry="12"/>
+              <path class="hero-shine" d="M-7 -6 Q-7 -11 -3 -12"/>
+              <g class="hero-face"><g class="hero-eyes"><ellipse class="hero-eye" cx="-3.7" cy="-5" rx="2.1" ry="2.8"/>
+              <ellipse class="hero-eye" cx="3.7" cy="-5" rx="2.1" ry="2.8"/>
+              <circle class="hero-eye-light" cx="-4.1" cy="-6" r=".7"/>
+              <circle class="hero-eye-light" cx="3.3" cy="-6" r=".7"/></g>
+              <path id="heroMouth" class="hero-mouth" d="M-4 1 Q0 5 4 1"/>
+              <g class="hero-open-smile" aria-hidden="true">
+                <path d="M-5 1 Q0 3 5 1 Q4 8 0 8 Q-4 8 -5 1Z" fill="#122236"/>
+                <path d="M-2.8 6 Q0 4.5 2.8 6 Q0 8.5 -2.8 6Z" fill="#f49b98"/>
+              </g>
+              <g class="hero-pain" aria-hidden="true">
+                <path d="M-6.5 -7 L-2.5 -5 L-6.5 -3 M6.5 -7 L2.5 -5 L6.5 -3 M-7 -10 Q-4 -11 -2 -9 M2 -9 Q4 -11 7 -10" fill="none" stroke="#122236" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M-5 2 Q0 -1 5 2 L4 7 Q0 5 -4 7Z" fill="#fff0d6" stroke="#122236" stroke-width="1.2" stroke-linejoin="round"/>
+                <path d="M-4.5 4 H4.5 M-1.5 1 V6 M1.5 1 V6" fill="none" stroke="#122236" stroke-width=".7"/>
+                <path class="hero-tear" d="M8 -2 Q12 3 8 3 Q5 3 8 -2Z" fill="#8ee8fa"/>
+              </g></g>
+              <g class="hero-hand" aria-hidden="true"><g transform="translate(11 4)"><g id="heroWave">
+                <path d="M-2 0 Q7 2 7 -8" fill="none" stroke="var(--worm-edge)" stroke-width="2.6" stroke-linecap="round"/>
+                <path class="hero-hand-outline" d="M5 -7 L2 -11 Q1 -13 2.5 -13 Q4 -13 5 -10 L4 -17 Q4 -19 5.5 -18 L7 -12 L7 -20 Q8 -22 9 -20 L9.5 -12 L11 -18 Q12 -20 13 -18 L12 -10 L14 -14 Q16 -16 16 -13 L13 -6 Q9 -2 5 -7Z"/>
+              </g></g></g>
+            </g>
+            <path id="heroHit" visibility="hidden" aria-hidden="true"/>
+          </g>
         </svg>
       </div>
       <div id="boardEquations" class="board-equations hide" aria-live="polite">
@@ -604,6 +650,12 @@
   }
   function checkTermValue(answer,expected,branch,isSource,six){
     const value=answer.trim().replace(/\s/g,'').replace(/−/g,'-').replace(/,/g,'.').replace(/\*/g,'·').replace(/Ω/g,'').replace(/\u00b7/g,'·');
+    if(isSource){
+      // La unidad se muestra en la etiqueta; escribir V sigue siendo opcional.
+      if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)v?$/i.test(value))return false;
+      const numeric=Number(value.replace(/v$/i,''));
+      return Number.isFinite(numeric)&&Math.abs(numeric-expected)<=1e-5;
+    }
     const correct=termAnswer(expected,branch,isSource,six).replace(/−/g,'-').replace(/,/g,'.');
     const subs=['₁','₂','₃','₄','₅','₆'];
     const normalized=v=>v.replace(/^\+/,'').replace(/I([1-6])/gi,(_,n)=>'I'+subs[Number(n)-1]).toLowerCase();
@@ -615,9 +667,9 @@
     const name=(six?NAMES6:names)[branch];
     const display=isSource?formatNumber(Math.abs(value))+' V':formatNumber(six?R6[branch]:R[branch])+' Ω';
     host.innerHTML=`<h3>Nivel ${difficulty()} · ${isSource?'Fuente de tensión':'Resistencia'} · ${display}</h3>`+
-      `<div>El personaje se ha detenido. ${guided?'Selecciona el signo correcto antes de continuar.':'Introduce el término con signo y unidad o intensidad. La flecha y el componente indican el signo.'}</div>`+
+      `<div>El personaje se ha detenido. ${guided?'Selecciona el signo correcto antes de continuar.':isSource?'Introduce el valor de tensión con su signo, sin escribir V. La flecha y el componente indican el signo.':'Introduce el término de resistencia con signo e intensidad. La flecha y el componente indican el signo.'}</div>`+
       (guided?`<div class="choices"><button type="button" data-sign="1">+ ${isSource?'U':name}</button><button type="button" data-sign="-1">− ${isSource?'U':name}</button></div>`:
-      `<label>Término de ${isSource?'tensión':'resistencia'}<input class="term-answer" autocomplete="off" spellcheck="false" placeholder="${isSource?'+6V':'−2·I₂'}" aria-label="Término de la ecuación"></label><button type="button" class="primary term-check">Comprobar término</button>`)+
+      `<label>Término de ${isSource?'tensión (V)':'resistencia'}<input class="term-answer" autocomplete="off" spellcheck="false" placeholder="${isSource?'+6':'−2·I₂'}" aria-label="Término de la ecuación"></label><button type="button" class="primary term-check">Comprobar término</button>`)+
       '<div class="feedback" role="status"></div>';
     return new Promise(resolve=>{
       const finish=valid=>{
@@ -947,7 +999,7 @@
     S.pass='resistors';S.route=createRoute(S.loop,S.cw);S.waypoint=-1;S.legIndex=0;S.es=[];S.rs=[];
     $('sourceBuild').textContent='—';$('resBuild').textContent='—';
     clearFX();clearElementHighlight();
-    positionHero(S.route.start.x,S.route.start.y,0);setHeroGait(false);setHeroMood(false);updateLoopSelect();drawFinished();
+    positionHero(S.route.start.x,S.route.start.y,0,true);setHeroGait(false);setHeroMood(false);updateLoopSelect();drawFinished();
     if(S.loops.every(Boolean)){show('goMatrix',true)}else show('goMatrix',false);
   }
   // Cada rama se traza continuamente desde B hasta A, pasando por todos sus componentes.
@@ -977,23 +1029,159 @@
     if(Math.abs(dy)>0)return dy>0?180:0;
     return 0;
   }
-  function positionHero(x,y,angle=null){
+  // La cabeza sigue la rama y el cuerpo conserva su trazado al doblar una esquina.
+  // El ritmo depende de la distancia real, nunca de la frecuencia de la pantalla.
+  const heroMotion={x:345,y:360,angle:0,trail:[],distance:0,moving:false,phase:0,started:false,retract:1,restId:0,restReq:null,restResolve:null,heading:0,turnFrom:0,turnAt:0,idleTimer:null,idleEnd:null};
+  const heroNS='http://www.w3.org/2000/svg';
+  const heroSegments=Array.from({length:8},()=>{
+    const g=document.createElementNS(heroNS,'g');
+    const body=document.createElementNS(heroNS,'ellipse');body.setAttribute('class','hero-segment');
+    const shine=document.createElementNS(heroNS,'path');shine.setAttribute('class','hero-shine');
+    g.append(body,shine);$('heroSegments').append(g);return {g,body,shine};
+  });
+  function positionHero(x,y,angle=null,reset=false){
+    const h=heroMotion,delta=Math.hypot(x-h.x,y-h.y);
+    if(h.restReq!==null)cancelHeroRest();
+    if(reset||delta>60){
+      stopHeroGreeting();clearHeroReaction();
+      h.trail=[];h.distance=0;h.phase=0;h.started=false;h.retract=1;
+      $('heroTip').setAttribute('opacity','1');
+      $('heroTail').setAttribute('visibility','hidden');
+      $('heroTip').setAttribute('visibility','hidden');
+      $('heroHit').setAttribute('visibility','hidden');
+    }
+    else if(delta>.001){h.distance+=delta;h.trail.unshift({x:h.x,y:h.y});}
+    h.x=x;h.y=y;
+    if(angle!==null){
+      const now=performance.now(),t=Math.min(1,Math.max(0,(now-h.turnAt)/240)),ease=t*t*(3-2*t);
+      h.angle=h.turnFrom+(h.heading-h.turnFrom)*ease;
+      if(reset||delta>60){h.angle=angle;h.heading=angle;h.turnFrom=angle;h.turnAt=now;}
+      else if(Math.abs(((angle-h.heading+180)%360+360)%360-180)>.01){
+        h.turnFrom=h.angle;
+        h.heading=h.angle+((angle-h.angle+180)%360+360)%360-180;
+        h.turnAt=now;
+      }
+    }
+    // Solo se necesitan los últimos 100 píxeles del recorrido.
+    let length=0,previous={x,y};
+    for(let i=0;i<h.trail.length;i++){
+      length+=Math.hypot(h.trail[i].x-previous.x,h.trail[i].y-previous.y);
+      previous=h.trail[i];if(length>100){h.trail.length=i+1;break;}
+    }
     $('hero').setAttribute('transform',`translate(${x} ${y})`);
-    if(angle!==null)$('heroShape').setAttribute('transform',`rotate(${angle})`);
+    $('heroShape').setAttribute('transform',`rotate(${h.angle})`);
   }
-  // La oscilación depende de la distancia recorrida: mantiene el ritmo aunque varíe
-  // la frecuencia de actualización de pantalla. En reposo, ambos brazos caen.
+  function heroTrailPoint(behind){
+    const h=heroMotion;let a={x:h.x,y:h.y};
+    for(const b of h.trail){
+      const span=Math.hypot(b.x-a.x,b.y-a.y);
+      if(span>0&&behind<=span){const t=behind/span;return {x:a.x+(b.x-a.x)*t-h.x,y:a.y+(b.y-a.y)*t-h.y};}
+      behind-=span;a=b;
+    }
+    const r=h.angle*Math.PI/180;
+    const last=h.trail.at(-1),before=h.trail.at(-2);
+    const dx=last&&before?last.x-before.x:-Math.sin(r),dy=last&&before?last.y-before.y:Math.cos(r);
+    const len=Math.hypot(dx,dy)||1;
+    return {x:a.x-h.x+dx/len*behind,y:a.y-h.y+dy/len*behind};
+  }
   function setHeroGait(moving,distance=0){
-    const step=moving?Math.sin(distance*0.11):0;
-    const angles=moving?[-32*step,32*step,29*step,-29*step]:[0,0,0,0];
-    const groups=[['heroArmLeft',-10,-5],['heroArmRight',10,-5],['heroLegLeft',-6,10],['heroLegRight',6,10]];
-    groups.forEach(([id,x,y],i)=>$(id).setAttribute('transform',`rotate(${angles[i].toFixed(2)} ${x} ${y})`));
+    const h=heroMotion;
+    // Al parar, se conserva la postura: no hay salto de longitud ni de fase.
+    if(moving){clearHeroReaction();h.started=true;h.phase=Math.max(0,h.distance-43)*2*Math.PI/64;}
+    $('heroTip').setAttribute('visibility',h.started?'visible':'hidden');
+    const revealed=h.started&&h.distance>0;
+    $('heroTail').setAttribute('visibility',revealed?'visible':'hidden');
+    $('heroHit').setAttribute('visibility',revealed?'visible':'hidden');
+    // Al salir del nudo, la cola nace en el punto de partida sin sobresalir por detrás.
+    const growth=Math.min(1,h.distance/14);
+    const soften=growth*growth*(3-2*growth)*h.retract;
+    $('heroTail').setAttribute('opacity',(Math.min(1,h.distance/9)*h.retract).toFixed(3));
+    h.moving=moving;
+    syncHeroGreeting();
+    const squeeze=(1-Math.cos(h.phase))/2;
+    const length=Math.min(h.distance,43-13*squeeze)*h.retract;
+    const pts=Array.from({length:9},(_,i)=>{
+      const u=i/8,p=heroTrailPoint(u*length),a=heroTrailPoint(Math.max(0,u*length-.8)),b=heroTrailPoint(u*length+.8);
+      const dx=b.x-a.x,dy=b.y-a.y,n=Math.hypot(dx,dy)||1;
+      const arch=3.6*squeeze*soften*Math.sin(Math.PI*u);
+      return {x:p.x-dy/n*arch,y:p.y+dx/n*arch};
+    });
+    const spine=pts.map((p,i)=>`${i?'L':'M'}${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ');
+    $('heroSpine').setAttribute('d',spine);$('heroSpine').setAttribute('stroke-width',(10*soften).toFixed(2));$('heroHit').setAttribute('d',spine);
+    // Se dibuja desde la cola: las uniones quedan ocultas bajo el anillo siguiente.
+    heroSegments.forEach(({g,body,shine},index)=>{
+      const i=8-index,p=pts[i],front=pts[i-1];
+      const angle=Math.atan2(front.y-p.y,front.x-p.x)*180/Math.PI+90;
+      const u=i/8,wave=Math.sin(h.phase-u*3.4);
+      const width=(7.7-3.4*u)*(1+.15*squeeze+.06*wave)*soften;
+      g.setAttribute('transform',`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${angle.toFixed(2)})`);
+      body.setAttribute('rx',width.toFixed(2));body.setAttribute('ry',((length/8*.78+1.1)*soften).toFixed(2));
+      shine.setAttribute('d',`M${(-width*.58).toFixed(2)} -1 Q${(-width*.5).toFixed(2)} -3 -1 -3`);
+    });
+  }
+  function stopHeroGreeting(){
+    const h=heroMotion;
+    if(h.idleTimer!==null){clearTimeout(h.idleTimer);h.idleTimer=null;}
+    if(h.idleEnd!==null){clearTimeout(h.idleEnd);h.idleEnd=null;}
+    $('hero').classList.remove('hero-greeting');
+  }
+  function syncHeroGreeting(){
+    const h=heroMotion;
+    if(h.moving||h.started||h.restReq!==null){stopHeroGreeting();return;}
+    if(h.idleTimer!==null)return;
+    h.idleTimer=setTimeout(()=>{
+      h.idleTimer=null;
+      if(h.moving||h.started||h.restReq!==null)return;
+      $('hero').classList.add('hero-greeting');
+      h.idleEnd=setTimeout(()=>{
+        h.idleEnd=null;$('hero').classList.remove('hero-greeting');
+      },1500);
+      syncHeroGreeting();
+    },5000);
+  }
+  function cancelHeroRest(){
+    const h=heroMotion;h.restId++;
+    if(h.restReq!==null){cancelAnimationFrame(h.restReq);h.restReq=null;}
+    if(h.restResolve){const done=h.restResolve;h.restResolve=null;done(false);}
+    h.retract=1;$('heroTip').setAttribute('opacity','1');
+  }
+  // Solo al cerrar el recorrido completo; las pausas didácticas conservan la postura.
+  function restHero(){
+    cancelHeroRest();stopHeroGreeting();clearHeroReaction();
+    const h=heroMotion,token=h.restId;
+    const angle=((h.angle+180)%360+360)%360-180;
+    return new Promise(resolve=>{
+      h.restResolve=resolve;let began=null;
+      function frame(now){
+        if(token!==h.restId)return;
+        if(began===null)began=now;
+        const t=Math.min(1,(now-began)/650),ease=t*t*(3-2*t);
+        h.retract=1-ease;setHeroGait(false);
+        $('heroTip').setAttribute('opacity',(1-ease).toFixed(3));
+        h.angle=angle*(1-ease);
+        $('heroShape').setAttribute('transform',`rotate(${h.angle.toFixed(2)})`);
+        if(t<1){h.restReq=requestAnimationFrame(frame);return;}
+        h.restReq=null;h.restResolve=null;
+        h.angle=0;h.heading=0;h.turnFrom=0;h.turnAt=performance.now();h.distance=0;h.phase=0;h.trail=[];h.started=false;h.retract=1;
+        setHeroGait(false);$('heroTip').setAttribute('opacity','1');
+        resolve(true);
+      }
+      h.restReq=requestAnimationFrame(frame);
+    });
+  }
+  function clearHeroReaction(){
+    $('hero').classList.remove('hero-happy','hero-suffering');
+  }
+  function setHeroReaction(sign){
+    stopHeroGreeting();clearHeroReaction();
+    setHeroMood(sign<0);
+    $('hero').classList.add(sign<0?'hero-suffering':'hero-happy');
   }
   function setHeroMood(sad){
+    $('hero').classList.toggle('hero-sad',sad);
     $('heroBody').classList.toggle('sad',sad);
     $('heroTip').classList.toggle('sad',sad);
-    $('heroShape').querySelectorAll('.hero-limb').forEach(e=>e.classList.toggle('sad',sad));
-    $('heroMouth').setAttribute('d',sad?'M-5 8 Q0 2 5 8':'M-5 4 Q0 9 5 4');
+    $('heroMouth').setAttribute('d',sad?'M-4 4 Q0 0 4 4':'M-4 1 Q0 5 4 1');
   }
   function clearFX(){clearEquationArrowPulse();stopFlow();$('sourceArrowFX').innerHTML='';$('componentFX').innerHTML='';clearElementHighlight();}
   function pointOnPath(points,fraction){
@@ -1059,8 +1247,8 @@
       $('advance').disabled=false;$('advance').textContent='Continuar recorrido →';
     });
   }
-  // Velocidad constante: 4.4 ms/px en la versión 0.4; ahora 8.8 ms/px (mitad de velocidad).
-  const HERO_MS_PER_PX=8.8;
+  // Reducir la velocidad un 10 % implica dividir la velocidad anterior por 0,9.
+  const HERO_MS_PER_PX=8.8/0.9;
   function moveAlongPolyline(points,leg){
     if(points.length<2)return Promise.resolve();
     const distances=[0];
@@ -1108,7 +1296,7 @@
       if(S.pass==='sources'&&p.component==='source'){
         const v=E[leg.branch]*leg.d;
         renderComponentFX(p,v);
-        setHeroMood(v<0);
+        setHeroReaction(v);
         if(!await challengeTerm('termChallenge',v,leg.branch,true))return;
         if(token!==flowToken)return;
         S.es.push({v,i:leg.branch});
@@ -1119,7 +1307,7 @@
       }else if(S.pass==='resistors'&&p.component==='resistor'){
         const v=R[leg.branch]*S.signs[leg.branch]*leg.d;
         renderComponentFX(p,v);
-        setHeroMood(v<0);
+        setHeroReaction(v);
         if(!await challengeTerm('termChallenge',v,leg.branch,false))return;
         if(token!==flowToken)return;
         S.rs.push({v,i:leg.branch});
@@ -1146,11 +1334,12 @@
     try{await animateLeg(leg)}catch(err){console.error(err);msg('loopFeedback','No se pudo completar la animación: '+err.message,'bad');S.animating=false;return}
     if(token!==flowToken)return;
     S.legIndex++;
-    S.animating=false;
     if(S.legIndex>=S.route.legs.length){
+      await restHero();if(token!==flowToken)return;
+      S.animating=false;
       if(S.pass==='resistors'){
-        // Primera vuelta R·I cerrada: el muñeco recupera la vertical en B.
-        positionHero(345,BOT,0);setHeroGait(false);setHeroMood(false);clearFX();
+        // La recogida y el giro de reposo han terminado en B.
+        setHeroMood(false);clearFX();
         S.pass='sources';S.route=createRoute(S.loop,S.cw);S.legIndex=0;
         updateLoopsArrows();renderBoardEquations();
         $('lapLabel').textContent='Vuelta 2/2 · fuentes de tensión';
@@ -1160,14 +1349,15 @@
       }else finishLoop();
       return;
     }
+    S.animating=false;
     $('advance').disabled=true;
     $('boardState').textContent=`Rama ${leg.branch+1} recorrida. Continúa hacia el siguiente elemento sin detenerse en los nudos.`;
     await nextInLoop();
   }
   $('advance').onclick=nextInLoop;
   function finishLoop(){
-    // Al terminar una malla, el personaje se queda derecho, con brazos caídos.
-    positionHero(345,BOT,0);setHeroGait(false);setHeroMood(false);
+    // El cuerpo ya está recogido y la cara ha recuperado el reposo.
+    setHeroMood(false);
     const source= S.es.reduce((a,p)=>a+p.v,0), row=[0,0,0];
     S.rs.forEach(p=>row[p.i]+=p.v);
     S.loops[S.loop]={sources:S.es.slice(),resistors:S.rs.slice(),source,row,cw:S.cw};
@@ -1379,7 +1569,7 @@
     $('reduceMsg').textContent='';
     $('reduceRows').innerHTML=hasReduction()?active.parts.map((parts,i)=>parts.length>1?`<div class="reduce-row"><b>R${i+1}</b> (${isParallel(i)?'paralelo':'serie'}): ${isParallel(i)?'1/R'+(i+1)+' = '+parts.map(r=>'1/'+formatNumber(r)).join(' + '):'R'+(i+1)+' = '+parts.map(formatNumber).join(' + ')}. Resultado: <input aria-label="Equivalencia R${i+1}" data-reduce="${i}" inputmode="decimal" placeholder="?"> Ω</div>`:'').join(''):'';
     $('boardState').textContent='Ejercicio '+active.label+'. Elige los sentidos supuestos.';
-    positionHero(345,BOT,0);setHeroGait(false);setHeroMood(false);phase(0)
+    positionHero(345,BOT,0,true);setHeroGait(false);setHeroMood(false);phase(0)
   }
   $('playAgain').onclick=newGame;
   document.addEventListener('keydown',e=>{
@@ -1451,7 +1641,7 @@
     if(A6.flowReq!==null){cancelAnimationFrame(A6.flowReq);A6.flowReq=null;}
     $('flowFX').innerHTML='';$('componentFX').innerHTML='';$('sourceArrowFX').innerHTML='';
     document.querySelectorAll('.component-lit,.flash-term').forEach(el=>el.classList.remove('component-lit','flash-term'));
-    setHeroGait(false);setHeroMood(false);$('heroShape').setAttribute('transform','rotate(0)');
+    setHeroGait(false);setHeroMood(false);positionHero(heroMotion.x,heroMotion.y,0);
   }
   function sixSVG(){
     // Capa inferior: el fondo de la malla activa jamás tapa conductores ni valores.
@@ -1561,7 +1751,7 @@
     show('advKCL',false);show('advLoops',false);show('advMatrix',false);show('advSolve',false);show('advResultPanel',false);show('advStart',true);
     $('phaseHead').textContent='Tema 7 · Actividad resuelta 7.6';$('phaseChip').textContent='4 NUDOS';
     sixText('advInfo','Selecciona los sentidos de las seis corrientes. Cada elección es una referencia algebraica válida.');
-    positionHero(...N6.C,0);setHeroGait(false);setHeroMood(false);sixRefArrow();sixMeshArrows();
+    positionHero(...N6.C,0,true);setHeroGait(false);setHeroMood(false);sixRefArrow();sixMeshArrows();
     $('score').textContent='0000';$('percent').textContent='0%';
   }
   function sixNodeSides(row){
@@ -1626,7 +1816,7 @@
     $('advNext').disabled=!!A6.done[index];$('advNext').textContent=A6.done[index]?'Malla completada ✓':'Iniciar recorrido desde '+start+' →';
     document.querySelectorAll('[data-sixloop]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.sixloop)===index));
     $('advCw').classList.toggle('selected',A6.cw);$('advCcw').classList.toggle('selected',!A6.cw);
-    sixMeshArrows();positionHero(...N6[start],0);setHeroMood(false);setHeroGait(false);
+    sixMeshArrows();positionHero(...N6[start],0,true);setHeroMood(false);setHeroGait(false);
     sixText('advLoopMsg',A6.done[index]?'Malla '+(index+1)+' completada. Elige otra pendiente.':'Malla '+(index+1)+' preparada. Salida desde el nudo '+start+'. Las bolitas recorrerán todas sus ramas durante Σ R·I.');
     sixRenderRows();
   }
@@ -1647,7 +1837,7 @@
       function step(ts){
         if(token!==A6.runId){resolve();return}
         if(start===null)start=ts;
-        const walked=Math.min(total,(ts-start)/8.8),pos=sixPointAt(pts,distances,walked);
+        const walked=Math.min(total,(ts-start)/HERO_MS_PER_PX),pos=sixPointAt(pts,distances,walked);
         positionHero(pos.x,pos.y,pos.angle);setHeroGait(walked<total,walked);
         setHeroMood(A6.pass==='R'&&opposite);
         if(walked<total)A6.animReq=requestAnimationFrame(step);
@@ -1702,7 +1892,7 @@
     A6.running=true;$('advNext').disabled=true;$('advNext').textContent='Recorriendo...';
     const route=sixOrientRoute(k,cw);
     // El personaje comienza físicamente en el nudo seleccionado, sin teletransporte.
-    positionHero(...N6[START6[k]],0);setHeroGait(false);setHeroMood(false);
+    positionHero(...N6[START6[k]],0,true);setHeroGait(false);setHeroMood(false);
     for(const leg of route){
       if(token!==A6.runId)return;
       const id=leg.id,edge=EDGES6[id],d=leg.d,points=(d===1?edge.p:edge.p.slice().reverse());
@@ -1718,6 +1908,7 @@
         if(token!==A6.runId)return;from=j;
         if(isRelevant){
           const val=sixSignFX(id,p,d);const el=$('sixCmp'+id+(pass==='R'?'R':'U'));
+          setHeroReaction(val);
           if(el)el.classList.add('component-lit');
           if(!await challengeTerm('sixTermChallenge',val,id,pass==='U',true))return;
           if(token!==A6.runId)return;
@@ -1733,7 +1924,8 @@
       sixStopFlow();
     }
     if(token!==A6.runId)return;
-    A6.running=false;positionHero(...N6[START6[k]],0);setHeroGait(false);setHeroMood(false);
+    await restHero();if(token!==A6.runId)return;
+    A6.running=false;setHeroMood(false);
     if(pass==='R'){
       A6.pass='U';sixText('advLap','Vuelta 2/2 · Σ U · Malla '+(k+1)+' · salida '+START6[k]);sixMeshArrows();
       $('advNext').disabled=false;$('advNext').textContent='Iniciar vuelta de tensiones desde '+START6[k]+' →';
