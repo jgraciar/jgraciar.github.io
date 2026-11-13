@@ -17,6 +17,15 @@ try{
   await page.addInitScript(()=>{localStorage.setItem('labStartConfigured','1');localStorage.setItem('labLanguageMode','manual');localStorage.setItem('language','es');});
   await page.goto('http://127.0.0.1:8767/circuitjgr.html?cct='+encodeURIComponent(circuit(77))+'&running=false');
   await ready(page,1);
+  const ribbon=await page.frameLocator('iframe[data-tab-id="jgr-1"]').locator('#jgr-tab-strip').evaluate(strip=>{
+   const app=strip.ownerDocument.defaultView.__CircuitJGRExperimentalApp;
+   const style=node=>{const css=getComputedStyle(node);return {background:css.backgroundColor,font:css.fontFamily};};
+   return {tabs:style(strip),menu:style(app.menus.menuBar),tools:style(app.ui.toolbar.element)};
+  });
+  assert.equal(ribbon.menu.background,ribbon.tabs.background,'Menu ribbon uses the tab-strip background');
+  assert.equal(ribbon.tools.background,ribbon.tabs.background,'Toolbar ribbon uses the tab-strip background');
+  assert.equal(ribbon.menu.font,ribbon.tabs.font,'Menu ribbon uses the tab-strip font');
+  assert.equal(ribbon.tools.font,ribbon.tabs.font,'Toolbar ribbon uses the tab-strip font');
   assert.equal(await page.locator('link[rel="icon"]').getAttribute('href'),'./favicon.ico');
   const iconResponse=await page.request.get(new URL('./favicon.ico',page.url()).href);
   assert.equal(iconResponse.status(),200);
