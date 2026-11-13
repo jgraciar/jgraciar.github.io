@@ -19,10 +19,10 @@ for(const mobile of [false,true]){
  }
  await page.click('#confirmDirs');await page.click('#goLoops');
  await tap(490,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'355');
- await tap(445,164);assert.match(await page.locator('#boardState').innerText(),/antihorario/);
- await tap(490,290);assert.match(await page.locator('#boardState').innerText(),/antihorario/,'Pulsar la malla activa conserva el progreso');
+ await tap(445,164);assert.match(await page.locator('#boardState').textContent(),/antihorario/);
+ await tap(490,290);assert.match(await page.locator('#boardState').textContent(),/antihorario/,'Pulsar la malla activa conserva el progreso');
  await page.locator('[data-mesh-turn="1"]').focus();await page.locator('[data-mesh-turn="1"]').press('Space');
- assert.match(await page.locator('#boardState').innerText(),/horario/);assert.equal(await page.locator('#advance').isEnabled(),true,'Espacio cambia el giro sin iniciar el recorrido');
+ assert.match(await page.locator('#boardState').textContent(),/horario/);assert.equal(await page.locator('#advance').isEnabled(),true,'Espacio cambia el giro sin iniciar el recorrido');
  await tap(210,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'156');
  await page.click('#advance');await tap(490,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'156','No cambiar malla durante el recorrido');
  await page.selectOption('#exerciseSelect','r76');
@@ -33,11 +33,11 @@ for(const mobile of [false,true]){
  for(const eq of ['I1=I2+I3','I2+I4=I5','I1+I4+I6=0']){
   await page.locator('#sixNodeChallenge .kcl-answer').fill(eq);await page.click('#sixNodeChallenge .kcl-check');
  }
- await tap(460,290);assert.match(await page.locator('#advLap').innerText(),/Malla 3/);
- await tap(352,294);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').innerText(),/↺/);
- await tap(460,290);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').innerText(),/↺/);
- await tap(477,130);assert.match(await page.locator('#advLap').innerText(),/Malla 2/);assert.match(await page.locator('#sixLoops [data-mesh-turn="1"]').innerText(),/↺/);
- await page.click('#advNext');await tap(300,190);assert.match(await page.locator('#advLap').innerText(),/Malla 2/,'No cambiar malla avanzada durante el recorrido');
+ await tap(460,290);assert.match(await page.locator('#advLap').textContent(),/Malla 3/);
+ await tap(352,294);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
+ await tap(460,290);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
+ await tap(477,130);assert.match(await page.locator('#advLap').textContent(),/Malla 2/);assert.match(await page.locator('#sixLoops [data-mesh-turn="1"]').textContent(),/↺/);
+ await page.click('#advNext');await tap(300,190);assert.match(await page.locator('#advLap').textContent(),/Malla 2/,'No cambiar malla avanzada durante el recorrido');
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles directos, tres y seis ramas, '+(mobile?'pantalla táctil':'ratón y teclado'));
 }
 }finally{await browser.close()}
