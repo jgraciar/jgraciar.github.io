@@ -103,7 +103,7 @@ try{
  await swipe('jgr-1','jgr-3',true);assert.deepEqual(await order(mobile),['jgr-2','jgr-1','jgr-3']);assert.equal(await active(mobile),'jgr-3');
  for(let n=4;n<=10;n++){await (await actions(mobile)).locator('#add-tab').tap();await ready(mobile,n);}
  const mobileOrder=await order(mobile),beforeScroll=await (await strip(mobile)).locator('.jgr-tab-list').evaluate(el=>el.scrollLeft);
- assert(beforeScroll>0);await swipe('jgr-6',null,false);
+ assert(beforeScroll>0);await swipe('jgr-9',null,false);
  assert.deepEqual(await order(mobile),mobileOrder,'A short swipe scrolls without reordering');
  assert((await (await strip(mobile)).locator('.jgr-tab-list').evaluate(el=>el.scrollLeft))<beforeScroll);
  accessible(await geometry(mobile));assert.deepEqual(errors,[]);
