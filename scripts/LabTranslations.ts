@@ -1,4 +1,5 @@
 import {uiSpanish,uiValencian} from "./LabTranslationsMenus.ts";
+import {arabicTranslation} from "./CircuitJGRArabic.ts";
 import {nativeMenuExtensions} from "./LabTranslationsNativeMenus.ts";
 import {circuitJsSupplementKeys,circuitJsSupplement} from "./CircuitJsSupplementalUi.ts";
 import {circuitJsUiCompletenessKeys,circuitJsUiCompleteness} from "./CircuitJsUiCompleteness.ts";
@@ -597,6 +598,6 @@ export function labTranslation(language:string,key:string):string|null{
   base==="cs"?"csx":
   base==="ko"?"kr":
   base==="no"||base==="nn"?"nb":base;
- return dictionaries[code]?.get(key)??null;
+ return dictionaries[code]?.get(key)??(code==="ar"?arabicTranslation(key):null);
 }
 export function labKeys():string[]{return rows.map(row=>row[0]);}
