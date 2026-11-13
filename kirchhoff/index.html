@@ -1,0 +1,1531 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Kirchhoff Arcade · MVP 2.4</title>
+<style>
+  :root { --bg:#09101d; --card:#111c30; --card2:#0c182b; --border:#2c415b; --txt:#f0f6ff; --muted:#a7bbd0; --cyan:#5ce6f0; --lime:#b7f75c; --amber:#ffc66b; --red:#ff7786; --purple:#ac98ff; }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(circle at 9% 2%,#183657 0,transparent 28%),radial-gradient(circle at 96% 70%,#1b2050 0,transparent 35%),var(--bg);color:var(--txt);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+  .shell{max-width:1580px;margin:auto;padding:20px 18px 34px}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:15px}
+  .logo{font-size:clamp(25px,3vw,35px);font-weight:900;letter-spacing:.04em;line-height:1.1}
+  .logo span{color:var(--cyan)}
+  .sub{font:12px/1.4 ui-monospace,Consolas,monospace;color:var(--muted);margin-top:6px;letter-spacing:.04em}
+  .score{display:flex;gap:11px;flex-wrap:wrap}
+  .stat{background:#0d1b2e;border:1px solid #36516b;padding:9px 14px;border-radius:12px;min-width:105px}
+  .stat small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+  .stat strong{font:700 21px/1.45 ui-monospace,Consolas,monospace;color:var(--lime)}
+  .stages{display:flex;gap:7px;margin:12px 0 16px;overflow:auto;padding-bottom:4px}
+  .stage{flex:1;min-width:132px;background:#142035;border:1px solid #2d425c;border-radius:11px;padding:10px 11px;color:#8399b4;font-size:12px;font-weight:700}
+  .stage.active{border-color:var(--cyan);color:var(--txt);background:#163045;box-shadow:inset 0 0 0 1px #5ce6f02a}
+  .stage.done{color:var(--lime);border-color:#53843e}
+  .stage b{margin-right:8px;color:inherit}
+  .layout{display:grid;grid-template-columns:1fr;gap:17px;align-items:start}
+  .card{background:linear-gradient(145deg,#111e33,#0c1729);border:1px solid var(--border);border-radius:17px;box-shadow:0 16px 33px #0000001f;overflow:hidden}
+  .cardhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 17px;border-bottom:1px solid var(--border);background:#15253b}
+  .cardhead strong{font-size:14px}
+  .chip{border:1px solid #476480;background:#0e2136;border-radius:7px;padding:3px 8px;color:var(--muted);font:11px ui-monospace,Consolas,monospace}
+  .board{padding:10px;background:radial-gradient(circle at 50% 46%,#162d42 0,#0d1a2c 65%);position:relative}
+  #circuit{display:block;width:100%;height:auto;max-height:min(1000px,78vw);overflow:visible}
+  .wire{stroke:#e9f4fd;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .symbol{stroke:#f5f6fa;stroke-width:2.8;fill:#15233a;stroke-linejoin:round}
+  .source-plate{stroke:#f5f6fa;stroke-width:3;stroke-linecap:square}
+  .txt{fill:#f5f6fa;font:600 17px ui-monospace,Consolas,monospace}
+  .txtsm{fill:#b2c7da;font:13px ui-monospace,Consolas,monospace}
+  .component-value{fill:#ecf5ff;font:400 16px/1.2 ui-monospace,Consolas,monospace;pointer-events:none}
+  .resistor-name{fill:#fff;font:700 12px ui-monospace,Consolas,monospace;text-anchor:middle;pointer-events:none}
+  .direction-outline{fill:none;stroke:#13283d;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+  .direction{stroke:#5ce6f0;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .dirlabel{fill:#7ae8f3;font:750 17px ui-monospace,Consolas,monospace;pointer-events:none}
+  .nod{fill:var(--amber);stroke:#fff3ce;stroke-width:2}
+  .nodeglow{fill:none;stroke:var(--amber);stroke-width:2;opacity:.7}
+  .branch-hit{fill:transparent;cursor:pointer}
+  .branch-hit:focus{outline:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:5 5}
+  .node-hit{fill:transparent;cursor:pointer}
+
+  .dirclick{fill:transparent;cursor:pointer}
+  .glowloop{fill:#5ce6f00a;stroke:var(--cyan);stroke-width:2.2;stroke-dasharray:10 7;pointer-events:none}
+  .hero-body{fill:#b7f75c;stroke:#edffbe;stroke-width:2}
+  .hero-eye{fill:#15233a}
+  .hero-body.sad{fill:#a64a17;stroke:#e99659}
+  .hero-limb{stroke:#d9ffc5;stroke-width:3.3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .hero-limb.sad{stroke:#eea16f}
+  .hero-mouth{stroke:#122236;stroke-width:2;fill:none;stroke-linecap:round}
+  .lap-chip{color:var(--amber);font-weight:700;margin:6px 0 0}
+  .eq-equals{display:flex;align-items:center;justify-content:center;font:900 30px ui-monospace,monospace;color:var(--cyan)}
+  #hero{filter:drop-shadow(0 0 9px #b7f755);pointer-events:none}
+  .boardfoot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 15px;background:#0d1b2e;border-top:1px solid var(--border);color:var(--muted);font-size:12px}
+  .boardfoot b{color:var(--cyan);font-weight:600}
+  .body{padding:18px}
+  .phase-title{margin:0 0 7px;font-size:22px;font-weight:850;line-height:1.25}
+  .desc{color:var(--muted);margin:0 0 14px;font-size:14px}
+  .btnrow{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  button{color:var(--txt);font:600 14px system-ui,sans-serif;border:1px solid #45607c;background:#1e3550;padding:10px 13px;border-radius:9px;cursor:pointer;transition:filter .12s,transform .12s}
+  button:hover:not(:disabled){filter:brightness(1.18)}
+  button:active:not(:disabled){transform:translateY(1px)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:linear-gradient(100deg,#187d9a,#2c638b);border-color:#4be6f0;color:white}
+  button.success{background:#376c37;border-color:#91db66}
+  button.ghost{background:transparent;border-color:#47627b;color:#afc6dc}
+  button.small{padding:7px 10px;font-size:12px}
+  button.selected{background:#3d4f76;border-color:var(--cyan);box-shadow:inset 0 0 0 1px #5ce6f050}
+  .eqpanel{padding:13px;background:#0a1729;border:1px solid #324967;border-radius:12px;margin:13px 0}
+  .eqtitle{color:var(--cyan);font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+  .eq{font:600 clamp(15px,2vw,20px)/1.8 ui-monospace,Consolas,monospace;word-break:break-word}
+  .eq + .eq{border-top:1px dashed #294661;padding-top:6px;margin-top:6px}
+  .eq.good{color:var(--lime)}
+  .node-eq-list{display:grid;gap:0;width:100%;margin:3px 0}
+  .node-eq-row{display:grid;grid-template-columns:75px minmax(0,1fr);gap:10px;align-items:baseline;padding:9px 2px;border-bottom:1px solid #29415b}
+  .node-eq-row:last-child{border-bottom:0}
+  .node-eq-label{color:#a9c4db;font:700 12px/1.6 system-ui,sans-serif}
+  .node-eq-formula{font:700 clamp(14px,1.6vw,17px)/1.5 ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;white-space:normal;overflow-wrap:anywhere}
+
+  .notes{font-size:13px;color:var(--muted)}
+  .message{padding:10px 12px;border-radius:9px;background:#14304a;color:#d8f5fb;border:1px solid #285a78;font-size:13px;min-height:43px;margin:12px 0}
+  .message.bad{background:#3c2233;border-color:#a95166;color:#ffe1e7}
+  .message.good{background:#1b382b;border-color:#5f9f64;color:#d2ffd8}
+  .dirbuttons{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}
+  .dirbuttons button{min-width:82px}
+  .build{display:grid;grid-template-columns:minmax(0,1fr) 38px minmax(0,1fr);gap:9px;margin:13px 0}
+  .build .eqpanel{margin:0;min-height:100px}
+  .mathlabel{display:block;color:var(--muted);font-size:11px;line-height:1.3}
+  .eqlist{margin-top:10px;padding:10px 12px;background:#101f35;border-radius:10px;border:1px solid #314d6b}
+  .eqlist .eq{font-size:14px}
+  .component-source.component-lit,.component-resistor.component-lit{filter:drop-shadow(0 0 9px #ffe288) drop-shadow(0 0 7px #ffca55)}
+  .component-source.component-lit .source-plate{stroke:#fff1ae;stroke-width:5;filter:drop-shadow(0 0 7px #ffd463)}
+  .component-source.component-lit .source-halo{fill:#715119;stroke:#ffe08a;stroke-width:2.2}
+  .component-source.component-lit rect:not(.source-halo){fill:#79551d;stroke:#ffe08a;stroke-width:2}
+  .component-source.component-lit .source-lead{stroke:#ffe9a0;stroke-width:4}
+  .component-source.component-lit text{fill:#fff0af;filter:drop-shadow(0 0 5px #ffd463)}
+  .component-resistor.component-lit .symbol{stroke:#fff2b9;stroke-width:5;fill:#79551f;filter:drop-shadow(0 0 10px #ffe288)}
+  .component-resistor.component-lit text{fill:#fff0af;filter:drop-shadow(0 0 5px #ffe28c)}
+  .circuit-controls{padding:14px 16px 16px;background:#102139;border-top:1px solid #3d5772;display:grid;gap:10px}
+  .circuit-controls .message{margin:2px 0}
+  .circuit-controls .lap-chip{margin:2px 0}
+  .circuit-controls .btnrow{margin:0}
+  .circuit-controls-inner{display:grid;gap:10px}
+  .circuit-controls .control-groups{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center}
+  .circuit-controls .control-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .board-equations{padding:12px 15px;background:#0a1729;border-top:1px solid #344c67}
+  .board-equations .eqtitle{margin-bottom:8px}
+  .board-eq-row{display:grid;grid-template-columns:75px minmax(0,1fr);align-items:baseline;gap:9px;padding:6px 0;border-top:1px solid #263b53}
+  .board-eq-row:first-of-type{border-top:0}
+  .board-eq-label{color:#b8cddf;font-size:12px;font-weight:700}
+  .board-eq-formula{display:flex;align-items:baseline;justify-content:flex-start;flex-wrap:wrap;column-gap:14px;row-gap:2px;font:650 clamp(14px,1.65vw,18px)/1.7 ui-monospace,Consolas,monospace}
+  .board-eq-left,.board-eq-right{min-width:50px}
+  .board-eq-equal{color:var(--cyan);font-weight:900;font-size:22px}
+  .flash-term{display:inline-block;white-space:nowrap;border-radius:4px;padding:0 3px;animation:termBlink .9s step-end infinite!important;will-change:opacity,background-color;color:#ffec95}
+  @keyframes termBlink{0%,49%{color:#ffe083;opacity:1;background:#99681b;text-shadow:0 0 12px #ffce55;box-shadow:0 0 9px #ffc95866}50%,100%{color:#f4f7ff;opacity:.23;background:transparent;text-shadow:none;box-shadow:none}}
+  .reductions{padding:12px;border:1px solid #67805e;border-radius:10px;margin-bottom:12px;background:#142d2a}
+  .reductions input{width:88px;background:#071426;color:#fff;border:1px solid #65896c;border-radius:6px;padding:8px;font:700 15px monospace}
+  .reductions .reduce-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0}
+  .matrix{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 12px minmax(0,1fr);gap:6px;align-items:center}
+  .mat-head{text-align:center;color:var(--muted);font-size:11px}
+  .mat-sep{height:36px;border-left:2px solid var(--cyan);margin:0 5px}
+  .matrix input{width:100%;height:42px;text-align:center;background:#071426;border:1px solid #46637a;border-radius:7px;color:var(--txt);font:700 16px ui-monospace,monospace;outline:0}
+  .matrix input:focus{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan)}
+  .matrix input.correct{border-color:#80b957;background:#18352c}
+  .matrix input.wrong{border-color:#fc8595;background:#3b2030}
+  .muted{color:var(--muted)}
+  .steps{margin:14px 0;display:grid;gap:8px}
+  .step{display:flex;align-items:start;gap:10px;padding:10px;border:1px solid #36516b;background:#132740;border-radius:10px;font-size:14px}
+  .stepnum{flex:0 0 26px;background:#27627e;border-radius:7px;color:#e9fdff;font:800 13px ui-monospace,monospace;text-align:center;padding:4px 0}
+  .step-main{flex:1;min-width:0}
+  .step-heading{font-weight:800;color:#c2f3fb;font-size:14px;margin-bottom:5px}
+  .step-description{color:#d3e3f4;font-size:13px;line-height:1.5;margin:5px 0 8px}
+  .algebra-scroll{width:100%;max-width:100%;overflow-x:auto;border:1px solid #34506a;border-radius:8px;margin:9px 0}
+  .algebra-table{border-collapse:collapse;width:100%;min-width:420px;table-layout:fixed;font:600 13px/1.4 ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;background:#0b1b2d}
+  .algebra-table col.alg-label-col{width:19%}
+  .algebra-table col.alg-term-col{width:20%}
+  .algebra-table col.alg-eq-col{width:6%}
+  .algebra-table col.alg-result-col{width:15%}
+  .algebra-table th,.algebra-table td{padding:7px 6px;text-align:right;white-space:nowrap;vertical-align:middle;border-bottom:1px solid #28445b}
+  .algebra-table th{color:#94bcd6;background:#142943;font-size:11px}
+  .algebra-table th:first-child,.algebra-table td:first-child{text-align:left;color:#a6c8e1;font-size:11px}
+  .algebra-table td.alg-equal{text-align:center;color:var(--cyan);font-weight:900}
+  .algebra-table td.alg-empty{color:#6a8197}
+  .algebra-table tr:last-child td{border-bottom:0}
+  .algebra-table tr.alg-total td{border-top:2px solid var(--amber);color:#ffe1a2}
+  .algebra-table tr.alg-total td:first-child{font-weight:800}
+  .result{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:15px 0}
+  .result div{background:#163529;border:1px solid #5a9358;padding:12px 7px;text-align:center;border-radius:11px}
+  .result small{display:block;color:#bed4c0;font:12px ui-monospace,monospace}
+  .result strong{font:800 clamp(19px,2.5vw,27px) ui-monospace,monospace;color:var(--lime)}
+  .footer{margin-top:18px;font-size:12px;color:#96adc5;line-height:1.6}
+  .hide{display:none!important}
+  .flexbetween{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .key{font:12px ui-monospace,monospace;border:1px solid #55718a;border-radius:4px;padding:1px 5px;color:#b7cee4}
+  @media(max-width:970px){.layout{grid-template-columns:1fr}.stages{flex-wrap:wrap}.stage{flex:1 1 30%}}
+  @media(max-width:540px){.shell{padding:12px 8px 25px}.body{padding:13px}.logo{font-size:24px}.stage{min-width:90px;padding:8px;font-size:10px}.stat{min-width:76px}.build{grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr)}.board{padding:3px}.cardhead{padding:10px}}
+  
+  .exercisebar{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin:0 0 16px}
+  .field{display:grid;gap:5px;min-width:270px}
+  .field label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  select{background:#0d1b2e;border:1px solid #47627b;color:var(--txt);border-radius:9px;padding:10px 12px;font:600 14px system-ui,sans-serif}
+  .mini{font-size:12px;color:var(--muted)}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #47627b;border-radius:999px;background:#0d1b2e;font-size:12px;color:#d9e9f6}
+  .helper{margin-top:10px;padding:10px 12px;background:#0f1d31;border:1px dashed #39536d;border-radius:10px;font-size:13px;color:#c6d8e8}
+  .fx-plusminus{fill:#0d1b2e;stroke:#ffd78f;stroke-width:2}
+  .fx-pm-text{fill:#ffd78f;font:900 16px ui-monospace,monospace;text-anchor:middle;dominant-baseline:middle}
+  .fx-arrow{stroke:#ffc66b;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .fx-current-dot{fill:#ffe0a0;filter:drop-shadow(0 0 5px #ffd58f)}
+  .fx-current-halo{fill:#ffecc6;opacity:.19}
+  .adv-mat-overflow{overflow-x:auto;margin:12px 0;padding:10px;background:#0b1c30;border:1px solid #36506a;border-radius:10px}
+  .adv-mat-head,.adv-mat-row{display:grid;grid-template-columns:repeat(7,minmax(48px,1fr));gap:5px;min-width:395px;margin:4px 0}
+  .adv-mat-head span{font:700 12px monospace;color:#a4cde3;text-align:center}
+  .adv-mat-row input{width:100%;height:36px;text-align:center;background:#081526;color:#fff;border:1px solid #4c6884;border-radius:5px;font:700 13px monospace}
+  .adv-mat-row input.correct{border-color:#93cd72;background:#153528}
+  .adv-mat-row input.wrong{border-color:#f47c8b;background:#3a1b2b}
+  .adv-eqline{font:600 13px/1.65 ui-monospace,Consolas,monospace;white-space:normal;word-break:break-word;padding:4px 6px;border-bottom:1px solid #2e4560}
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}.flash-term{opacity:1!important;background:#99681b!important;color:#ffe083!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 2.4 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
+    <div class="score"><div class="stat"><small>Puntos</small><strong id="score">0000</strong></div><div class="stat"><small>Progreso</small><strong id="percent">0%</strong></div></div>
+  </header>
+  <nav class="stages" id="stagebar" aria-label="Fases">
+    <div class="stage active" data-stage="0"><b>01</b> Corrientes</div>
+    <div class="stage" data-stage="1"><b>02</b> Nudo</div>
+    <div class="stage" data-stage="2"><b>03</b> Mallas</div>
+    <div class="stage" data-stage="3"><b>04</b> Matriz</div>
+    <div class="stage" data-stage="4"><b>05</b> Resolución</div>
+  </nav>
+  <div class="exercisebar">
+    <div class="field">
+      <label for="exerciseSelect">Ejercicio del tema 7</label>
+      <select id="exerciseSelect"></select>
+    </div>
+    <div class="field">
+      <label>Estado</label>
+      <div><span class="pill" id="exerciseStatus">Adaptado al MVP</span></div>
+    </div>
+    <div class="field" style="flex:1 1 320px">
+      <label>Observaciones</label>
+      <div class="mini" id="exerciseHint">Selecciona un ejercicio: reinicia la partida con sus resistencias y fuentes.</div>
+    </div>
+  </div>
+  <main class="layout">
+    <section class="card">
+      <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span></div>
+      <div class="board">
+        <svg id="circuit" viewBox="0 0 700 430" role="img" aria-label="Circuito de corriente continua con símbolos IEC y flechas seleccionables">
+          <defs><pattern id="dots" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="#34516e" opacity=".8"/></pattern></defs>
+          <rect x="0" y="0" width="700" height="430" fill="url(#dots)"/>
+          <rect id="loopHighlight" class="glowloop hide" x="146" y="74" width="199" height="286" rx="14"/>
+          <g id="staticCircuit"></g>
+          <g id="loopArrows"></g>
+          <g id="dirGraphics"></g>
+          <g id="flowFX"></g>
+          <g id="sourceArrowFX"></g>
+          <g id="componentFX"></g>
+          <circle class="nodeglow hide" id="nodePulse" cx="345" cy="74" r="19"/>
+          <rect class="dirclick" tabindex="0" role="button" aria-label="Cambiar I1" id="dirHit0" x="180" y="43" width="126" height="65"/>
+          <rect class="dirclick" tabindex="0" role="button" aria-label="Cambiar I2" id="dirHit1" x="353" y="74" width="92" height="67"/>
+          <rect class="dirclick" tabindex="0" role="button" aria-label="Cambiar I3" id="dirHit2" x="395" y="43" width="127" height="65"/>
+          <circle class="node-hit" id="nodeHit" tabindex="0" role="button" aria-label="Analizar nudo A" cx="345" cy="74" r="29"/>
+          <g id="hero" transform="translate(345 360)"><g id="heroShape">
+            <!-- Articulaciones independientes: brazos relajados hacia abajo en reposo. -->
+            <g id="heroArmLeft"><path class="hero-limb" d="M-10 -5 L-18 6 L-16 12"/></g>
+            <g id="heroArmRight"><path class="hero-limb" d="M10 -5 L18 6 L16 12"/></g>
+            <g id="heroLegLeft"><path class="hero-limb" d="M-6 10 L-9 21 L-14 24"/></g>
+            <g id="heroLegRight"><path class="hero-limb" d="M6 10 L9 21 L14 24"/></g>
+            <path class="hero-limb" d="M0 -12 V-19 M-4 -19 H4"/>
+            <rect id="heroBody" class="hero-body" x="-12" y="-12" width="24" height="24" rx="7"/>
+            <circle class="hero-eye" cx="-4" cy="-4" r="2.2"/><circle class="hero-eye" cx="4" cy="-4" r="2.2"/>
+            <path id="heroMouth" class="hero-mouth" d="M-5 4 Q0 9 5 4"/>
+          </g></g>
+        </svg>
+      </div>
+      <div id="boardEquations" class="board-equations hide" aria-live="polite">
+        <div class="eqtitle">Ecuaciones de malla · se completan durante el recorrido</div>
+        <div class="board-eq-row"><div class="board-eq-label">Malla 1</div><div class="board-eq-formula"><span class="board-eq-left" id="boardM0R"></span><span class="board-eq-equal">=</span><span class="board-eq-right" id="boardM0E"></span></div></div>
+        <div class="board-eq-row"><div class="board-eq-label">Malla 2</div><div class="board-eq-formula"><span class="board-eq-left" id="boardM1R"></span><span class="board-eq-equal">=</span><span class="board-eq-right" id="boardM1E"></span></div></div>
+      </div>
+      <div id="advBoardEquations" class="board-equations hide" aria-live="polite"><div class="eqtitle">Actividad 7.6 · ecuaciones construidas debajo del circuito</div><div id="advBoardRows"></div></div>
+      <div id="circuitControls" class="circuit-controls hide" aria-label="Controles del recorrido bajo el circuito">
+        <div id="standardCircuitControls" class="circuit-controls-inner hide">
+          <div class="control-groups">
+            <div class="btnrow" id="loopButtons"><button data-loop="0" class="selected">Malla 1 · izquierda</button><button data-loop="1">Malla 2 · derecha</button></div>
+            <div class="btnrow"><button id="cw" class="small selected">Horario ↻</button><button id="ccw" class="small">Antihorario ↺</button><button id="resetLoop" class="small ghost">Repetir recorrido</button></div>
+          </div>
+          <div class="lap-chip" id="lapLabel">Vuelta 1/2 · resistencias (R·I)</div>
+          <div class="message" id="loopFeedback">Comienza el recorrido de la malla 1.</div>
+          <div class="control-actions"><button class="primary" id="advance">Avanzar al siguiente elemento →</button><button class="success hide" id="goMatrix">Organizar el sistema →</button></div>
+        </div>
+        <div id="advancedCircuitControls" class="circuit-controls-inner hide">
+          <div class="control-groups">
+            <div class="btnrow" id="advLoopButtons"><button class="small selected" data-sixloop="0">Malla 1</button><button class="small" data-sixloop="1">Malla 2</button><button class="small" data-sixloop="2">Malla 3</button></div>
+            <div class="btnrow"><button class="small selected" id="advCw">Horario ↻</button><button class="small" id="advCcw">Antihorario ↺</button></div>
+          </div>
+          <div class="lap-chip" id="advLap">Vuelta 1/2 · Σ R·I</div>
+          <p class="message" id="advLoopMsg">Cada malla parte de su nudo indicado: C, C o D.</p>
+          <div class="control-actions"><button class="primary" id="advNext">Iniciar recorrido desde C →</button><button class="success hide" id="advToMatrix">Construir matriz 6 × 6 →</button></div>
+        </div>
+      </div>
+      <div class="boardfoot"><span id="boardState">Selecciona las flechas: cualquier referencia es válida.</span><span id="boardSummary">Fuentes: 18 V, 6 V · R: 2 Ω</span></div>
+    </section>
+    <section class="card" aria-live="polite" id="phaseCard">
+      <div class="cardhead"><strong id="phaseHead">Fase 1 · Sentidos de referencia</strong><span class="chip" id="phaseChip">ELIGE</span></div>
+      <div class="body">
+        <div id="advancedPhase" class="hide">
+          <h1 class="phase-title">Actividad resuelta 7.6 · Kirchhoff completo</h1>
+          <p class="desc">Circuito original organizado en <b>4 nudos (n−1 = 3)</b>, <b>6 ramas</b> y <b>3 mallas</b>. Los elementos en serie de cada rama conservan sus valores y polaridades. Las referencias de corriente son elecciones algebraicas.</p>
+          <div class="eqtitle">Sentidos supuestos de I₁ a I₆</div>
+          <div class="dirbuttons" id="advDirections"></div>
+          <p class="message" id="advInfo"></p>
+          <button class="primary" id="advStart">Confirmar sentidos y obtener ecuaciones de nudos →</button>
+          <div id="advKCL" class="eqpanel hide"><div class="eqtitle">Primera ley · 3 ecuaciones independientes</div><div class="eq" style="font-size:14px" id="advKCLtext"></div></div>
+          <div id="advLoops" class="hide">
+            <h2 class="phase-title" style="font-size:19px">Mallas · dos vueltas por malla</h2>
+            <p class="desc">Selecciona la malla, el sentido de recorrido y continúa las animaciones con los controles situados debajo del circuito. Las ecuaciones se construyen en un único lugar, bajo el esquema.</p>
+          </div>
+          <div id="advMatrix" class="hide">
+            <h2 class="phase-title">Sistema matricial 6 × 6</h2>
+            <p class="desc">Las ecuaciones de nudo se normalizan con todas las incógnitas a la izquierda y cero a la derecha. Escribe los coeficientes de cada ecuación.</p>
+            <div class="eqlist"><div class="eqtitle">Tres nudos + tres mallas</div><div id="advMatEqs"></div></div>
+            <div class="adv-mat-overflow"><div id="advMatInputs"></div></div>
+            <div class="btnrow"><button class="primary" id="advMatVerify">Comprobar matriz</button><button class="ghost small" id="advFill">Rellenar para probar</button></div>
+            <div class="message" id="advMatFeedback"></div>
+            <button class="success hide" id="advSolveBtn">Resolver mediante sustitución y reducción →</button>
+          </div>
+          <div id="advSolve" class="hide">
+            <h2 class="phase-title">Resolución algebraica</h2>
+            <p class="desc">Como en la demostración: sustituimos los nudos en las mallas, aplicamos reducción con los coeficientes alineados, hacemos sustitución regresiva y comprobamos el circuito.</p>
+            <div class="steps" id="advSolveSteps"></div>
+            <button class="primary" id="advSolveNext">Siguiente paso →</button>
+            <div id="advResultPanel" class="hide" style="margin-top:14px">
+              <div class="eqtitle">Intensidades calculadas</div>
+              <div class="result" id="advResults"></div>
+              <div class="message good" id="advResultCheck">Comprobación de las ecuaciones originales.</div>
+            </div>
+          </div>
+        </div>
+        <div id="phase0">
+          <h1 class="phase-title">Elige las corrientes</h1>
+          <p class="desc">Sentidos iniciales: <b>I₁ entra por la izquierda →, I₂ sale hacia abajo ↓ e I₃ sale a la derecha →</b>. Puedes invertir cualquiera de las flechas; una intensidad negativa indicará el sentido real contrario.</p>
+          <div class="reductions hide" id="reductions"><div class="eqtitle">Paso inicial · simplificación de resistencias</div><div id="reduceRows"></div><button class="small success" id="checkReductions">Comprobar equivalencias</button><span id="reduceMsg" class="mini"></span></div>
+          <div class="dirbuttons" id="dirButtons"></div>
+          <div class="message">Los nudos son A y B. Trabajaremos con las tres intensidades de rama como incógnitas.</div>
+          <button class="primary" id="confirmDirs">Confirmar referencias →</button>
+        </div>
+        <div id="networkPhase" class="hide">
+          <h1 class="phase-title">Resistencia equivalente entre A y B</h1>
+          <p class="desc" id="networkIntro">Observa la red original del ejercicio y calcula la resistencia equivalente vista desde los terminales A y B.</p>
+          <div class="eqpanel"><div class="eqtitle">Desafío de equivalencias</div>
+            <div class="btnrow"><label for="networkR">R<sub>eq</sub> (Ω):</label><input id="networkR" style="background:#081527;border:1px solid #56748e;color:#fff;border-radius:8px;padding:10px;width:130px;font:700 18px monospace" type="text" inputmode="decimal" placeholder="?"/><button class="primary" id="networkVerify">Comprobar</button></div>
+            <div class="message" id="networkFeedback">Utiliza los símbolos IEC y las asociaciones eléctricas que correspondan.</div>
+          </div>
+          <div class="btnrow"><button id="networkHint" class="ghost">Mostrar una pista</button><button id="networkExplain" class="small ghost hide">Ver procedimiento</button></div>
+          <div class="steps" id="networkSteps"></div>
+          <div class="message good hide" id="networkDone">Ejercicio resuelto y verificado.</div>
+          <button id="networkRestart" class="success hide">Volver a jugar</button>
+        </div>
+        <div id="phase1" class="hide">
+          <h1 class="phase-title">Ley de los nudos</h1>
+          <p class="desc">La ecuación se genera directamente: <b>corrientes que entran = corrientes que salen</b>. Hay 2 nudos, por tanto <b>n − 1 = 1 ecuación independiente</b>.</p>
+          <div class="btnrow hide"><button id="selectA" class="primary">Analizar nudo A</button><button id="selectB" class="ghost">Analizar nudo B</button></div>
+          <div class="eqpanel hide" id="nodeEqPanel"><div class="eqtitle">Ecuación KCL · n − 1 = 1</div><div class="eq" id="nodeEq"></div></div>
+          <div class="message" id="nodeFeedback">Los dos nudos proporcionan ecuaciones equivalentes; basta una independiente.</div>
+          <button id="goLoops" class="primary hide">Continuar a las mallas →</button>
+        </div>
+        <div id="phase2" class="hide">
+          <h1 class="phase-title">Recorre las mallas</h1>
+          <p class="desc">Cada malla requiere <b>dos vueltas completas</b>: primero construye los términos <b>R·I</b> y después recoge las tensiones de las fuentes. <b>Ambas mallas comienzan siempre en el nudo B</b>. Las caídas de tensión quedan a la izquierda del signo igual y las fuentes a la derecha.</p>
+          <div class="helper" id="loopHelper">Las dos mallas comienzan en B. Debajo del circuito se construyen las ecuaciones. En la vuelta Σ R·I se iluminan las resistencias y circulan las bolitas amarillas; en Σ U se iluminan las fuentes. El término nuevo parpadea hasta continuar. Los botones para avanzar también están debajo del circuito.</div>
+          <!-- Compatibilidad con el motor de ecuaciones: campos no visibles. Solo el panel del circuito muestra las ecuaciones. -->
+          <div class="hide" aria-hidden="true"><span id="resBuild"></span><span id="sourceBuild"></span><span id="finishedLoops"></span></div>
+        </div>
+        <div id="phase3" class="hide">
+          <h1 class="phase-title">Construye la matriz</h1>
+          <p class="desc">Ya tienes <b>3 ecuaciones independientes para 3 incógnitas</b>. Escribe los coeficientes de I₁, I₂, I₃ y el término independiente de cada ecuación, en el orden mostrado.</p>
+          <div class="eqlist"><div class="eqtitle">Sistema obtenido</div><div id="matrixEqs"></div></div>
+          <div class="eqpanel"><div class="eqtitle">A · I = b</div><div class="matrix" id="matrixInputs"></div></div>
+          <div class="btnrow"><button class="primary" id="verifyMatrix">Comprobar matriz</button><button class="ghost small" id="fillMatrix">Rellenar para probar</button></div>
+          <div class="message" id="matrixFeedback">Utiliza números con signo. Los huecos de coeficientes nulos son 0.</div>
+          <button class="success hide" id="goSolve">Resolver algebraicamente →</button>
+        </div>
+        <div id="phase4" class="hide">
+          <h1 class="phase-title">Resolución algebraica</h1>
+          <p class="desc">Orden de resolución: <b>1. Sustitución de la ecuación del nudo en las mallas; 2. Reducción de las dos ecuaciones resultantes; 3. Sustitución regresiva</b>. La igualación solo se usaría cuando resultase estrictamente necesaria. Se respetan los sentidos de referencia elegidos.</p>
+          <div class="eqpanel"><div class="eqtitle">Ecuaciones obtenidas</div><div class="eq" id="solveNodal">I₁ = I₂ + I₃</div><div class="eq" id="solveMesh1">—</div><div class="eq" id="solveMesh2">—</div></div>
+          <div class="steps" id="solutionSteps"></div>
+          <div class="btnrow"><button class="primary" id="nextStep">Siguiente paso →</button><button class="ghost small" id="restartSteps">Repetir resolución</button></div>
+          <div id="resultPanel" class="hide">
+            <div class="result" id="results"></div>
+            <div class="message good">Verificación: al sustituir las intensidades, <b>A · I = b</b> en las tres ecuaciones. Nivel superado.</div>
+            <div class="helper" id="undoEquivalence"></div>
+            <button class="success" id="playAgain">Volver a jugar ↻</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer flexbetween"><span>Esquemas con resistencias rectangulares y símbolos de batería IEC. Los sentidos de las corrientes son referencias algebraicas, no predicciones.</span><span>Teclado: <span class="key">1</span> <span class="key">2</span> <span class="key">3</span> invertir corrientes · <span class="key">Espacio</span> avanzar</span></footer>
+</div>
+<script>
+(()=>{'use strict';
+  const $=(id)=>document.getElementById(id);
+  const S={phase:0,signs:[1,-1,-1],score:0,nodeDone:false,loops:[null,null],scoredLoops:[false,false],loopBonusAwarded:false,loop:0,cw:true,pass:"resistors",route:null,waypoint:-1,legIndex:0,flowBranch:null,flowReq:null,es:[],rs:[],animating:false,finished:false,step:0};
+  const X=[146,345,544],TOP=74,BOT=360,SY=136,RY=235;
+  const names=['I₁','I₂','I₃'];
+  const exercises=[
+    {id:'base',label:'Demo base · 3 ramas',R:[2,2,2],E:[18,6,0],status:'Jugable',hint:'Circuito de aprendizaje con dos fuentes y tres ramas.'},
+    {id:'c71',label:'Comprobación 7.1 · 12 V / 5 V',R:[5,1,12],E:[12,5,0],parts:[[5],[1],[2,10]],status:'Jugable',hint:'Adaptación de las tres ramas de la actividad. R3 reúne 2 Ω y 10 Ω en serie.',source:'act.-comprobacion-7.1.txt'},
+    {id:'c72',label:'Comprobación 7.2 · fuentes en retorno',R:[4,8,7],E:[0,-10,-30],parts:[[4],[8],[6,1]],status:'Jugable (equivalente)',hint:'Esquema equivalente: las fuentes horizontales de 10 V y 20 V se trasladan a las ramas; R3 = 6 + 1 Ω.',source:'act.-comprobacion-7.2.txt'},
+    {id:'c75',label:'Comprobación 7.5 · 140 V / 90 V',R:[20,100,5],E:[140,0,90],status:'Jugable',hint:'Se usa la primera configuración con dos fuentes de 140 V y 90 V, carga de 100 Ω, y resistencias de 20 Ω y 5 Ω.',source:'act.-comprobacion-7.5.txt'},
+    {id:'r75',label:'Resuelta 7.5 · tres generadores de 24 V',R:[1/15,0.3,10],E:[24,24,0],parts:[[0.1,0.2],[0.3],[10]],partsMode:['parallel','series','series'],status:'Jugable (equivalente)',hint:'Las ramas de 24 V con resistencias internas de 0,1 Ω y 0,2 Ω se agrupan en una rama equivalente de 0,066667 Ω. Al terminar se recuperan las cuatro intensidades originales (0,1 Ω; 0,2 Ω; 0,3 Ω; 10 Ω).',source:'act.-resuelta-7.5.txt'},
+    {id:'r76',kind:'multi',label:'Resuelta 7.6 · seis ramas y tres mallas',status:'Jugable · 6 corrientes',hint:'Se conservan 6 corrientes, 4 nudos y 3 mallas. Fuentes originales de 10, 6, 12, 2 y 4 V; resistencias de 4, 3, 2, 2, 5 y 3 Ω. Solución mediante KCL, KVL y reducción algebraica.',source:'act.-resuelta-7.6.txt'},
+    {id:'r71',label:'Resuelta 7.1 · fuentes 12 V / 11 V',R:[.2,.1,10],E:[12,11,0],status:'Jugable',hint:'Valores de la actividad resuelta 7.1 (tres ramas en paralelo).',source:'act.-resuelta-7.1.txt'},
+    {id:'r79',label:'Resuelta 7.9 · 12 V / 10 V',R:[1,10,1],E:[12,0,10],status:'Jugable (equivalente)',hint:'Se representa la configuración final de tres ramas incluida en la actividad 7.9.',source:'act.-resuelta-7.9.txt'},
+    {id:'e713',label:'Evaluación resuelta 7.13 · 4 V / 2 V',R:[1,0,1],E:[4,2,0],parts:[[1],[],[2,2]],partsMode:['series','ideal','parallel'],status:'Jugable (equivalente)',hint:'Circuito original de cuatro ramas: las dos resistencias de 2 Ω en paralelo se reducen a R₃ = 1 Ω. La rama central contiene una fuente ideal de 2 V sin resistencia en serie. Al terminar se calculan las corrientes individuales.',source:'act.-evaluacion-resuelta-7.13.txt'},
+
+  ];
+  let active=exercises[0];
+  const exampleUrl=x=>'https://github.com/jgraciar/jgraciar.github.io/blob/main/examples/circuit-jgr/'+encodeURIComponent(x);
+  let flowToken=0;
+  let R=active.R.slice(),E=active.E.slice();
+  let jValues=[5,-1,-4];
+  function calcCurrents(){
+    const ideal=R.map((r,i)=>r===0?i:-1).filter(i=>i>=0);
+    if(ideal.length>1)throw new Error('Más de una fuente ideal sin resistencia en el circuito '+active.id);
+    if(ideal.length===1){
+      // La fuente ideal fija V_AB. Su corriente se obtiene por la ley de los nudos.
+      const va=E[ideal[0]],j=R.map((r,i)=>r===0?0:(E[i]-va)/r);
+      j[ideal[0]]=-j.reduce((a,b)=>a+b,0);
+      return j;
+    }
+    const va=E.reduce((a,e,i)=>a+e/R[i],0)/R.reduce((a,r)=>a+1/r,0);
+    return E.map((e,i)=>(e-va)/R[i]);
+  }
+  function formatNumber(n){if(Math.abs(n)<1e-8)return '0';return Number(n.toFixed(5)).toLocaleString('es-ES',{maximumFractionDigits:5});}
+  function hasReduction(){return !!(active.parts&&active.parts.some(p=>p.length>1));}
+  function isParallel(i){return !!(active.partsMode&&active.partsMode[i]==='parallel');}
+  function equivalentLabel(i,parts){
+    return isParallel(i)?`${parts.map(r=>`1/${formatNumber(r)}`).join(' + ')} = 1/R${i+1}`:`${parts.map(formatNumber).join(' + ')} Ω`;
+  }
+  function drawBoard(){
+    const parts=[];
+    parts.push('<path class="wire" d="M146 74 H544 M146 360 H544"/>');
+    for(let i=0;i<3;i++){
+      const x=X[i],e=E[i];
+      parts.push(`<path class="wire" d="${e?`M${x} 74 V132 M${x} 141 V${R[i]?208:360}`:`M${x} 74 V208`} ${R[i]?`M${x} 262 V360`:''}"/>`);
+      if(e){
+        const pos=e>0;
+        const big=pos?132:141,small=pos?141:132;
+        parts.push(`<g class="component-source" id="sourceElement${i}"><rect class="source-halo" x="${x-26}" y="126" width="52" height="22" rx="4" fill="transparent" stroke="transparent"/><path class="source-plate" d="M${x-22} ${big} H${x+22} M${x-10} ${small} H${x+10}"/>`+
+          `<text class="txtsm" x="${x-34}" y="${pos?135:144}">+</text><text class="txtsm" x="${x-34}" y="${pos?146:135}">−</text>`+
+          `<text class="component-value" x="${x+39}" y="141">${formatNumber(Math.abs(e))}V</text></g>`);
+      }
+      if(R[i]!==0){
+        parts.push(`<g class="component-resistor" id="resistorElement${i}"><rect class="symbol" x="${x-13}" y="208" width="26" height="54"/>`+
+          `<text class="resistor-name" x="${x}" y="239">R${i+1}</text>`+
+          `<text class="component-value" x="${x+26}" y="235">${formatNumber(R[i])}Ω</text></g>`);
+      }else{
+        parts.push(`<path class="wire" d="M${x} ${e?147:74} V360"/>`);
+        parts.push(`<text class="txtsm" x="${x+18}" y="240">Fuente ideal</text>`);
+      }
+    }
+    parts.push('<circle class="nod" cx="345" cy="74" r="5"/><circle class="nod" cx="345" cy="360" r="5"/><text class="txt" x="358" y="58">A</text><text class="txt" x="358" y="390">B</text>');
+    $('staticCircuit').innerHTML=parts.join('');
+    $('boardTitle').textContent=active.label;
+    $('boardBadge').textContent='IEC · 3 ramas · 2 nudos';
+    $('boardSummary').textContent='R: '+R.map(r=>r===0?'fuente ideal':formatNumber(r)+' Ω').join(' / ')+' · E: '+E.map(formatNumber).join(' / ')+' V';
+    $('circuit').setAttribute('aria-label',active.label+'; tres ramas con resistencias '+R.join(', ')+' ohmios y fuentes '+E.join(', ')+' voltios');
+  }
+  function updateLoopsArrows(){
+    if(S.phase!==2){$('loopArrows').innerHTML='';return}
+    $('loopArrows').innerHTML=[0,1].map(k=>{
+      const chosen=S.loops[k]?.cw??(S.loop===k?S.cw:true);
+      const x=k===0?246:445;
+      const state=S.loops[k]?'FINALIZADA':S.loop!==k?'PENDIENTE':S.pass==='resistors'?'Σ R·I':'Σ U';
+      const accent=S.loop===k&&!S.loops[k]?'#ffe2a0':'#9cb5c9';
+      return `<text x="${x}" y="179" text-anchor="middle" style="fill:#8ce7ef;font:700 39px sans-serif;opacity:.88">${chosen?'↻':'↺'}</text>`+
+        `<text x="${x}" y="199" text-anchor="middle" style="fill:#8ce7ef;font:600 11px sans-serif">MALLA ${k+1}</text>`+
+        `<rect x="${x-50}" y="208" width="100" height="22" rx="8" fill="#12263a" stroke="${accent}" stroke-width="1"/>`+
+        `<text x="${x}" y="223" text-anchor="middle" style="fill:${accent};font:700 14px ui-monospace,monospace">${state}</text>`;
+    }).join('');
+  }
+  const fmt=(n)=>n<0?'−'+formatNumber(Math.abs(n)):formatNumber(n);
+  const pm=(n,first=false)=>(n<0?'−':first?'':'+')+' '+Math.abs(n);
+  function show(id,on){$(id).classList.toggle('hide',!on)}
+  function msg(id,txt,kind=''){$(id).className='message'+(kind?' '+kind:'');$(id).textContent=txt}
+  function initExercises(){
+    const sel=$('exerciseSelect');
+    sel.innerHTML=exercises.map(e=>`<option value="${e.id}">${e.label}</option>`).join('');
+    sel.onchange=()=>{
+      const ex=exercises.find(e=>e.id===sel.value);
+      if(!ex)return;
+      // Invalidar cualquier animación anterior; reinicio inmediato.
+      if(active.kind==='multi')sixCancel();
+      flowToken++;if(S.pausedResume){S.pausedResume();S.pausedResume=null}
+      stopFlow();S.animating=false;
+      active=ex;if(ex.kind!=='network'&&ex.kind!=='multi'){R=ex.R.slice();E=ex.E.slice();jValues=calcCurrents();}
+      renderExerciseInfo();newGame();
+    };
+    renderExerciseInfo();
+  }
+  function renderExerciseInfo(){
+    const ex=active;
+    $('exerciseStatus').textContent=ex.status;
+    $('exerciseHint').innerHTML=ex.hint+(ex.source?' · <a style="color:#8ce7ef" href="'+exampleUrl(ex.source)+'" target="_blank" rel="noopener">Ver esquema original en Circuit JGR</a>':'');
+  }
+  function networkSVG(ex){
+    const coords=[...ex.r.flatMap(v=>[[v[0],v[1]],[v[2],v[3]]]),...ex.w.flatMap(v=>[[v[0],v[1]],[v[2],v[3]]]),...ex.ports];
+    const xs=coords.map(v=>v[0]),ys=coords.map(v=>v[1]);
+    const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+    const scale=Math.min(510/Math.max(1,maxX-minX),258/Math.max(1,maxY-minY));
+    const offX=(700-(maxX-minX)*scale)/2,offY=85+(258-(maxY-minY)*scale)/2;
+    const px=x=>offX+(x-minX)*scale,py=y=>offY+(y-minY)*scale;
+    let h=[];
+    for(const [x,y,u,v] of ex.w)h.push(`<path class="wire" d="M${px(x)} ${py(y)} L${px(u)} ${py(v)}"/>`);
+    for(let i=0;i<ex.r.length;i++){
+      const [x,y,u,v,Rv]=ex.r[i];
+      const x1=px(x),y1=py(y),x2=px(u),y2=py(v),cx=(x1+x2)/2,cy=(y1+y2)/2;
+      const length=Math.hypot(x2-x1,y2-y1),angle=Math.atan2(y2-y1,x2-x1)*180/Math.PI;
+      const half=Math.min(25,length*.34),tail=Math.max(0,length/2-half);
+      h.push(`<g transform="translate(${cx} ${cy}) rotate(${angle})"><path class="wire" d="M${-length/2} 0 H${-half} M${half} 0 H${length/2}"/><rect class="symbol" x="${-half}" y="-13" width="${2*half}" height="26"/><text x="0" y="4" class="resistor-name" text-anchor="middle">R${i+1}</text></g>`);
+      const vertical=Math.abs(y2-y1)>Math.abs(x2-x1);
+      const valueX=vertical?cx+30:cx,valueY=vertical?cy+5:cy+35;
+      h.push(`<text x="${valueX}" y="${valueY}" text-anchor="${vertical?'start':'middle'}" class="component-value">${formatNumber(Rv)}Ω</text>`);
+    }
+    ex.ports.forEach(([x,y],i)=>h.push(`<circle class="nod" cx="${px(x)}" cy="${py(y)}" r="6"/><text class="txt" x="${px(x)-23}" y="${py(y)-13}">${i===0?'A':'B'}</text>`));
+    return h.join('');
+  }
+  function startNetwork(){
+    S.phase=0;S.finished=false;S.score=0;
+    $('stagebar').classList.add('hide');
+    for(let i=0;i<5;i++)show('phase'+i,false);
+    show('networkPhase',true);
+    $('phaseHead').textContent='Tema 7 · Resistencia equivalente';
+    $('phaseChip').textContent='REDUCCIÓN';
+    $('score').textContent='0000';$('percent').textContent='0%';
+    $('staticCircuit').innerHTML=networkSVG(active);
+    $('hero').classList.add('hide');$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
+    clearElementHighlight();show('boardEquations',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);
+    $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';
+    $('dirHit0').style.pointerEvents='none';$('dirHit1').style.pointerEvents='none';$('dirHit2').style.pointerEvents='none';
+    $('boardTitle').textContent=active.label;
+    $('boardBadge').textContent='IEC · resistencia equivalente';
+    $('boardSummary').textContent='Resistencias originales: '+active.r.map(r=>formatNumber(r[4])+' Ω').join(' · ');
+    $('boardState').textContent='Calcula la resistencia equivalente entre los bornes A y B. No se han añadido fuentes ficticias.';
+    $('networkIntro').textContent='Red de '+active.r.length+' resistencias, tomada del ejemplo original. Calcula su resistencia equivalente entre los bornes A y B.';
+    $('networkR').value='';$('networkFeedback').textContent='Escribe R_eq en ohmios. Puedes utilizar una coma decimal.';
+    $('networkSteps').innerHTML='';show('networkDone',false);show('networkRestart',false);show('networkExplain',false);
+  }
+  function networkResult(){
+    if(active.kind!=='network')return;
+    const raw=$('networkR').value.trim().replace(',','.');const val=raw?Number(raw):NaN;
+    if(Number.isFinite(val)&&Math.abs(val-active.req)<=Math.max(0.001,active.req*.0001)){
+      S.score=300;S.finished=true;$('score').textContent='0300';$('percent').textContent='100%';
+      msg('networkFeedback','Correcto: R_eq = '+formatNumber(active.req)+' Ω. El resultado corresponde a los terminales A y B.','good');
+      msg('networkDone','Nivel completado. Puedes consultar el procedimiento o elegir otro ejercicio.','good');show('networkDone',true);show('networkRestart',true);show('networkExplain',true);
+      $('networkSteps').innerHTML=active.hintSteps.map((step,i)=>`<div class="step"><span class="stepnum">${i+1}</span><span>${step}</span></div>`).join('');
+    }else msg('networkFeedback','El valor no coincide. Revisa las conexiones reales entre nudos y no combines resistencias que no están estrictamente en serie o paralelo.','bad');
+  }
+  $('networkVerify').onclick=networkResult;
+  $('networkR').addEventListener('keydown',e=>{if(e.key==='Enter')networkResult()});
+  $('networkHint').onclick=()=>{if(active.kind!=='network')return;$('networkSteps').innerHTML='<div class="step"><span class="stepnum">1</span><span>'+active.hintSteps[0]+'</span></div>'};
+  $('networkExplain').onclick=()=>{$('networkSteps').innerHTML=active.hintSteps.map((step,i)=>`<div class="step"><span class="stepnum">${i+1}</span><span>${step}</span></div>`).join('')};
+  $('networkRestart').onclick=()=>startNetwork();
+  function updateHeader(){
+    $('score').textContent=String(S.score).padStart(4,'0');
+    const completed=(S.phase===0?0:S.phase===1?18:S.phase===2?35:S.phase===3?69:89)+(S.finished?11:0);
+    $('percent').textContent=completed+'%';
+    document.querySelectorAll('.stage').forEach((e,i)=>{e.classList.toggle('active',i===S.phase);e.classList.toggle('done',i<S.phase||S.finished&&i===4)});
+    const titles=['Fase 1 · Sentidos de referencia','Fase 2 · Primera ley de Kirchhoff','Fase 3 · Segunda ley de Kirchhoff','Fase 4 · Sistema matricial','Fase 5 · Sustitución y reducción'];
+    $('phaseHead').textContent=titles[S.phase];
+    $('phaseChip').textContent=S.finished?'SUPERADO':['ELIGE','KCL','KVL','A · I = b','RESUELVE'][S.phase];
+  }
+  function phase(n){
+    S.phase=n;for(let i=0;i<5;i++)show('phase'+i,i===n);
+    show('circuitControls',n===2);show('standardCircuitControls',n===2);show('advancedCircuitControls',false);
+    updateHeader();$('nodePulse').classList.toggle('hide',n!==1);$('loopHighlight').classList.toggle('hide',n!==2);
+    drawDirs();updateLoopsArrows();
+    if(n!==2)clearElementHighlight();
+    renderBoardEquations();
+    if(n===1)analyzeNode(true);
+    if(n===2){S.loop=0;loadLoop(0)}
+    if(n===3)drawMatrix();
+    if(n===4){
+      const {A,b}=system();
+      $('solveNodal').textContent='Nudo A (Σ I entran = Σ I salen): '+nodeSides();
+      $('solveMesh1').textContent='Malla 1: '+coefEq(A[1],b[1]);
+      $('solveMesh2').textContent='Malla 2: '+coefEq(A[2],b[2]);
+      renderSteps();
+    }
+  }
+  function dirGeo(i,s){
+    // Flechas cortas por encima de la rama, sin cubrir conductores, nudos ni símbolos IEC.
+    // I₂ va por el tramo entre A y la fuente de 6 V, desplazada ligeramente a la derecha.
+    if(i===1)return {x:345,y:103,a:s===-1?'down':'up',labelX:360,labelY:108,len:11};
+    if(i===0)return {x:249,y:74,a:s===1?'right':'left',labelX:237,labelY:57,len:18};
+    return {x:454,y:74,a:s===-1?'right':'left',labelX:442,labelY:57,len:18};
+  }
+  function drawDirs(){
+    $('dirGraphics').innerHTML=S.signs.map((s,i)=>{
+      const g=dirGeo(i,s),h=g.a==='left'||g.a==='right',p=h?(g.a==='right'?1:-1):(g.a==='down'?1:-1);
+      const len=g.len||17;
+      const stem=h?`M${g.x-len*p} ${g.y} L${g.x+len*p} ${g.y}`:`M${g.x} ${g.y-len*p} L${g.x} ${g.y+len*p}`;
+      const tip=h?`M${g.x+(len-7)*p} ${g.y-5} L${g.x+len*p} ${g.y} L${g.x+(len-7)*p} ${g.y+5}`:`M${g.x-5} ${g.y+(len-7)*p} L${g.x} ${g.y+len*p} L${g.x+5} ${g.y+(len-7)*p}`;
+      return `<g><path class="direction-outline" d="${stem} ${tip}"/><path class="direction" d="${stem} ${tip}"/><text class="dirlabel" x="${g.labelX}" y="${g.labelY}">${names[i]}</text></g>`;
+    }).join('');
+    $('dirButtons').innerHTML=S.signs.map((s,i)=>`<button type="button" data-dir="${i}">${names[i]} ${dirGeo(i,s).a==='right'?'→':dirGeo(i,s).a==='left'?'←':dirGeo(i,s).a==='down'?'↓':'↑'}</button>`).join('');
+    document.querySelectorAll('#dirButtons [data-dir]').forEach(btn=>btn.onclick=()=>reverse(+btn.dataset.dir));
+    for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents=S.phase===0?'auto':'none';
+  }
+  function reverse(i){if(S.phase!==0)return;S.signs[i]*=-1;drawDirs();$('boardState').textContent='Referencia '+names[i]+' invertida. Es una elección válida.'}
+  function terms(parts,kind){
+    if(!parts.length)return '0';
+    return parts.map((p,j)=>{
+      const value=kind==='E'?formatNumber(Math.abs(p.v))+' V':formatNumber(R[p.i])+'·'+names[p.i];
+      return (p.v<0?(j?' − ':'−'):(j?' + ':''))+value;
+    }).join('');
+  }
+  function termsHtml(parts,kind){
+    if(!parts.length)return '—';
+    return parts.map((p,j)=>{
+      const value=kind==='E'?formatNumber(Math.abs(p.v))+' V':formatNumber(R[p.i])+'·'+names[p.i];
+      const val=(p.v<0?(j?' − ':'−'):(j?' + ':''))+value;
+      return j===parts.length-1?'<span class="flash-term">'+val+'</span>':val;
+    }).join('');
+  }
+  function renderBoardEquations(flashKind=null){
+    if(S.phase!==2){show('boardEquations',false);return}
+    show('boardEquations',true);
+    for(let k=0;k<2;k++){
+      const finished=S.loops[k];
+      const activeNow=k===S.loop&&!finished;
+      const rs=finished?.resistors??(activeNow?S.rs:[]);
+      const es=finished?.sources??(activeNow?S.es:[]);
+      $('boardM'+k+'R').innerHTML=rs.length?(activeNow&&flashKind==='R'?termsHtml(rs,'R'):escapeHtml(terms(rs,'R'))):'';
+      $('boardM'+k+'E').innerHTML=es.length?(activeNow&&flashKind==='E'?termsHtml(es,'E'):escapeHtml(terms(es,'E'))):'';
+    }
+  }
+  function highlightElement(branch){
+    clearElementHighlight();
+    const id=(S.pass==='resistors'?'resistorElement':'sourceElement')+branch;
+    const el=$(id);if(el)el.classList.add('component-lit');
+  }
+  function clearElementHighlight(){
+    document.querySelectorAll('.component-lit').forEach(el=>el.classList.remove('component-lit'));
+  }
+  function coefEq(row,b){
+    const bits=row.map((v,i)=>({v,i})).filter(o=>o.v!==0);
+    let lhs=bits.map((o,j)=>(o.v<0?(j?' − ':'−'):(j?' + ':''))+(Math.abs(o.v)===1?'':formatNumber(Math.abs(o.v))+'·')+names[o.i]).join('');
+    return (lhs||'0')+' = '+fmt(b);
+  }
+  function nodeSides(){const into=[],out=[];S.signs.forEach((s,i)=>(s===1?into:out).push(names[i]));return (into.join(' + ')||'0')+' = '+(out.join(' + ')||'0')}
+  function bindClickable(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+  for(let i=0;i<3;i++)bindClickable($('dirHit'+i),()=>reverse(i));
+  bindClickable($('nodeHit'),()=>{if(S.phase===1)analyzeNode(true)});
+  $('confirmDirs').onclick=()=>{if(hasReduction()&&!S.reductionDone)return;S.score+=50;$('boardState').textContent='Referencias fijadas; ley de nudos calculada.';phase(1)};
+  $('checkReductions').onclick=()=>{
+    let good=true;document.querySelectorAll('[data-reduce]').forEach(el=>{
+      const i=+el.dataset.reduce,actual=Number(el.value.replace(',','.'));
+      if(!el.value.trim()||Math.abs(actual-R[i])>1e-5){el.style.borderColor='#ff7786';good=false}else el.style.borderColor='#b7f75c';
+    });
+    $('reduceMsg').textContent=good?' Equivalencias correctas. Ya puedes fijar las corrientes.':' Revisa la asociación en serie o paralelo y el valor equivalente.';
+    if(good){S.reductionDone=true;$('confirmDirs').disabled=false;S.score+=70;updateHeader()}
+  };
+  $('selectA').onclick=()=>analyzeNode(true);
+  $('selectB').onclick=()=>analyzeNode(false);
+  function analyzeNode(isA){
+    if(!isA){msg('nodeFeedback','El nudo B aporta la misma ecuación multiplicada por −1. Debes seleccionar una sola ecuación independiente.','bad');return}
+    $('nodeEq').textContent=nodeSides();show('nodeEqPanel',true);show('goLoops',true);
+    msg('nodeFeedback','Correcto: Σ I que entran = Σ I que salen. Hay n − 1 = 1 ecuación independiente.','good');
+    if(!S.nodeDone){S.nodeDone=true;S.score+=100;updateHeader()}
+    $('boardState').textContent='KCL obtenida en A: '+nodeSides();
+  }
+  $('goLoops').onclick=()=>phase(2);
+  document.querySelectorAll('#loopButtons button').forEach(b=>b.onclick=()=>loadLoop(+b.dataset.loop));
+  $('cw').onclick=()=>changeOrientation(true);
+  $('ccw').onclick=()=>changeOrientation(false);
+  $('resetLoop').onclick=()=>{if(S.animating)return;resetCurrentLoop();msg('loopFeedback','Recorrido reiniciado. Los términos volverán a generarse al visitar cada componente.')};
+  function changeOrientation(v){if(S.animating)return;S.cw=v;resetCurrentLoop();updateLoopSelect()}
+  function updateLoopSelect(){
+    document.querySelectorAll('#loopButtons button').forEach(b=>b.classList.toggle('selected',+b.dataset.loop===S.loop));
+    $('cw').classList.toggle('selected',S.cw);$('ccw').classList.toggle('selected',!S.cw);
+    $('loopHighlight').setAttribute('x',String(X[S.loop]));$('loopHighlight').setAttribute('width','199');
+    $('loopHighlight').setAttribute('x',String(X[S.loop]));
+    $('advance').disabled=!!S.loops[S.loop]||S.animating;
+    $('advance').textContent='Avanzar al siguiente elemento →';
+    $('lapLabel').textContent=S.pass==='resistors'?'Vuelta 1/2 · resistencias (R·I)':'Vuelta 2/2 · fuentes de tensión';
+    if(S.loops[S.loop]){$('sourceBuild').textContent=terms(S.loops[S.loop].sources,'E');$('resBuild').textContent=terms(S.loops[S.loop].resistors,'R');$('lapLabel').textContent='Dos vueltas completadas';msg('loopFeedback','Esta malla ya está cerrada y verificada. Selecciona otra malla pendiente.','good')}
+    $('boardState').textContent='Malla '+(S.loop+1)+' · '+(S.cw?'horario':'antihorario')+' · inicio en B.';
+    updateLoopsArrows();renderBoardEquations();
+  }
+  function loadLoop(i){
+    if(S.animating)return;
+    S.loop=i;S.cw=S.loops[i]?.cw??true;
+    resetCurrentLoop(false);updateLoopSelect();
+    if(S.loops[i])msg('loopFeedback','Malla '+(i+1)+' completa. Puedes pasar a la siguiente fase si ambas están resueltas.','good');
+    else msg('loopFeedback','Malla '+(i+1)+' preparada: desde B, primero recorre las resistencias (R·I) y después las fuentes. Pulsa Avanzar.');
+  }
+  function resetCurrentLoop(removeCompleted=true){
+    if(S.animating)return;
+    if(removeCompleted&&S.loops[S.loop])S.loops[S.loop]=null;
+    S.pass='resistors';S.route=createRoute(S.loop,S.cw);S.waypoint=-1;S.legIndex=0;S.es=[];S.rs=[];
+    $('sourceBuild').textContent='—';$('resBuild').textContent='—';
+    clearFX();clearElementHighlight();
+    positionHero(S.route.start.x,S.route.start.y,0);setHeroGait(false);setHeroMood(false);updateLoopSelect();drawFinished();
+    if(S.loops.every(Boolean)){show('goMatrix',true)}else show('goMatrix',false);
+  }
+  // Cada rama se traza continuamente desde B hasta A, pasando por todos sus componentes.
+  // Las ramas exteriores incluyen los dos tramos horizontales hasta los nudos reales.
+  let BRANCHES=[];
+  function refreshBranches(){
+    BRANCHES=X.map((x,i)=>{
+      const points=[{x:345,y:BOT}];
+      if(x!==345)points.push({x,y:BOT});
+      points.push({x,y:RY,component:R[i]===0?null:'resistor'});
+      if(E[i])points.push({x,y:SY,component:'source'});
+      points.push({x,y:TOP});
+      if(x!==345)points.push({x:345,y:TOP});
+      return points;
+    });
+  }
+  function createRoute(loop,cw){
+    // +1: de B a A; -1: de A a B. Dos recorridos completos, sin saltos.
+    const choices=loop===0?(cw?[[0,1],[1,-1]]:[[1,1],[0,-1]]):(cw?[[1,1],[2,-1]]:[[2,1],[1,-1]]);
+    const legs=choices.map(([branch,d])=>({branch,d,points:(d===1?BRANCHES[branch]:BRANCHES[branch].slice().reverse()).map(p=>({...p,branch,d}))}));
+    return {start:{x:345,y:BOT},legs};
+  }
+  function positionHero(x,y,angle=null){
+    $('hero').setAttribute('transform',`translate(${x} ${y})`);
+    if(angle!==null)$('heroShape').setAttribute('transform',`rotate(${angle})`);
+  }
+  // La oscilación depende de la distancia recorrida: mantiene el ritmo aunque varíe
+  // la frecuencia de actualización de pantalla. En reposo, ambos brazos caen.
+  function setHeroGait(moving,distance=0){
+    const step=moving?Math.sin(distance*0.11):0;
+    const angles=moving?[-32*step,32*step,29*step,-29*step]:[0,0,0,0];
+    const groups=[['heroArmLeft',-10,-5],['heroArmRight',10,-5],['heroLegLeft',-6,10],['heroLegRight',6,10]];
+    groups.forEach(([id,x,y],i)=>$(id).setAttribute('transform',`rotate(${angles[i].toFixed(2)} ${x} ${y})`));
+  }
+  function setHeroMood(sad){
+    $('heroBody').classList.toggle('sad',sad);
+    $('heroShape').querySelectorAll('.hero-limb').forEach(e=>e.classList.toggle('sad',sad));
+    $('heroMouth').setAttribute('d',sad?'M-5 8 Q0 2 5 8':'M-5 4 Q0 9 5 4');
+  }
+  function clearFX(){stopFlow();$('sourceArrowFX').innerHTML='';$('componentFX').innerHTML='';clearElementHighlight();}
+  function pointOnPath(points,fraction){
+    const distances=[];let total=0;
+    for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],d=Math.hypot(b.x-a.x,b.y-a.y);distances.push(d);total+=d}
+    let at=((fraction%1+1)%1)*total;
+    for(let i=0;i<distances.length;i++){
+      if(at<=distances[i]||i===distances.length-1){const a=points[i],b=points[i+1],f=distances[i]?at/distances[i]:0;return {x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f}}
+      at-=distances[i];
+    }
+    return points[0];
+  }
+  function stopFlow(){
+    S.flowBranch=null;
+    if(S.flowReq!==null){cancelAnimationFrame(S.flowReq);S.flowReq=null}
+    $('flowFX').innerHTML='';
+  }
+  function startFlow(branch){
+    if(S.pass!=='resistors')return;
+    if(S.flowBranch===branch)return;
+    stopFlow(); S.flowBranch=branch;
+    const points=S.signs[branch]===1?BRANCHES[branch]:BRANCHES[branch].slice().reverse();
+    const n=7,speed=.19; // circulación continua desde un nudo hasta el otro
+    const dotLayer=$('flowFX');
+    dotLayer.innerHTML=Array.from({length:n},()=>'<circle class="fx-current-halo" r="8"/><circle class="fx-current-dot" r="4.8"/>').join('');
+    const circles=Array.from(dotLayer.children);
+    let t0=null,last=0;
+    const frame=t=>{
+      if(S.phase!==2||S.pass!=='resistors'||S.flowBranch!==branch)return;
+      if(t0===null)t0=t;
+      if(t-last>=30){
+        last=t;
+        const v=((t-t0)*speed/1000)%1;
+        for(let k=0;k<n;k++){
+          const pos=pointOnPath(points,v+k/n);
+          for(let m=0;m<2;m++){
+            const c=circles[2*k+m]; c.setAttribute('cx',pos.x.toFixed(1)); c.setAttribute('cy',pos.y.toFixed(1));
+          }
+        }
+      }
+      S.flowReq=requestAnimationFrame(frame);
+    };
+    S.flowReq=requestAnimationFrame(frame);
+  }
+  function showSourcePolarity(branch){
+    if(S.pass!=='sources'||!E[branch]){$('sourceArrowFX').innerHTML='';return}
+    // La polaridad propia de cada fuente se indica siempre desde el terminal − hacia el +.
+    const x=X[branch]-58,y=SY,positive=E[branch]>0;
+    const tail=positive?y+22:y-22,head=positive?y-22:y+22;
+    const near=positive?head+11:head-11;
+    $('sourceArrowFX').innerHTML=`<path class="fx-arrow" d="M${x} ${tail} V${head} M${x-7} ${near} L${x} ${head} L${x+7} ${near}"/>`;
+  }
+  function renderComponentFX(p,sign){
+    const x=p.x-33;
+    $('componentFX').innerHTML=`<circle class="fx-plusminus" cx="${x}" cy="${p.y}" r="14"/><text class="fx-pm-text" x="${x}" y="${p.y+1}">${sign<0?'−':'+'}</text>`;
+  }
+  function waitForPlayer(){
+    const token=flowToken;
+    return new Promise(resolve=>{
+      if(token!==flowToken){resolve();return}
+      setHeroGait(false);
+      S.pausedResume=()=>{S.pausedResume=null;$('advance').disabled=true;$('advance').textContent='Recorriendo rama…';document.querySelectorAll('.flash-term').forEach(el=>el.classList.remove('flash-term'));$('componentFX').innerHTML='';resolve()};
+      $('advance').disabled=false;$('advance').textContent='Continuar recorrido →';
+    });
+  }
+  // Velocidad constante: 4.4 ms/px en la versión 0.4; ahora 8.8 ms/px (mitad de velocidad).
+  const HERO_MS_PER_PX=8.8;
+  function moveAlongPolyline(points,leg){
+    if(points.length<2)return Promise.resolve();
+    const distances=[0];
+    for(let i=1;i<points.length;i++)distances.push(distances[i-1]+Math.hypot(points[i].x-points[i-1].x,points[i].y-points[i-1].y));
+    const total=distances[distances.length-1];
+    const duration=total*HERO_MS_PER_PX;
+    const oppositeCurrent=leg.d!==S.signs[leg.branch];
+    const token=flowToken;return new Promise(resolve=>{
+      let began=null,segment=0;
+      function frame(now){
+        if(flowToken!==token){resolve();return}
+        if(began===null)began=now;
+        const travelled=Math.min(total,(now-began)/duration*total);
+        // La misma animación continúa atravesando las esquinas; no se reinicia el tiempo.
+        while(segment<points.length-2&&travelled>=distances[segment+1]-1e-8)segment++;
+        const a=points[segment],b=points[segment+1];
+        const span=distances[segment+1]-distances[segment];
+        const fraction=span?(travelled-distances[segment])/span:1;
+        const x=a.x+(b.x-a.x)*fraction, y=a.y+(b.y-a.y)*fraction;
+        const descending=Math.abs(b.x-a.x)<0.1&&b.y>a.y;
+        positionHero(x,y,descending?180:0);
+        setHeroGait(travelled<total,travelled);
+        // Durante la vuelta de tensiones solo se evalúa la polaridad al atravesar la fuente.
+        setHeroMood(S.pass==='resistors'&&oppositeCurrent);
+        if(travelled<total)requestAnimationFrame(frame);else resolve();
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+  async function animateLeg(leg){
+    const token=flowToken;
+    highlightElement(leg.branch);
+    if(S.pass==='resistors')startFlow(leg.branch);
+    else showSourcePolarity(leg.branch);
+    const pts=leg.points;
+    // Se sigue cada rama completa desde un nudo hasta el otro; solo se para en
+    // componentes que aportan un término a la ecuación de la vuelta actual.
+    let previous=0;
+    for(let i=1;i<pts.length;i++){
+      const p=pts[i];
+      const relevant=(S.pass==='sources'&&p.component==='source')||(S.pass==='resistors'&&p.component==='resistor');
+      if(!relevant&&i!==pts.length-1)continue;
+      await moveAlongPolyline(pts.slice(previous,i+1),leg);
+      if(token!==flowToken)return;
+      previous=i;
+      if(S.pass==='sources'&&p.component==='source'){
+        const v=E[leg.branch]*leg.d;
+        S.es.push({v,i:leg.branch});renderComponentFX(p,v);
+        setHeroMood(v<0);
+        $('sourceBuild').innerHTML=termsHtml(S.es,'E');
+        renderBoardEquations('E');
+        msg('loopFeedback',`Fuente ${formatNumber(Math.abs(E[leg.branch]))} V: recorrido ${v>0?'a favor (+)':'en contra (−)'} de esa polaridad.`);
+        await waitForPlayer();if(token!==flowToken)return;
+      }else if(S.pass==='resistors'&&p.component==='resistor'){
+        const v=R[leg.branch]*S.signs[leg.branch]*leg.d;
+        S.rs.push({v,i:leg.branch});renderComponentFX(p,v);
+        setHeroMood(v<0);
+        $('resBuild').innerHTML=termsHtml(S.rs,'R');
+        renderBoardEquations('R');
+        msg('loopFeedback',`Resistencia R${leg.branch+1}: el recorrido ${v>=0?'coincide con':'se opone a'} la corriente supuesta. Signo ${v>=0?'+':'−'} en R·I.`);
+        await waitForPlayer();if(token!==flowToken)return;
+      }
+    }
+    // Al llegar al nudo se apaga el flujo de esa rama. El siguiente botón inicia la otra.
+    stopFlow();clearElementHighlight();$('sourceArrowFX').innerHTML='';$('componentFX').innerHTML='';setHeroMood(false);
+    setHeroGait(false);
+  }
+  async function nextInLoop(){
+    if(S.pausedResume){S.pausedResume();return}
+    if(S.phase!==2||S.animating||S.loops[S.loop])return;
+    const token=flowToken;
+    if(S.legIndex>=S.route.legs.length)return;
+    const leg=S.route.legs[S.legIndex];
+    S.animating=true;$('advance').disabled=true;
+    $('advance').textContent='Recorriendo rama '+(leg.branch+1)+'…';
+    $('componentFX').innerHTML='';
+    msg('loopFeedback',`Recorriendo la rama de ${leg.d===1?'B a A':'A a B'}, desde un nudo hasta el otro, sin saltos.`);
+    try{await animateLeg(leg)}catch(err){console.error(err);msg('loopFeedback','No se pudo completar la animación: '+err.message,'bad');S.animating=false;return}
+    if(token!==flowToken)return;
+    S.legIndex++;
+    S.animating=false;
+    if(S.legIndex>=S.route.legs.length){
+      if(S.pass==='resistors'){
+        // Primera vuelta R·I cerrada: el muñeco recupera la vertical en B.
+        positionHero(345,BOT,0);setHeroGait(false);setHeroMood(false);clearFX();
+        S.pass='sources';S.route=createRoute(S.loop,S.cw);S.legIndex=0;
+        updateLoopsArrows();renderBoardEquations();
+        $('lapLabel').textContent='Vuelta 2/2 · fuentes de tensión';
+        $('advance').textContent='Iniciar vuelta de fuentes desde B →';
+        $('advance').disabled=false;
+        msg('loopFeedback','Primera vuelta de R·I completada en B. Los términos resistivos aparecen a la izquierda de =. Segunda vuelta: tensiones y polaridades de las fuentes.','good');
+      }else finishLoop();
+      return;
+    }
+    $('advance').disabled=true;
+    $('boardState').textContent=`Rama ${leg.branch+1} recorrida. Continúa hacia el siguiente elemento sin detenerse en los nudos.`;
+    await nextInLoop();
+  }
+  $('advance').onclick=nextInLoop;
+  function finishLoop(){
+    // Al terminar una malla, el personaje se queda derecho, con brazos caídos.
+    positionHero(345,BOT,0);setHeroGait(false);setHeroMood(false);
+    const source= S.es.reduce((a,p)=>a+p.v,0), row=[0,0,0];
+    S.rs.forEach(p=>row[p.i]+=p.v);
+    S.loops[S.loop]={sources:S.es.slice(),resistors:S.rs.slice(),source,row,cw:S.cw};
+    $('advance').disabled=true; clearFX();
+    if(!S.scoredLoops[S.loop]){S.score+=150;S.scoredLoops[S.loop]=true}updateHeader();
+    drawFinished();updateLoopsArrows();renderBoardEquations();
+    msg('loopFeedback','Malla '+(S.loop+1)+' completa tras dos vueltas. '+coefEq(row,source)+' · ecuación independiente.','good');
+    $('boardState').textContent='Recorrido de malla '+(S.loop+1)+' completado en B. Ecuación KVL validada.';
+    if(S.loops.every(Boolean)){show('goMatrix',true);if(!S.loopBonusAwarded){S.score+=50;S.loopBonusAwarded=true;updateHeader()}}
+    else{const next=S.loop===0?1:0;$('loopFeedback').textContent+=' Selecciona ahora la malla '+(next+1)+'.'}
+  }
+  function drawFinished(){
+    const lines=S.loops.map((l,i)=>l?'<div class="eq">Malla '+(i+1)+': '+escapeHtml(terms(l.resistors,'R'))+' = '+escapeHtml(terms(l.sources,'E'))+'</div>':'').filter(Boolean);
+    $('finishedLoops').innerHTML=lines.length?lines.join(''):'<span class="muted">Ninguna todavía.</span>';
+  }
+  const escapeHtml=s=>String(s).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
+  $('goMatrix').onclick=()=>{if(S.loops.every(Boolean))phase(3)};
+  function system(){return {A:[S.signs.slice(),S.loops[0].row.slice(),S.loops[1].row.slice()],b:[0,S.loops[0].source,S.loops[1].source]}}
+  function drawMatrix(){
+    const {A,b}=system();
+    $('matrixEqs').innerHTML=`<div class="eq">Nudo A: ${escapeHtml(coefEq(A[0],b[0]))}</div><div class="eq">Malla 1: ${escapeHtml(terms(S.loops[0].resistors,'R'))} = ${escapeHtml(terms(S.loops[0].sources,'E'))}</div><div class="eq">Malla 2: ${escapeHtml(terms(S.loops[1].resistors,'R'))} = ${escapeHtml(terms(S.loops[1].sources,'E'))}</div>`;
+    let html=['I₁','I₂','I₃','','b'].map(x=>`<div class="mat-head">${x}</div>`).join('');
+    for(let i=0;i<3;i++)for(let j=0;j<5;j++){
+      html+=j===3?'<div class="mat-sep"></div>':`<input type="number" step="any" aria-label="${j===4?'Término independiente':'Coeficiente de '+names[j]} de ecuación ${i+1}" data-row="${i}" data-col="${j===4?3:j}" placeholder="?">`;
+    }
+    $('matrixInputs').innerHTML=html;
+    $('matrixInputs').querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>{inp.classList.remove('correct','wrong')}));
+    msg('matrixFeedback','3 ecuaciones y 3 incógnitas. La matriz debe recoger los signos de las flechas y de cada recorrido.');
+    show('goSolve',false);
+  }
+  $('fillMatrix').onclick=()=>{
+    const {A,b}=system();document.querySelectorAll('#matrixInputs input').forEach(inp=>{
+      const i=+inp.dataset.row,j=+inp.dataset.col;inp.value=j===3?b[i]:A[i][j];inp.classList.remove('correct','wrong');
+    });msg('matrixFeedback','Coeficientes cargados para probar el MVP. Pulsa Comprobar matriz para validarlos.');
+  };
+  $('verifyMatrix').onclick=()=>{
+    const {A,b}=system();let ok=true;
+    document.querySelectorAll('#matrixInputs input').forEach(inp=>{
+      const i=+inp.dataset.row,j=+inp.dataset.col,expected=j===3?b[i]:A[i][j];
+      const val=inp.value.trim()===''?NaN:Number(inp.value);const equal=Number.isFinite(val)&&Math.abs(val-expected)<1e-7;
+      inp.classList.toggle('correct',equal);inp.classList.toggle('wrong',!equal);if(!equal)ok=false;
+    });
+    if(ok){msg('matrixFeedback','Matriz correcta. El determinante es distinto de cero: hay solución única.','good');show('goSolve',true);if(!S.matrixScored){S.score+=180;S.matrixScored=true;updateHeader()}}
+    else msg('matrixFeedback','Hay coeficientes incorrectos o vacíos (marcados en rojo). Revisa el signo y el orden de las incógnitas.','bad');
+  };
+  $('goSolve').onclick=()=>{S.score+=20;phase(4)};
+  function finalISummary(){const ii=jValues.map((x,i)=>x*S.signs[i]);return ii.map((v,i)=>names[i]+' = '+fmt(v)+' A').join('; ')+'.'}
+  // Tabla de columnas fijas: los coeficientes I₁, I₂, I₃ y el término
+  // independiente ocupan siempre la misma posición en las ecuaciones.
+  // Presentación común para todos los niveles: las incógnitas ocupan columnas
+  // fijas, también después de sustituir las ecuaciones de nudo.
+  function algebraTable(lines, vars=names){
+    const cols=vars.length;
+    const head='<colgroup><col style="width:23%">'+
+      vars.map(()=>'<col style="width:'+Math.max(10,Math.floor(62/cols))+'%">').join('')+
+      '<col style="width:5%"><col style="width:12%"></colgroup>'+
+      '<thead><tr><th>Operación</th>'+vars.map(x=>'<th>'+escapeHtml(x)+'</th>').join('')+
+      '<th>=</th><th>Indep.</th></tr></thead>';
+    const body=lines.map(line=>{
+      let seen=false;
+      const cells=vars.map((variable,i)=>{
+        const v=line.row[i]||0;
+        if(Math.abs(v)<1e-8)return '<td class="alg-empty">&nbsp;</td>';
+        const sign=v<0?'− ':seen?'+ ':'';
+        seen=true;
+        const coeff=Math.abs(v),factor=Math.abs(coeff-1)<1e-8?'':formatNumber(coeff)+'·';
+        return '<td>'+escapeHtml(sign+factor+variable)+'</td>';
+      }).join('');
+      return '<tr'+(line.total?' class="alg-total"':'')+'><td>'+escapeHtml(line.label)+'</td>'+cells+
+        '<td class="alg-equal">=</td><td>'+escapeHtml(formatNumber(line.b))+'</td></tr>';
+    }).join('');
+    return '<div class="algebra-scroll"><table class="algebra-table">'+head+'<tbody>'+body+'</tbody></table></div>';
+  }
+  function algebraStepsHTML(steps,count,vars=names){
+    return steps.slice(0,count).map((step,i)=>
+      '<div class="step"><div class="stepnum">'+(i+1)+'</div><div class="step-main">'+
+      '<div class="step-heading">'+escapeHtml(step.title)+'</div>'+
+      '<div class="step-description">'+escapeHtml(step.detail)+'</div>'+
+      (step.nodeEquations?sixKCLRows():'')+
+      (step.rows?algebraTable(step.rows,step.vars||vars):'')+
+      '</div></div>'
+    ).join('');
+  }
+  function buildSteps(){
+    const {A,b}=system(),s=S.signs;
+    const a=A[1],c=A[2],u=b[1],v=b[2];
+    // De la ley del nudo se sustituye I₁ directamente en las dos mallas.
+    const p=a[1]-a[0]*s[1]/s[0],q=a[2]-a[0]*s[2]/s[0];
+    const r=c[1]-c[0]*s[1]/s[0],t=c[2]-c[0]*s[2]/s[0];
+    const last=jValues.map((j,i)=>j*S.signs[i]);
+    const first=[0,p,q],second=[0,r,t];
+    const node='I₁ = '+coefEq([0,-s[1]/s[0],-s[2]/s[0]],0).split(' = ')[0];
+    const steps=[
+      {title:'Sustitución en las dos mallas',
+       detail:'Partimos de '+nodeSides()+'. Sustituimos I₁ mediante '+node+' en las dos mallas y obtenemos:',
+       rows:[{label:'Malla 1',row:first,b:u},{label:'Malla 2',row:second,b:v}]}
+    ];
+    const eps=1e-9;
+    if(Math.abs(p)>eps && Math.abs(r)>eps){
+      // Multiplicadores enteros mínimos, también para coeficientes decimales.
+      const scale=100000;
+      const pp=Math.round(Math.abs(p)*scale),rr=Math.round(Math.abs(r)*scale);
+      const gcd=(x,y)=>{while(y){const tmp=x%y;x=y;y=tmp}return x||1};
+      const common=gcd(pp,rr),k1=rr/common,k2=pp/common;
+      const op=(Math.sign(p)===Math.sign(r))?-1:1;
+      const eq1=[0,p*k1,q*k1],eq2=[0,r*k2,t*k2];
+      const rhs1=u*k1,rhs2=v*k2;
+      const coef=q*k1+op*t*k2,rhs=rhs1+op*rhs2;
+      if(Math.abs(coef)<eps)throw new Error('Sistema sin solución única al reducir: '+active.id);
+      steps.push({title:'Reducción: preparación de los coeficientes',
+        detail:'Multiplicamos la malla 1 por '+formatNumber(k1)+' y la malla 2 por '+formatNumber(k2)+' para obtener coeficientes opuestos o iguales de I₂.',
+        rows:[{label:'Malla 1 · ×'+formatNumber(k1),row:eq1,b:rhs1},
+              {label:'Malla 2 · ×'+formatNumber(k2),row:eq2,b:rhs2}]});
+      steps.push({title:'Reducción: eliminación de I₂',
+        detail:(op===-1?'Restamos':'Sumamos')+' ambas ecuaciones, miembro a miembro, y desaparece I₂.',
+        rows:[{label:'Malla 1',row:eq1,b:rhs1},
+              {label:'Malla 2',row:eq2.map(x=>op*x),b:op*rhs2},
+              {label:'Resultado',row:[0,0,coef],b:rhs,total:true}]});
+      const i3=rhs/coef;
+      const i2=(u-q*i3)/p;
+      steps.push({title:'Sustitución regresiva',
+        detail:'De la ecuación reducida obtenemos I₃ = '+fmt(i3)+' A. Sustituimos ese valor en la primera malla para hallar I₂ = '+fmt(i2)+' A.',
+        rows:[{label:'Malla 1',row:[0,p,0],b:u-q*i3}]});
+    }else{
+      // Una ecuación tiene ya coeficiente cero en I₂.
+      const useFirst=Math.abs(p)<=eps;
+      const one=useFirst?first:second,other=useFirst?second:first;
+      const oneB=useFirst?u:v,otherB=useFirst?v:u;
+      if(Math.abs(one[2])<=eps||Math.abs(other[1])<=eps)throw new Error('No se puede resolver el sistema: '+active.id);
+      const i3=oneB/one[2];
+      const i2=(otherB-other[2]*i3)/other[1];
+      steps.push({title:'Reducción directa',
+        detail:'Una ecuación ya no tiene I₂: obtenemos I₃ = '+fmt(i3)+' A directamente, sin aplicar igualación.',
+        rows:[{label:useFirst?'Malla 1':'Malla 2',row:one,b:oneB,total:true}]});
+      steps.push({title:'Sustitución regresiva',
+        detail:'Sustituimos I₃ en la otra malla y hallamos I₂ = '+fmt(i2)+' A.',
+        rows:[{label:useFirst?'Malla 2':'Malla 1',row:[0,other[1],0],b:otherB-other[2]*i3}]});
+    }
+    steps.push({title:'Cálculo de la intensidad restante',
+      detail:'Volvemos a '+nodeSides()+' y calculamos I₁ = '+fmt(last[0])+' A mediante la ecuación del nudo.'});
+    steps.push({title:'Comprobación del circuito',
+      detail:finalISummary()+' Estas intensidades satisfacen las ecuaciones de nudo y mallas.',
+      rows:[{label:'Nudo A',row:A[0],b:b[0]},
+            {label:'Malla 1',row:A[1],b:b[1]},
+            {label:'Malla 2',row:A[2],b:b[2]}]});
+    return steps;
+  }
+  function renderSteps(){
+    const steps=buildSteps(),n=Math.min(S.step,steps.length);
+    $('solutionSteps').innerHTML=algebraStepsHTML(steps,n)||'<div class="notes">Pulsa «Siguiente paso» para sustituir directamente la ecuación del nudo en las dos mallas.</div>';
+    $('nextStep').disabled=S.step>=steps.length;
+    $('nextStep').textContent=S.step>=steps.length?'Resolución completa ✓':'Siguiente paso →';
+    show('resultPanel',S.step>=steps.length);
+    if(S.step>=steps.length){
+      const {A,b}=system(),ii=jValues.map((x,i)=>x*S.signs[i]);
+      const ok=A.every((row,r)=>Math.abs(row.reduce((acc,v,k)=>acc+v*ii[k],0)-b[r])<1e-9);
+      $('results').innerHTML=ii.map((v,i)=>`<div><small>${names[i]}</small><strong>${escapeHtml(fmt(v))} A</strong></div>`).join('');
+      $('undoEquivalence').innerHTML=hasReduction()?'<b>Deshacer equivalencias:</b> '+active.parts.map((parts,i)=>{
+        if(parts.length<=1)return '';
+        if(isParallel(i))return 'R'+(i+1)+' = '+parts.map(formatNumber).join(' ∥ ')+' Ω = '+formatNumber(R[i])+' Ω (paralelo). Corriente total: '+fmt(ii[i])+' A. Corrientes originales: '+parts.map((r,k)=>'R'+(i+1)+'.'+(k+1)+': '+fmt(ii[i]*R[i]/r)+' A').join('; ')+'.';
+        return 'R'+(i+1)+' = '+parts.join(' + ')+' Ω (serie). Por cada resistencia circulan '+fmt(ii[i])+' A.';
+      }).filter(Boolean).join(' '):'No hay resistencias compuestas que deshacer; las intensidades calculadas son las de las ramas originales.';
+      const rp=$('resultPanel').querySelector('.message');rp.className='message '+(ok?'good':'bad');
+      rp.innerHTML=ok?'Verificación: al sustituir las intensidades, <b>A · I = b</b> en las tres ecuaciones. Nivel superado.':'Error interno: los resultados no satisfacen la matriz.';
+      if(ok&&!S.finished){S.finished=true;S.score+=250;updateHeader();$('boardState').textContent='NIVEL COMPLETADO · tres ecuaciones correctas, tres intensidades verificadas.'}
+    }
+  }
+  $('nextStep').onclick=()=>{const steps=buildSteps();if(S.step<steps.length){S.step++;renderSteps()}};
+  $('restartSteps').onclick=()=>{S.step=0;renderSteps()};
+  function newGame(){
+    flowToken++;stopFlow();if(S.pausedResume){S.pausedResume();S.pausedResume=null}
+    S.phase=0;S.signs=[1,-1,-1];S.score=0;S.nodeDone=false;
+    S.loops=[null,null];S.scoredLoops=[false,false];S.loopBonusAwarded=false;S.loop=0;S.cw=true;
+    S.pass='resistors';S.route=null;S.legIndex=0;S.es=[];S.rs=[];S.animating=false;
+    S.finished=false;S.step=0;S.matrixScored=false;S.reductionDone=!hasReduction();
+    show('advancedPhase',false);show('advBoardEquations',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);
+    if(active.kind==='network'){clearFX();startNetwork();return}
+    if(active.kind==='multi'){sixStart();return}
+    $('stagebar').classList.remove('hide');show('networkPhase',false);$('hero').classList.remove('hide');
+    jValues=calcCurrents();refreshBranches();drawBoard();clearFX();show('boardEquations',false);
+    $('nodeEqPanel').classList.add('hide');$('goLoops').classList.add('hide');
+    show('goMatrix',false);show('goSolve',false);
+    show('reductions',hasReduction());$('confirmDirs').disabled=hasReduction();
+    $('reduceMsg').textContent='';
+    $('reduceRows').innerHTML=hasReduction()?active.parts.map((parts,i)=>parts.length>1?`<div class="reduce-row"><b>R${i+1}</b> (${isParallel(i)?'paralelo':'serie'}): ${isParallel(i)?'1/R'+(i+1)+' = '+parts.map(r=>'1/'+formatNumber(r)).join(' + '):'R'+(i+1)+' = '+parts.map(formatNumber).join(' + ')}. Resultado: <input aria-label="Equivalencia R${i+1}" data-reduce="${i}" inputmode="decimal" placeholder="?"> Ω</div>`:'').join(''):'';
+    $('boardState').textContent='Ejercicio '+active.label+'. Elige los sentidos supuestos.';
+    positionHero(345,BOT,0);setHeroGait(false);setHeroMood(false);phase(0)
+  }
+  $('playAgain').onclick=newGame;
+  document.addEventListener('keydown',e=>{
+    if(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLButtonElement)return;
+    if(S.phase===0&&['1','2','3'].includes(e.key))reverse(Number(e.key)-1);
+    else if(e.code==='Space'){
+      if(S.phase===2){e.preventDefault();nextInLoop()}
+      else if(S.phase===4){e.preventDefault();$('nextStep').click()}
+    }
+  });
+  // Actividad resuelta 7.6. Grafo equivalente por contracción de conductores
+  // y elementos en serie; conserva las seis ramas y las tres mallas independientes.
+  const A6={stage:'dirs',signs:[1,1,1,1,1,1],loop:0,cw:true,pass:'R',done:[null,null,null],rowsR:[[],[],[]],rowsU:[[],[],[]],running:false,waiting:null,runId:0,animReq:null,flowReq:null,score:0,steps:[],step:0};
+  const N6={A:[350,74],B:[130,225],C:[350,225],D:[570,225]};
+  const E6=[10,0,-4,-6,12,-2], R6=[4,3,2,2,5,3], NAMES6=['I₁','I₂','I₃','I₄','I₅','I₆'];
+  // Por convenio, cada fuente E se expresa como subida algebraica al recorrer
+  // la rama en su sentido de referencia de origen a destino.
+  const EDGES6=[
+    {from:'B',to:'A',p:[[130,225],[130,151,'U'],[130,74],[235,74,'R'],[350,74]],src:0},
+    {from:'A',to:'C',p:[[350,74],[350,150,'R'],[350,225]],src:1},
+    {from:'A',to:'D',p:[[350,74],[465,74,'R'],[570,74],[570,151,'U'],[570,225]],src:2},
+    {from:'B',to:'C',p:[[130,225],[209,225,'R'],[291,225,'U'],[350,225]],src:3},
+    {from:'C',to:'D',p:[[350,225],[426,225,'U'],[510,225,'R'],[570,225]],src:4},
+    {from:'B',to:'D',p:[[130,225],[130,355],[290,355,'U'],[466,355,'R'],[570,355],[570,225]],src:5}
+  ];
+  const MESH6=[
+    [{id:0,d:1},{id:1,d:1},{id:3,d:-1}],
+    [{id:1,d:-1},{id:2,d:1},{id:4,d:-1}],
+    [{id:3,d:1},{id:4,d:1},{id:5,d:-1}]
+  ];
+  const START6=['C','C','D']; // Nudo de inicio de M1, M2 y M3
+  const KCL6=[[1,-1,-1,0,0,0],[0,1,0,1,-1,0],[-1,0,0,-1,0,-1]];
+  const fmt6=v=>formatNumber(v);
+  function matSolve6(A,b,log=false){
+    const n=b.length,a=A.map((row,i)=>[...row,b[i]]),steps=[];
+    for(let k=0;k<n;k++){
+      let p=k;for(let i=k+1;i<n;i++)if(Math.abs(a[i][k])>Math.abs(a[p][k]))p=i;
+      if(Math.abs(a[p][k])<1e-10)throw new Error('Sistema singular: '+k);
+      if(p!==k){[a[k],a[p]]=[a[p],a[k]];steps.push({label:'Intercambio F'+(k+1)+' ↔ F'+(p+1),a:a.map(x=>x.slice())});}
+      for(let i=k+1;i<n;i++){
+        const q=a[i][k]/a[k][k];if(Math.abs(q)<1e-12)continue;
+        for(let j=k;j<=n;j++)a[i][j]-=q*a[k][j];
+        a[i][k]=0;
+        if(log)steps.push({label:'F'+(i+1)+' ← F'+(i+1)+' − ('+fmt6(q)+')·F'+(k+1),a:a.map(x=>x.slice())});
+      }
+    }
+    const x=Array(n).fill(0);for(let i=n-1;i>=0;i--){let v=a[i][n];for(let j=i+1;j<n;j++)v-=a[i][j]*x[j];x[i]=v/a[i][i];}
+    return {x,steps,a};
+  }
+  function sixSystem(){
+    const rows=KCL6.map(r=>r.map((v,i)=>v*A6.signs[i])),b=[0,0,0];
+    for(let k=0;k<3;k++){
+      const l=A6.done[k];if(!l)throw new Error('Malla '+(k+1)+' sin completar');
+      rows.push(l.row.map((v,i)=>v*A6.signs[i]));b.push(l.b);
+    }
+    return {A:rows,b};
+  }
+  function sixEq(row,b,vars=NAMES6){
+    const t=[];row.forEach((v,i)=>{if(Math.abs(v)<1e-9)return;
+      const sign=v<0?'−':'+',coef=Math.abs(v),term=(Math.abs(coef-1)<1e-9?'':fmt6(coef)+'·')+vars[i];
+      t.push((!t.length?(sign==='−'?'−':''):(' '+sign+' '))+term);
+    });return (t.join('')||'0')+' = '+fmt6(b);
+  }
+  function sixCancel(){
+    A6.runId++;A6.running=false;
+    if(A6.waiting){const r=A6.waiting;A6.waiting=null;r();}
+    if(A6.animReq!==null){cancelAnimationFrame(A6.animReq);A6.animReq=null;}
+    if(A6.flowReq!==null){cancelAnimationFrame(A6.flowReq);A6.flowReq=null;}
+    $('flowFX').innerHTML='';$('componentFX').innerHTML='';$('sourceArrowFX').innerHTML='';
+    document.querySelectorAll('.component-lit,.flash-term').forEach(el=>el.classList.remove('component-lit','flash-term'));
+    setHeroGait(false);setHeroMood(false);$('heroShape').setAttribute('transform','rotate(0)');
+  }
+  function sixSVG(){
+    let h='<g id="sixSymbols">';
+    for(const [i,edge] of EDGES6.entries()){
+      h+='<polyline class="wire" points="'+edge.p.map(p=>p[0]+','+p[1]).join(' ')+'"/>';
+      for(const c of edge.p){if(c.length<3)continue;
+        const x=c[0],y=c[1],t=c[2];
+        const horiz=(i===0?t==='R':i===2?t==='R':i===1?false:i===5?true:true);
+        const rid='sixCmp'+i+t;
+        if(t==='R'){
+          const valY=horiz?y+37:y+5;
+          h+=`<g id="${rid}" class="component-resistor"><rect class="symbol" x="${x-(horiz?25:12)}" y="${y-(horiz?12:25)}" width="${horiz?50:24}" height="${horiz?24:50}"/>`+
+           `<text x="${x}" y="${y+4}" class="resistor-name">R${i+1}</text>`+
+           `<text class="component-value" text-anchor="${horiz?'middle':'start'}" x="${horiz?x:x+26}" y="${valY}">${fmt6(R6[i])}Ω</text></g>`;
+        }else{
+          const ep=E6[i];const plus=(ep>0),vert=[0,2].includes(i);
+          // Las dos fuentes verticales del 7.6 tienen el borne positivo arriba.
+          // Placas a 12 unidades; dos terminales dibujados explícitamente para
+          // conectar ambos extremos del símbolo IEC a la rama.
+          const big=vert?y-6:(plus?x+6:x-6);
+          const small=vert?y+6:(plus?x-6:x+6);
+          h+=`<g id="${rid}" class="component-source"><rect class="source-halo" x="${x-(vert?24:16)}" y="${y-(vert?16:24)}" width="${vert?48:32}" height="${vert?32:48}" rx="3" fill="#0e1d2f" stroke="transparent"/>`;
+          h+=vert?`<path class="source-lead source-plate" d="M${x} ${y-24} V${y-6} M${x} ${y+6} V${y+24}"/><path class="source-plate" d="M${x-19} ${big} H${x+19} M${x-9} ${small} H${x+9}"/>`:
+                      `<path class="source-lead source-plate" d="M${x-24} ${y} H${x-6} M${x+6} ${y} H${x+24}"/><path class="source-plate" d="M${big} ${y-19} V${y+19} M${small} ${y-9} V${y+9}"/>`;
+          h+=`<text class="component-value" text-anchor="${vert?'start':'middle'}" x="${vert?x+28:x}" y="${vert?y+5:y+35}">${fmt6(Math.abs(ep))}V</text></g>`;
+        }
+      }
+    }
+    h+='</g>';
+    Object.entries(N6).forEach(([id,[x,y]])=>h+=`<circle class="nod" cx="${x}" cy="${y}" r="5"/><text class="txt" x="${x+8}" y="${y-13}">${id}</text>`);
+    h+='<g id="sixRefArrows"></g><g id="sixLoops"></g>';
+    return h;
+  }
+  function sixRefArrow(){
+    // Anclajes sobre tramos de conductor libres de elementos: cada flecha es corta,
+    // está desplazada hacia arriba (horizontal) o lateralmente (vertical).
+    const anchor=[
+      {x:174,y:74,dx:1,dy:0,len:12,labelX:161,labelY:54},      // I1, conductor entre B y R1
+      {x:350,y:111,dx:0,dy:1,len:12,labelX:364,labelY:113},    // I2, vertical entre A y R2
+      {x:403,y:74,dx:1,dy:0,len:12,labelX:390,labelY:54},      // I3, conductor entre A y R3
+      {x:159,y:225,dx:1,dy:0,len:12,labelX:147,labelY:204},   // I4, entre B y R4
+      {x:379,y:225,dx:1,dy:0,len:12,labelX:366,labelY:204},   // I5, entre C y E5
+      {x:199,y:355,dx:1,dy:0,len:12,labelX:186,labelY:335}    // I6, entre B y fuente inferior
+    ];
+    $('sixRefArrows').innerHTML=anchor.map((a,i)=>{
+      const s=A6.signs[i],vx=a.dx*s,vy=a.dy*s,x=a.x,y=a.y,len=a.len;
+      const stem=`M${x-vx*len} ${y-vy*len} L${x+vx*len} ${y+vy*len}`;
+      const tip=`M${x+vx*(len-7)-vy*5} ${y+vy*(len-7)+vx*5} L${x+vx*len} ${y+vy*len} L${x+vx*(len-7)+vy*5} ${y+vy*(len-7)-vx*5}`;
+      return `<g><path class="direction-outline" d="${stem} ${tip}"/><path class="direction" d="${stem} ${tip}"/><text class="dirlabel" x="${a.labelX}" y="${a.labelY}">${NAMES6[i]}</text></g>`;
+    }).join('');
+    $('advDirections').innerHTML=A6.signs.map((s,i)=>`<button data-sixref="${i}" class="small" ${A6.stage!=='dirs'?'disabled':''}>${NAMES6[i]} ${s===1?'→':'←'} ${s===1?'(referencia)':'(invertida)'}</button>`).join('');
+    document.querySelectorAll('[data-sixref]').forEach(b=>b.onclick=()=>{if(A6.stage!=='dirs')return;A6.signs[Number(b.dataset.sixref)]*=-1;sixRefArrow()});
+  }
+  function sixMeshArrows(){
+    if(!$('sixLoops'))return;
+    const pts=[[232,135],[477,141],[352,305]];
+    $('sixLoops').innerHTML=pts.map(([x,y],i)=>{
+      const done=A6.done[i],cw=done?.cw??(i===A6.loop?A6.cw:true);
+      const sub=done?'HECHA':i===A6.loop?(A6.pass==='R'?'Σ R·I':'Σ U'):'PENDIENTE';
+      return `<text x="${x}" y="${y}" text-anchor="middle" style="fill:#83e9ea;font:800 31px sans-serif">${cw?'↻':'↺'}</text><text x="${x}" y="${y+17}" text-anchor="middle" style="fill:#f5db9b;font:700 11px monospace">M${i+1} · ${sub}</text>`;
+    }).join('');
+  }
+  function sixText(id,txt){$(id).textContent=txt}
+  function sixRenderRows(){
+    const out=[];
+    for(let k=0;k<3;k++){
+      const rr=A6.rowsR[k].map((o,j)=>{
+        const t=(o.v<0?(j?' − ':'−'):(j?' + ':''))+fmt6(Math.abs(o.v))+'·'+NAMES6[o.i];
+        return `<span class="${k===A6.loop&&A6.stage==='loops'&&A6.pass==='R'&&j===A6.rowsR[k].length-1&&A6.waiting?'flash-term':''}">${t}</span>`;
+      }).join('');
+      const uu=A6.rowsU[k].map((o,j)=>{
+        const t=(o.v<0?(j?' − ':'−'):(j?' + ':''))+fmt6(Math.abs(o.v))+' V';
+        return `<span class="${k===A6.loop&&A6.stage==='loops'&&A6.pass==='U'&&j===A6.rowsU[k].length-1&&A6.waiting?'flash-term':''}">${t}</span>`;
+      }).join('');
+      out.push(`<div class="board-eq-row"><div class="board-eq-label">Malla ${k+1}</div><div class="board-eq-formula">${rr} <b class="board-eq-equal">=</b> ${uu}</div></div>`);
+    }
+    $('advBoardRows').innerHTML=out.join('');
+  }
+  function sixStart(){
+    sixCancel();
+    S.phase=6;S.score=0;
+    A6.stage='dirs';A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
+    $('stagebar').classList.add('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
+    $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
+    $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();
+    for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents='none';$('nodeHit').style.pointerEvents='none';
+    $('boardTitle').textContent=active.label;$('boardBadge').textContent='IEC · 4 nudos · 6 ramas · 3 mallas';
+    $('boardSummary').textContent='R: 4 / 3 / 2 / 2 / 5 / 3 Ω · U: 10, 4, 6, 12, 2 V';
+    $('boardState').textContent='Actividad resuelta 7.6: el circuito original, sin inventar conexiones ni fuentes.';
+    show('boardEquations',false);show('advBoardEquations',true);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);sixRenderRows();
+    show('advKCL',false);show('advLoops',false);show('advMatrix',false);show('advSolve',false);show('advResultPanel',false);show('advStart',true);
+    $('phaseHead').textContent='Tema 7 · Actividad resuelta 7.6';$('phaseChip').textContent='4 NUDOS';
+    sixText('advInfo','Selecciona los sentidos de las seis corrientes. Cada elección es una referencia algebraica válida.');
+    positionHero(...N6.C,0);setHeroGait(false);setHeroMood(false);sixRefArrow();sixMeshArrows();
+    $('score').textContent='0000';$('percent').textContent='0%';
+  }
+  function sixNodeSides(row){
+    const incoming=[],outgoing=[];
+    row.forEach((v,i)=>{
+      if(!v)return;
+      // KCL6 utiliza coeficiente + para entrada, − para salida.
+      (v*A6.signs[i]>0?incoming:outgoing).push(NAMES6[i]);
+    });
+    return (incoming.join(' + ')||'0')+' = '+(outgoing.join(' + ')||'0');
+  }
+  function sixKCLRows(){
+    return '<div class="node-eq-list">'+KCL6.map((row,i)=>
+      `<div class="node-eq-row"><span class="node-eq-label">Nudo ${['A','C','B'][i]}</span><span class="node-eq-formula">${sixNodeSides(row)}</span></div>`
+    ).join('')+'</div>';
+  }
+  function sixNodeStart(){
+    if(A6.stage!=='dirs')return;
+    A6.stage='loops';show('advStart',false);show('advKCL',true);show('advLoops',true);show('circuitControls',true);show('standardCircuitControls',false);show('advancedCircuitControls',true);
+    $('advKCLtext').innerHTML=sixKCLRows();
+    sixText('advInfo','4 nudos ⇒ n−1 = 3 ecuaciones independientes; 6 ramas ⇒ 6 incógnitas; 3 mallas ⇒ 3 ecuaciones más.');
+    sixRefArrow();sixSelectLoop(0);
+    S.score+=100;$('score').textContent=String(S.score).padStart(4,'0');$('percent').textContent='18%';
+  }
+  function sixOrientRoute(loop,cw){
+    // Rotación cíclica del contorno: el origen cambia, pero los signos de KVL no.
+    // La malla 1 y la 2 arrancan en C; la malla 3 arranca en D.
+    const reverse=a=>a.slice().reverse().map(o=>({id:o.id,d:-o.d}));
+    const edges=cw?MESH6[loop].map(o=>({...o})):reverse(MESH6[loop]);
+    const start=START6[loop];
+    const begin=leg=>leg.d===1?EDGES6[leg.id].from:EDGES6[leg.id].to;
+    const end=leg=>leg.d===1?EDGES6[leg.id].to:EDGES6[leg.id].from;
+    const ix=edges.findIndex(leg=>begin(leg)===start);
+    if(ix<0)throw new Error('El nudo '+start+' no está en la malla '+(loop+1));
+    const route=[...edges.slice(ix),...edges.slice(0,ix)];
+    if(begin(route[0])!==start||end(route.at(-1))!==start ||
+       route.some((leg,i)=>i>0&&end(route[i-1])!==begin(leg)))
+      throw new Error('Recorrido de malla '+(loop+1)+' discontinuo');
+    return route;
+  }
+  function sixSelectLoop(index){
+    if(A6.stage!=='loops')return;
+    sixCancel();A6.loop=index;A6.cw=A6.done[index]?.cw??true;A6.pass='R';
+    if(!A6.done[index]){A6.rowsR[index]=[];A6.rowsU[index]=[];}
+    const start=START6[index];
+    sixText('advLap','Vuelta 1/2 · Σ R·I · Malla '+(index+1)+' · salida '+start);
+    $('advNext').disabled=!!A6.done[index];$('advNext').textContent=A6.done[index]?'Malla completada ✓':'Iniciar recorrido desde '+start+' →';
+    document.querySelectorAll('[data-sixloop]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.sixloop)===index));
+    $('advCw').classList.toggle('selected',A6.cw);$('advCcw').classList.toggle('selected',!A6.cw);
+    sixMeshArrows();positionHero(...N6[start],0);setHeroMood(false);setHeroGait(false);
+    sixText('advLoopMsg',A6.done[index]?'Malla '+(index+1)+' completada. Elige otra pendiente.':'Malla '+(index+1)+' preparada. Salida desde el nudo '+start+'. Las bolitas recorrerán todas sus ramas durante Σ R·I.');
+    sixRenderRows();
+  }
+  function sixSetOrient(cw){if(A6.stage!=='loops'||A6.running||A6.waiting)return;
+    if(A6.done[A6.loop])return;A6.cw=cw;
+    $('advCw').classList.toggle('selected',cw);$('advCcw').classList.toggle('selected',!cw);sixMeshArrows();
+  }
+  function sixPointAt(pts,distances,at){
+    let s=0;while(s<distances.length-1&&at>distances[s+1])s++;
+    const a=pts[s],b=pts[s+1]||a,d=(distances[s+1]??at)-(distances[s]??0),t=d?Math.min(1,(at-distances[s])/d):0;
+    return {x:a[0]+(b[0]-a[0])*t,y:a[1]+(b[1]-a[1])*t,upside:Math.abs(a[0]-b[0])<.01&&b[1]>a[1]};
+  }
+  function sixMove(pts,token,opposite=false){
+    if(pts.length<2)return Promise.resolve();
+    const distances=[0];for(let j=1;j<pts.length;j++)distances.push(distances[j-1]+Math.hypot(pts[j][0]-pts[j-1][0],pts[j][1]-pts[j-1][1]));
+    const total=distances[distances.length-1];return new Promise(resolve=>{
+      let start=null;
+      function step(ts){
+        if(token!==A6.runId){resolve();return}
+        if(start===null)start=ts;
+        const walked=Math.min(total,(ts-start)/8.8),pos=sixPointAt(pts,distances,walked);
+        positionHero(pos.x,pos.y,pos.upside?180:0);setHeroGait(walked<total,walked);
+        setHeroMood(A6.pass==='R'&&opposite);
+        if(walked<total)A6.animReq=requestAnimationFrame(step);
+        else{A6.animReq=null;resolve()}
+      }
+      A6.animReq=requestAnimationFrame(step);
+    });
+  }
+  function sixFlow(points,d,token){
+    if(A6.pass!=='R')return;
+    sixStopFlow();
+    // Bolitas amarillo pastel sobre TODO el conductor de la rama activa,
+    // incluso si el recorrido del muñeco va en contra de la corriente supuesta.
+    const pts=d===1?points:points.slice().reverse();
+    const distances=[0];
+    for(let j=1;j<pts.length;j++)distances.push(distances[j-1]+Math.hypot(pts[j][0]-pts[j-1][0],pts[j][1]-pts[j-1][1]));
+    const total=distances.at(-1);
+    if(total<1)return;
+    const count=Math.max(5,Math.min(24,Math.round(total/35)));
+    const layer=$('flowFX');
+    layer.innerHTML=Array.from({length:count},()=>'<circle class="fx-current-halo" r="9"/><circle class="fx-current-dot" r="5.2"/>').join('');
+    const dots=Array.from(layer.children),t0=performance.now(),speed=57;
+    function frame(now){if(token!==A6.runId||A6.pass!=='R')return;
+      const advance=((now-t0)*speed/1000)%total;
+      for(let i=0;i<count;i++){
+        const pos=sixPointAt(pts,distances,(advance+i*total/count)%total);
+        for(let h=0;h<2;h++){
+          const dot=dots[2*i+h];
+          dot.setAttribute('cx',pos.x.toFixed(1));dot.setAttribute('cy',pos.y.toFixed(1));
+        }
+      }
+      A6.flowReq=requestAnimationFrame(frame);
+    }
+    A6.flowReq=requestAnimationFrame(frame);
+  }
+  function sixStopFlow(){if(A6.flowReq!==null){cancelAnimationFrame(A6.flowReq);A6.flowReq=null}$('flowFX').innerHTML=''}
+  function sixSignFX(i,p,d){
+    const component= p[2];const val=(component==='R'?R6[i]*A6.signs[i]*d:E6[i]*d);
+    const x=p[0]+30,y=p[1]+28;
+    $('componentFX').innerHTML=`<circle class="fx-plusminus" cx="${x}" cy="${y}" r="14"/><text class="fx-pm-text" x="${x}" y="${y+1}">${val<0?'−':'+'}</text>`;
+    if(component==='U'){
+      const v=E6[i],vertical=[0,2].includes(i),side=v>0?1:-1;
+      const ax=vertical?p[0]-41:p[0],ay=vertical?p[1]:p[1]+44;
+      const dx=vertical?0:side,dy=vertical?-1:0;
+      $('sourceArrowFX').innerHTML=`<path class="fx-arrow" d="M${ax-17*dx} ${ay-17*dy} L${ax+17*dx} ${ay+17*dy} M${ax+17*dx-8*dx-6*dy} ${ay+17*dy-8*dy+6*dx} L${ax+17*dx} ${ay+17*dy} L${ax+17*dx-8*dx+6*dy} ${ay+17*dy-8*dy-6*dx}"/>`;
+    }
+    return val;
+  }
+  async function sixPlay(){
+    if(A6.stage!=='loops'||A6.running||A6.done[A6.loop])return;
+    const k=A6.loop,cw=A6.cw,token=++A6.runId,pass=A6.pass;
+    A6.running=true;$('advNext').disabled=true;$('advNext').textContent='Recorriendo...';
+    const route=sixOrientRoute(k,cw);
+    // El personaje comienza físicamente en el nudo seleccionado, sin teletransporte.
+    positionHero(...N6[START6[k]],0);setHeroGait(false);setHeroMood(false);
+    for(const leg of route){
+      if(token!==A6.runId)return;
+      const id=leg.id,edge=EDGES6[id],d=leg.d,points=(d===1?edge.p:edge.p.slice().reverse());
+      if(!leg.transit){
+        if(pass==='R')sixFlow(edge.p,A6.signs[id],token);
+      }
+      let from=0;
+      for(let j=1;j<points.length;j++){
+        const p=points[j],isRelevant=!leg.transit&&(pass==='R'?p[2]==='R':p[2]==='U');
+        if(!isRelevant&&j!==points.length-1)continue;
+        if(isRelevant){const lit=$('sixCmp'+id+(pass==='R'?'R':'U'));if(lit)lit.classList.add('component-lit');}
+        await sixMove(points.slice(from,j+1),token,leg.d!==A6.signs[id]);
+        if(token!==A6.runId)return;from=j;
+        if(isRelevant){
+          const val=sixSignFX(id,p,d);const el=$('sixCmp'+id+(pass==='R'?'R':'U'));
+          if(el)el.classList.add('component-lit');
+          (pass==='R'?A6.rowsR[k]:A6.rowsU[k]).push({i:id,v:val});
+          $('advLoopMsg').textContent=(pass==='R'?'Resistencia R':'Fuente E')+(id+1)+': '+(val<0?'signo negativo':'signo positivo')+'. Pulsa «Continuar».';
+          await new Promise(resolve=>{A6.waiting=resolve;sixRenderRows();setHeroGait(false);setHeroMood(val<0);$('advNext').disabled=false;$('advNext').textContent='Continuar recorrido →'});
+          if(token!==A6.runId)return;
+          document.querySelectorAll('.flash-term').forEach(e=>e.classList.remove('flash-term'));
+          if(el)el.classList.remove('component-lit');$('componentFX').innerHTML='';$('sourceArrowFX').innerHTML='';
+          sixRenderRows();$('advNext').disabled=true;
+        }
+      }
+      sixStopFlow();
+    }
+    if(token!==A6.runId)return;
+    A6.running=false;positionHero(...N6[START6[k]],0);setHeroGait(false);setHeroMood(false);
+    if(pass==='R'){
+      A6.pass='U';sixText('advLap','Vuelta 2/2 · Σ U · Malla '+(k+1)+' · salida '+START6[k]);sixMeshArrows();
+      $('advNext').disabled=false;$('advNext').textContent='Iniciar vuelta de tensiones desde '+START6[k]+' →';
+      sixText('advLoopMsg','Primera vuelta terminada: los términos R·I quedan a la izquierda de =.');
+    }else{
+      const row=Array(6).fill(0);
+      A6.rowsR[k].forEach(x=>row[x.i]+=x.v/A6.signs[x.i]);
+      const b=A6.rowsU[k].reduce((s,x)=>s+x.v,0);
+      A6.done[k]={row,b,cw};
+      $('advNext').disabled=true;$('advNext').textContent='Malla terminada ✓';
+      sixText('advLoopMsg','Malla '+(k+1)+' completada. '+sixEq(row.map((v,i)=>v*A6.signs[i]),b));
+      sixMeshArrows();S.score+=150;$('score').textContent=String(S.score).padStart(4,'0');
+      $('percent').textContent=(18+Math.round(40*A6.done.filter(Boolean).length/3))+'%';
+      if(A6.done.every(Boolean))show('advToMatrix',true);
+    }
+  }
+  function sixNext(){if(A6.waiting){let f=A6.waiting;A6.waiting=null;f();return}if(A6.running)return;sixPlay()}
+  function sixMatrix(){
+    if(A6.stage!=='loops'||!A6.done.every(Boolean))return;
+    A6.stage='matrix';sixCancel();show('advLoops',false);show('advMatrix',true);show('advToMatrix',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);show('advBoardEquations',false);show('advKCL',false);
+    const {A,b}=sixSystem();
+    $('advMatEqs').innerHTML=A.map((row,i)=>'<div class="eq" style="font-size:13px">'+(i<3?'Nudo '+['A','C','B'][i]:'Malla '+(i-2))+': '+sixEq(row,b[i])+'</div>').join('');
+    $('advMatInputs').innerHTML='<div class="adv-mat-head">'+[...NAMES6,'b'].map(x=>'<span>'+x+'</span>').join('')+'</div>'+A.map((row,i)=>'<div class="adv-mat-row">'+[...row,b[i]].map((v,j)=>`<input data-ar="${i}" data-ac="${j}" aria-label="Fila ${i+1} columna ${j+1}" placeholder="?" inputmode="decimal"/>`).join('')+'</div>').join('');
+    show('advSolveBtn',false);sixText('advMatFeedback','6 ecuaciones independientes para 6 incógnitas: 3 KCL y 3 KVL.');
+    $('percent').textContent='68%';$('phaseChip').textContent='MATRIZ 6 × 6';
+  }
+  function sixVerifyMatrix(){
+    const {A,b}=sixSystem(),all=[...A.map((row,i)=>[...row,b[i]])],inputs=Array.from($('advMatInputs').querySelectorAll('input'));
+    let ok=true;inputs.forEach(inp=>{
+      const v=Number(inp.value.replace(',','.')),i=Number(inp.dataset.ar),j=Number(inp.dataset.ac);
+      const yes=inp.value.trim()!==''&&Number.isFinite(v)&&Math.abs(v-all[i][j])<1e-6;
+      inp.classList.toggle('correct',yes);inp.classList.toggle('wrong',!yes);if(!yes)ok=false;
+    });
+    sixText('advMatFeedback',ok?'Matriz correcta. Ya puedes hacer la sustitución de nudos y resolver por reducción.':'Hay coeficientes incorrectos o casillas vacías.');
+    show('advSolveBtn',ok);if(ok&&!A6.matrixScore){A6.matrixScore=true;S.score+=200;$('score').textContent=String(S.score).padStart(4,'0')}
+  }
+  function sixReduced(){
+    // Esquema de sustitución exacto, expresado mediante las tres referencias libres.
+    const ori=[[9,4,-2],[-3,2,-5],[-2,3,10]],rhs=[16,-16,8],cols=[1,2,4];
+    const a=ori.map((row,k)=>row.map((v,j)=>v*A6.signs[cols[j]]*(A6.done[k].cw?1:-1)));
+    const b=rhs.map((v,k)=>v*(A6.done[k].cw?1:-1));
+    return {a,b,cols};
+  }
+  // Eliminación por combinación lineal sin pasar por igualación. Devuelve las
+  // dos ecuaciones escaladas y su suma, listas para presentarlas alineadas.
+  function sixEliminate(rowA,bA,rowB,bB,column){
+    const x=rowA[column],y=rowB[column];
+    if(Math.abs(x)<1e-10)throw new Error('Pivote nulo al reducir la actividad 7.6');
+    if(Math.abs(y)<1e-10)return {row:rowB.slice(),b:bB,m1:0,m2:1,first:null,second:{row:rowB.slice(),b:bB},noop:true};
+    const ax=Math.round(Math.abs(x)),ay=Math.round(Math.abs(y));
+    const gcd=(a,b)=>{while(b){const r=a%b;a=b;b=r;}return a||1;};
+    const g=gcd(ax,ay);
+    const m1=ay/g,m2=(Math.sign(x)===Math.sign(y)?-1:1)*ax/g;
+    const one=rowA.map(z=>z*m1),two=rowB.map(z=>z*m2);
+    const result=one.map((z,i)=>Math.abs(z+two[i])<1e-9?0:z+two[i]);
+    return {m1,m2,first:{row:one,b:bA*m1},second:{row:two,b:bB*m2},row:result,b:bA*m1+bB*m2};
+  }
+  function sixStartSolve(){
+    A6.stage='solve';show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='REDUCCIÓN';
+    const {a,b,cols}=sixReduced(),vars=cols.map(ix=>NAMES6[ix]);
+    const reduced=matSolve6(a,b),values=reduced.x;
+    const j2=values[0]*A6.signs[1],j3=values[1]*A6.signs[2],j5=values[2]*A6.signs[4];
+    const js=[j2+j3,j2,j3,j5-j2,j5,-j3-j5];
+    const ii=js.map((v,i)=>v*A6.signs[i]);
+    const e12=sixEliminate(a[0],b[0],a[1],b[1],0);
+    const e13=sixEliminate(a[0],b[0],a[2],b[2],0);
+    const e23=sixEliminate(e12.row,e12.b,e13.row,e13.b,1);
+    const last=e23.b/e23.row[2];
+    const middle=(e12.b-e12.row[2]*last)/e12.row[1];
+    const first=(b[0]-a[0][1]*middle-a[0][2]*last)/a[0][0];
+    if([first,middle,last].some((n,i)=>!Number.isFinite(n)||Math.abs(n-values[i])>1e-6))throw new Error('Reducción algebraica incoherente en 7.6');
+    A6.steps=[
+      {title:'Sustitución en las tres mallas',
+       detail:'Partimos de las tres igualdades de nudo. Sustituimos I₁, I₄ e I₆ en las mallas y trabajamos con '+vars.join(', ')+'.',
+       nodeEquations:true,vars,
+       rows:a.map((row,i)=>({label:'Malla '+(i+1),row,b:b[i]}))},
+      {title:'Reducción: eliminación de '+vars[0]+' (mallas 1 y 2)',
+       detail:'Multiplicamos las dos ecuaciones por los factores indicados y sumamos miembro a miembro para eliminar '+vars[0]+'.',
+       vars,rows:[{label:'Malla 1 × '+fmt6(e12.m1),row:e12.first.row,b:e12.first.b},
+                  {label:'Malla 2 × ('+fmt6(e12.m2)+')',row:e12.second.row,b:e12.second.b},
+                  {label:'Resultado R₁',row:e12.row,b:e12.b,total:true}]},
+      {title:'Reducción: eliminación de '+vars[0]+' (mallas 1 y 3)',
+       detail:'Repetimos la reducción entre las mallas 1 y 3. Obtenemos otra ecuación con '+vars[1]+' y '+vars[2]+'.',
+       vars,rows:[{label:'Malla 1 × '+fmt6(e13.m1),row:e13.first.row,b:e13.first.b},
+                  {label:'Malla 3 × ('+fmt6(e13.m2)+')',row:e13.second.row,b:e13.second.b},
+                  {label:'Resultado R₂',row:e13.row,b:e13.b,total:true}]},
+      {title:'Reducción: eliminación de '+vars[1],
+       detail:'Combinamos las dos ecuaciones reducidas. Desaparece '+vars[1]+' y queda una ecuación con una sola incógnita.',
+       vars,rows:[{label:'R₁ × '+fmt6(e23.m1),row:e23.first.row,b:e23.first.b},
+                  {label:'R₂ × ('+fmt6(e23.m2)+')',row:e23.second.row,b:e23.second.b},
+                  {label:'Resultado',row:e23.row,b:e23.b,total:true}]},
+      {title:'Sustitución regresiva',
+       detail:'Calculamos '+vars[2]+' = '+fmt6(last)+' A; sustituimos ese valor para obtener '+vars[1]+' = '+fmt6(middle)+' A y después '+vars[0]+' = '+fmt6(first)+' A.',
+       vars,rows:[{label:vars[2],row:[0,0,e23.row[2]],b:e23.b},
+                  {label:vars[1],row:[0,e12.row[1],0],b:e12.b-e12.row[2]*last},
+                  {label:vars[0],row:[a[0][0],0,0],b:b[0]-a[0][1]*middle-a[0][2]*last}]},
+      {title:'Cálculo de las intensidades restantes',
+       detail:'Recuperamos I₁, I₄ e I₆ mediante las igualdades originales de los nudos. '+ii.map((x,i)=>NAMES6[i]+' = '+fmt6(x)+' A').join('; ')+'.',
+       nodeEquations:true,vars:NAMES6,
+       rows:KCL6.map((row,i)=>({label:'Nudo '+['A','C','B'][i],row:row.map((v,j)=>v*A6.signs[j]),b:0}))},
+    ];
+    const {A,b:origB}=sixSystem(),good=A.every((row,i)=>Math.abs(row.reduce((sum,v,j)=>sum+v*ii[j],0)-origB[i])<1e-7);
+    A6.steps.push({title:'Comprobación del circuito',
+      detail:good?'Las seis intensidades satisfacen las tres ecuaciones de nudo y las tres de malla. Nivel superado.':'Los resultados no satisfacen las ecuaciones.',
+      vars:NAMES6,rows:A.map((row,i)=>({label:i<3?'Nudo '+['A','C','B'][i]:'Malla '+(i-2),row,b:origB[i]}))});
+    A6.finalCurrents=ii;A6.finalGood=good;A6.step=0;A6.completedScore=false;sixRenderSolve();$('percent').textContent='85%';
+  }
+  function sixRenderSolve(){
+    $('advSolveSteps').innerHTML=algebraStepsHTML(A6.steps,A6.step);
+    const done=A6.step===A6.steps.length;
+    show('advResultPanel',done);
+    if(done){
+      $('advResults').innerHTML=A6.finalCurrents.map((x,i)=>'<div><small>'+NAMES6[i]+'</small><strong>'+escapeHtml(fmt6(x))+' A</strong></div>').join('');
+      $('advResultCheck').className='message '+(A6.finalGood?'good':'bad');
+      $('advResultCheck').textContent=A6.finalGood?'Verificación: A · I = b en las seis ecuaciones. Nivel superado.':'Los resultados no satisfacen todas las ecuaciones.';
+    }
+    $('advSolveNext').disabled=done;$('advSolveNext').textContent=done?'Ejercicio completado ✓':'Siguiente paso →';
+    if(done){$('percent').textContent='100%';if(!A6.completedScore){A6.completedScore=true;S.score+=250;$('score').textContent=String(S.score).padStart(4,'0')}}
+  }
+  $('advStart').onclick=sixNodeStart;
+  document.querySelectorAll('[data-sixloop]').forEach(e=>e.onclick=()=>sixSelectLoop(Number(e.dataset.sixloop)));
+  $('advCw').onclick=()=>sixSetOrient(true);$('advCcw').onclick=()=>sixSetOrient(false);
+  $('advNext').onclick=sixNext;$('advToMatrix').onclick=sixMatrix;
+  $('advFill').onclick=()=>{const {A,b}=sixSystem(),t=A.map((row,i)=>[...row,b[i]]);$('advMatInputs').querySelectorAll('input').forEach(x=>{x.value=fmt6(t[Number(x.dataset.ar)][Number(x.dataset.ac)])})};
+  $('advMatVerify').onclick=sixVerifyMatrix;$('advSolveBtn').onclick=sixStartSolve;
+  $('advSolveNext').onclick=()=>{if(A6.step<A6.steps.length){A6.step++;sixRenderSolve()}};
+
+  initExercises();
+  // Resolver el sistema por potencial de nudo y verificar todas las ramas.
+  for(const ex of exercises.filter(x=>x.kind!=='network'&&x.kind!=='multi')){
+    const oldActive=active,oldR=R,oldE=E;
+    active=ex;R=ex.R;E=ex.E;
+    const j=calcCurrents();
+    if(j.some(x=>!Number.isFinite(x))||Math.abs(j.reduce((a,b)=>a+b,0))>1e-8)throw Error('Datos inconsistentes en '+ex.id);
+    active=oldActive;R=oldR;E=oldE;
+  }
+  newGame();
+})();
+</script>
+</body>
+</html>
