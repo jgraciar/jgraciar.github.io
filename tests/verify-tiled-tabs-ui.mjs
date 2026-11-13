@@ -142,10 +142,11 @@ assert((await sizes(page)).every(b=>b.hidden==='false'));
   const controls=await page.locator('.jgr-toolbar-actions').evaluate(el=>{
    const box=el.getBoundingClientRect();
    return {visible:box.width>0&&box.left>=0&&box.right<=innerWidth+1,
-    present:['add-tab','duplicate-tab','arrange-tabs','jgr-sidebar-toggle'].every(id=>!!el.querySelector('#'+id)),
+    present:['duplicate-tab','arrange-tabs','jgr-sidebar-toggle'].every(id=>!!el.querySelector('#'+id)),
     scrollable:el.scrollWidth>=el.clientWidth};
   });
   assert(controls.visible&&controls.present&&controls.scrollable,'Toolbar controls must remain accessible on narrow tiles');
+  assert(await page.locator('#jgr-tab-strip > #add-tab').count()===1,'New circuit button must follow the tab list');
  }
  assert.deepEqual(errors,[]);
  console.log('OK tiled tabs: horizontal and vertical layouts, menu keyboard/Escape, simultaneous independent engines, pause/resume, edit focus, tab ordering, opening/closing, narrow screens and no reloads');
