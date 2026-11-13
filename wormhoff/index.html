@@ -8,6 +8,8 @@
 <style>
   :root { --bg:#09101d; --card:#111c30; --card2:#0c182b; --border:#2c415b; --txt:#f0f6ff; --muted:#a7bbd0; --cyan:#5ce6f0; --lime:#b7f75c; --amber:#ffc66b; --red:#ff7786; --purple:#ac98ff; }
   *{box-sizing:border-box}
+  html{scroll-padding-top:calc(var(--stagebar-height,90px) + 12px)}
+  #circuit{scroll-margin-top:calc(var(--stagebar-height,90px) + 12px)}
   body{margin:0;background:radial-gradient(circle at 9% 2%,#183657 0,transparent 28%),radial-gradient(circle at 96% 70%,#1b2050 0,transparent 35%),var(--bg);color:var(--txt);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
   .shell{max-width:1580px;margin:auto;padding:20px 18px 34px}
   .top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:15px}
@@ -291,7 +293,7 @@
     .board-eq-row,.node-eq-row{grid-template-columns:58px minmax(0,1fr);gap:6px}
     .result{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
   }
-  @media(max-width:540px){.shell{padding:12px 8px 25px}.body{padding:13px}.logo{font-size:24px}.stage{min-width:90px;padding:8px;font-size:10px}.stat{min-width:76px}.build{grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr)}.board{padding:0}.cardhead{padding:10px}}
+  @media(max-width:540px){.shell{padding:12px 8px 25px}.body{padding:13px}.logo{font-size:24px}.stage{min-width:0;padding:2px;font-size:10px}.stat{min-width:76px}.build{grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr)}.board{padding:0}.cardhead{padding:10px}}
   
   .challenge{padding:12px;margin:10px 0;border:1px solid #805b25;border-radius:11px;background:#1d2436;display:grid;gap:10px;min-width:0}
   .challenge h3{margin:0;font-size:15px;color:#ffd88c}

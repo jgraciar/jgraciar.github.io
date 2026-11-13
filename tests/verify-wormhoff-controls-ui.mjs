@@ -121,7 +121,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  };
  await page.selectOption('#exerciseSelect','c75');
  assert.equal(await page.locator('#confirmDirs').isDisabled(),true);
- await tap(146,235);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
+ await tap(146,235);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
  await tap(345,235);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
  assert.match(await page.locator('#currentNumberError').textContent(),/ya está asignado/);assert(await page.locator('#currentNameDialog').isVisible());
  await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
