@@ -55,5 +55,20 @@ const cssExtra=[
 '        position: static; max-height: none; overflow: visible; width: 100%; box-shadow: none;',
 '    }',
 '}',''].join('\n');
-writeFileSync(css,readFileSync(css,'utf8')+cssExtra);
+const typography=[
+ '/* Circuit JGR: tipografía de todos los menús, incluidos los desplegables y contextuales. */',
+ '.gwt-MenuBar-horizontal td.gwt-MenuItem, .gwt-MenuBar-horizontal .menuDropdown,',
+ '.gwt-MenuBar-horizontal .menuDropdown li, .gwt-MenuBar-horizontal .menuItemRow,',
+ '.gwt-MenuBar-horizontal .itemLabel, .elmContextMenu, .elmContextMenu li,',
+ '.menuDropdown, .menuDropdown .menuItem, .menuDropdown .shortcutHint {',
+ '  font-family: "Segoe UI","Noto Sans Arabic",Tahoma,sans-serif !important;',
+ '  font-size: 13px !important; line-height: 1.35 !important;',
+ '}',
+ 'td.gwt-MenuItem {font-weight:600!important;}',
+ '.menuDropdown,.elmContextMenu {background:#f8f8f8!important;border:1px solid #bcbcbc!important;box-shadow:2px 4px 9px #0004!important;}',
+ '.menuDropdown .menuItem:hover,.menuDropdown .hasSubmenu.open {background:#d5d5d5!important;}',
+ 'html[lang="ar"] .menuDropdown .menuItem,html[lang="ar"] .elmContextMenu .menuItem {direction:rtl;text-align:right;}',
+ 'html[lang="ar"] .menuDropdown .itemLabel {unicode-bidi:plaintext;}',
+ ''].join('\\n');
+writeFileSync(css,readFileSync(css,'utf8')+cssExtra+typography);
 console.log('OK: menús desplazables y submenús dentro de la pantalla');
