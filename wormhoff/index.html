@@ -2337,7 +2337,15 @@
         const offsets=[[0,0]];
         for(let dy=-120;dy<=210;dy+=21)for(let dx=-180;dx<=180;dx+=18)offsets.push([dx,dy]);
         offsets.sort((a,b)=>(a[0]*a[0]+a[1]*a[1])-(b[0]*b[0]+b[1]*b[1]));
-        const shift=offsets.find(([dx,dy])=>good(dx,dy));
+        let shift=offsets.find(([dx,dy])=>good(dx,dy));
+        if(!shift){
+          // Very long custom numbers may need a free slot farther along their branch.
+          const all=[];
+          for(let y=vb.y+5;y+initial.h<vb.y+vb.height-5;y+=7)
+            for(let x=vb.x+6;x+initial.w<vb.x+vb.width-5;x+=7)all.push([x-initial.x,y-initial.y]);
+          all.sort((a,b)=>(a[0]*a[0]+a[1]*a[1])-(b[0]*b[0]+b[1]*b[1]));
+          shift=all.find(([dx,dy])=>good(dx,dy));
+        }
         if(shift)text.setAttribute('transform',`translate(${shift})`);
         const final=box(text);placed.push(final);
         const arrow=group.querySelector('.direction');

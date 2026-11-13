@@ -77,7 +77,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    const overlap=(a,b)=>a.x<b.x+b.w-.5&&a.x+a.w>b.x+.5&&a.y<b.y+b.h-.5&&a.y+a.h>b.y+.5;
    const fixed=[...svg.querySelectorAll('#staticCircuit .symbol,#staticCircuit .source-halo,#staticCircuit .component-value,#staticCircuit .resistor-name,#staticCircuit .txt,#staticCircuit .txtsm,#staticCircuit .nod')].filter(visible).map(rect);
    const current=[...svg.querySelectorAll('#dirGraphics .dirlabel,#dirGraphics .dir-result,#dirGraphics .direction,#sixRefArrows .dirlabel,#sixRefArrows .dir-result,#sixRefArrows .direction')].filter(visible);
-   return current.flatMap((el,i)=>{const r=rect(el);return fixed.some(b=>overlap(r,b))||current.slice(0,i).some(other=>overlap(r,rect(other)))?[el.parentElement.id+': '+el.textContent]:[];});
+   return current.flatMap((el,i)=>{const r=rect(el);return fixed.some(b=>overlap(r,b))||current.slice(0,i).some(other=>overlap(r,rect(other)))?[{id:el.parentElement.id,text:el.textContent,rect:r,transform:el.getAttribute('transform'),fixed:fixed.filter(b=>overlap(r,b)),currents:current.slice(0,i).filter(other=>overlap(r,rect(other))).map(other=>({id:other.parentElement.id,text:other.textContent,rect:rect(other)}))}]:[];});
   });assert.deepEqual(problems,[],'Flechas y textos sin solaparse con componentes ni otras corrientes');
  };
  assert.equal(await page.locator('#stagebar .phase-reset svg').count(),5);
