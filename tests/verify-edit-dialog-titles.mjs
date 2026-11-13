@@ -24,9 +24,10 @@ assert(patch.includes("./CircuitJsEditDialogTitles"),
 const native=["csx","da","de","es","fi","fr","it","ja","kr","nb","pl","pt","ru","zh","zh-tw"];
 const extra=["ca","ca-es-valencia","gl","eu","nl","sv"];
 assert.equal(labLanguageCodes.length,22);
-assert.deepEqual(Object.keys(componentEditTitleTemplates).sort(), [...labLanguageCodes].sort(),
+assert.deepEqual(Object.keys(componentEditTitleTemplates).sort(), [...labLanguageCodes,"ar"].sort(),
  "No existe una plantilla de encabezado por cada idioma");
 assert.deepEqual([...new Set([...native,"en",...extra])].sort(),[...labLanguageCodes].sort());
+assert.equal(localizedComponentEditTitle("ar","مقاومة"),"تحرير مقاومة");
 const examples=["resistor","capacitor","capacitor (polarized)","inductor",
  "inductor (sat)","voltage source","A/C source","current source",
  "wattmeter","relay","op-amp"];
