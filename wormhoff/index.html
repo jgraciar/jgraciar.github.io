@@ -461,7 +461,7 @@
       </div>
     </section>
     <section class="card" aria-live="polite" id="phaseCard">
-      <div class="cardhead"><strong id="phaseHead">Fase 1 · Sentidos de referencia</strong><span class="chip" id="phaseChip">ELIGE</span></div>
+      <div class="cardhead"><strong id="phaseHead">Fase 1 · Numeración y sentidos</strong><span class="chip" id="phaseChip">ELIGE</span></div>
       <div class="body">
         <div id="advancedPhase" class="hide">
           <h1 class="phase-title">Actividad resuelta 7.6 · Kirchhoff completo</h1>
@@ -816,6 +816,7 @@
     $('currentBranchTargets').querySelectorAll('[data-current-branch]').forEach(el=>bindClickable(el,()=>openCurrentName(Number(el.dataset.currentBranch),six)));
     const count=model.currentNumbers.filter(n=>n!==null).length;
     $(six?'advInfo':'currentNamingStatus').textContent='Pulsa una rama y numera su corriente: '+count+' de '+labels.length+' asignadas.';
+    $('boardState').textContent='Pulsa las ramas para numerar sus corrientes: '+count+' de '+labels.length+' asignadas.';
   }
   function initCurrentNaming(){
     $('cancelCurrentName').onclick=()=>$('currentNameDialog').close();
@@ -828,7 +829,10 @@
       if(!valid||duplicate){$('currentNumberError').textContent=duplicate?'Ese número ya está asignado a otra rama.':'Introduce un número entero positivo.';show('currentNumberError',true);return;}
       model.currentNumbers[index]=number;labels[index]=currentLabel(number);$('currentNameDialog').close();
       if(six)sixRefArrow();else drawDirs();
-      if(currentNamesReady(six))$(six?'advInfo':'currentNamingStatus').textContent='Corrientes numeradas. Pulsa las flechas para elegir sus sentidos y confirma las referencias.';
+      if(currentNamesReady(six)){
+        const message='Corrientes numeradas. Pulsa las flechas para elegir sus sentidos y confirma las referencias.';
+        $(six?'advInfo':'currentNamingStatus').textContent=message;$('boardState').textContent=message;
+      }
     };
     try{$('symbolStandard').value=localStorage.getItem('wormhoff-symbol-standard')==='ansi'?'ansi':'iec';}catch{}
     function applySymbols(){
@@ -974,7 +978,7 @@
     const completed=(S.phase===0?0:S.phase===1?18:S.phase===2?35:S.phase===3?69:89)+(S.finished?11:0);
     $('percent').textContent=completed+'%';
     document.querySelectorAll('.stage').forEach((e,i)=>{e.classList.toggle('active',i===S.phase);e.classList.toggle('done',i<S.phase||S.finished&&i===4)});
-    const titles=['Fase 1 · Sentidos de referencia','Fase 2 · Primera ley de Kirchhoff','Fase 3 · Segunda ley de Kirchhoff','Fase 4 · Sistema matricial','Fase 5 · Sustitución y reducción'];
+    const titles=['Fase 1 · Numeración y sentidos','Fase 2 · Primera ley de Kirchhoff','Fase 3 · Segunda ley de Kirchhoff','Fase 4 · Sistema matricial','Fase 5 · Sustitución y reducción'];
     $('phaseHead').textContent=titles[S.phase];
     $('phaseChip').textContent=S.finished?'SUPERADO':['CORRIENTES','NUDOS','MALLAS','A · I = b','RESUELVE'][S.phase];
   }
