@@ -573,7 +573,7 @@
   if(paragraphs[14]){
     const label=copyrightLabels[lang]||copyrightLabels.en;
     paragraphs[14].textContent=paragraphs[14].textContent.replace(
-      /^canvas2svg:\\s*Copyright\\b/i,"canvas2svg: "+label);
+      /^canvas2svg:\s*Copyright\b/i,"canvas2svg: "+label);
   }
   const contributions=creditDescriptions[lang];
   if(contributions && paragraphs[4]){
