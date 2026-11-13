@@ -42,7 +42,7 @@ try{
  await chooseLayout(page,'vertical',true);
  const panels=()=>page.evaluate(()=>Object.fromEntries([...document.querySelectorAll('iframe')].map(f=>[f.dataset.tabId,getComputedStyle(f.contentWindow.__CircuitJGRExperimentalApp.ui.verticalPanel).display!=='none'])));
  assert.deepEqual(await panels(),{'jgr-1':false,'jgr-2':false,'jgr-3':false},'Vertical layout automatically hides every side panel');
- assert(await page.locator('#jgr-tab-strip').evaluate(el=>el.lastElementChild.classList.contains('lab-start-settings')),'Settings is the rightmost control');
+ assert(await page.locator('.jgr-toolbar-actions').evaluate(el=>el.lastElementChild.classList.contains('lab-start-settings')),'Settings is the rightmost toolbar control');
  await page.locator('#jgr-sidebar-toggle').click();
  assert.deepEqual(await panels(),{'jgr-1':false,'jgr-2':false,'jgr-3':true},'Side-panel button changes only the active window');
  await page.evaluate(()=>window.JGRTabsExperimental.activate('jgr-2'));
@@ -72,7 +72,7 @@ try{
  await page.locator('#lab-start-modal').waitFor({state:'hidden'});
  const icons=await page.evaluate(()=>{
   const app=document.querySelector('iframe[data-tab-id="jgr-2"]').contentWindow.__CircuitJGRExperimentalApp;
-  const run=app.ui.runStopButton,reset=app.ui.resetButton,settings=document.querySelector('#jgr-tab-strip > .lab-start-settings');
+  const run=app.ui.runStopButton,reset=app.ui.resetButton,settings=document.querySelector('.jgr-toolbar-actions > .lab-start-settings');
   return {run:run.dataset.jgrIcon,reset:reset.dataset.jgrIcon,settings:settings.dataset.jgrIcon,mask:getComputedStyle(run,'::before').maskImage,font:getComputedStyle(run).fontSize};
  });
  assert.equal(icons.run,'runstop');assert.equal(icons.reset,'reset');assert.equal(icons.settings,'settings');assert.equal(icons.font,'0px');assert(icons.mask.includes('svg'));
@@ -139,8 +139,13 @@ assert((await sizes(page)).every(b=>b.hidden==='false'));
  await chooseLayout(page,'horizontal');boxes=await sizes(page);
  assert(boxes.every(b=>b.width>=320&&b.width<=390&&b.height>=280));
  for(const b of boxes){
-  const controls=await page.locator('#jgr-tab-strip').evaluate(el=>['add-tab','duplicate-tab','arrange-tabs','jgr-sidebar-toggle'].map(id=>{const r=el.querySelector('#'+id).getBoundingClientRect();return r.left>=0&&r.right<=innerWidth;}));
-  assert(controls.every(Boolean),'All controls remain accessible on narrow tiles');
+  const controls=await page.locator('.jgr-toolbar-actions').evaluate(el=>{
+   const box=el.getBoundingClientRect();
+   return {visible:box.width>0&&box.left>=0&&box.right<=innerWidth+1,
+    present:['add-tab','duplicate-tab','arrange-tabs','jgr-sidebar-toggle'].every(id=>!!el.querySelector('#'+id)),
+    scrollable:el.scrollWidth>=el.clientWidth};
+  });
+  assert(controls.visible&&controls.present&&controls.scrollable,'Toolbar controls must remain accessible on narrow tiles');
  }
  assert.deepEqual(errors,[]);
  console.log('OK tiled tabs: horizontal and vertical layouts, menu keyboard/Escape, simultaneous independent engines, pause/resume, edit focus, tab ordering, opening/closing, narrow screens and no reloads');
