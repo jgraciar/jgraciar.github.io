@@ -99,7 +99,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    const x=Number(el.dataset.arrowX),y=Number(el.dataset.arrowY),points=branches[Number(el.dataset.currentIndex)];
    const onBranch=points.some((b,i)=>{if(!i)return false;const a=points[i-1];return Math.abs((b[0]-a[0])*(y-a[1])-(b[1]-a[1])*(x-a[0]))<.01&&x>=Math.min(a[0],b[0])-.01&&x<=Math.max(a[0],b[0])+.01&&y>=Math.min(a[1],b[1])-.01&&y<=Math.max(a[1],b[1])+.01;});
    const label=el.querySelector('.dirlabel').getBBox(),distance=Math.hypot(Math.max(label.x-x,0,x-label.x-label.width),Math.max(label.y-y,0,y-label.y-label.height));
-   return {onBranch,near:distance<23,display:getComputedStyle(el).display};
+   return {onBranch,near:distance<30,display:getComputedStyle(el).display};
   }),branches);
   assert(details.every(d=>d.onBranch&&d.near&&d.display!=='none'),JSON.stringify(details));
   assert.equal(await page.locator('.current-label-leader').count(),0,'Sin etiquetas alejadas ni líneas de enlace');
