@@ -29,7 +29,7 @@ assert.deepEqual(Object.keys(componentEditTitleTemplates).sort(), [...labLanguag
 assert.deepEqual([...new Set([...native,"en",...extra])].sort(),[...labLanguageCodes].sort());
 assert.equal(localizedComponentEditTitle("ar","مقاومة"),"تحرير مقاومة");
 const optionSource=readFileSync(join(dir,"EditOptions.ts"),"utf8");
-assert(optionSource.includes('ei.choice.add("Русский"); // Russian\\n            ei.choice.add("العربية"); // Arabic'),
+assert(optionSource.includes('ei.choice.add("Русский"); // Russian\n            ei.choice.add("العربية"); // Arabic'),
  "El árabe debe aparecer inmediatamente después del ruso en Otras opciones");
 assert(optionSource.includes('case 13: langString = "ar"; break;'),
  "La selección del árabe en Otras opciones no está asociada a su código");
@@ -37,7 +37,7 @@ const settingsSource=readFileSync(new URL("../initial-settings.js",import.meta.u
 assert(settingsSource.includes('ru:"Русский",ar:"العربية"'),
  "El árabe debe aparecer inmediatamente después del ruso en Configuración");
 for(const key of ["File","Edit","Draw","Scopes","Options","Tools","Add Resistor","Add Capacitor","Change Language"])
- assert(/[\\u0600-\\u06FF]/u.test(labTranslation("ar",key)||""),"Falta la traducción árabe de "+key);
+ assert(/[\u0600-\u06FF]/u.test(labTranslation("ar",key)||""),"Falta la traducción árabe de "+key);
 
 const examples=["resistor","capacitor","capacitor (polarized)","inductor",
  "inductor (sat)","voltage source","A/C source","current source",
