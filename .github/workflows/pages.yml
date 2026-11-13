@@ -139,6 +139,9 @@ jobs:
           python3 -m http.server 8767 --directory site-root >/tmp/circuitjgr-http.log 2>&1 &
           sleep 2
 
+      - name: Verificar controles directos de Wormhoff
+        run: node adaptacion/tests/verify-wormhoff-controls-ui.mjs
+
       - name: Verificar buscador de componentes
         run: node adaptacion/tests/verify-component-search-ui.mjs
 

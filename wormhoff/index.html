@@ -50,6 +50,13 @@
   .branch-hit:focus{outline:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:5 5}
   .node-hit{fill:transparent;cursor:pointer}
 
+  .mesh-hit{fill:transparent;cursor:pointer;pointer-events:all}
+  .mesh-hit:focus-visible{outline:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:5 4}
+  .mesh-turn{cursor:pointer}
+  .mesh-turn-hit{fill:transparent;stroke:transparent;stroke-width:1.5}
+  .mesh-turn:focus-visible{outline:none}
+  .mesh-turn:focus-visible .mesh-turn-hit{stroke:var(--cyan)}
+  .mesh-label{pointer-events:none}
   .dirclick{fill:transparent;cursor:pointer}
   /* Un sombreado violeta tenue distingue la malla activa del ámbar de las corrientes,
      del verde del personaje y del blanco de los símbolos. Detrás de todos ellos. */
@@ -294,10 +301,11 @@
     <section class="card">
       <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span></div>
       <div class="board">
-        <svg id="circuit" viewBox="0 0 700 430" role="img" aria-label="Circuito de corriente continua con símbolos IEC y flechas seleccionables">
+        <svg id="circuit" viewBox="0 0 700 430" role="group" aria-label="Circuito de corriente continua con símbolos IEC y flechas seleccionables">
           <defs><pattern id="dots" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="#34516e" opacity=".8"/></pattern></defs>
           <rect x="0" y="0" width="700" height="430" fill="url(#dots)"/>
           <rect id="loopHighlight" class="glowloop hide" x="156" y="87" width="179" height="260" rx="11"/>
+          <g id="meshTargets"></g>
           <g id="staticCircuit"></g>
           <g id="loopArrows"></g>
           <g id="dirGraphics"></g>
@@ -306,7 +314,7 @@
           <g id="componentFX"></g>
           <circle class="nodeglow hide" id="nodePulse" cx="345" cy="74" r="19"/>
           <rect class="dirclick" tabindex="0" role="button" aria-label="Cambiar I1" id="dirHit0" x="180" y="43" width="126" height="65"/>
-          <rect class="dirclick" tabindex="0" role="button" aria-label="Cambiar I2" id="dirHit1" x="353" y="74" width="92" height="67"/>
+          <rect class="dirclick" tabindex="0" role="button" aria-label="Cambiar I2" id="dirHit1" x="295" y="82" width="75" height="46"/>
           <rect class="dirclick" tabindex="0" role="button" aria-label="Cambiar I3" id="dirHit2" x="395" y="43" width="127" height="65"/>
           <circle class="node-hit" id="nodeHit" tabindex="0" role="button" aria-label="Analizar nudo A" cx="345" cy="74" r="29"/>
           <g id="hero" transform="translate(345 360)">
@@ -351,8 +359,7 @@
       <div id="circuitControls" class="circuit-controls hide" aria-label="Controles del recorrido bajo el circuito">
         <div id="standardCircuitControls" class="circuit-controls-inner hide">
           <div class="control-groups">
-            <div class="btnrow" id="loopButtons"><button data-loop="0" class="selected">Malla 1 · izquierda</button><button data-loop="1">Malla 2 · derecha</button></div>
-            <div class="btnrow"><button id="cw" class="small selected">Horario ↻</button><button id="ccw" class="small">Antihorario ↺</button><button id="resetLoop" class="small ghost">Repetir recorrido</button></div>
+            <button id="resetLoop" class="small ghost">Repetir recorrido</button>
           </div>
           <div class="lap-chip" id="lapLabel">Vuelta 1/2 · resistencias (R·I)</div>
           <div class="message" id="loopFeedback">Comienza el recorrido de la malla 1.</div>
@@ -360,10 +367,6 @@
           <div class="control-actions"><button class="primary" id="advance">Avanzar al siguiente elemento →</button><button class="success hide" id="goMatrix">Organizar el sistema →</button></div>
         </div>
         <div id="advancedCircuitControls" class="circuit-controls-inner hide">
-          <div class="control-groups">
-            <div class="btnrow" id="advLoopButtons"><button class="small selected" data-sixloop="0">Malla 1</button><button class="small" data-sixloop="1">Malla 2</button><button class="small" data-sixloop="2">Malla 3</button></div>
-            <div class="btnrow"><button class="small selected" id="advCw">Horario ↻</button><button class="small" id="advCcw">Antihorario ↺</button></div>
-          </div>
           <div class="lap-chip" id="advLap">Vuelta 1/2 · Σ R·I</div>
           <p class="message" id="advLoopMsg">Cada malla parte de su nudo indicado: C, C o D.</p>
           <div id="sixTermChallenge" class="challenge hide" aria-live="polite"></div>
@@ -379,7 +382,6 @@
           <h1 class="phase-title">Actividad resuelta 7.6 · Kirchhoff completo</h1>
           <p class="desc">Circuito original organizado en <b>4 nudos (n−1 = 3)</b>, <b>6 ramas</b> y <b>3 mallas</b>. Los elementos en serie de cada rama conservan sus valores y polaridades. Las referencias de corriente son elecciones algebraicas.</p>
           <div class="eqtitle">Sentidos supuestos de I₁ a I₆</div>
-          <div class="dirbuttons" id="advDirections"></div>
           <p class="message" id="advInfo"></p>
           <button class="primary" id="advStart">Confirmar sentidos y obtener ecuaciones de nudos →</button>
           <div id="sixNodeChallenge" class="challenge hide" aria-live="polite"></div>
@@ -412,9 +414,8 @@
         </div>
         <div id="phase0">
           <h1 class="phase-title">Elige las corrientes</h1>
-          <p class="desc">Sentidos iniciales: <b>I₁ entra por la izquierda →, I₂ sale hacia abajo ↓ e I₃ sale a la derecha →</b>. Puedes invertir cualquiera de las flechas; una intensidad negativa indicará el sentido real contrario.</p>
+          <p class="desc">Sentidos iniciales: <b>I₁ entra por la izquierda →, I₂ sale hacia abajo ↓ e I₃ sale a la derecha →</b>. Pulsa sobre una flecha de corriente para invertirla; una intensidad negativa indicará el sentido real contrario.</p>
           <div class="reductions hide" id="reductions"><div class="eqtitle">Paso inicial · simplificación de resistencias</div><div id="reduceRows"></div><button class="small success" id="checkReductions">Comprobar equivalencias</button><span id="reduceMsg" class="mini"></span></div>
-          <div class="dirbuttons" id="dirButtons"></div>
           <div class="message">Los nudos son A y B. Trabajaremos con las tres intensidades de rama como incógnitas.</div>
           <button class="primary" id="confirmDirs">Confirmar referencias →</button>
         </div>
@@ -441,7 +442,7 @@
         </div>
         <div id="phase2" class="hide">
           <h1 class="phase-title">Recorre las mallas</h1>
-          <p class="desc">Cada malla requiere <b>dos vueltas completas</b>: primero construye los términos <b>R·I</b> y después recoge las tensiones de las fuentes. <b>Ambas mallas comienzan siempre en el nudo B</b>. Las caídas de tensión quedan a la izquierda del signo igual y las fuentes a la derecha.</p>
+          <p class="desc">Cada malla requiere <b>dos vueltas completas</b>: primero construye los términos <b>R·I</b> y después recoge las tensiones de las fuentes. <b>Ambas mallas comienzan siempre en el nudo B</b>. Pulsa dentro de una malla para seleccionarla y sobre su icono ↻/↺ para invertir el giro. Las caídas de tensión quedan a la izquierda del signo igual y las fuentes a la derecha.</p>
           <div class="helper" id="loopHelper">Las dos mallas comienzan en B. Debajo del circuito se construyen las ecuaciones. En la vuelta Σ R·I se iluminan las resistencias y circulan las bolitas amarillas; en Σ U se iluminan las fuentes. El término nuevo parpadea hasta continuar. Los botones para avanzar también están debajo del circuito.</div>
           <!-- Compatibilidad con el motor de ecuaciones: campos no visibles. Solo el panel del circuito muestra las ecuaciones. -->
           <div class="hide" aria-hidden="true"><span id="resBuild"></span><span id="sourceBuild"></span><span id="finishedLoops"></span></div>
@@ -740,17 +741,19 @@
     $('circuit').setAttribute('aria-label',active.label+'; tres ramas con resistencias '+R.join(', ')+' ohmios y fuentes '+E.join(', ')+' voltios');
   }
   function updateLoopsArrows(){
-    if(S.phase!==2){$('loopArrows').innerHTML='';return}
+    if(S.phase!==2){$('loopArrows').innerHTML='';$('meshTargets').innerHTML='';return}
+    drawMeshTargets([{x:163,y:87,w:169,h:258},{x:359,y:87,w:169,h:258}]);
     $('loopArrows').innerHTML=[0,1].map(k=>{
       const chosen=S.loops[k]?.cw??(S.loop===k?S.cw:true);
       const x=k===0?246:445;
       const state=S.loops[k]?'FINALIZADA':S.loop!==k?'PENDIENTE':S.pass==='resistors'?'Σ R·I':'Σ U';
       const accent=S.loop===k&&!S.loops[k]?'#ffe2a0':'#9cb5c9';
-      return `<text x="${x}" y="179" text-anchor="middle" style="fill:#8ce7ef;font:700 39px sans-serif;opacity:.88">${chosen?'↻':'↺'}</text>`+
-        `<text x="${x}" y="199" text-anchor="middle" style="fill:#8ce7ef;font:600 11px sans-serif">MALLA ${k+1}</text>`+
-        `<rect x="${x-50}" y="208" width="100" height="22" rx="8" fill="#12263a" stroke="${accent}" stroke-width="1"/>`+
-        `<text x="${x}" y="223" text-anchor="middle" style="fill:${accent};font:700 14px ui-monospace,monospace">${state}</text>`;
+      return meshTurnIcon(k,x,164,chosen,!!S.loops[k])+
+        `<text class="mesh-label" x="${x}" y="199" text-anchor="middle" style="fill:#8ce7ef;font:600 11px sans-serif">MALLA ${k+1}</text>`+
+        `<rect class="mesh-label" x="${x-50}" y="208" width="100" height="22" rx="8" fill="#12263a" stroke="${accent}" stroke-width="1"/>`+
+        `<text class="mesh-label" x="${x}" y="223" text-anchor="middle" style="fill:${accent};font:700 14px ui-monospace,monospace">${state}</text>`;
     }).join('');
+    bindMeshTurns($('loopArrows'));
   }
   const fmt=(n)=>n<0?'−'+formatNumber(Math.abs(n)):formatNumber(n);
   const pm=(n,first=false)=>(n<0?'−':first?'':'+')+' '+Math.abs(n);
@@ -810,7 +813,7 @@
     $('staticCircuit').innerHTML=networkSVG(active);
     $('hero').classList.add('hide');$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
     clearElementHighlight();show('boardEquations',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);
-    $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';
+    $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('meshTargets').innerHTML='';
     $('dirHit0').style.pointerEvents='none';$('dirHit1').style.pointerEvents='none';$('dirHit2').style.pointerEvents='none';
     $('boardTitle').textContent=active.label;
     $('boardBadge').textContent='IEC · resistencia equivalente';
@@ -845,7 +848,7 @@
     $('phaseChip').textContent=S.finished?'SUPERADO':['ELIGE','KCL','KVL','A · I = b','RESUELVE'][S.phase];
   }
   function phase(n){
-    S.phase=n;for(let i=0;i<5;i++)show('phase'+i,i===n);
+    S.phase=n;$('nodeHit').style.pointerEvents=n===1?'auto':'none';for(let i=0;i<5;i++)show('phase'+i,i===n);
     show('circuitControls',n===2);show('standardCircuitControls',n===2);show('advancedCircuitControls',false);
     updateHeader();$('nodePulse').classList.toggle('hide',n!==1);$('loopHighlight').classList.toggle('hide',n!==2);
     drawDirs();updateLoopsArrows();
@@ -881,9 +884,10 @@
       const value=currents?`<text class="dir-result" x="${h?g.x:g.x+23}" y="${h?g.y+31:g.y+5}" text-anchor="${h?'middle':'start'}">${formatNumber(currents[i])}A</text>`:'';
       return `<g id="currentArrow${i}"><path class="direction-outline" d="${stem} ${tip}"/><path class="direction" d="${stem} ${tip}"/><text class="dirlabel" text-anchor="${labelAnchor}" x="${g.labelX}" y="${g.labelY}">${names[i]}</text>${value}</g>`;
     }).join('');
-    $('dirButtons').innerHTML=S.signs.map((s,i)=>`<button type="button" data-dir="${i}">${names[i]} ${dirGeo(i,s).a==='right'?'→':dirGeo(i,s).a==='left'?'←':dirGeo(i,s).a==='down'?'↓':'↑'}</button>`).join('');
-    document.querySelectorAll('#dirButtons [data-dir]').forEach(btn=>btn.onclick=()=>reverse(+btn.dataset.dir));
-    for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents=S.phase===0?'auto':'none';
+    for(let i=0;i<3;i++){
+      $('dirHit'+i).style.pointerEvents=S.phase===0?'auto':'none';
+      $('dirHit'+i).setAttribute('tabindex',S.phase===0?'0':'-1');
+    }
   }
   function reverse(i){if(S.phase!==0)return;S.signs[i]*=-1;drawDirs();$('boardState').textContent='Referencia '+names[i]+' invertida. Es una elección válida.'}
   function terms(parts,kind){
@@ -948,6 +952,28 @@
   }
   function nodeSides(){const into=[],out=[];S.signs.forEach((s,i)=>(s===1?into:out).push(names[i]));return (into.join(' + ')||'0')+' = '+(out.join(' + ')||'0')}
   function bindClickable(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
+  function meshTurnIcon(index,x,y,cw,done,enabled=true){
+    const disabled=!enabled||done;
+    return `<g class="mesh-turn" data-mesh-turn="${index}" role="button" tabindex="${disabled?-1:0}" aria-label="Invertir giro de malla ${index+1}" aria-disabled="${disabled}"><rect class="mesh-turn-hit" x="${x-25}" y="${y-24}" width="50" height="48" rx="9"/><text class="mesh-label" x="${x}" y="${y+14}" text-anchor="middle" style="fill:#8ce7ef;font:700 36px sans-serif">${cw?'↻':'↺'}</text></g>`;
+  }
+  function drawMeshTargets(faces){
+    $('meshTargets').innerHTML=faces.map((f,i)=>`<rect class="mesh-hit" data-mesh="${i}" x="${f.x}" y="${f.y}" width="${f.w}" height="${f.h}" rx="9" tabindex="0" role="button" aria-label="Seleccionar malla ${i+1}"/>`).join('');
+    $('meshTargets').querySelectorAll('[data-mesh]').forEach(el=>bindClickable(el,()=>activateMesh(Number(el.dataset.mesh))));
+  }
+  function bindMeshTurns(layer){
+    layer.querySelectorAll('[data-mesh-turn]').forEach(el=>bindClickable(el,()=>activateMesh(Number(el.dataset.meshTurn),true)));
+  }
+  function activateMesh(index,invert=false){
+    if(active.kind==='multi'){
+      if(A6.stage!=='loops'||A6.running||A6.waiting)return;
+      if(index!==A6.loop)sixSelectLoop(index);
+      if(invert&&!A6.done[index])sixSetOrient(!A6.cw);
+    }else{
+      if(S.phase!==2||S.animating)return;
+      if(index!==S.loop)loadLoop(index);
+      if(invert&&!S.loops[index])changeOrientation(!S.cw);
+    }
+  }
   for(let i=0;i<3;i++)bindClickable($('dirHit'+i),()=>reverse(i));
   bindClickable($('nodeHit'),()=>{if(S.phase===1)analyzeNode(true)});
   $('confirmDirs').onclick=()=>{if(hasReduction()&&!S.reductionDone)return;S.score+=50;$('boardState').textContent='Referencias fijadas; ley de nudos calculada.';phase(1)};
@@ -969,14 +995,9 @@
     $('boardState').textContent='KCL obtenida en A: '+nodeSides();
   }
   $('goLoops').onclick=()=>phase(2);
-  document.querySelectorAll('#loopButtons button').forEach(b=>b.onclick=()=>loadLoop(+b.dataset.loop));
-  $('cw').onclick=()=>changeOrientation(true);
-  $('ccw').onclick=()=>changeOrientation(false);
   $('resetLoop').onclick=()=>{if(S.animating)return;resetCurrentLoop();msg('loopFeedback','Recorrido reiniciado. Los términos volverán a generarse al visitar cada componente.')};
-  function changeOrientation(v){if(S.animating)return;S.cw=v;resetCurrentLoop();updateLoopSelect()}
+  function changeOrientation(v){if(S.phase!==2||S.animating||S.loops[S.loop])return;S.cw=v;resetCurrentLoop();updateLoopSelect()}
   function updateLoopSelect(){
-    document.querySelectorAll('#loopButtons button').forEach(b=>b.classList.toggle('selected',+b.dataset.loop===S.loop));
-    $('cw').classList.toggle('selected',S.cw);$('ccw').classList.toggle('selected',!S.cw);
     // El sombreado queda dentro del contorno, sin tapar sus símbolos IEC.
     $('loopHighlight').setAttribute('x',String(S.loop===0?156:355));
     $('advance').disabled=!!S.loops[S.loop]||S.animating;
@@ -1573,6 +1594,7 @@
   }
   $('playAgain').onclick=newGame;
   document.addEventListener('keydown',e=>{
+    if(e.defaultPrevented)return;
     if(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLButtonElement)return;
     if(S.phase===0&&['1','2','3'].includes(e.key))reverse(Number(e.key)-1);
     else if(e.code==='Space'){
@@ -1699,16 +1721,22 @@
       const valueClass='dir-result six-current-value'+(i===4?' tight-value':i===3?' narrow-value':'');
       const valueX=vertical?a.x+23:i===3?a.x+5:a.x; // I₄ queda entre el conductor vertical y R4
       const value=showAnswers?`<text class="${valueClass}" text-anchor="${vertical?'start':'middle'}" x="${valueX}" y="${valueY}">${fmt6(A6.finalCurrents[i])}A</text>`:'';
-      return `<g id="sixCurrentArrow${i}"><path class="direction-outline" d="${stem} ${tip}"/><path class="direction" d="${stem} ${tip}"/><text class="dirlabel" text-anchor="${vertical?'end':'start'}" x="${a.labelX}" y="${a.labelY}">${NAMES6[i]}</text>${value}</g>`;
+      return `<g id="sixCurrentArrow${i}"><rect class="dirclick" x="${Math.min(a.x-23,a.labelX-(vertical?35:3))}" y="${Math.min(a.y-20,a.labelY-16)}" width="${vertical?90:65}" height="57"/><path class="direction-outline" d="${stem} ${tip}"/><path class="direction" d="${stem} ${tip}"/><text class="dirlabel" text-anchor="${vertical?'end':'start'}" x="${a.labelX}" y="${a.labelY}">${NAMES6[i]}</text>${value}</g>`;
     }).join('');
-    $('advDirections').innerHTML=A6.signs.map((s,i)=>`<button data-sixref="${i}" class="small" ${A6.stage!=='dirs'?'disabled':''}>${NAMES6[i]} ${s===1?'→':'←'} ${s===1?'(referencia)':'(invertida)'}</button>`).join('');
-    document.querySelectorAll('[data-sixref]').forEach(b=>b.onclick=()=>{if(A6.stage!=='dirs')return;A6.signs[Number(b.dataset.sixref)]*=-1;sixRefArrow()});
+    anchor.forEach((a,i)=>{
+      const group=$('sixCurrentArrow'+i),enabled=A6.stage==='dirs';
+      group.setAttribute('role','button');group.setAttribute('tabindex',enabled?'0':'-1');
+      group.setAttribute('aria-label','Invertir corriente '+NAMES6[i]);group.setAttribute('aria-disabled',String(!enabled));
+      if(enabled)group.style.cursor='pointer';
+      bindClickable(group,()=>{if(A6.stage!=='dirs')return;A6.signs[i]*=-1;sixRefArrow();});
+    });
   }
   function sixMeshArrows(){
     if(!$('sixLoops'))return;
     // Las tres mallas forman tres caras interiores: dos superiores y una inferior.
     // El relleno queda detrás de las ramas compartidas y desaparece fuera de KVL.
     const faces=[{x:141,y:86,w:199,h:128},{x:360,y:86,w:199,h:128},{x:141,y:237,w:418,h:106}];
+    if(A6.stage==='loops')drawMeshTargets(faces);else $('meshTargets').innerHTML='';
     const face=faces[A6.loop];
     const focus=$('sixMeshFocus');
     if(focus)focus.innerHTML=A6.stage==='loops'
@@ -1717,8 +1745,9 @@
     $('sixLoops').innerHTML=pts.map(([x,y],i)=>{
       const done=A6.done[i],cw=done?.cw??(i===A6.loop?A6.cw:true);
       const sub=done?'HECHA':i===A6.loop?(A6.pass==='R'?'Σ R·I':'Σ U'):'PENDIENTE';
-      return `<text x="${x}" y="${y}" text-anchor="middle" style="fill:#83e9ea;font:800 31px sans-serif">${cw?'↻':'↺'}</text><text x="${x}" y="${y+17}" text-anchor="middle" style="fill:#f5db9b;font:700 11px monospace">M${i+1} · ${sub}</text>`;
+      return meshTurnIcon(i,x,y-11,cw,!!done,A6.stage==='loops')+`<text class="mesh-label" x="${x}" y="${y+17}" text-anchor="middle" style="fill:#f5db9b;font:700 11px monospace">M${i+1} · ${sub}</text>`;
     }).join('');
+    bindMeshTurns($('sixLoops'));
   }
   function sixText(id,txt){$(id).textContent=txt}
   function sixRenderRows(){
@@ -1750,7 +1779,7 @@
     show('boardEquations',false);show('advBoardEquations',true);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);sixRenderRows();
     show('advKCL',false);show('advLoops',false);show('advMatrix',false);show('advSolve',false);show('advResultPanel',false);show('advStart',true);
     $('phaseHead').textContent='Tema 7 · Actividad resuelta 7.6';$('phaseChip').textContent='4 NUDOS';
-    sixText('advInfo','Selecciona los sentidos de las seis corrientes. Cada elección es una referencia algebraica válida.');
+    sixText('advInfo','Pulsa sobre las flechas para invertir las corrientes. Cada elección es una referencia algebraica válida.');
     positionHero(...N6.C,0,true);setHeroGait(false);setHeroMood(false);sixRefArrow();sixMeshArrows();
     $('score').textContent='0000';$('percent').textContent='0%';
   }
@@ -1808,21 +1837,19 @@
     return route;
   }
   function sixSelectLoop(index){
-    if(A6.stage!=='loops')return;
+    if(A6.stage!=='loops'||A6.running||A6.waiting)return;
     sixCancel();A6.loop=index;A6.cw=A6.done[index]?.cw??true;A6.pass='R';
     if(!A6.done[index]){A6.rowsR[index]=[];A6.rowsU[index]=[];}
     const start=START6[index];
     sixText('advLap','Vuelta 1/2 · Σ R·I · Malla '+(index+1)+' · salida '+start);
     $('advNext').disabled=!!A6.done[index];$('advNext').textContent=A6.done[index]?'Malla completada ✓':'Iniciar recorrido desde '+start+' →';
-    document.querySelectorAll('[data-sixloop]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.sixloop)===index));
-    $('advCw').classList.toggle('selected',A6.cw);$('advCcw').classList.toggle('selected',!A6.cw);
     sixMeshArrows();positionHero(...N6[start],0,true);setHeroMood(false);setHeroGait(false);
     sixText('advLoopMsg',A6.done[index]?'Malla '+(index+1)+' completada. Elige otra pendiente.':'Malla '+(index+1)+' preparada. Salida desde el nudo '+start+'. Las bolitas recorrerán todas sus ramas durante Σ R·I.');
     sixRenderRows();
   }
   function sixSetOrient(cw){if(A6.stage!=='loops'||A6.running||A6.waiting)return;
-    if(A6.done[A6.loop])return;A6.cw=cw;
-    $('advCw').classList.toggle('selected',cw);$('advCcw').classList.toggle('selected',!cw);sixMeshArrows();
+    if(A6.done[A6.loop])return;
+    sixSelectLoop(A6.loop);A6.cw=cw;sixMeshArrows();
   }
   function sixPointAt(pts,distances,at){
     let s=0;while(s<distances.length-1&&at>distances[s+1])s++;
@@ -2051,8 +2078,6 @@
     if(solved){$('percent').textContent='100%';if(!A6.completedScore){A6.completedScore=true;S.score+=250;$('score').textContent=String(S.score).padStart(4,'0')}}
   }
   $('advStart').onclick=sixNodeStart;
-  document.querySelectorAll('[data-sixloop]').forEach(e=>e.onclick=()=>sixSelectLoop(Number(e.dataset.sixloop)));
-  $('advCw').onclick=()=>sixSetOrient(true);$('advCcw').onclick=()=>sixSetOrient(false);
   $('advNext').onclick=sixNext;$('advToMatrix').onclick=sixMatrix;
   $('advFill').onclick=()=>{const {A,b}=sixSystem(),t=A.map((row,i)=>[...row,b[i]]);$('advMatInputs').querySelectorAll('input').forEach(x=>{x.value=fmt6(t[Number(x.dataset.ar)][Number(x.dataset.ac)])})};
   $('advMatVerify').onclick=sixVerifyMatrix;$('advSolveBtn').onclick=sixStartSolve;
