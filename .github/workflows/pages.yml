@@ -103,10 +103,13 @@ jobs:
         run: |
           node adaptacion/scripts/package-circuits-jgr.mjs circuitjs-src/ts site-root adaptacion
           node adaptacion/scripts/promote-tabbed-workspace.mjs site-root
+          node adaptacion/scripts/publish-kirchhoff.mjs site-root adaptacion
           node adaptacion/tests/calculadora-decimales.test.mjs site-root/calculadora
           node adaptacion/tests/calculadora-ejemplos.test.mjs site-root/calculadora
           node adaptacion/tests/calculadora-metodos.test.mjs site-root/calculadora
           test -s site-root/index.html
+          test -s site-root/kirchhoff/index.html
+          grep -Fq 'href="./kirchhoff/"' site-root/index.html
           test -s site-root/circuitjgr.html
           test -s site-root/circuitjgr-core.html
           test -s site-root/tabs-experimental.html
