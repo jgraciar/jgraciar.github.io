@@ -69,6 +69,8 @@ const typography=[
  '.menuDropdown .menuItem:hover,.menuDropdown .hasSubmenu.open {background:#d5d5d5!important;}',
  'html[lang="ar"] .menuDropdown .menuItem,html[lang="ar"] .elmContextMenu .menuItem {direction:rtl;text-align:right;}',
  'html[lang="ar"] .menuDropdown .itemLabel {unicode-bidi:plaintext;}',
+ 'html[lang="ar"] .circuitDialog {direction:rtl;text-align:right;}',
+ 'html[lang="ar"] .circuitDialog input,html[lang="ar"] .circuitDialog output {direction:ltr;text-align:left;}',
  ''].join('\n');
 writeFileSync(css,readFileSync(css,'utf8')+cssExtra+typography);
 console.log('OK: menús desplazables y submenús dentro de la pantalla');
