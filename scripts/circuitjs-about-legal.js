@@ -555,10 +555,9 @@
   ]
 };
   const row=legal[lang];
-  if(!row)return;
   const paragraphs=[...document.querySelectorAll("div > p")];
   const indices=[6,7,11,12,13,15];
-  indices.forEach((index,i)=>{if(paragraphs[index])paragraphs[index].textContent=row[i]});
+  if(row)indices.forEach((index,i)=>{if(paragraphs[index])paragraphs[index].textContent=row[i]});
   // Localizar la atribución visible de canvas2svg sin modificar el titular,
   // la fecha ni el texto jurídico de la licencia original.
   const copyrightLabels={
