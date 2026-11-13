@@ -10,7 +10,6 @@ const ready=async(page,n)=>{
 const order=page=>page.evaluate(()=>window.JGRTabsExperimental.list().map(t=>t.id));
 const active=page=>page.evaluate(()=>window.JGRTabsExperimental.getActive());
 const strip=async page=>page.frameLocator(`iframe[data-tab-id="${await active(page)}"]`).locator('#jgr-tab-strip');
-const actions=async page=>page.frameLocator(`iframe[data-tab-id="${await active(page)}"]`).locator('.jgr-toolbar-actions');
 async function snapshot(page){return page.evaluate(()=>[...document.querySelectorAll('#workspace iframe')].map(f=>{
  const api=f.contentWindow.CircuitJS1;api.setSimRunning(false);
  return {id:f.dataset.tabId,xml:api.exportCircuit(),time:api.getTime()};
@@ -19,22 +18,23 @@ async function geometry(page){return (await strip(page)).evaluate(el=>{
  const box=node=>{const r=node.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};};
  const list=el.querySelector('.jgr-tab-list'),controls=el.ownerDocument.querySelector('.jgr-toolbar-actions');
  return {width:innerWidth,strip:box(el),list:box(list),scroll:list.scrollWidth,visible:list.clientWidth,
-  controls:box(controls),plus:box(controls.querySelector('#add-tab')),duplicate:box(controls.querySelector('#duplicate-tab')),
+  controls:box(controls),plus:box(el.querySelector('#add-tab')),duplicate:box(controls.querySelector('#duplicate-tab')),
   arrange:box(controls.querySelector('#arrange-tabs')),side:box(controls.querySelector('#jgr-sidebar-toggle')),
-  tabs:[...list.querySelectorAll('.tab')].map(box),enabled:!controls.querySelector('#add-tab').disabled};
+  tabs:[...list.querySelectorAll('.tab')].map(box),enabled:!el.querySelector('#add-tab').disabled};
  });}
 function accessible(g){
  assert(g.strip.left>=0&&g.strip.right<=g.width+1);
  assert(g.controls.width>0&&g.controls.left>=0&&g.controls.right<=g.width+1);
  assert(g.list.right<=g.strip.right+1);
- assert(g.plus.right<=g.duplicate.left+1);
+ assert(g.plus.left>=g.list.right-1&&g.plus.right<=g.strip.right+1,'New circuit button follows the tabs');
  assert(g.duplicate.right<=g.arrange.left+1);
  assert(g.arrange.right<=g.side.left+1);
  assert(g.enabled);
 }
 function adjacent(g){
  accessible(g);
- assert(g.list.left>=g.strip.left-1&&g.list.right<=g.strip.right+1,'Only tabs remain in the tab strip');
+ assert(g.list.left>=g.strip.left-1&&g.list.right<=g.strip.right+1,'Tabs remain inside the strip');
+ assert(Math.abs(g.plus.left-g.tabs.at(-1).right-4)<2,'The + button follows the last tab');
  assert(g.controls.left>=0&&g.controls.right<=g.width+1,'Toolbar actions remain at the right');
 }
 async function drag(page,id,target,fraction=.2,hold=false,cancel=false){
@@ -74,13 +74,13 @@ try{
  const copies=await page.evaluate(()=>[...document.querySelectorAll('iframe')].map(f=>[...f.contentDocument.querySelectorAll('#jgr-tab-strip .tab')].map(t=>t.dataset.tabId)));
  for(const copy of copies)assert.deepEqual(copy,originalOrder,'All tab bars keep the same order');
  for(let n=6;n<=10;n++){
-  await (await actions(page)).locator('#add-tab').click();await ready(page,n);await snapshot(page);
+  await (await strip(page)).locator('#add-tab').click();await ready(page,n);await snapshot(page);
  }
  const wide=await geometry(page);adjacent(wide);assert(wide.scroll<=wide.visible+1,'Ten tabs fit at desktop width');
  assert(Math.max(...wide.tabs.map(t=>t.width))-Math.min(...wide.tabs.map(t=>t.width))<2,'Widths distributed evenly');
  await page.setViewportSize({width:1000,height:800});await page.waitForTimeout(100);const medium=await geometry(page);accessible(medium);assert(medium.tabs[0].width<wide.tabs[0].width);
  for(const width of [560,320]){await page.setViewportSize({width,height:760});await page.waitForTimeout(100);accessible(await geometry(page));}
- await (await actions(page)).locator('#add-tab').click();await ready(page,11);await snapshot(page);accessible(await geometry(page));
+ await (await strip(page)).locator('#add-tab').click();await ready(page,11);await snapshot(page);accessible(await geometry(page));
  const last=await (await strip(page)).locator('.tab[data-tab-id="jgr-11"]').boundingBox();const small=await geometry(page);
  assert(last.x>=small.list.left-1&&last.x+last.width<=small.list.right+1,'New active tab is revealed automatically');
  await (await strip(page)).locator('.tab[data-tab-id="jgr-11"] .close').click();await ready(page,10);
@@ -89,7 +89,7 @@ try{
  const mobile=await browser.newPage({locale:'es-ES',viewport:{width:390,height:844},hasTouch:true,isMobile:true});
  mobile.on('pageerror',e=>errors.push(e.message));await setup(mobile);await mobile.goto('http://127.0.0.1:8767/circuitjgr.html');await ready(mobile,1);
  adjacent(await geometry(mobile));
- for(let n=2;n<=3;n++){await (await actions(mobile)).locator('#add-tab').tap();await ready(mobile,n);}
+ for(let n=2;n<=3;n++){await (await strip(mobile)).locator('#add-tab').tap();await ready(mobile,n);}
  await snapshot(mobile);const touch=await mobile.context().newCDPSession(mobile);
  async function swipe(id,target,hold){
   const bar=await strip(mobile),a=await bar.locator(`.tab[data-tab-id="${id}"] .choose`).boundingBox();
@@ -101,7 +101,7 @@ try{
   await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  }
  await swipe('jgr-1','jgr-3',true);assert.deepEqual(await order(mobile),['jgr-2','jgr-1','jgr-3']);assert.equal(await active(mobile),'jgr-3');
- for(let n=4;n<=10;n++){await (await actions(mobile)).locator('#add-tab').tap();await ready(mobile,n);}
+ for(let n=4;n<=10;n++){await (await strip(mobile)).locator('#add-tab').tap();await ready(mobile,n);}
  const mobileOrder=await order(mobile),beforeScroll=await (await strip(mobile)).locator('.jgr-tab-list').evaluate(el=>el.scrollLeft);
  assert(beforeScroll>0);await swipe('jgr-9',null,false);
  assert.deepEqual(await order(mobile),mobileOrder,'A short swipe scrolls without reordering');
