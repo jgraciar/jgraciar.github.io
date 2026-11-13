@@ -245,6 +245,7 @@ export const componentEditDialogLabels: Record<string, Record<string,string>> = 
 // adecuado al idioma. Los nombres se obtienen de Locale.LS y se conservan
 // las cabeceras específicas aportadas por getEditTitle().
 export const componentEditTitleTemplates: Record<string,string> = {
+  "ar": "تحرير {component}",
   "csx": "Upravit: {component}",
   "da": "Rediger {component}",
   "de": "{component} bearbeiten",
