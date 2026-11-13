@@ -153,6 +153,17 @@
   .circuit-controls-inner{display:grid;gap:10px}
   .circuit-controls .control-groups{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center}
   .circuit-controls .control-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .board-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;padding:15px 16px;background:#102139;border-top:1px solid #3d5772}
+  .board-action-item{display:flex;justify-content:center;max-width:100%}
+  .board-action-item[hidden]{display:none}
+  .board-actions button{max-width:100%;white-space:normal}
+  .circuit-controls .control-actions,.circuit-controls .control-groups,.circuit-controls .choices{justify-content:center}
+  .circuit-controls .term-check{display:block;margin-inline:auto}
+  .algebra-isolation{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 10px;padding:8px 0;font:600 14px/1.6 ui-monospace,Consolas,monospace;color:#dceafa}
+  .algebra-isolation-label{font:600 11px system-ui,sans-serif;color:#a6c8e1}
+  .algebra-isolated-value{display:inline-block;color:var(--lime);font-weight:800;background:#163529;border:1px solid #5a9358;border-radius:7px;padding:3px 9px}
+  .algebra-table .alg-isolation-row td{white-space:normal;text-align:left;font-size:14px}
+  .algebra-mobile .algebra-isolation{padding:8px 10px;border-bottom:1px solid #28445b}
   .board-equations{padding:12px 15px;background:#0a1729;border-top:1px solid #344c67}
   .board-equations .eqtitle{margin-bottom:8px}
   .board-eq-row{display:grid;grid-template-columns:75px minmax(0,1fr);align-items:baseline;gap:9px;padding:6px 0;border-top:1px solid #263b53}
@@ -374,6 +385,7 @@
           <div class="control-actions"><button class="primary" id="advNext">Iniciar recorrido desde C →</button><button class="success hide" id="advToMatrix">Construir matriz 6 × 6 →</button></div>
         </div>
       </div>
+      <div id="boardActions" class="board-actions hide" aria-label="Acciones del circuito"></div>
       <div class="boardfoot"><span id="boardState">Selecciona las flechas: cualquier referencia es válida.</span><span id="boardSummary">Fuentes: 18 V, 6 V · R: 2 Ω</span></div>
     </section>
     <section class="card" aria-live="polite" id="phaseCard">
@@ -1431,6 +1443,16 @@
   // independiente ocupan siempre la misma posición en las ecuaciones.
   // Presentación común para todos los niveles: las incógnitas ocupan columnas
   // fijas, también después de sustituir las ecuaciones de nudo.
+  function algebraIsolation(line,vars){
+    const terms=line.row.map((coefficient,index)=>({coefficient,index})).filter(t=>Math.abs(t.coefficient)>1e-8);
+    if(terms.length!==1)return '';
+    const {coefficient,index}=terms[0],value=line.b/coefficient;
+    if(!Number.isFinite(value))return '';
+    const variable=vars[index];
+    return '<div class="algebra-isolation"><span class="algebra-isolation-label">Despeje</span>'+
+      '<span>'+escapeHtml(variable+' = ('+fmt(line.b)+') / ('+fmt(coefficient)+')')+'</span><span>⇒</span>'+
+      '<strong class="algebra-isolated-value">'+escapeHtml(variable+' = '+fmt(value)+' A')+'</strong></div>';
+  }
   function algebraTable(lines, vars=names){
     const cols=vars.length;
     const head='<colgroup><col style="width:23%">'+
@@ -1449,7 +1471,8 @@
         return '<td>'+escapeHtml(sign+factor+variable)+'</td>';
       }).join('');
       return '<tr'+(line.total?' class="alg-total"':'')+'><td>'+escapeHtml(line.label)+'</td>'+cells+
-        '<td class="alg-equal">=</td><td>'+escapeHtml(formatNumber(line.b))+'</td></tr>';
+        '<td class="alg-equal">=</td><td>'+escapeHtml(formatNumber(line.b))+'</td></tr>'+
+        (algebraIsolation(line,vars)?'<tr class="alg-isolation-row"><td colspan="'+(cols+3)+'">'+algebraIsolation(line,vars)+'</td></tr>':'');
     }).join('');
     // En pantallas estrechas se muestran las mismas ecuaciones, con términos
     // agrupados que saltan de línea completos. En escritorio permanece la tabla.
@@ -1467,7 +1490,7 @@
       return '<div class="alg-mobile-row'+(line.total?' alg-total':'')+'">'+
         '<div class="alg-mobile-label">'+escapeHtml(line.label)+'</div>'+
         '<div class="alg-mobile-equation">'+(terms||'<span class="alg-mobile-term">0</span>')+
-        '<span class="alg-mobile-equal">=</span><span class="alg-mobile-answer">'+escapeHtml(formatNumber(line.b))+'</span></div></div>';
+        '<span class="alg-mobile-equal">=</span><span class="alg-mobile-answer">'+escapeHtml(formatNumber(line.b))+'</span></div></div>'+algebraIsolation(line,vars);
     }).join('');
     return '<div class="algebra-scroll algebra-desktop"><table class="algebra-table">'+head+'<tbody>'+body+'</tbody></table></div>'+
       '<div class="algebra-mobile">'+mobile+'</div>';
@@ -1538,7 +1561,8 @@
         rows:[{label:useFirst?'Malla 2':'Malla 1',row:[0,other[1],0],b:otherB-other[2]*i3}]});
     }
     steps.push({title:'Cálculo de la intensidad restante',
-      detail:'Volvemos a '+nodeSides()+' y calculamos I₁ = '+fmt(last[0])+' A mediante la ecuación del nudo.'});
+      detail:'Volvemos a '+nodeSides()+' y calculamos I₁ mediante la ecuación del nudo.',
+      rows:[{label:'Nudo A',row:[s[0],0,0],b:-s[1]*last[1]-s[2]*last[2]}]});
     steps.push({title:'Comprobación del circuito',
       detail:finalISummary()+' Estas intensidades satisfacen las ecuaciones de nudo y mallas.',
       rows:[{label:'Nudo A',row:A[0],b:b[0]},
@@ -2053,7 +2077,10 @@
       {title:'Cálculo de las intensidades restantes',
        detail:'Recuperamos I₁, I₄ e I₆ mediante las igualdades originales de los nudos. '+ii.map((x,i)=>NAMES6[i]+' = '+fmt6(x)+' A').join('; ')+'.',
        nodeEquations:true,vars:NAMES6,
-       rows:KCL6.map((row,i)=>({label:'Nudo '+['A','C','B'][i],row:row.map((v,j)=>v*A6.signs[j]),b:0}))},
+       rows:[0,3,5].map((target,i)=>{
+         const kcl=KCL6[i].map((v,j)=>v*A6.signs[j]);
+         return {label:'Nudo '+['A','C','B'][i],row:kcl.map((v,j)=>j===target?v:0),b:-kcl.reduce((sum,v,j)=>sum+(j===target?0:v*ii[j]),0)};
+       })},
     ];
     const {A,b:origB}=sixSystem(),good=A.every((row,i)=>Math.abs(row.reduce((sum,v,j)=>sum+v*ii[j],0)-origB[i])<1e-7);
     A6.steps.push({title:'Comprobación del circuito',
@@ -2084,6 +2111,32 @@
   $('advMatVerify').onclick=sixVerifyMatrix;$('advSolveBtn').onclick=sixStartSolve;
   $('advSolveNext').onclick=()=>{if(A6.step<A6.steps.length){A6.step++;sixRenderSolve()}};
 
+  function initBoardActions(){
+    const ids=['confirmDirs','advStart','goLoops','resetLoop','advance','advNext','goMatrix','advToMatrix',
+      'verifyMatrix','fillMatrix','advMatVerify','advFill','goSolve','advSolveBtn',
+      'nextStep','restartSteps','advSolveNext','playAgain'];
+    const actions=$('boardActions'),entries=[];
+    for(const id of ids){
+      const button=$(id);if(!button)continue;
+      const marker=document.createElement('span');marker.hidden=true;marker.setAttribute('aria-hidden','true');
+      button.before(marker);
+      const slot=document.createElement('div');slot.className='board-action-item';slot.dataset.boardAction=id;
+      slot.append(button);actions.append(slot);entries.push({button,marker,slot});
+    }
+    function sync(){
+      let visible=0;
+      for(const {button,marker,slot} of entries){
+        slot.hidden=!!marker.closest('.hide')||button.classList.contains('hide');
+        if(!slot.hidden)visible++;
+      }
+      actions.classList.toggle('hide',visible===0);
+    }
+    const observer=new MutationObserver(sync);
+    for(const root of [$('phaseCard'),$('circuitControls')])observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+    entries.forEach(({button})=>observer.observe(button,{attributes:true,attributeFilter:['class']}));
+    sync();return sync;
+  }
+  const syncBoardActions=initBoardActions();
   initExercises();
   // Resolver el sistema por potencial de nudo y verificar todas las ramas.
   for(const ex of exercises.filter(x=>x.kind!=='network'&&x.kind!=='multi')){
@@ -2093,7 +2146,7 @@
     if(j.some(x=>!Number.isFinite(x))||Math.abs(j.reduce((a,b)=>a+b,0))>1e-8)throw Error('Datos inconsistentes en '+ex.id);
     active=oldActive;R=oldR;E=oldE;
   }
-  newGame();
+  newGame();syncBoardActions();
 })();
 </script>
 </body>
