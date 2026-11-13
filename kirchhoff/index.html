@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>Kirchhoff Arcade · MVP 3.1</title>
+<title>Kirchhoff Arcade · MVP 3.2</title>
 <style>
   :root { --bg:#09101d; --card:#111c30; --card2:#0c182b; --border:#2c415b; --txt:#f0f6ff; --muted:#a7bbd0; --cyan:#5ce6f0; --lime:#b7f75c; --amber:#ffc66b; --red:#ff7786; --purple:#ac98ff; }
   *{box-sizing:border-box}
@@ -141,14 +141,14 @@
   .matrix input.correct{border-color:#80b957;background:#18352c}
   .matrix input.wrong{border-color:#fc8595;background:#3b2030}
   .muted{color:var(--muted)}
-  .steps{margin:14px 0;display:grid;gap:8px}
-  .step{display:flex;align-items:start;gap:10px;padding:10px;border:1px solid #36516b;background:#132740;border-radius:10px;font-size:14px}
+  .steps{margin:14px 0;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-width:0;width:100%}
+  .step{display:flex;align-items:start;gap:10px;min-width:0;width:100%;padding:10px;border:1px solid #36516b;background:#132740;border-radius:10px;font-size:14px}
   .stepnum{flex:0 0 26px;background:#27627e;border-radius:7px;color:#e9fdff;font:800 13px ui-monospace,monospace;text-align:center;padding:4px 0}
   .step-main{flex:1;min-width:0}
   .step-heading{font-weight:800;color:#c2f3fb;font-size:14px;margin-bottom:5px}
   .step-description{color:#d3e3f4;font-size:13px;line-height:1.5;margin:5px 0 8px}
-  .algebra-scroll{width:100%;max-width:100%;overflow-x:auto;border:1px solid #34506a;border-radius:8px;margin:9px 0}
-  .algebra-table{border-collapse:collapse;width:100%;min-width:420px;table-layout:fixed;font:600 13px/1.4 ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;background:#0b1b2d}
+  .algebra-scroll{width:100%;min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:1px solid #34506a;border-radius:8px;margin:9px 0}
+  .algebra-table{border-collapse:collapse;width:max-content;min-width:100%;table-layout:auto;font:600 13px/1.4 ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;background:#0b1b2d}
   .algebra-table col.alg-label-col{width:19%}
   .algebra-table col.alg-term-col{width:20%}
   .algebra-table col.alg-eq-col{width:6%}
@@ -161,6 +161,18 @@
   .algebra-table tr:last-child td{border-bottom:0}
   .algebra-table tr.alg-total td{border-top:2px solid var(--amber);color:#ffe1a2}
   .algebra-table tr.alg-total td:first-child{font-weight:800}
+  /* En móvil, ecuación completa en filas flexibles: ningún coeficiente se recorta. */
+  .algebra-mobile{display:none}
+  .alg-mobile-row{padding:10px 9px;border-bottom:1px solid #29435b;background:#0b1b2d}
+  .alg-mobile-row:first-child{border-radius:8px 8px 0 0}
+  .alg-mobile-row:last-child{border-bottom:0;border-radius:0 0 8px 8px}
+  .alg-mobile-row.alg-total{border-top:2px solid var(--amber);background:#273028}
+  .alg-mobile-label{font:700 12px/1.4 system-ui,sans-serif;color:#a9cde4;margin-bottom:7px;overflow-wrap:anywhere}
+  .alg-mobile-equation{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;font:650 14px/1.65 ui-monospace,Consolas,monospace;color:#f1f6fd;font-variant-numeric:tabular-nums}
+  .alg-mobile-term,.alg-mobile-answer{white-space:nowrap}
+  .alg-mobile-equal{color:var(--cyan);font-weight:900}
+  .alg-mobile-answer{color:#ffda90}
+  .alg-total .alg-mobile-equation{color:#ffe1a2}
   .result{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:15px 0}
   .result div{background:#163529;border:1px solid #5a9358;padding:12px 7px;text-align:center;border-radius:11px}
   .result small{display:block;color:#bed4c0;font:12px ui-monospace,monospace}
@@ -170,12 +182,20 @@
   .flexbetween{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .key{font:12px ui-monospace,monospace;border:1px solid #55718a;border-radius:4px;padding:1px 5px;color:#b7cee4}
   @media(max-width:970px){.layout{grid-template-columns:1fr}.stages{flex-wrap:wrap}.stage{flex:1 1 30%}}
+  @media(max-width:640px){
+    .card,.body,.steps,.step-main,.eqpanel{min-width:0}
+    .algebra-desktop{display:none}
+    .algebra-mobile{display:grid;border:1px solid #34506a;border-radius:8px;margin:9px 0;min-width:0;width:100%}
+    .eq,.node-eq-formula,.board-eq-formula,.adv-eqline{overflow-wrap:anywhere;word-break:normal}
+    .board-eq-row,.node-eq-row{grid-template-columns:58px minmax(0,1fr);gap:6px}
+    .result{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
+  }
   @media(max-width:540px){.shell{padding:12px 8px 25px}.body{padding:13px}.logo{font-size:24px}.stage{min-width:90px;padding:8px;font-size:10px}.stat{min-width:76px}.build{grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr)}.board{padding:3px}.cardhead{padding:10px}}
   
   .exercisebar{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin:0 0 16px}
-  .field{display:grid;gap:5px;min-width:270px}
+  .field{display:grid;gap:5px;min-width:0;max-width:100%;flex:1 1 270px}
   .field label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-  select{background:#0d1b2e;border:1px solid #47627b;color:var(--txt);border-radius:9px;padding:10px 12px;font:600 14px system-ui,sans-serif}
+  select{max-width:100%;background:#0d1b2e;border:1px solid #47627b;color:var(--txt);border-radius:9px;padding:10px 12px;font:600 14px system-ui,sans-serif}
   .mini{font-size:12px;color:var(--muted)}
   .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #47627b;border-radius:999px;background:#0d1b2e;font-size:12px;color:#d9e9f6}
   .helper{margin-top:10px;padding:10px 12px;background:#0f1d31;border:1px dashed #39536d;border-radius:10px;font-size:13px;color:#c6d8e8}
@@ -197,7 +217,7 @@
 <body>
 <div class="shell">
   <header class="top">
-    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 3.1 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
+    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 3.2 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
     <div class="score"><div class="stat"><small>Puntos</small><strong id="score">0000</strong></div><div class="stat"><small>Progreso</small><strong id="percent">0%</strong></div></div>
   </header>
   <nav class="stages" id="stagebar" aria-label="Fases">
@@ -1018,7 +1038,26 @@
       return '<tr'+(line.total?' class="alg-total"':'')+'><td>'+escapeHtml(line.label)+'</td>'+cells+
         '<td class="alg-equal">=</td><td>'+escapeHtml(formatNumber(line.b))+'</td></tr>';
     }).join('');
-    return '<div class="algebra-scroll"><table class="algebra-table">'+head+'<tbody>'+body+'</tbody></table></div>';
+    // En pantallas estrechas se muestran las mismas ecuaciones, con términos
+    // agrupados que saltan de línea completos. En escritorio permanece la tabla.
+    const mobile=lines.map(line=>{
+      let first=true;
+      const terms=vars.map((variable,i)=>{
+        const value=line.row[i]||0;
+        if(Math.abs(value)<1e-8)return '';
+        const sign=value<0?'− ':first?'':'+ ';
+        first=false;
+        const coefficient=Math.abs(value);
+        const factor=Math.abs(coefficient-1)<1e-8?'':formatNumber(coefficient)+'·';
+        return '<span class="alg-mobile-term">'+escapeHtml(sign+factor+variable)+'</span>';
+      }).filter(Boolean).join('');
+      return '<div class="alg-mobile-row'+(line.total?' alg-total':'')+'">'+
+        '<div class="alg-mobile-label">'+escapeHtml(line.label)+'</div>'+
+        '<div class="alg-mobile-equation">'+(terms||'<span class="alg-mobile-term">0</span>')+
+        '<span class="alg-mobile-equal">=</span><span class="alg-mobile-answer">'+escapeHtml(formatNumber(line.b))+'</span></div></div>';
+    }).join('');
+    return '<div class="algebra-scroll algebra-desktop"><table class="algebra-table">'+head+'<tbody>'+body+'</tbody></table></div>'+
+      '<div class="algebra-mobile">'+mobile+'</div>';
   }
   function algebraStepsHTML(steps,count,vars=names){
     return steps.slice(0,count).map((step,i)=>
