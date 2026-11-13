@@ -3,6 +3,8 @@ import {chromium} from 'playwright';
 import {labLanguageCodes} from '../scripts/LabTranslations.ts';
 import {workspaceTranslations,workspaceLabel} from '../scripts/CircuitJGRTabsLabels.ts';
 for(const language of labLanguageCodes){assert.equal(workspaceTranslations[language]?.split('|').length,18);assert(workspaceLabel('question',language).includes('{name}'));}
+assert.equal(workspaceTranslations.ar?.split('|').length,18);
+assert.match(workspaceLabel('new','ar'),/دائرة/);
 const browser=await chromium.launch({headless:true});
 const base='http://127.0.0.1:8767/';
 const fixture='<cir f="0" ts="0.00005"><r x="160 160 256 160" f="0" r="1234.5"/><x x="160 240 160 240" f="0" si="14" te="Text de l’usuari: Guarda els canvis"/></cir>';
@@ -45,7 +47,7 @@ try{
  // Reproduce the user's exact Settings interaction first.
  await page.locator('.lab-start-settings').click();await page.locator('#lab-start-language').selectOption('es');await page.locator('#lab-start-accept').click();
  await page.locator('#lab-start-modal').waitFor({state:'hidden'});
- const languages=['es',...labLanguageCodes.filter(l=>l!=='es'),'ca-es-valencia','es'];
+ const languages=['es',...labLanguageCodes.filter(l=>l!=='es'),'ar','ca-es-valencia','es'];
  for(const language of languages){
   await page.evaluate(language=>window.CircuitJS1.applyInitialSettings({language,whiteBackground:true,digits:4,decimal:',',grouping:'.'}),language);
   const fresh=await open(language);
