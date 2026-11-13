@@ -31,7 +31,8 @@
   .phase-reset svg{width:19px;height:19px;display:block}
   .phase-link:disabled,.phase-reset:disabled{opacity:.45;cursor:default}
   .phase-link:focus-visible,.phase-reset:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
-  .current-label-leader{stroke:#ffc66b88;stroke-width:1;stroke-dasharray:3 3;fill:none;pointer-events:none}
+  .current-direction-hit{fill:none;stroke:transparent;stroke-width:17;pointer-events:stroke;cursor:pointer}
+  .current-placement-notice{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:4;width:max-content;max-width:calc(100% - 20px);padding:8px 12px;background:#19334b;color:#ffe0a1;border:1px solid #d5aa61;border-radius:9px;font-size:13px;line-height:1.4;box-shadow:0 4px 15px #0005;pointer-events:none}
   @media(max-width:600px){.stages{gap:3px}.stage{flex-direction:column;padding:2px;gap:0;font-size:10px}.stage b{display:block;margin:0}.phase-link{text-align:center;padding:5px 1px;width:100%}.phase-reset{height:25px;padding:3px 5px}}
   .layout{display:grid;grid-template-columns:minmax(0,var(--left-track,1.1fr)) 18px minmax(0,var(--right-track,1fr));grid-template-areas:"circuit divider equations" "circuit divider phase";grid-template-rows:auto 1fr;row-gap:17px;column-gap:0;align-items:start}
   #circuitCard{grid-area:circuit;position:sticky;top:calc(var(--stagebar-height,80px) + 12px);min-width:0}
@@ -383,7 +384,7 @@
     <section class="card" id="circuitCard">
       <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span></div>
       <div id="circuitTransport" class="board-actions circuit-transport hide" aria-label="Controles de reproducción del circuito"></div>
-      <div class="board">
+      <div class="board"><div id="currentPlacementNotice" class="current-placement-notice hide" role="status" aria-live="polite"></div>
         <svg id="circuit" viewBox="0 0 700 430" role="group" aria-label="Circuito de corriente continua con símbolos seleccionables y flechas seleccionables">
           <defs><pattern id="dots" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="#34516e" opacity=".8"/></pattern></defs>
           <rect x="0" y="0" width="700" height="430" fill="url(#dots)"/>
@@ -599,7 +600,7 @@
   document.addEventListener('pointercancel',endHeroPress);
   window.addEventListener('blur',()=>endHeroPress());
   $('hero').addEventListener('contextmenu',e=>e.preventDefault());
-  const S={phase:0,currentNumbers:[null,null,null],signs:[1,-1,-1],score:0,nodeDone:false,loops:[null,null],scoredLoops:[false,false],loopBonusAwarded:false,loop:0,cw:true,pass:"resistors",route:null,waypoint:-1,legIndex:0,flowBranch:null,flowReq:null,es:[],rs:[],animating:false,motionActive:false,manualPaused:false,finished:false,step:0};
+  const S={phase:0,currentNumbers:[null,null,null],currentPositions:[null,null,null],signs:[1,-1,-1],score:0,nodeDone:false,loops:[null,null],scoredLoops:[false,false],loopBonusAwarded:false,loop:0,cw:true,pass:"resistors",route:null,waypoint:-1,legIndex:0,flowBranch:null,flowReq:null,es:[],rs:[],animating:false,motionActive:false,manualPaused:false,finished:false,step:0};
   const X=[146,345,544],TOP=74,BOT=360,SY=136,RY=235;
   const names=['I₁','I₂','I₃'];
   const exercises=[
@@ -810,9 +811,23 @@
   function currentNamesReady(six){return (six?A6:S).currentNumbers.every(n=>Number.isSafeInteger(n)&&n>0);}
   function currentLabel(number){return 'I'+String(number).replace(/[0-9]/g,d=>'₀₁₂₃₄₅₆₇₈₉'[Number(d)]);}
   function normalizeCurrentToken(text){return String(text).replace(/[₀₁₂₃₄₅₆₇₈₉]/g,d=>String('₀₁₂₃₄₅₆₇₈₉'.indexOf(d))).replace(/I([0-9]+)/gi,(_,n)=>'i'+String(Number(n))).toLowerCase();}
-  function openCurrentName(index,six){
+  let placementNoticeTimer=null;
+  function currentPlacementNotice(text){
+    clearTimeout(placementNoticeTimer);$('currentPlacementNotice').textContent=text;show('currentPlacementNotice',true);
+    $('boardState').textContent=text;placementNoticeTimer=setTimeout(()=>show('currentPlacementNotice',false),4500);
+  }
+  function branchPoints(six,index){return six?EDGES6[index].p.map(p=>({x:p[0],y:p[1]})):BRANCHES[index];}
+  function branchClickPoint(event,six,index){
+    if(event&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY)&&(event.clientX||event.clientY)){
+      const p=new DOMPoint(event.clientX,event.clientY).matrixTransform($('circuit').getScreenCTM().inverse());return {x:p.x,y:p.y};
+    }
+    const points=branchPoints(six,index);return points[Math.floor(points.length/2)];
+  }
+  function openCurrentName(index,six,event){
     if(six?A6.stage!=='dirs':S.phase!==0)return;
-    namingBranch={index,six};const model=six?A6:S;
+    const model=six?A6:S;
+    if(model.currentNumbers[index]!==null){currentPlacementNotice('Esta rama ya tiene la corriente '+(six?NAMES6:names)[index]+'. Pulsa su flecha para invertir el sentido.');return;}
+    namingBranch={index,six,point:branchClickPoint(event,six,index)};show('currentPlacementNotice',false);
     $('currentBranchDescription').textContent='Rama '+(index+1)+'. Escribe un número entero positivo que no esté usado en otra rama.';
     $('currentNumber').value=model.currentNumbers[index]??'';show('currentNumberError',false);
     $('currentNameDialog').showModal();$('currentNumber').focus();
@@ -820,10 +835,10 @@
   function drawCurrentBranchTargets(six){
     const model=six?A6:S,labels=six?NAMES6:names;
     const choosing=six?model.stage==='dirs':model.phase===0;
-    if(!choosing||currentNamesReady(six)){$('currentBranchTargets').innerHTML='';return;}
+    if(!choosing){$('currentBranchTargets').innerHTML='';return;}
     const branches=six?EDGES6.map(edge=>edge.p):BRANCHES.map(points=>points.map(p=>[p.x,p.y]));
     $('currentBranchTargets').innerHTML=branches.map((points,i)=>`<polyline class="current-branch-hit" data-current-branch="${i}" points="${points.map(p=>p[0]+','+p[1]).join(' ')}" tabindex="0" role="button" aria-label="Numerar corriente de rama ${i+1}"/>`).join('');
-    $('currentBranchTargets').querySelectorAll('[data-current-branch]').forEach(el=>bindClickable(el,()=>openCurrentName(Number(el.dataset.currentBranch),six)));
+    $('currentBranchTargets').querySelectorAll('[data-current-branch]').forEach(el=>bindClickable(el,event=>openCurrentName(Number(el.dataset.currentBranch),six,event)));
     const count=model.currentNumbers.filter(n=>n!==null).length;
     $(six?'advInfo':'currentNamingStatus').textContent='Pulsa una rama y numera su corriente: '+count+' de '+labels.length+' asignadas.';
     $('boardState').textContent='Pulsa las ramas para numerar sus corrientes: '+count+' de '+labels.length+' asignadas.';
@@ -833,12 +848,19 @@
     $('currentNameDialog').addEventListener('close',()=>{if(!$('currentNameDialog').open)namingBranch=null;});
     $('currentNameForm').onsubmit=e=>{
       e.preventDefault();if(!namingBranch)return;
-      const {index,six}=namingBranch,model=six?A6:S,labels=six?NAMES6:names,raw=$('currentNumber').value.trim(),number=Number(raw);
+      const {index,six,point}=namingBranch,model=six?A6:S,labels=six?NAMES6:names,raw=$('currentNumber').value.trim(),number=Number(raw);
       const valid=/^[0-9]+$/.test(raw)&&Number.isSafeInteger(number)&&number>0;
       const duplicate=model.currentNumbers.some((n,i)=>i!==index&&n===number);
       if(!valid||duplicate){$('currentNumberError').textContent=duplicate?'Ese número ya está asignado a otra rama.':'Introduce un número entero positivo.';show('currentNumberError',true);return;}
-      model.currentNumbers[index]=number;labels[index]=currentLabel(number);$('currentNameDialog').close();
+      model.currentNumbers[index]=number;model.currentPositions[index]={x:point.x,y:point.y};labels[index]=currentLabel(number);
       if(six)sixRefArrow();else drawDirs();
+      const arrow=$((six?'sixCurrentArrow':'currentArrow')+index);
+      if(arrow?.dataset.placementUnavailable==='true'){
+        model.currentNumbers[index]=null;model.currentPositions[index]=null;labels[index]='I';
+        if(six)sixRefArrow();else drawDirs();
+        $('currentNumberError').textContent='No hay espacio para esa etiqueta junto a la rama. Usa un número más corto.';show('currentNumberError',true);return;
+      }
+      $('currentNameDialog').close();
       if(currentNamesReady(six)){
         const message='Corrientes numeradas. Pulsa las flechas para elegir sus sentidos y confirma las referencias.';
         $(six?'advInfo':'currentNamingStatus').textContent=message;$('boardState').textContent=message;
@@ -1010,36 +1032,29 @@
       renderSteps();
     }
   }
-  function dirGeo(i,s){
-    // Flechas cortas por encima de la rama, sin cubrir conductores, nudos ni símbolos IEC.
-    // I₂ va por el tramo entre A y la fuente de 6 V, desplazada ligeramente a la derecha.
-    if(i===1)return {x:345,y:103,a:s===-1?'down':'up',labelX:325,labelY:108,len:11};
-    if(i===0)return {x:249,y:74,a:s===1?'right':'left',labelX:237,labelY:57,len:18};
-    return {x:454,y:74,a:s===-1?'right':'left',labelX:442,labelY:57,len:18};
+  function currentArrowMarkup(index,six,value=null){
+    const model=six?A6:S,label=(six?NAMES6:names)[index],id=(six?'sixCurrentArrow':'currentArrow')+index;
+    if(model.currentNumbers[index]===null)return `<g id="${id}"></g>`;
+    return `<g id="${id}" data-current-index="${index}" data-six="${six}"><path class="direction-outline"/><path class="direction"/><text class="dirlabel">${label}</text>${value===null?'':`<text class="dir-result${six?' six-current-value':''}">${formatNumber(value)}A</text>`}<path class="current-direction-hit"/></g>`;
+  }
+  function bindCurrentArrows(six){
+    const model=six?A6:S,choosing=six?model.stage==='dirs':model.phase===0;
+    const layer=$(six?'sixRefArrows':'dirGraphics');
+    layer.querySelectorAll('[data-current-index]').forEach(group=>{
+      const index=Number(group.dataset.currentIndex);group.setAttribute('role','button');group.setAttribute('tabindex',choosing?'0':'-1');
+      group.setAttribute('aria-label','Invertir corriente '+(six?NAMES6:names)[index]);group.setAttribute('aria-disabled',String(!choosing));
+      group.style.cursor=choosing?'pointer':'';
+      bindClickable(group,event=>{event?.stopPropagation();if(!choosing)return;if(six){A6.signs[index]*=-1;sixRefArrow();}else reverse(index);});
+    });
   }
   function drawDirs(showAnswers=false){
     const currents=showAnswers?jValues.map((j,i)=>j*S.signs[i]):null;
-    const numbered=currentNamesReady(false);
-    $('dirGraphics').innerHTML=S.signs.map((s,i)=>{
-      const g=dirGeo(i,s);
-      if(!numbered)return `<g id="currentArrow${i}">${S.currentNumbers[i]===null?'':`<text class="dirlabel" x="${g.labelX}" y="${g.labelY}">${names[i]}</text>`}</g>`;
-      const h=g.a==='left'||g.a==='right',p=h?(g.a==='right'?1:-1):(g.a==='down'?1:-1);
-      const len=g.len||17;
-      const stem=h?`M${g.x-len*p} ${g.y} L${g.x+len*p} ${g.y}`:`M${g.x} ${g.y-len*p} L${g.x} ${g.y+len*p}`;
-      const tip=h?`M${g.x+(len-7)*p} ${g.y-5} L${g.x+len*p} ${g.y} L${g.x+(len-7)*p} ${g.y+5}`:`M${g.x-5} ${g.y+(len-7)*p} L${g.x} ${g.y+len*p} L${g.x+5} ${g.y+(len-7)*p}`;
-      // El nombre queda encima de la flecha horizontal o a su izquierda si es vertical.
-      const labelAnchor=h?'start':'end';
-      const value=currents?`<text class="dir-result" x="${h?g.x:g.x+23}" y="${h?g.y+31:g.y+5}" text-anchor="${h?'middle':'start'}">${formatNumber(currents[i])}A</text>`:'';
-      return `<g id="currentArrow${i}"><path class="direction-outline" d="${stem} ${tip}"/><path class="direction" d="${stem} ${tip}"/><text class="dirlabel" text-anchor="${labelAnchor}" x="${g.labelX}" y="${g.labelY}">${names[i]}</text>${value}</g>`;
-    }).join('');
-    for(let i=0;i<3;i++){
-      $('dirHit'+i).style.pointerEvents=S.phase===0&&numbered?'auto':'none';
-      $('dirHit'+i).setAttribute('tabindex',S.phase===0&&numbered?'0':'-1');
-    }
-    layoutCurrentAnnotations();drawCurrentBranchTargets(false);
-    if(S.phase===0)$('confirmDirs').disabled=!numbered||!S.reductionDone;
+    $('dirGraphics').innerHTML=S.signs.map((_,i)=>currentArrowMarkup(i,false,currents?currents[i]:null)).join('');
+    for(let i=0;i<3;i++){$('dirHit'+i).style.pointerEvents='none';$('dirHit'+i).setAttribute('tabindex','-1');}
+    bindCurrentArrows(false);layoutCurrentAnnotations();drawCurrentBranchTargets(false);
+    if(S.phase===0)$('confirmDirs').disabled=!currentNamesReady(false)||!S.reductionDone;
   }
-  function reverse(i){if(S.phase!==0||!currentNamesReady(false))return;S.signs[i]*=-1;drawDirs();$('boardState').textContent='Referencia '+names[i]+' invertida. Es una elección válida.'}
+  function reverse(i){if(S.phase!==0||S.currentNumbers[i]===null)return;S.signs[i]*=-1;drawDirs();$('boardState').textContent='Referencia '+names[i]+' invertida. Es una elección válida.'}
   function terms(parts,kind){
     if(!parts.length)return '0';
     return parts.map((p,j)=>{
@@ -1761,7 +1776,7 @@
   $('nextStep').onclick=()=>{const steps=buildSteps();if(S.step<steps.length){S.step++;renderSteps()}};
   $('restartSteps').onclick=()=>{S.step=0;S.finalVerified=false;$('finalChallenge').replaceChildren();renderSteps()};
   function newGame(){
-    phaseScores={0:0};endHeroPress();
+    phaseScores={0:0};clearTimeout(placementNoticeTimer);show('currentPlacementNotice',false);endHeroPress();
     flowToken++;stopFlow();if(S.pausedResume){S.pausedResume();S.pausedResume=null}
     $('currentBranchTargets').innerHTML='';
     $('gameLayout').classList.toggle('network-mode',active.kind==='network');
@@ -1772,7 +1787,7 @@
     S.pass='resistors';S.route=null;S.legIndex=0;S.es=[];S.rs=[];S.animating=false;
     S.motionActive=false;S.manualPaused=false;setTransportState('advance','ready');
     if($('currentNameDialog').open)$('currentNameDialog').close();
-    S.currentNumbers=[null,null,null];names.splice(0,names.length,'I','I','I');
+    S.currentNumbers=[null,null,null];S.currentPositions=[null,null,null];names.splice(0,names.length,'I','I','I');
     S.finished=false;S.step=0;S.finalVerified=false;$('finalChallenge').replaceChildren();S.matrixScored=false;S.reductionDone=!hasReduction();
     show('advancedPhase',false);show('advBoardEquations',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);
     if(active.kind==='network'){clearFX();startNetwork();return}
@@ -1801,7 +1816,7 @@
   });
   // Actividad resuelta 7.6. Grafo equivalente por contracción de conductores
   // y elementos en serie; conserva las seis ramas y las tres mallas independientes.
-  const A6={stage:'dirs',currentNumbers:Array(6).fill(null),signs:[1,1,1,1,1,1],loop:0,cw:true,pass:'R',done:[null,null,null],rowsR:[[],[],[]],rowsU:[[],[],[]],running:false,motionActive:false,manualPaused:false,waiting:null,runId:0,animReq:null,flowReq:null,score:0,steps:[],step:0};
+  const A6={stage:'dirs',currentNumbers:Array(6).fill(null),currentPositions:Array(6).fill(null),signs:[1,1,1,1,1,1],loop:0,cw:true,pass:'R',done:[null,null,null],rowsR:[[],[],[]],rowsU:[[],[],[]],running:false,motionActive:false,manualPaused:false,waiting:null,runId:0,animReq:null,flowReq:null,score:0,steps:[],step:0};
   const N6={A:[350,74],B:[130,225],C:[350,225],D:[570,225]};
   const E6=[10,0,-4,-6,12,-2], R6=[4,3,2,2,5,3], NAMES6=['I₁','I₂','I₃','I₄','I₅','I₆'];
   // Por convenio, cada fuente E se expresa como subida algebraica al recorrer
@@ -1895,40 +1910,9 @@
   }
   function sixRefArrow(){
     const showAnswers=A6.stage==='solve'&&A6.step===A6.steps.length&&(difficulty()===0||A6.finalVerified)&&Array.isArray(A6.finalCurrents);
-    // Anclajes sobre tramos de conductor libres de elementos: cada flecha es corta,
-    // está desplazada hacia arriba (horizontal) o lateralmente (vertical).
-    const anchor=[
-      {x:174,y:74,dx:1,dy:0,len:12,labelX:161,labelY:54},      // I1, conductor entre B y R1
-      {x:350,y:111,dx:0,dy:1,len:12,labelX:330,labelY:116},    // I2, vertical entre A y R2
-      {x:395,y:74,dx:1,dy:0,len:12,labelX:382,labelY:54},      // I3, conductor entre A y R3
-      {x:159,y:225,dx:1,dy:0,len:12,labelX:147,labelY:204},   // I4, entre B y R4
-      {x:379,y:225,dx:1,dy:0,len:12,labelX:366,labelY:204},   // I5, entre C y E5
-      {x:199,y:355,dx:1,dy:0,len:12,labelX:186,labelY:335}    // I6, entre B y fuente inferior
-    ];
-    const numbered=currentNamesReady(true);
-    $('sixRefArrows').innerHTML=anchor.map((a,i)=>{
-      if(!numbered)return `<g id="sixCurrentArrow${i}">${A6.currentNumbers[i]===null?'':`<text class="dirlabel" x="${a.labelX}" y="${a.labelY}">${NAMES6[i]}</text>`}</g>`;
-      const s=A6.signs[i],vx=a.dx*s,vy=a.dy*s,x=a.x,y=a.y,len=a.len;
-      const stem=`M${x-vx*len} ${y-vy*len} L${x+vx*len} ${y+vy*len}`;
-      const tip=`M${x+vx*(len-7)-vy*5} ${y+vy*(len-7)+vx*5} L${x+vx*len} ${y+vy*len} L${x+vx*(len-7)+vy*5} ${y+vy*(len-7)-vx*5}`;
-      const vertical=a.dy!==0;
-      // I₃ comparte zona con I₂; I₅ tiene la fuente y el personaje junto a la flecha.
-      // La línea numérica se desplaza únicamente lo necesario para no ocultarlos.
-      const valueY=vertical?a.y+5:i===2?a.y+21:i===4?a.y+47:a.y+31;
-      const valueClass='dir-result six-current-value'+(i===4?' tight-value':i===3?' narrow-value':'');
-      const valueX=vertical?a.x+23:i===3?a.x+5:a.x; // I₄ queda entre el conductor vertical y R4
-      const value=showAnswers?`<text class="${valueClass}" text-anchor="${vertical?'start':'middle'}" x="${valueX}" y="${valueY}">${fmt6(A6.finalCurrents[i])}A</text>`:'';
-      return `<g id="sixCurrentArrow${i}"><rect class="dirclick" x="${Math.min(a.x-23,a.labelX-(vertical?35:3))}" y="${Math.min(a.y-20,a.labelY-16)}" width="${vertical?90:65}" height="57"/><path class="direction-outline" d="${stem} ${tip}"/><path class="direction" d="${stem} ${tip}"/><text class="dirlabel" text-anchor="${vertical?'end':'start'}" x="${a.labelX}" y="${a.labelY}">${NAMES6[i]}</text>${value}</g>`;
-    }).join('');
-    anchor.forEach((a,i)=>{
-      const group=$('sixCurrentArrow'+i),enabled=A6.stage==='dirs'&&numbered;
-      group.setAttribute('role','button');group.setAttribute('tabindex',enabled?'0':'-1');
-      group.setAttribute('aria-label','Invertir corriente '+NAMES6[i]);group.setAttribute('aria-disabled',String(!enabled));
-      if(enabled)group.style.cursor='pointer';
-      bindClickable(group,()=>{if(A6.stage!=='dirs'||!numbered)return;A6.signs[i]*=-1;sixRefArrow();});
-    });
-    layoutCurrentAnnotations();drawCurrentBranchTargets(true);
-    if(A6.stage==='dirs')$('advStart').disabled=!numbered;
+    $('sixRefArrows').innerHTML=A6.signs.map((_,i)=>currentArrowMarkup(i,true,showAnswers?A6.finalCurrents[i]:null)).join('');
+    bindCurrentArrows(true);layoutCurrentAnnotations();drawCurrentBranchTargets(true);
+    if(A6.stage==='dirs')$('advStart').disabled=!currentNamesReady(true);
   }
   function sixMeshArrows(){
     if(!$('sixLoops'))return;
@@ -1968,7 +1952,7 @@
   function sixStart(){
     sixCancel();
     S.phase=6;S.score=0;
-    A6.currentNumbers=Array(6).fill(null);NAMES6.splice(0,NAMES6.length,...Array(6).fill('I'));
+    A6.currentNumbers=Array(6).fill(null);A6.currentPositions=Array(6).fill(null);NAMES6.splice(0,NAMES6.length,...Array(6).fill('I'));
     A6.stage='dirs';A6.nodeCount=0;$('advKCLtext').innerHTML='';A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
     $('stagebar').classList.remove('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
     $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
@@ -2295,69 +2279,69 @@
   $('advSolveNext').onclick=()=>{if(A6.step<A6.steps.length){A6.step++;sixRenderSolve()}};
 
 
-  // Place measured SVG annotations against visible circuit symbols and text.
+  // Move the arrow and its adjacent label together, strictly along their own branch.
   function layoutCurrentAnnotations(){
-    const svg=$('circuit'),root=svg.getScreenCTM();if(!root)return;
-    const inverse=root.inverse(),margin=3,placed=[];
-    const box=el=>{
-      const r=el.getBoundingClientRect();if(!r.width&&!r.height)return null;
-      const a=new DOMPoint(r.left,r.top).matrixTransform(inverse),b=new DOMPoint(r.right,r.bottom).matrixTransform(inverse);
-      return {x:a.x,y:a.y,w:b.x-a.x,h:b.y-a.y};
-    };
+    const svg=$('circuit'),matrix=svg.getScreenCTM();if(!matrix)return;
+    const groups=[...svg.querySelectorAll('[data-current-index]')];if(!groups.length)return;
+    const inverse=matrix.inverse(),vb=svg.viewBox.baseVal,occupied=[];
     const visible=el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden';
-    const overlap=(a,b)=>a.x<b.x+b.w+margin&&a.x+a.w+margin>b.x&&a.y<b.y+b.h+margin&&a.y+a.h+margin>b.y;
-    const obstacles=[...$('staticCircuit').querySelectorAll('.symbol,.source-halo,.source-plate,.component-value,.resistor-name,.txt,.txtsm,.nod'),...svg.querySelectorAll('#loopArrows .mesh-label,#loopArrows [data-mesh-turn],#sixLoops .mesh-label,#sixLoops [data-mesh-turn]')].filter(visible).map(box).filter(Boolean);
+    const box=el=>{const r=el.getBoundingClientRect(),a=new DOMPoint(r.left,r.top).matrixTransform(inverse),b=new DOMPoint(r.right,r.bottom).matrixTransform(inverse);return {x:a.x,y:a.y,w:b.x-a.x,h:b.y-a.y};};
+    const overlap=(a,b,pad=2)=>a.x<b.x+b.w+pad&&a.x+a.w+pad>b.x&&a.y<b.y+b.h+pad&&a.y+a.h+pad>b.y;
+    const inside=r=>r.x>=vb.x+3&&r.y>=vb.y+3&&r.x+r.w<=vb.x+vb.width-3&&r.y+r.h<=vb.y+vb.height-3;
+    const fixed=[...$('staticCircuit').querySelectorAll('.symbol,.source-halo,.source-plate,.component-value,.resistor-name,.txt,.txtsm,.nod'),...svg.querySelectorAll('#loopArrows .mesh-label,#loopArrows [data-mesh-turn],#sixLoops .mesh-label,#sixLoops [data-mesh-turn],.mesh-complete')].filter(visible).map(box);
+    const wires=[];
     for(const wire of $('staticCircuit').querySelectorAll('.wire')){
       if(!visible(wire))continue;
-      const length=wire.getTotalLength(),matrix=inverse.multiply(wire.getScreenCTM());
-      for(let at=0;at<length;at+=12){
-        const a=wire.getPointAtLength(at).matrixTransform(matrix),b=wire.getPointAtLength(Math.min(at+12,length)).matrixTransform(matrix);
-        obstacles.push({x:Math.min(a.x,b.x)-1.5,y:Math.min(a.y,b.y)-1.5,w:Math.abs(b.x-a.x)+3,h:Math.abs(b.y-a.y)+3});
+      const length=wire.getTotalLength(),transform=inverse.multiply(wire.getScreenCTM());
+      for(let at=0;at<length;at+=10){
+        const a=wire.getPointAtLength(at).matrixTransform(transform),b=wire.getPointAtLength(Math.min(at+10,length)).matrixTransform(transform);
+        wires.push({x:Math.min(a.x,b.x)-1.5,y:Math.min(a.y,b.y)-1.5,w:Math.abs(b.x-a.x)+3,h:Math.abs(b.y-a.y)+3});
       }
     }
-    const groups=[...svg.querySelectorAll('#dirGraphics > g,#sixRefArrows > g')];
-    svg.querySelectorAll('.current-label-leader,.current-label-hit').forEach(el=>el.remove());
-    // Reserve every arrow before placing names, including branches not yet named.
     for(const group of groups){
-      const arrow=group.querySelector('.direction');if(!arrow)continue;
-      group.querySelectorAll('.direction,.direction-outline').forEach(el=>el.removeAttribute('transform'));
-      const initial=box(arrow),horizontal=initial.w>initial.h;
-      const offsets=[[0,0],...[-12,12,-24,24].map(d=>horizontal?[0,d]:[d,0])];
-      let shift=offsets.find(([dx,dy])=>!obstacles.some(b=>overlap({...initial,x:initial.x+dx,y:initial.y+dy},b)))||[0,0];
-      group.querySelectorAll('.direction,.direction-outline').forEach(el=>el.setAttribute('transform',`translate(${shift})`));
-      placed.push(box(arrow));
-    }
-    for(const group of groups){
-      for(const text of group.querySelectorAll('.dirlabel,.dir-result')){
-        text.removeAttribute('transform');
-        const initial=box(text);if(!initial)continue;
-        const blocks=[...obstacles,...placed];
-        const vb=svg.viewBox.baseVal;
-        const good=(dx,dy)=>{const r={...initial,x:initial.x+dx,y:initial.y+dy};return r.x>=vb.x+5&&r.y>=vb.y+4&&r.x+r.w<=vb.x+vb.width-5&&r.y+r.h<=vb.y+vb.height-5&&!blocks.some(b=>overlap(r,b));};
-        const offsets=[[0,0]];
-        for(let dy=-120;dy<=210;dy+=21)for(let dx=-180;dx<=180;dx+=18)offsets.push([dx,dy]);
-        offsets.sort((a,b)=>(a[0]*a[0]+a[1]*a[1])-(b[0]*b[0]+b[1]*b[1]));
-        let shift=offsets.find(([dx,dy])=>good(dx,dy));
-        if(!shift){
-          // Very long custom numbers may need a free slot farther along their branch.
-          const all=[];
-          for(let y=vb.y+5;y+initial.h<vb.y+vb.height-5;y+=7)
-            for(let x=vb.x+6;x+initial.w<vb.x+vb.width-5;x+=7)all.push([x-initial.x,y-initial.y]);
-          all.sort((a,b)=>(a[0]*a[0]+a[1]*a[1])-(b[0]*b[0]+b[1]*b[1]));
-          shift=all.find(([dx,dy])=>good(dx,dy));
+      const index=Number(group.dataset.currentIndex),six=group.dataset.six==='true',model=six?A6:S,points=branchPoints(six,index);
+      const wanted=model.currentPositions[index]||points[Math.floor(points.length/2)],label=group.querySelector('.dirlabel'),value=group.querySelector('.dir-result');
+      group.style.display='';delete group.dataset.placementUnavailable;
+      group.querySelectorAll('.current-label-hit').forEach(el=>el.remove());
+      const candidates=[];
+      for(let i=1;i<points.length;i++){
+        const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(length<18)continue;
+        const dx=(b.x-a.x)/length,dy=(b.y-a.y)/length;
+        const projected=Math.max(9,Math.min(length-9,(wanted.x-a.x)*dx+(wanted.y-a.y)*dy));
+        const distances=[projected];for(let t=9;t<=length-9;t+=3)distances.push(t);
+        for(const t of distances){const x=a.x+dx*t,y=a.y+dy*t;candidates.push({x,y,dx,dy,distance:(x-wanted.x)**2+(y-wanted.y)**2});}
+      }
+      candidates.sort((a,b)=>a.distance-b.distance);
+      let chosen=null;
+      const metric=el=>{el.setAttribute('x','0');el.setAttribute('y','0');el.setAttribute('text-anchor','start');el.removeAttribute('transform');return el.getBBox();};
+      for(const fontSize of [17,15,13,11]){
+        label.style.fontSize=fontSize+'px';const l=metric(label),v=value?metric(value):null;
+        for(const c of candidates){
+          const half=6,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
+          const arrow={x:c.x-Math.abs(vx)*half-Math.abs(vy)*4-1.5,y:c.y-Math.abs(vy)*half-Math.abs(vx)*4-1.5,w:Math.abs(vx)*2*half+Math.abs(vy)*8+3,h:Math.abs(vy)*2*half+Math.abs(vx)*8+3};
+          if(!inside(arrow)||[...fixed,...occupied].some(b=>overlap(arrow,b)))continue;
+          const horizontal=Math.abs(c.dx)>.5;
+          const positions=horizontal?[
+            {l:{x:c.x-l.width/2,y:c.y-11-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+11,w:v.width,h:v.height}:null},
+            {l:{x:c.x-l.width/2,y:c.y+11,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y-11-v.height,w:v.width,h:v.height}:null}
+          ]:[1,-1].map(side=>({l:{x:side>0?c.x+13:c.x-13-l.width,y:c.y-l.height/2,w:l.width,h:l.height},v:v?{x:side>0?c.x+13:c.x-13-v.width,y:c.y+l.height/2+5,w:v.width,h:v.height}:null}));
+          const arrangement=positions.find(pos=>[pos.l,pos.v].filter(Boolean).every(r=>inside(r)&&![...fixed,...wires,...occupied,arrow].some(b=>overlap(r,b))));
+          if(arrangement){chosen={...c,vx,vy,half,arrow,...arrangement,lMetric:l,vMetric:v};break;}
         }
-        if(shift)text.setAttribute('transform',`translate(${shift})`);
-        const final=box(text);placed.push(final);
-        const arrow=group.querySelector('.direction');
-        if(arrow&&shift&&Math.hypot(...shift)>32){
-          const a=box(arrow),line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('class','current-label-leader');
-          line.setAttribute('d',`M${a.x+a.w/2} ${a.y+a.h/2} L${final.x+final.w/2} ${final.y+final.h}`);group.prepend(line);
-        }
-        // Keep the moved name itself clickable without a wide invisible overlay.
+        if(chosen)break;
+      }
+      if(!chosen){group.dataset.placementUnavailable='true';group.style.display='none';continue;}
+      const c=chosen;
+      const stem=`M${c.x-c.vx*c.half} ${c.y-c.vy*c.half} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half}`;
+      const tip=`M${c.x+c.vx*(c.half-6)-c.vy*4} ${c.y+c.vy*(c.half-6)+c.vx*4} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half} L${c.x+c.vx*(c.half-6)+c.vy*4} ${c.y+c.vy*(c.half-6)-c.vx*4}`;
+      group.querySelectorAll('.direction,.direction-outline,.current-direction-hit').forEach(el=>{el.removeAttribute('transform');el.setAttribute('d',stem+' '+tip);});
+      const place=(el,r,m)=>{el.setAttribute('x',r.x-m.x);el.setAttribute('y',r.y-m.y);};
+      place(label,c.l,c.lMetric);if(value)place(value,c.v,c.vMetric);
+      group.dataset.arrowX=c.x;group.dataset.arrowY=c.y;group.dataset.arrowDx=c.dx;group.dataset.arrowDy=c.dy;
+      occupied.push(c.arrow,c.l);if(c.v)occupied.push(c.v);
+      for(const r of [c.l,c.v].filter(Boolean)){
         const hit=document.createElementNS('http://www.w3.org/2000/svg','rect');hit.setAttribute('class','dirclick current-label-hit');
-        for(const [key,value] of Object.entries({x:final.x-2,y:final.y-2,width:final.w+4,height:final.h+4}))hit.setAttribute(key,value);
-        group.append(hit);
-        if(active.kind!=='multi')bindClickable(hit,()=>reverse(Number(group.id.replace('currentArrow',''))));
+        for(const [key,val] of Object.entries({x:r.x-1,y:r.y-1,width:r.w+2,height:r.h+2}))hit.setAttribute(key,val);group.append(hit);
       }
     }
   }
@@ -2401,7 +2385,7 @@
     if(n<2||restart&&n===2){S.loops=[null,null];S.scoredLoops=[false,false];S.loopBonusAwarded=false;S.rs=[];S.es=[];show('goMatrix',false);}
     if(n<1||restart&&n===1){S.nodeDone=false;show('nodeEqPanel',false);show('goLoops',false);$('nodeFeedback').textContent='';}
     if(n===0&&restart){
-      S.currentNumbers=[null,null,null];names.splice(0,names.length,'I','I','I');S.signs=[1,-1,-1];S.reductionDone=!hasReduction();
+      S.currentNumbers=[null,null,null];S.currentPositions=[null,null,null];names.splice(0,names.length,'I','I','I');S.signs=[1,-1,-1];S.reductionDone=!hasReduction();
       document.querySelectorAll('[data-reduce]').forEach(el=>{el.value='';el.style.borderColor='';});$('reduceMsg').textContent='';
     }
     phase(n);
@@ -2418,7 +2402,7 @@
     show('advStart',n===0);show('advKCL',n>1);show('circuitControls',n===2);show('standardCircuitControls',false);show('advancedCircuitControls',n===2);
     A6.stage=['dirs','nodes','loops','matrix','solve'][n];
     if(n===0){
-      if(restart){A6.currentNumbers=Array(6).fill(null);NAMES6.splice(0,6,...Array(6).fill('I'));A6.signs=[1,1,1,1,1,1];}
+      if(restart){A6.currentNumbers=Array(6).fill(null);A6.currentPositions=Array(6).fill(null);NAMES6.splice(0,6,...Array(6).fill('I'));A6.signs=[1,1,1,1,1,1];}
       $('advKCLtext').innerHTML='';sixText('advInfo','Pulsa las ramas para numerar las corrientes y elige sus sentidos.');positionHero(...N6.C,0,true);
     }
     if(n===1){sixNodeStart();}

@@ -80,6 +80,20 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    return current.flatMap((el,i)=>{const r=rect(el);return fixed.some(b=>overlap(r,b))||current.slice(0,i).some(other=>overlap(r,rect(other)))?[{id:el.parentElement.id,text:el.textContent,rect:r,transform:el.getAttribute('transform'),fixed:fixed.filter(b=>overlap(r,b)),currents:current.slice(0,i).filter(other=>overlap(r,rect(other))).map(other=>({id:other.parentElement.id,text:other.textContent,rect:rect(other)}))}]:[];});
   });assert.deepEqual(problems,[],'Flechas y textos sin solaparse con componentes ni otras corrientes');
  };
+ const assertBranchPlacement=async six=>{
+  const branches=six?[
+   [[130,225],[130,74],[350,74]],[[350,74],[350,225]],[[350,74],[570,74],[570,225]],
+   [[130,225],[350,225]],[[350,225],[570,225]],[[130,225],[130,355],[570,355],[570,225]]
+  ]:[[[345,360],[146,360],[146,74],[345,74]],[[345,360],[345,74]],[[345,360],[544,360],[544,74],[345,74]]];
+  const details=await page.locator(six?'#sixRefArrows [data-current-index]':'#dirGraphics [data-current-index]').evaluateAll((groups,branches)=>groups.map(el=>{
+   const x=Number(el.dataset.arrowX),y=Number(el.dataset.arrowY),points=branches[Number(el.dataset.currentIndex)];
+   const onBranch=points.some((b,i)=>{if(!i)return false;const a=points[i-1];return Math.abs((b[0]-a[0])*(y-a[1])-(b[1]-a[1])*(x-a[0]))<.01&&x>=Math.min(a[0],b[0])-.01&&x<=Math.max(a[0],b[0])+.01&&y>=Math.min(a[1],b[1])-.01&&y<=Math.max(a[1],b[1])+.01;});
+   const label=el.querySelector('.dirlabel').getBBox(),distance=Math.hypot(Math.max(label.x-x,0,x-label.x-label.width),Math.max(label.y-y,0,y-label.y-label.height));
+   return {onBranch,near:distance<23,display:getComputedStyle(el).display};
+  }),branches);
+  assert(details.every(d=>d.onBranch&&d.near&&d.display!=='none'),JSON.stringify(details));
+  assert.equal(await page.locator('.current-label-leader').count(),0,'Sin etiquetas alejadas ni líneas de enlace');
+ };
  assert.equal(await page.locator('#stagebar .phase-reset svg').count(),5);
  assert.equal(await page.locator('[data-phase="1"]').isDisabled(),true);
  await page.evaluate(()=>{const spacer=document.createElement('div');spacer.id='scrollProbe';spacer.style.height='1500px';document.body.append(spacer);window.scrollTo(0,500);});
@@ -121,13 +135,20 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  };
  await page.selectOption('#exerciseSelect','c75');
  assert.equal(await page.locator('#confirmDirs').isDisabled(),true);
- await tap(146,235);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
- await tap(345,235);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
+ await tap(146,310);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
+ await tap(345,310);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
  assert.match(await page.locator('#currentNumberError').textContent(),/ya está asignado/);assert(await page.locator('#currentNameDialog').isVisible());
  await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
- await tap(544,235);await page.locator('#currentNumber').fill('3');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
+ await tap(544,310);await page.locator('#currentNumber').fill('3');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
+ for(const [i,x] of [146,345,544].entries()){
+  const position=await page.locator('#currentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
+  assert(Math.abs(position.x-x)<.1&&Math.abs(position.y-310)<.1,'Flecha sobre la rama en el punto pulsado');
+ }
+ await tap(146,175);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
+ assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente I₇/);
+ assert.equal(await page.locator('#dirGraphics [data-current-index]').count(),3,'No duplica la corriente de una rama ocupada');
  assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₇');assert.equal(await page.locator('#currentArrow1 .dirlabel').textContent(),'I₁₂');
- await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();assert.equal(await page.locator('#circuit .resistor-ansi .symbol:visible').count(),3);assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),0);
+ await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);assert.equal(await page.locator('#circuit .resistor-ansi .symbol:visible').count(),3);assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),0);
  for(const resistor of await page.locator('#circuit .component-resistor').all()){
   assert(await resistor.evaluate(el=>{
    const symbol=el.querySelector('.resistor-ansi .symbol'),value=el.querySelector('.resistor-value'),label=el.querySelector('.resistor-ansi .resistor-name');
@@ -135,7 +156,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    return Math.abs(center.y-anchor.y)<1&&Number(label.getAttribute('x'))<Number(value.getAttribute('x'));
   }),'Valor centrado en altura y nombre a la izquierda');
  }
- await page.selectOption('#symbolStandard','iec');await assertNoCurrentOverlap();assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),3);
+ await page.selectOption('#symbolStandard','iec');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),3);
  await page.click('#confirmDirs');await page.locator('#nodeChallenge .kcl-answer').fill('I7=I12+I3');await page.click('#nodeChallenge .kcl-check');
  assert.match(await page.locator('#nodeEq').textContent(),/I₇.*I₁₂.*I₃/);
  assert(!/\bKCL\b|\bKVL\b/.test(await page.locator('body').innerText()));
@@ -152,7 +173,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.selectOption('#exerciseSelect','base');await assignNumbers([1,2,3]);
  assert.equal(await page.locator('#resetLoop svg').count(),1);assert.equal(await page.locator('#resetLoop').getAttribute('aria-label'),'Repetir recorrido');
  assert.equal(await page.locator('#dirButtons,#advDirections,#loopButtons,#advLoopButtons,#cw,#ccw,#advCw,#advCcw').count(),0);
- for(const [i,x,y] of [[0,249,74],[1,345,103],[2,454,74]]){
+ for(const i of [0,1,2]){
+  const {x,y}=await page.locator('#currentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   const sel='#currentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
  await checkAction('confirmDirs');await page.click('#confirmDirs');await checkAction('goLoops');await page.click('#goLoops');await checkAction('advance');assert(await page.locator('#equationsCard #nodeEqPanel [data-equation="E1"]').isVisible());
@@ -174,10 +196,11 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(reaction.face.name,'heroJoy');assert.equal(reaction.mouth.name,'heroLaugh');assert.equal(reaction.term.name,'termBlink');assert.equal(reaction.arrow.name,'arrowBlink');
  const signature={blink,reaction};if(animationReference)assert.deepEqual(signature,animationReference,'Parpadeos y gestos idénticos en móvil/escritorio y movimiento reducido');else animationReference=signature;
  await page.selectOption('#exerciseSelect','r76');await assignNumbers([1,2,3,4,5,6]);
- for(const [i,x,y] of [[0,174,74],[1,350,111],[2,395,74],[3,159,225],[4,379,225],[5,199,355]]){
+ for(const i of [0,1,2,3,4,5]){
+  const {x,y}=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   const sel='#sixCurrentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente avanzada '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
- await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();
+ await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  for(const resistor of await page.locator('#circuit .component-resistor').all()){
   assert(await resistor.evaluate(el=>{
    const symbol=el.querySelector('.resistor-ansi .symbol'),value=el.querySelector('.resistor-value');
@@ -214,8 +237,17 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),6,'Volver conserva la numeración');
  await page.click('[data-reset-phase="0"]');
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),0,'Reiniciar corrientes limpia los números');
+ const freePoints=[[130,190],[350,190],[535,74],[255,225],[470,225],[370,355]];
+ for(let i=0;i<6;i++){
+  await tap(...freePoints[i]);await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
+  const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
+  assert(Math.hypot(position.x-freePoints[i][0],position.y-freePoints[i][1])<.1,'Posición de la flecha avanzada más próxima al clic');
+ }
+ await assertBranchPlacement(true);await assertNoCurrentOverlap();
+ await tap(570,300);assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente/);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
+ await page.click('[data-reset-phase="0"]');
  await assignNumbers([123456789012345,234567890123456,345678901234567,456789012345678,567890123456789,678901234567890]);
- await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();
+ await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  await page.selectOption('#symbolStandard','iec');await assertNoCurrentOverlap();
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
