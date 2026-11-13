@@ -48,7 +48,7 @@ try{
   assert.equal(await run.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(220, 38, 38)');
 
   assert.equal((await info(page,'jgr-1')).running,false,'Initial URL pause is preserved');
-  const press=async selector=>{const b=(await bar(page)).locator(selector);if(mobile)await b.tap();else await b.click();};
+  const press=async selector=>{const host=selector==='#add-tab'?page.frameLocator(`iframe[data-tab-id="${await active(page)}"]`).locator('#jgr-tab-strip'):(await bar(page));const b=host.locator(selector);if(mobile)await b.tap();else await b.click();};
   await press('#add-tab');
   // La interfaz nativa no debe hacerse visible antes de terminar de adaptar la nueva pestaña.
   const boot=await page.locator('.session[data-tab-id="jgr-2"]').evaluate(el=>({
