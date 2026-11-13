@@ -12,8 +12,10 @@ function pairs(source:string):Map<string,string>{
  return out;
 }
 const fixed=pairs(fixedSource);
-const terms=[...pairs(glossarySource)].sort((a,b)=>b[0].length-a[0].length);
 const escapeRegExp=(s:string)=>s.replace(/[.*+?^\u0024{}()|[\]\\]/g,"\\$&");
+const terms=[...pairs(glossarySource)].filter(([,ar])=>!!ar)
+ .sort((a,b)=>b[0].length-a[0].length)
+ .map(([en,ar])=>({en:en.toLowerCase(),ar,pattern:new RegExp("(?<![A-Za-z])"+escapeRegExp(en)+"(?![A-Za-z])","gi")}));
 export function arabicTranslation(key:string):string{
  const exact=fixed.get(key);if(exact!==undefined)return exact;
  if(!key.trim())return key;
@@ -26,10 +28,11 @@ export function arabicTranslation(key:string):string{
  body=body.replace(/<[^>]*>|&(?:nbsp|amp|lt|gt);|\{[^}]*\}|https?:\/\/\S+|(?:Ctrl|Alt|Shift|Cmd|Win)-[A-Z]|\b(?:AND|NAND|OR|NOR|XOR|XNOR|CMOS|NMOS|PMOS|TTL|DTL|RTL|ECL|ADC|DAC|LED|JFET|MOSFET|TRIAC|DIAC|SCR|CCII|CCCS|CCVS|VCCS|VCVS|VCO|OTA|SPST|SPDT|RMS)\b/g,m=>{
   const id=protectedParts.push(m)-1;return "⟦"+id+"⟧";
  });
- for(const [english,arabic] of terms){
-  if(!arabic)continue;
-  const pattern=new RegExp("(?<![A-Za-z])"+escapeRegExp(english)+"(?![A-Za-z])","gi");
-  body=body.replace(pattern,arabic);
+ let lower=body.toLowerCase();
+ for(const term of terms){
+  if(!lower.includes(term.en))continue;
+  const next=body.replace(term.pattern,term.ar);
+  if(next!==body){body=next;lower=body.toLowerCase();}
  }
  body=body.replace(/\s+/g," ").trim().replace(/\s+([,.:;!?])/g,"$1");
  body=body.replace(/⟦(\d+)⟧/g,(_,index)=>protectedParts[Number(index)]);
