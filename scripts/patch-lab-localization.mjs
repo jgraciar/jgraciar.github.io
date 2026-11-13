@@ -76,6 +76,8 @@ once(locale,
 // pero mantener el idioma cooficial en todos los elementos del laboratorio.
 once(locale,
  '        const url = moduleBaseURL + "locale/locale_" + lang + ".txt";',
+ '        // Arabic uses its own supplemental translations and the English source as fallback.\n'+
+ '        if(lang==="ar"){Locale.localizationMap=new Map<string,string>();return;}\n'+
  '        const originalLang = ["gl","eu"].includes(lang)?"es":lang;\n'+
  '        const url = moduleBaseURL + "locale/locale_" + originalLang + ".txt";');
 const dialog=join(dir,"EditDialog.ts");
