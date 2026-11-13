@@ -536,7 +536,8 @@
   function checkTermValue(answer,expected,branch,isSource,six){
     const value=answer.trim().replace(/\s/g,'').replace(/−/g,'-').replace(/,/g,'.').replace(/\*/g,'·').replace(/Ω/g,'').replace(/\u00b7/g,'·');
     const correct=termAnswer(expected,branch,isSource,six).replace(/−/g,'-').replace(/,/g,'.');
-    const normalized=v=>v.replace(/^\+/,'').toLowerCase();
+    const subs=['₁','₂','₃','₄','₅','₆'];
+    const normalized=v=>v.replace(/^\+/,'').replace(/I([1-6])/gi,(_,n)=>'I'+subs[Number(n)-1]).toLowerCase();
     return normalized(value)===normalized(correct)||normalized(value)===normalized(correct.replace('·',''));
   }
   function challengeTerm(container,value,branch,isSource,six=false){
