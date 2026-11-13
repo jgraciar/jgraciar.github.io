@@ -83,6 +83,15 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   await button.click();assert.equal(await button.getAttribute('data-state'),'paused');
   assert(await button.locator('.transport-play').isVisible());assert.equal(await button.locator('.transport-stop').isVisible(),false);
   const position=await page.locator('#hero').getAttribute('transform');
+  await page.selectOption('#symbolStandard','ansi');assert.equal(await button.getAttribute('data-state'),'paused');assert.equal(await page.locator('#hero').getAttribute('transform'),position);
+  await page.selectOption('#symbolStandard','iec');
+  await page.locator('#hero').dispatchEvent('pointerdown',{pointerId:71,isPrimary:true,pointerType:'touch',button:0});
+  assert.equal(await page.locator('#heroBody').evaluate(el=>getComputedStyle(el).visibility),'hidden');
+  assert.equal(await page.locator('#heroTail').evaluate(el=>getComputedStyle(el).visibility),'hidden');
+  assert(await page.locator('#hero .hero-segment').evaluateAll(nodes=>nodes.every(el=>getComputedStyle(el).visibility==='hidden')));
+  await page.locator('body').dispatchEvent('pointerup',{pointerId:71,isPrimary:true,pointerType:'touch',button:0});
+  assert.equal(await page.locator('#heroBody').evaluate(el=>getComputedStyle(el).visibility),'visible');
+  assert.equal(await page.locator('#heroTail').evaluate(el=>getComputedStyle(el).visibility),'visible');
   const dots=await page.locator('.fx-current-dot').evaluateAll(nodes=>nodes.map(n=>[n.getAttribute('cx'),n.getAttribute('cy')]));
   await page.waitForTimeout(220);
   assert.equal(await page.locator('#hero').getAttribute('transform'),position,'El gusano se detiene');
@@ -91,8 +100,33 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   await button.click();assert.equal(await button.getAttribute('data-state'),'running');assert(await button.locator('.transport-stop').isVisible());
   await page.waitForFunction(position=>document.getElementById('hero').getAttribute('transform')!==position,position);
  };
+ const assignNumbers=async numbers=>{
+  const coords=numbers.length===6?[[235,74],[350,150],[465,74],[209,225],[510,225],[466,355]]:[[146,235],[345,235],[544,235]];
+  for(let i=0;i<numbers.length;i++){await tap(...coords[i]);await page.locator('#currentNumber').fill(String(numbers[i]));await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});}
+ };
+ await page.selectOption('#exerciseSelect','c72');
+ assert.equal(await page.locator('#confirmDirs').isDisabled(),true);
+ await tap(146,235);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
+ await tap(345,235);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
+ assert.match(await page.locator('#currentNumberError').textContent(),/ya está asignado/);assert(await page.locator('#currentNameDialog').isVisible());
+ await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
+ await tap(544,235);await page.locator('#currentNumber').fill('3');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
+ assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₇');assert.equal(await page.locator('#currentArrow1 .dirlabel').textContent(),'I₁₂');
+ await page.selectOption('#symbolStandard','ansi');assert.equal(await page.locator('#circuit .resistor-ansi .symbol:visible').count(),3);assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),0);
+ for(const resistor of await page.locator('#circuit .component-resistor').all()){
+  assert(await resistor.evaluate(el=>{
+   const symbol=el.querySelector('.resistor-ansi .symbol'),value=el.querySelector('.resistor-value'),label=el.querySelector('.resistor-ansi .resistor-name');
+   const center=new DOMPoint(0,0).matrixTransform(symbol.getScreenCTM()),anchor=new DOMPoint(Number(value.getAttribute('x')),Number(value.getAttribute('y'))).matrixTransform(value.getScreenCTM());
+   return Math.abs(center.y-anchor.y)<1&&Number(label.getAttribute('x'))<Number(value.getAttribute('x'));
+  }),'Valor centrado en altura y nombre a la izquierda');
+ }
+ await page.selectOption('#symbolStandard','iec');assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),3);
+ await page.click('#confirmDirs');await page.locator('#nodeChallenge .kcl-answer').fill('I7=I12+I3');await page.click('#nodeChallenge .kcl-check');
+ assert.match(await page.locator('#nodeEq').textContent(),/I₇.*I₁₂.*I₃/);
+ assert(!/\bKCL\b|\bKVL\b/.test(await page.locator('body').innerText()));
+ assert(parseFloat(await page.locator('#nodeEq').evaluate(el=>getComputedStyle(el).fontSize))>=18);
  const arrow=async s=>page.locator(s+' .direction').getAttribute('d');
- await page.selectOption('#exerciseSelect','c71');
+ await page.selectOption('#exerciseSelect','c71');await assignNumbers([1,2,3]);
  await page.locator('[data-reduce="2"]').fill('12');await page.click('#checkReductions');await page.click('#confirmDirs');
  await page.locator('[data-kcl="0"]').selectOption('1');
  const term=page.locator('#nodeChallenge .kcl-live-term').first();
@@ -100,7 +134,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(blink.name,'kclTermBlink');assert.equal(blink.count,'3');
  await page.waitForFunction(()=>!document.querySelector('#nodeChallenge .blink-three'));
  assert.equal(await term.evaluate(el=>getComputedStyle(el).opacity),'1');
- await page.selectOption('#exerciseSelect','base');
+ await page.selectOption('#exerciseSelect','base');await assignNumbers([1,2,3]);
  assert.equal(await page.locator('#resetLoop svg').count(),1);assert.equal(await page.locator('#resetLoop').getAttribute('aria-label'),'Repetir recorrido');
  assert.equal(await page.locator('#dirButtons,#advDirections,#loopButtons,#advLoopButtons,#cw,#ccw,#advCw,#advCcw').count(),0);
  for(const [i,x,y] of [[0,249,74],[1,345,103],[2,454,74]]){
@@ -124,10 +158,19 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  });
  assert.equal(reaction.face.name,'heroJoy');assert.equal(reaction.mouth.name,'heroLaugh');assert.equal(reaction.term.name,'termBlink');assert.equal(reaction.arrow.name,'arrowBlink');
  const signature={blink,reaction};if(animationReference)assert.deepEqual(signature,animationReference,'Parpadeos y gestos idénticos en móvil/escritorio y movimiento reducido');else animationReference=signature;
- await page.selectOption('#exerciseSelect','r76');
+ await page.selectOption('#exerciseSelect','r76');await assignNumbers([1,2,3,4,5,6]);
  for(const [i,x,y] of [[0,174,74],[1,350,111],[2,395,74],[3,159,225],[4,379,225],[5,199,355]]){
   const sel='#sixCurrentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente avanzada '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
+ await page.selectOption('#symbolStandard','ansi');
+ for(const resistor of await page.locator('#circuit .component-resistor').all()){
+  assert(await resistor.evaluate(el=>{
+   const symbol=el.querySelector('.resistor-ansi .symbol'),value=el.querySelector('.resistor-value');
+   const center=new DOMPoint(0,0).matrixTransform(symbol.getScreenCTM()),anchor=new DOMPoint(Number(value.getAttribute('x')),Number(value.getAttribute('y'))).matrixTransform(value.getScreenCTM());
+   return value.getAttribute('text-anchor')==='middle'?Math.abs(center.x-anchor.x)<1:Math.abs(center.y-anchor.y)<1;
+  }),'Valor centrado en resistencia horizontal o vertical');
+ }
+ await page.selectOption('#symbolStandard','iec');
  await checkAction('advStart');await page.click('#advStart');
  let verifiedNodes=0;
  for(const eq of ['I1=I2+I3','I2+I4=I5','I1+I4+I6=0']){
