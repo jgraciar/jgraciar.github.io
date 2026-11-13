@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>Kirchhoff Arcade · MVP 3.5</title>
+<title>Kirchhoff Arcade · MVP 3.6</title>
 <style>
   :root { --bg:#09101d; --card:#111c30; --card2:#0c182b; --border:#2c415b; --txt:#f0f6ff; --muted:#a7bbd0; --cyan:#5ce6f0; --lime:#b7f75c; --amber:#ffc66b; --red:#ff7786; --purple:#ac98ff; }
   *{box-sizing:border-box}
@@ -204,6 +204,14 @@
   .challenge label{display:grid;gap:5px;font-size:13px;color:#d3e0f1}
   .challenge-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(116px,1fr));gap:8px}
   .challenge .chosen{border-color:#f6bb5c;background:#514125}
+  .kcl-live{background:#0a1729;border:1px solid #46627e;border-radius:9px;padding:11px 12px;min-width:0}
+  .kcl-live-title{font:700 12px system-ui,sans-serif;color:#b8cddf;margin-bottom:6px}
+  .kcl-live-expression{display:flex;align-items:baseline;gap:8px;min-height:35px;font:700 clamp(17px,3.6vw,22px)/1.6 ui-monospace,Consolas,monospace;flex-wrap:wrap;overflow-wrap:anywhere}
+  .kcl-live-side{display:inline-flex;align-items:baseline;flex-wrap:wrap;column-gap:7px;row-gap:3px;min-width:12px}
+  .kcl-live-equals{color:var(--cyan)}
+  .kcl-live-term{display:inline-block;white-space:nowrap;border-radius:4px;padding:0 2px;color:#f5f6fa}
+  .kcl-live-term.blink-three{animation:kclTermBlink .48s steps(1,end) 3}
+  @keyframes kclTermBlink{0%,49%{color:#ffe6a4;background:#87601e;opacity:1;text-shadow:0 0 7px #ffdf84}50%,99%{color:#ffe6a4;background:transparent;opacity:.22;text-shadow:none}100%{color:#f5f6fa;background:transparent;opacity:1;text-shadow:none}}
   .difficulty{font-weight:800;color:#ffdc91}
   .exercisebar{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin:0 0 16px}
   .field{display:grid;gap:5px;min-width:0;max-width:100%;flex:1 1 270px}
@@ -230,7 +238,7 @@
 <body>
 <div class="shell">
   <header class="top">
-    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 3.5 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
+    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 3.6 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
     <div class="score"><div class="stat"><small>Puntos</small><strong id="score">0000</strong></div><div class="stat"><small>Progreso</small><strong id="percent">0%</strong></div></div>
   </header>
   <nav class="stages" id="stagebar" aria-label="Fases">
@@ -378,7 +386,7 @@
         </div>
         <div id="phase1" class="hide">
           <h1 class="phase-title">Ley de los nudos</h1>
-          <p class="desc">La ecuación se genera directamente: <b>corrientes que entran = corrientes que salen</b>. Hay 2 nudos, por tanto <b>n − 1 = 1 ecuación independiente</b>.</p>
+          <p class="desc">Construye la igualdad: <b>corrientes que entran = corrientes que salen</b>. Hay 2 nudos, por tanto <b>n − 1 = 1 ecuación independiente</b>.</p>
           <div class="btnrow hide"><button id="selectA" class="primary">Analizar nudo A</button><button id="selectB" class="ghost">Analizar nudo B</button></div>
           <div id="nodeChallenge" class="challenge hide" aria-live="polite"></div>
           <div class="eqpanel hide" id="nodeEqPanel"><div class="eqtitle">Ecuación KCL · n − 1 = 1</div><div class="eq" id="nodeEq"></div></div>
@@ -499,7 +507,66 @@
     host.innerHTML=`<h3>${guided?'Nivel 1 · Clasifica las corrientes':'Nivel 2 · Escribe la ecuación del nudo'}</h3>`+
       (guided?'<div class="challenge-row">'+namesList.map((n,i)=>`<label>${n}<select data-kcl="${i}"><option value="">Seleccionar…</option><option value="1">Entra</option><option value="-1">Sale</option><option value="0">No pasa por el nudo</option></select></label>`).join('')+'</div>':
       '<label>Igualdad de intensidades (ej.: I₁ = I₂ + I₃)<input class="kcl-answer" autocomplete="off" spellcheck="false" placeholder="Escribe ambos miembros de la ecuación" aria-label="Ecuación de nudo"></label>')+
+      '<div class="kcl-live"><div class="kcl-live-title">Ecuación del nudo en construcción</div><div class="kcl-live-expression" aria-label="Ecuación parcial"><span class="kcl-live-side" data-side="0"></span><span class="kcl-live-equals">=</span><span class="kcl-live-side" data-side="1"></span></div></div>'+
       '<div class="choices"><button type="button" class="primary kcl-check">Comprobar ecuación</button></div><div class="feedback" role="status"></div>';
+    // Mantener los mismos nodos DOM cuando se selecciona otra corriente:
+    // cada término nuevo parpadea tres veces, aunque se clasifiquen otras
+    // intensidades mientras está terminando su animación.
+    const termNodes=new Map();
+    function showPartial(entries){
+      for(let side=0;side<2;side++){
+        const slot=host.querySelector('[data-side="'+side+'"]');
+        const newKeys=new Set(entries.filter(e=>e.side===side).map(e=>e.key));
+        const existing=[...slot.querySelectorAll('[data-kcl-term]')];
+        for(const node of existing){if(!newKeys.has(node.dataset.kclTerm))node.remove()}
+        const terms=entries.filter(e=>e.side===side);
+        if(!terms.length){slot.replaceChildren(document.createTextNode('…'));continue}
+        for(const child of [...slot.childNodes])if(child.nodeType===Node.TEXT_NODE)child.remove();
+        for(let j=0;j<terms.length;j++){
+          const e=terms[j],key=e.key;
+          let node=termNodes.get(key);
+          if(!node){
+            node=document.createElement('span');node.className='kcl-live-term blink-three';
+            node.dataset.kclTerm=key;node.textContent=e.name;
+            termNodes.set(key,node);
+            node.addEventListener('animationend',()=>node.classList.remove('blink-three'),{once:true});
+          }
+          if(j)slot.append(document.createTextNode(' + '));
+          slot.append(node);
+        }
+      }
+      for(const [key,node] of termNodes){if(!entries.some(e=>e.key===key)){node.remove();termNodes.delete(key)}}
+    }
+    if(guided){
+      const selections=[...host.querySelectorAll('[data-kcl]')];
+      const render=()=>{
+        showPartial(selections.flatMap((el,i)=>el.value==='0'||!el.value?[]:[{side:el.value==='1'?0:1,key:i+':'+el.value,name:namesList[i]}]));
+        host.querySelector('.feedback').textContent='';
+      };
+      selections.forEach(el=>el.addEventListener('change',render));
+      render();
+    }else{
+      // En nivel 2, el alumno teclea la ecuación; solo aparecen las
+      // intensidades que realmente ha introducido en cada miembro.
+      const input=host.querySelector('.kcl-answer');
+      const subs=['₁','₂','₃','₄','₅','₆'];
+      const parseTerms=()=>{
+        const halves=input.value.replace(/−/g,'-').split('=');
+        const entries=[];
+        halves.slice(0,2).forEach((part,side)=>{
+          const used=new Set();
+          for(const match of part.matchAll(/I([1-6₁₂₃₄₅₆])/gi)){
+            const index=subs.includes(match[1])?subs.indexOf(match[1]):Number(match[1])-1;
+            if(index<0||index>=namesList.length||used.has(index))continue;
+            used.add(index);
+            entries.push({side,key:index+':'+side,name:namesList[index]});
+          }
+        });
+        return entries;
+      };
+      input.addEventListener('input',()=>{showPartial(parseTerms());host.querySelector('.feedback').textContent=''});
+      showPartial([]);
+    }
     const check=()=>{
       const valid=guided?[...host.querySelectorAll('[data-kcl]')].every((e,i)=>e.value!==''&&Number(e.value)===row[i]):equalKCL(host.querySelector('.kcl-answer').value,row);
       const feedback=host.querySelector('.feedback');
