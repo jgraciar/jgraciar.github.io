@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>Kirchhoff Arcade · MVP 3.3</title>
+<title>Kirchhoff Arcade · MVP 3.5</title>
 <style>
   :root { --bg:#09101d; --card:#111c30; --card2:#0c182b; --border:#2c415b; --txt:#f0f6ff; --muted:#a7bbd0; --cyan:#5ce6f0; --lime:#b7f75c; --amber:#ffc66b; --red:#ff7786; --purple:#ac98ff; }
   *{box-sizing:border-box}
@@ -194,6 +194,17 @@
   }
   @media(max-width:540px){.shell{padding:12px 8px 25px}.body{padding:13px}.logo{font-size:24px}.stage{min-width:90px;padding:8px;font-size:10px}.stat{min-width:76px}.build{grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr)}.board{padding:3px}.cardhead{padding:10px}}
   
+  .challenge{padding:12px;margin:10px 0;border:1px solid #805b25;border-radius:11px;background:#1d2436;display:grid;gap:10px;min-width:0}
+  .challenge h3{margin:0;font-size:15px;color:#ffd88c}
+  .challenge .choices{display:flex;flex-wrap:wrap;gap:7px}
+  .challenge input,.challenge select{min-width:0;max-width:100%;padding:10px;border-radius:7px;background:#0a1728;color:#f3f5fb;border:1px solid #7293a5;font:600 16px ui-monospace,monospace}
+  .challenge input{width:100%}
+  .challenge .feedback{font-size:13px;color:#ffcc99}
+  .challenge .feedback.good{color:#b7f75c}
+  .challenge label{display:grid;gap:5px;font-size:13px;color:#d3e0f1}
+  .challenge-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(116px,1fr));gap:8px}
+  .challenge .chosen{border-color:#f6bb5c;background:#514125}
+  .difficulty{font-weight:800;color:#ffdc91}
   .exercisebar{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin:0 0 16px}
   .field{display:grid;gap:5px;min-width:0;max-width:100%;flex:1 1 270px}
   .field label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
@@ -219,7 +230,7 @@
 <body>
 <div class="shell">
   <header class="top">
-    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 3.3 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
+    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 3.5 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
     <div class="score"><div class="stat"><small>Puntos</small><strong id="score">0000</strong></div><div class="stat"><small>Progreso</small><strong id="percent">0%</strong></div></div>
   </header>
   <nav class="stages" id="stagebar" aria-label="Fases">
@@ -243,6 +254,7 @@
       <div class="mini" id="exerciseHint">Selecciona un ejercicio: reinicia la partida con sus resistencias y fuentes.</div>
     </div>
   </div>
+  <p class="helper" id="difficultyInfo">Demo: observación guiada. Primer ejercicio: nivel 1. Resto: nivel 2.</p>
   <main class="layout">
     <section class="card">
       <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span></div>
@@ -290,6 +302,7 @@
           </div>
           <div class="lap-chip" id="lapLabel">Vuelta 1/2 · resistencias (R·I)</div>
           <div class="message" id="loopFeedback">Comienza el recorrido de la malla 1.</div>
+          <div id="termChallenge" class="challenge hide" aria-live="polite"></div>
           <div class="control-actions"><button class="primary" id="advance">Avanzar al siguiente elemento →</button><button class="success hide" id="goMatrix">Organizar el sistema →</button></div>
         </div>
         <div id="advancedCircuitControls" class="circuit-controls-inner hide">
@@ -299,6 +312,7 @@
           </div>
           <div class="lap-chip" id="advLap">Vuelta 1/2 · Σ R·I</div>
           <p class="message" id="advLoopMsg">Cada malla parte de su nudo indicado: C, C o D.</p>
+          <div id="sixTermChallenge" class="challenge hide" aria-live="polite"></div>
           <div class="control-actions"><button class="primary" id="advNext">Iniciar recorrido desde C →</button><button class="success hide" id="advToMatrix">Construir matriz 6 × 6 →</button></div>
         </div>
       </div>
@@ -314,6 +328,7 @@
           <div class="dirbuttons" id="advDirections"></div>
           <p class="message" id="advInfo"></p>
           <button class="primary" id="advStart">Confirmar sentidos y obtener ecuaciones de nudos →</button>
+          <div id="sixNodeChallenge" class="challenge hide" aria-live="polite"></div>
           <div id="advKCL" class="eqpanel hide"><div class="eqtitle">Primera ley · 3 ecuaciones independientes</div><div class="eq" style="font-size:14px" id="advKCLtext"></div></div>
           <div id="advLoops" class="hide">
             <h2 class="phase-title" style="font-size:19px">Mallas · dos vueltas por malla</h2>
@@ -333,6 +348,7 @@
             <p class="desc">Como en la demostración: sustituimos los nudos en las mallas, aplicamos reducción con los coeficientes alineados, hacemos sustitución regresiva y comprobamos el circuito.</p>
             <div class="steps" id="advSolveSteps"></div>
             <button class="primary" id="advSolveNext">Siguiente paso →</button>
+            <div id="sixFinalChallenge" class="challenge hide" aria-live="polite"></div>
             <div id="advResultPanel" class="hide" style="margin-top:14px">
               <div class="eqtitle">Intensidades calculadas</div>
               <div class="result" id="advResults"></div>
@@ -364,6 +380,7 @@
           <h1 class="phase-title">Ley de los nudos</h1>
           <p class="desc">La ecuación se genera directamente: <b>corrientes que entran = corrientes que salen</b>. Hay 2 nudos, por tanto <b>n − 1 = 1 ecuación independiente</b>.</p>
           <div class="btnrow hide"><button id="selectA" class="primary">Analizar nudo A</button><button id="selectB" class="ghost">Analizar nudo B</button></div>
+          <div id="nodeChallenge" class="challenge hide" aria-live="polite"></div>
           <div class="eqpanel hide" id="nodeEqPanel"><div class="eqtitle">Ecuación KCL · n − 1 = 1</div><div class="eq" id="nodeEq"></div></div>
           <div class="message" id="nodeFeedback">Los dos nudos proporcionan ecuaciones equivalentes; basta una independiente.</div>
           <button id="goLoops" class="primary hide">Continuar a las mallas →</button>
@@ -390,6 +407,7 @@
           <div class="eqpanel"><div class="eqtitle">Ecuaciones obtenidas</div><div class="eq" id="solveNodal">I₁ = I₂ + I₃</div><div class="eq" id="solveMesh1">—</div><div class="eq" id="solveMesh2">—</div></div>
           <div class="steps" id="solutionSteps"></div>
           <div class="btnrow"><button class="primary" id="nextStep">Siguiente paso →</button><button class="ghost small" id="restartSteps">Repetir resolución</button></div>
+          <div id="finalChallenge" class="challenge hide" aria-live="polite"></div>
           <div id="resultPanel" class="hide">
             <div class="result" id="results"></div>
             <div class="message good">Verificación: al sustituir las intensidades, <b>A · I = b</b> en las tres ecuaciones. Nivel superado.</div>
@@ -434,8 +452,8 @@
   const X=[146,345,544],TOP=74,BOT=360,SY=136,RY=235;
   const names=['I₁','I₂','I₃'];
   const exercises=[
-    {id:'base',label:'Demo base · 3 ramas',R:[2,2,2],E:[18,6,0],status:'Jugable',hint:'Circuito de aprendizaje con dos fuentes y tres ramas.'},
-    {id:'c71',label:'Comprobación 7.1 · 12 V / 5 V',R:[5,1,12],E:[12,5,0],parts:[[5],[1],[2,10]],status:'Jugable',hint:'Adaptación de las tres ramas de la actividad. R3 reúne 2 Ω y 10 Ω en serie.',source:'act.-comprobacion-7.1.txt'},
+    {id:'base',label:'Demo · 3 ramas',R:[2,2,2],E:[18,6,0],status:'Demostración',hint:'Circuito de aprendizaje con dos fuentes y tres ramas.'},
+    {id:'c71',label:'Nivel 1 · Comprobación 7.1 · 12 V / 5 V',R:[5,1,12],E:[12,5,0],parts:[[5],[1],[2,10]],status:'Jugable',hint:'Adaptación de las tres ramas de la actividad. R3 reúne 2 Ω y 10 Ω en serie.',source:'act.-comprobacion-7.1.txt'},
     {id:'c72',label:'Comprobación 7.2 · fuentes en retorno',R:[4,8,7],E:[0,-10,-30],parts:[[4],[8],[6,1]],status:'Jugable (equivalente)',hint:'Esquema equivalente: las fuentes horizontales de 10 V y 20 V se trasladan a las ramas; R3 = 6 + 1 Ω.',source:'act.-comprobacion-7.2.txt'},
     {id:'c75',label:'Comprobación 7.5 · 140 V / 90 V',R:[20,100,5],E:[140,0,90],status:'Jugable',hint:'Se usa la primera configuración con dos fuentes de 140 V y 90 V, carga de 100 Ω, y resistencias de 20 Ω y 5 Ω.',source:'act.-comprobacion-7.5.txt'},
     {id:'r75',label:'Resuelta 7.5 · tres generadores de 24 V',R:[1/15,0.3,10],E:[24,24,0],parts:[[0.1,0.2],[0.3],[10]],partsMode:['parallel','series','series'],status:'Jugable (equivalente)',hint:'Las ramas de 24 V con resistencias internas de 0,1 Ω y 0,2 Ω se agrupan en una rama equivalente de 0,066667 Ω. Al terminar se recuperan las cuatro intensidades originales (0,1 Ω; 0,2 Ω; 0,3 Ω; 10 Ω).',source:'act.-resuelta-7.5.txt'},
@@ -446,6 +464,108 @@
 
   ];
   let active=exercises[0];
+  const difficulty=()=>active.id==='base'?0:active.id==='c71'?1:2;
+  let activeChallenge=null;
+  function clearChallenge(){
+    if(activeChallenge){const old=activeChallenge;activeChallenge=null;old(false)}
+    for(const id of ['nodeChallenge','sixNodeChallenge','termChallenge','sixTermChallenge']){
+      const el=$(id);if(el){el.replaceChildren();show(id,false)}
+    }
+  }
+  function kclVector(expr,count){
+    const sides=expr.replace(/\s/g,'').replace(/−/g,'-').split('=');
+    if(sides.length!==2)return null;
+    const namesSub=['₁','₂','₃','₄','₅','₆'];
+    const res=Array(count).fill(0);
+    for(let side=0;side<2;side++){
+      let str=sides[side].replace(/-/g,'+-');if(str.startsWith('+-'))str='-'+str.slice(2);
+      for(const term of str.split('+').filter(Boolean)){
+        if(term==='0')continue;
+        const sign=term[0]==='-'?-1:1,token=term.replace(/^[-+]/,'');
+        const ix=namesSub.findIndex((n,i)=>i<count&&(token==='I'+n||token==='I'+(i+1)));
+        if(ix<0)return null;
+        res[ix]+=(side===0?1:-1)*sign;
+      }
+    }
+    return res;
+  }
+  function equalKCL(value,row){
+    const v=kclVector(value,row.length);
+    return !!v&&(v.every((x,i)=>x===row[i])||v.every((x,i)=>x===-row[i]));
+  }
+  function kclChoices(container,row,namesList,onSuccess){
+    const guided=difficulty()===1;
+    show(container,true);const host=$(container);
+    host.innerHTML=`<h3>${guided?'Nivel 1 · Clasifica las corrientes':'Nivel 2 · Escribe la ecuación del nudo'}</h3>`+
+      (guided?'<div class="challenge-row">'+namesList.map((n,i)=>`<label>${n}<select data-kcl="${i}"><option value="">Seleccionar…</option><option value="1">Entra</option><option value="-1">Sale</option><option value="0">No pasa por el nudo</option></select></label>`).join('')+'</div>':
+      '<label>Igualdad de intensidades (ej.: I₁ = I₂ + I₃)<input class="kcl-answer" autocomplete="off" spellcheck="false" placeholder="Escribe ambos miembros de la ecuación" aria-label="Ecuación de nudo"></label>')+
+      '<div class="choices"><button type="button" class="primary kcl-check">Comprobar ecuación</button></div><div class="feedback" role="status"></div>';
+    const check=()=>{
+      const valid=guided?[...host.querySelectorAll('[data-kcl]')].every((e,i)=>e.value!==''&&Number(e.value)===row[i]):equalKCL(host.querySelector('.kcl-answer').value,row);
+      const feedback=host.querySelector('.feedback');
+      feedback.textContent=valid?'Ecuación correcta. Puedes continuar.':'Revisa el sentido de las flechas y los signos de cada corriente.';
+      feedback.classList.toggle('good',valid);
+      if(valid){show(container,false);onSuccess()}
+    };
+    host.querySelector('.kcl-check').onclick=check;
+    host.querySelector('.kcl-answer')?.addEventListener('keydown',e=>{if(e.key==='Enter')check()});
+  }
+  function finalChallenge(id,values,labelList,onSuccess){
+    const host=$(id);
+    if(host.querySelector('.final-check'))return;
+    show(id,true);
+    host.innerHTML='<h3>Comprobación final · calcula las intensidades (A)</h3>'+
+      '<p>Introduce el valor algebraico de cada corriente según los sentidos de referencia elegidos. Se acepta coma decimal.</p>'+
+      '<div class="challenge-row">'+labelList.map((name,i)=>`<label>${name} (A)<input type="text" inputmode="decimal" data-final="${i}" aria-label="${name} en amperios" placeholder="?" /></label>`).join('')+'</div>'+
+      '<button type="button" class="primary final-check">Verificar todas las intensidades</button><div class="feedback" role="status"></div>';
+    host.querySelector('.final-check').onclick=()=>{
+      let valid=true;
+      host.querySelectorAll('[data-final]').forEach(inp=>{
+        const expected=values[Number(inp.dataset.final)],v=Number(inp.value.replace(',','.'));
+        const good=inp.value.trim()!==''&&Number.isFinite(v)&&Math.abs(v-expected)<=Math.max(.001,Math.abs(expected)*.0001);
+        inp.style.borderColor=good?'#9fe78a':'#ff8796';if(!good)valid=false;
+      });
+      host.querySelector('.feedback').textContent=valid?'Resultados correctos: comprobación superada.':'Hay intensidades incorrectas. Revisa los signos y la sustitución regresiva.';
+      if(valid){show(id,false);onSuccess()}
+    };
+  }
+  function termAnswer(value,branch,isSource,six){
+    const name=(six?NAMES6:names)[branch];
+    return (value<0?'−':'+')+formatNumber(Math.abs(value))+(isSource?'V':'·'+name);
+  }
+  function checkTermValue(answer,expected,branch,isSource,six){
+    const value=answer.trim().replace(/\s/g,'').replace(/−/g,'-').replace(/,/g,'.').replace(/\*/g,'·').replace(/Ω/g,'').replace(/\u00b7/g,'·');
+    const correct=termAnswer(expected,branch,isSource,six).replace(/−/g,'-').replace(/,/g,'.');
+    const normalized=v=>v.replace(/^\+/,'').toLowerCase();
+    return normalized(value)===normalized(correct)||normalized(value)===normalized(correct.replace('·',''));
+  }
+  function challengeTerm(container,value,branch,isSource,six=false){
+    if(difficulty()===0)return Promise.resolve(true);
+    show(container,true);const host=$(container),guided=difficulty()===1;
+    const name=(six?NAMES6:names)[branch];
+    const display=isSource?formatNumber(Math.abs(value))+' V':formatNumber(six?R6[branch]:R[branch])+' Ω';
+    host.innerHTML=`<h3>Nivel ${difficulty()} · ${isSource?'Fuente de tensión':'Resistencia'} · ${display}</h3>`+
+      `<div>El personaje se ha detenido. ${guided?'Selecciona el signo correcto antes de continuar.':'Introduce el término con signo y unidad o intensidad. La flecha y el componente indican el signo.'}</div>`+
+      (guided?`<div class="choices"><button type="button" data-sign="1">+ ${isSource?'U':name}</button><button type="button" data-sign="-1">− ${isSource?'U':name}</button></div>`:
+      `<label>Término de ${isSource?'tensión':'resistencia'}<input class="term-answer" autocomplete="off" spellcheck="false" placeholder="${isSource?'+6V':'−2·I₂'}" aria-label="Término de la ecuación"></label><button type="button" class="primary term-check">Comprobar término</button>`)+
+      '<div class="feedback" role="status"></div>';
+    return new Promise(resolve=>{
+      const finish=valid=>{
+        const fb=host.querySelector('.feedback');
+        fb.textContent=valid?'Término correcto.':'Comprueba la polaridad, la referencia de corriente y el signo del recorrido.';
+        fb.classList.toggle('good',valid);
+        if(valid){activeChallenge=null;show(container,false);resolve(true)}
+      };
+      activeChallenge=resolve;
+      if(guided)host.querySelectorAll('[data-sign]').forEach(b=>b.onclick=()=>finish(Number(b.dataset.sign)===(value<0?-1:1)));
+      else{
+        const input=host.querySelector('.term-answer');
+        host.querySelector('.term-check').onclick=()=>finish(checkTermValue(input.value,value,branch,isSource,six));
+        input.addEventListener('keydown',e=>{if(e.key==='Enter')host.querySelector('.term-check').click()});
+      }
+    });
+  }
+
   const exampleUrl=x=>'https://github.com/jgraciar/jgraciar.github.io/blob/main/examples/circuit-jgr/'+encodeURIComponent(x);
   let flowToken=0;
   let R=active.R.slice(),E=active.E.slice();
@@ -531,7 +651,8 @@
   }
   function renderExerciseInfo(){
     const ex=active;
-    $('exerciseStatus').textContent=ex.status;
+    $('exerciseStatus').textContent=ex.id==='base'?'Demostración':('Nivel '+difficulty()+' · '+ex.status);
+    $('difficultyInfo').textContent=difficulty()===0?'Demostración: observa el procedimiento completo; el programa construye las ecuaciones.':difficulty()===1?'Nivel 1: construye la ley de nudos clasificando corrientes y elige el signo de cada término de malla.':'Nivel 2: escribe las ecuaciones de nudo y cada término de las mallas antes de continuar.';
     $('exerciseHint').innerHTML=ex.hint+(ex.source?' · <a style="color:#8ce7ef" href="'+exampleUrl(ex.source)+'" target="_blank" rel="noopener">Ver esquema original en Circuit JGR</a>':'');
   }
   function networkSVG(ex){
@@ -608,9 +729,9 @@
     drawDirs();updateLoopsArrows();
     if(n!==2)clearElementHighlight();
     renderBoardEquations();
-    if(n===1)analyzeNode(true);
+    if(n===1){if(difficulty()===0)analyzeNode(true);else kclChoices('nodeChallenge',S.signs.slice(),names,()=>analyzeNode(true));}
     if(n===2){S.loop=0;loadLoop(0)}
-    if(n===3)drawMatrix();
+    if(n===3){drawMatrix();show('fillMatrix',difficulty()===0);}
     if(n===4){
       const {A,b}=system();
       $('solveNodal').textContent='Nudo A (Σ I entran = Σ I salen): '+nodeSides();
@@ -916,16 +1037,22 @@
       previous=i;
       if(S.pass==='sources'&&p.component==='source'){
         const v=E[leg.branch]*leg.d;
-        S.es.push({v,i:leg.branch});renderComponentFX(p,v);
+        renderComponentFX(p,v);
         setHeroMood(v<0);
+        if(!await challengeTerm('termChallenge',v,leg.branch,true))return;
+        if(token!==flowToken)return;
+        S.es.push({v,i:leg.branch});
         $('sourceBuild').innerHTML=termsHtml(S.es,'E');
         renderBoardEquations('E');pulseEquationArrow(leg.branch,true);
         msg('loopFeedback',`Fuente ${formatNumber(Math.abs(E[leg.branch]))} V: recorrido ${v>0?'a favor (+)':'en contra (−)'} de esa polaridad.`);
         await waitForPlayer();if(token!==flowToken)return;
       }else if(S.pass==='resistors'&&p.component==='resistor'){
         const v=R[leg.branch]*S.signs[leg.branch]*leg.d;
-        S.rs.push({v,i:leg.branch});renderComponentFX(p,v);
+        renderComponentFX(p,v);
         setHeroMood(v<0);
+        if(!await challengeTerm('termChallenge',v,leg.branch,false))return;
+        if(token!==flowToken)return;
+        S.rs.push({v,i:leg.branch});
         $('resBuild').innerHTML=termsHtml(S.rs,'R');
         renderBoardEquations('R');pulseEquationArrow(leg.branch,false);
         msg('loopFeedback',`Resistencia R${leg.branch+1}: el recorrido ${v>=0?'coincide con':'se opone a'} la corriente supuesta. Signo ${v>=0?'+':'−'} en R·I.`);
@@ -1142,10 +1269,13 @@
     $('solutionSteps').innerHTML=algebraStepsHTML(steps,n)||'<div class="notes">Pulsa «Siguiente paso» para sustituir directamente la ecuación del nudo en las dos mallas.</div>';
     $('nextStep').disabled=S.step>=steps.length;
     $('nextStep').textContent=S.step>=steps.length?'Resolución completa ✓':'Siguiente paso →';
-    show('resultPanel',S.step>=steps.length);
-    // Valor al lado de cada flecha, desde el mismo paso en que aparecen resultados.
-    drawDirs(S.step>=steps.length);
-    if(S.step>=steps.length){
+    const solved=S.step>=steps.length&&(difficulty()===0||S.finalVerified);
+    if(S.step>=steps.length&&difficulty()!==0&&!S.finalVerified){
+      finalChallenge('finalChallenge',jValues.map((v,i)=>v*S.signs[i]),names,()=>{S.finalVerified=true;renderSteps()});
+    }else show('finalChallenge',false);
+    show('resultPanel',solved);
+    drawDirs(solved);
+    if(solved){
       const {A,b}=system(),ii=jValues.map((x,i)=>x*S.signs[i]);
       const ok=A.every((row,r)=>Math.abs(row.reduce((acc,v,k)=>acc+v*ii[k],0)-b[r])<1e-9);
       $('results').innerHTML=ii.map((v,i)=>`<div><small>${names[i]}</small><strong>${escapeHtml(fmt(v))} A</strong></div>`).join('');
@@ -1160,14 +1290,14 @@
     }
   }
   $('nextStep').onclick=()=>{const steps=buildSteps();if(S.step<steps.length){S.step++;renderSteps()}};
-  $('restartSteps').onclick=()=>{S.step=0;renderSteps()};
+  $('restartSteps').onclick=()=>{S.step=0;S.finalVerified=false;$('finalChallenge').replaceChildren();renderSteps()};
   function newGame(){
      endHeroPress();
     flowToken++;stopFlow();if(S.pausedResume){S.pausedResume();S.pausedResume=null}
-    S.phase=0;S.signs=[1,-1,-1];S.score=0;S.nodeDone=false;
+    clearChallenge();S.phase=0;S.signs=[1,-1,-1];S.score=0;S.nodeDone=false;
     S.loops=[null,null];S.scoredLoops=[false,false];S.loopBonusAwarded=false;S.loop=0;S.cw=true;
     S.pass='resistors';S.route=null;S.legIndex=0;S.es=[];S.rs=[];S.animating=false;
-    S.finished=false;S.step=0;S.matrixScored=false;S.reductionDone=!hasReduction();
+    S.finished=false;S.step=0;S.finalVerified=false;$('finalChallenge').replaceChildren();S.matrixScored=false;S.reductionDone=!hasReduction();
     show('advancedPhase',false);show('advBoardEquations',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);
     if(active.kind==='network'){clearFX();startNetwork();return}
     if(active.kind==='multi'){sixStart();return}
@@ -1245,7 +1375,7 @@
   }
   function sixCancel(){
     clearEquationArrowPulse();
-    A6.runId++;A6.running=false;
+    clearChallenge();A6.runId++;A6.running=false;
     if(A6.waiting){const r=A6.waiting;A6.waiting=null;r();}
     if(A6.animReq!==null){cancelAnimationFrame(A6.animReq);A6.animReq=null;}
     if(A6.flowReq!==null){cancelAnimationFrame(A6.flowReq);A6.flowReq=null;}
@@ -1287,7 +1417,7 @@
     return h;
   }
   function sixRefArrow(){
-    const showAnswers=A6.stage==='solve'&&A6.step===A6.steps.length&&Array.isArray(A6.finalCurrents);
+    const showAnswers=A6.stage==='solve'&&A6.step===A6.steps.length&&(difficulty()===0||A6.finalVerified)&&Array.isArray(A6.finalCurrents);
     // Anclajes sobre tramos de conductor libres de elementos: cada flecha es corta,
     // está desplazada hacia arriba (horizontal) o lateralmente (vertical).
     const anchor=[
@@ -1349,7 +1479,7 @@
   function sixStart(){
     sixCancel();
     S.phase=6;S.score=0;
-    A6.stage='dirs';A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
+    A6.stage='dirs';A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
     $('stagebar').classList.add('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
     $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
     $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();
@@ -1380,6 +1510,21 @@
   }
   function sixNodeStart(){
     if(A6.stage!=='dirs')return;
+    if(difficulty()!==0){
+      show('advStart',false);
+      let current=0;
+      const order=['A','C','B'];
+      const ask=()=>{
+        if(current===3){show('sixNodeChallenge',false);sixNodeStartVerified();return}
+        const row=KCL6[current].map((v,i)=>v*A6.signs[i]);
+        kclChoices('sixNodeChallenge',row,NAMES6,()=>{current++;ask()});
+        $('sixNodeChallenge').querySelector('h3').textContent='Nivel 2 · Nudo '+order[current]+' ('+(current+1)+'/3)';
+      };
+      ask();return;
+    }
+    sixNodeStartVerified();
+  }
+  function sixNodeStartVerified(){
     A6.stage='loops';show('advStart',false);show('advKCL',true);show('advLoops',true);show('circuitControls',true);show('standardCircuitControls',false);show('advancedCircuitControls',true);
     $('advKCLtext').innerHTML=sixKCLRows();
     sixText('advInfo','4 nudos ⇒ n−1 = 3 ecuaciones independientes; 6 ramas ⇒ 6 incógnitas; 3 mallas ⇒ 3 ecuaciones más.');
@@ -1504,6 +1649,8 @@
         if(isRelevant){
           const val=sixSignFX(id,p,d);const el=$('sixCmp'+id+(pass==='R'?'R':'U'));
           if(el)el.classList.add('component-lit');
+          if(!await challengeTerm('sixTermChallenge',val,id,pass==='U',true))return;
+          if(token!==A6.runId)return;
           (pass==='R'?A6.rowsR[k]:A6.rowsU[k]).push({i:id,v:val});
           $('advLoopMsg').textContent=(pass==='R'?'Resistencia R':'Fuente E')+(id+1)+': '+(val<0?'signo negativo':'signo positivo')+'. Pulsa «Continuar».';
           await new Promise(resolve=>{A6.waiting=resolve;sixRenderRows();pulseEquationArrow(id,pass==='U');setHeroGait(false);setHeroMood(val<0);$('advNext').disabled=false;$('advNext').textContent='Continuar recorrido →'});
@@ -1536,7 +1683,7 @@
   function sixNext(){if(A6.waiting){let f=A6.waiting;A6.waiting=null;f();return}if(A6.running)return;sixPlay()}
   function sixMatrix(){
     if(A6.stage!=='loops'||!A6.done.every(Boolean))return;
-    A6.stage='matrix';sixCancel();sixMeshArrows();show('advLoops',false);show('advMatrix',true);show('advToMatrix',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);show('advBoardEquations',false);show('advKCL',false);
+    A6.stage='matrix';sixCancel();sixMeshArrows();show('advLoops',false);show('advMatrix',true);show('advFill',difficulty()===0);show('advToMatrix',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);show('advBoardEquations',false);show('advKCL',false);
     const {A,b}=sixSystem();
     $('advMatEqs').innerHTML=A.map((row,i)=>'<div class="eq" style="font-size:13px">'+(i<3?'Nudo '+['A','C','B'][i]:'Malla '+(i-2))+': '+sixEq(row,b[i])+'</div>').join('');
     $('advMatInputs').innerHTML='<div class="adv-mat-head">'+[...NAMES6,'b'].map(x=>'<span>'+x+'</span>').join('')+'</div>'+A.map((row,i)=>'<div class="adv-mat-row">'+[...row,b[i]].map((v,j)=>`<input data-ar="${i}" data-ac="${j}" aria-label="Fila ${i+1} columna ${j+1}" placeholder="?" inputmode="decimal"/>`).join('')+'</div>').join('');
@@ -1622,21 +1769,24 @@
     A6.steps.push({title:'Comprobación del circuito',
       detail:good?'Las seis intensidades satisfacen las tres ecuaciones de nudo y las tres de malla. Nivel superado.':'Los resultados no satisfacen las ecuaciones.',
       vars:NAMES6,rows:A.map((row,i)=>({label:i<3?'Nudo '+['A','C','B'][i]:'Malla '+(i-2),row,b:origB[i]}))});
-    A6.finalCurrents=ii;A6.finalGood=good;A6.step=0;A6.completedScore=false;sixRenderSolve();$('percent').textContent='85%';
+    A6.finalCurrents=ii;A6.finalGood=good;A6.step=0;A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.completedScore=false;sixRenderSolve();$('percent').textContent='85%';
   }
   function sixRenderSolve(){
     $('advSolveSteps').innerHTML=algebraStepsHTML(A6.steps,A6.step);
     const done=A6.step===A6.steps.length;
-    show('advResultPanel',done);
-    // Repintar las seis referencias con sus amperios al completar el cálculo.
+    const solved=done&&(difficulty()===0||A6.finalVerified);
+    if(done&&difficulty()!==0&&!A6.finalVerified){
+      finalChallenge('sixFinalChallenge',A6.finalCurrents,NAMES6,()=>{A6.finalVerified=true;sixRenderSolve()});
+    }else show('sixFinalChallenge',false);
+    show('advResultPanel',solved);
     sixRefArrow();
-    if(done){
+    if(solved){
       $('advResults').innerHTML=A6.finalCurrents.map((x,i)=>'<div><small>'+NAMES6[i]+'</small><strong>'+escapeHtml(fmt6(x))+' A</strong></div>').join('');
       $('advResultCheck').className='message '+(A6.finalGood?'good':'bad');
       $('advResultCheck').textContent=A6.finalGood?'Verificación: A · I = b en las seis ecuaciones. Nivel superado.':'Los resultados no satisfacen todas las ecuaciones.';
     }
     $('advSolveNext').disabled=done;$('advSolveNext').textContent=done?'Ejercicio completado ✓':'Siguiente paso →';
-    if(done){$('percent').textContent='100%';if(!A6.completedScore){A6.completedScore=true;S.score+=250;$('score').textContent=String(S.score).padStart(4,'0')}}
+    if(solved){$('percent').textContent='100%';if(!A6.completedScore){A6.completedScore=true;S.score+=250;$('score').textContent=String(S.score).padStart(4,'0')}}
   }
   $('advStart').onclick=sixNodeStart;
   document.querySelectorAll('[data-sixloop]').forEach(e=>e.onclick=()=>sixSelectLoop(Number(e.dataset.sixloop)));
@@ -1659,4 +1809,5 @@
 })();
 </script>
 </body>
+</html>
 </html>
