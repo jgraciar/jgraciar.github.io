@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>Kirchhoff Arcade · MVP 2.9</title>
+<title>Kirchhoff Arcade · MVP 3.0</title>
 <style>
   :root { --bg:#09101d; --card:#111c30; --card2:#0c182b; --border:#2c415b; --txt:#f0f6ff; --muted:#a7bbd0; --cyan:#5ce6f0; --lime:#b7f75c; --amber:#ffc66b; --red:#ff7786; --purple:#ac98ff; }
   *{box-sizing:border-box}
@@ -195,7 +195,7 @@
 <body>
 <div class="shell">
   <header class="top">
-    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 2.9 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
+    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 3.0 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
     <div class="score"><div class="stat"><small>Puntos</small><strong id="score">0000</strong></div><div class="stat"><small>Progreso</small><strong id="percent">0%</strong></div></div>
   </header>
   <nav class="stages" id="stagebar" aria-label="Fases">
@@ -654,6 +654,8 @@
     document.querySelectorAll('.flash-arrow').forEach(el=>el.classList.remove('flash-arrow'));
   }
   function pulseEquationArrow(branch,source=false){
+    // La flecha y el valor del componente inician juntos el mismo ciclo
+    // de .9 s que el nuevo término de la ecuación (flash-term).
     clearEquationArrowPulse();
     if(source){
       const path=$('sourceArrowFX').querySelector('.fx-arrow');
@@ -662,6 +664,11 @@
       const id=(active.kind==='multi'?'sixCurrentArrow':'currentArrow')+branch;
       const arrow=$(id);if(arrow)arrow.classList.add('flash-arrow');
     }
+    const componentId=active.kind==='multi'
+      ?'sixCmp'+branch+(source?'U':'R')
+      :(source?'sourceElement':'resistorElement')+branch;
+    const value=$(componentId)?.querySelector('.component-value');
+    if(value)value.classList.add('flash-arrow');
   }
   function clearElementHighlight(){
     document.querySelectorAll('.component-lit').forEach(el=>el.classList.remove('component-lit'));
