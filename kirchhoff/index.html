@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>Kirchhoff Arcade · MVP 2.5</title>
+<title>Kirchhoff Arcade · MVP 2.6</title>
 <style>
   :root { --bg:#09101d; --card:#111c30; --card2:#0c182b; --border:#2c415b; --txt:#f0f6ff; --muted:#a7bbd0; --cyan:#5ce6f0; --lime:#b7f75c; --amber:#ffc66b; --red:#ff7786; --purple:#ac98ff; }
   *{box-sizing:border-box}
@@ -56,10 +56,9 @@
   .hero-mouth{stroke:#122236;stroke-width:2;fill:none;stroke-linecap:round}
   .lap-chip{color:var(--amber);font-weight:700;margin:6px 0 0}
   .eq-equals{display:flex;align-items:center;justify-content:center;font:900 30px ui-monospace,monospace;color:var(--cyan)}
-  #hero{filter:drop-shadow(0 0 9px #b7f755);cursor:pointer;pointer-events:all}
+  #hero{filter:drop-shadow(0 0 9px #b7f755);cursor:pointer;pointer-events:all;touch-action:none;user-select:none}
   #hero.hero-user-hidden{visibility:hidden;pointer-events:none}
   #heroHit{fill:transparent;pointer-events:all;cursor:pointer}
-  #toggleHero{font-size:12px;min-width:142px}
   .boardfoot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 15px;background:#0d1b2e;border-top:1px solid var(--border);color:var(--muted);font-size:12px}
   .boardfoot b{color:var(--cyan);font-weight:600}
   .body{padding:18px}
@@ -189,7 +188,7 @@
 <body>
 <div class="shell">
   <header class="top">
-    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 2.5 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
+    <div><div class="logo">KIRCHHOFF<span>//ARCADE</span></div><div class="sub">MVP 2.6 · TEMA 7 · IEC · LEYES DE KIRCHHOFF</div></div>
     <div class="score"><div class="stat"><small>Puntos</small><strong id="score">0000</strong></div><div class="stat"><small>Progreso</small><strong id="percent">0%</strong></div></div>
   </header>
   <nav class="stages" id="stagebar" aria-label="Fases">
@@ -271,7 +270,7 @@
           <div class="control-actions"><button class="primary" id="advNext">Iniciar recorrido desde C →</button><button class="success hide" id="advToMatrix">Construir matriz 6 × 6 →</button></div>
         </div>
       </div>
-      <div class="boardfoot"><span id="boardState">Selecciona las flechas: cualquier referencia es válida.</span><button type="button" class="small ghost" id="toggleHero" aria-pressed="false" title="Ocultar el personaje para ver el circuito que queda detrás">Ocultar personaje</button><span id="boardSummary">Fuentes: 18 V, 6 V · R: 2 Ω</span></div>
+      <div class="boardfoot"><span id="boardState">Selecciona las flechas: cualquier referencia es válida.</span><span id="boardSummary">Fuentes: 18 V, 6 V · R: 2 Ω</span></div>
     </section>
     <section class="card" aria-live="polite" id="phaseCard">
       <div class="cardhead"><strong id="phaseHead">Fase 1 · Sentidos de referencia</strong><span class="chip" id="phaseChip">ELIGE</span></div>
@@ -374,20 +373,31 @@
 <script>
 (()=>{'use strict';
   const $=(id)=>document.getElementById(id);
-  let heroUserHidden=false;
+  // El personaje solo se oculta mientras dura la pulsación.
+  // La liberación se escucha en document para restaurarlo incluso si el dedo
+  // o el puntero termina fuera del personaje, que entretanto es invisible.
+  let heroPressPointer=null;
   function setHeroUserHidden(hidden){
-     heroUserHidden=hidden;
     $('hero').classList.toggle('hero-user-hidden',hidden);
-     $('toggleHero').textContent=hidden?'Mostrar personaje':'Ocultar personaje';
-     $('toggleHero').setAttribute('aria-pressed',String(hidden));
-     $('toggleHero').title=hidden?'Volver a mostrar el personaje':'Ocultar el personaje para ver los elementos que hay debajo';
-   }
-  $('hero').addEventListener('click',e=>{
-     e.stopPropagation();
-     setHeroUserHidden(true);
-     $('toggleHero').focus({preventScroll:true});
-   });
-  $('toggleHero').addEventListener('click',()=>setHeroUserHidden(!heroUserHidden));
+  }
+  function endHeroPress(e){
+    if(heroPressPointer===null)return;
+    if(e&&e.pointerId!==undefined&&e.pointerId!==heroPressPointer)return;
+    heroPressPointer=null;
+    setHeroUserHidden(false);
+  }
+  $('hero').addEventListener('pointerdown',e=>{
+    if(heroPressPointer!==null||!e.isPrimary)return;
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    heroPressPointer=e.pointerId;
+    setHeroUserHidden(true);
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  document.addEventListener('pointerup',endHeroPress);
+  document.addEventListener('pointercancel',endHeroPress);
+  window.addEventListener('blur',()=>endHeroPress());
+  $('hero').addEventListener('contextmenu',e=>e.preventDefault());
   const S={phase:0,signs:[1,-1,-1],score:0,nodeDone:false,loops:[null,null],scoredLoops:[false,false],loopBonusAwarded:false,loop:0,cw:true,pass:"resistors",route:null,waypoint:-1,legIndex:0,flowBranch:null,flowReq:null,es:[],rs:[],animating:false,finished:false,step:0};
   const X=[146,345,544],TOP=74,BOT=360,SY=136,RY=235;
   const names=['I₁','I₂','I₃'];
@@ -523,7 +533,7 @@
     $('phaseChip').textContent='REDUCCIÓN';
     $('score').textContent='0000';$('percent').textContent='0%';
     $('staticCircuit').innerHTML=networkSVG(active);
-    $('hero').classList.add('hide');show('toggleHero',false);$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
+    $('hero').classList.add('hide');$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
     clearElementHighlight();show('boardEquations',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);
     $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';
     $('dirHit0').style.pointerEvents='none';$('dirHit1').style.pointerEvents='none';$('dirHit2').style.pointerEvents='none';
@@ -1068,7 +1078,7 @@
   $('nextStep').onclick=()=>{const steps=buildSteps();if(S.step<steps.length){S.step++;renderSteps()}};
   $('restartSteps').onclick=()=>{S.step=0;renderSteps()};
   function newGame(){
-     setHeroUserHidden(false);show('toggleHero',true);
+     endHeroPress();
     flowToken++;stopFlow();if(S.pausedResume){S.pausedResume();S.pausedResume=null}
     S.phase=0;S.signs=[1,-1,-1];S.score=0;S.nodeDone=false;
     S.loops=[null,null];S.scoredLoops=[false,false];S.loopBonusAwarded=false;S.loop=0;S.cw=true;
@@ -1240,7 +1250,7 @@
     S.phase=6;S.score=0;
     A6.stage='dirs';A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
     $('stagebar').classList.add('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
-    $('hero').classList.remove('hide');show('toggleHero',true);$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
+    $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
     $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();
     for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents='none';$('nodeHit').style.pointerEvents='none';
     $('boardTitle').textContent=active.label;$('boardBadge').textContent='IEC · 4 nudos · 6 ramas · 3 mallas';
