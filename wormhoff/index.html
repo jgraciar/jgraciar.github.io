@@ -2367,12 +2367,19 @@
       pending=false;
       for(const [col,roots] of [['circuit',[$('circuitCard')]],['equations',[$('equationsCard'),$('phaseCard')]]]){
         const scale=columnTextScales[col];
-        for(const root of roots)for(const el of root.querySelectorAll('*')){
-          if(el.closest('.column-text-controls')||el.matches('.dirlabel,.dir-result')||el.closest('[data-mesh-turn]'))continue;
-          if(!el.matches('input,select,textarea')&&![...el.childNodes].some(node=>node.nodeType===Node.TEXT_NODE&&node.textContent.trim()))continue;
-          let saved=memory.get(el);
-          if(!saved){saved={base:parseFloat(getComputedStyle(el).fontSize),inline:el.style.fontSize};memory.set(el,saved);}
-          if(!Number.isFinite(saved.base))continue;
+        const targets=roots.flatMap(root=>[...root.querySelectorAll('*')]).filter(el=>{
+          if(el.closest('.column-text-controls')||el.matches('.dirlabel,.dir-result')||el.closest('[data-mesh-turn]'))return false;
+          return el.matches('input,select,textarea')||[...el.childNodes].some(node=>node.nodeType===Node.TEXT_NODE&&node.textContent.trim());
+        });
+        for(const el of targets){
+          if(memory.has(el))continue;
+          let base=parseFloat(getComputedStyle(el).fontSize),parent=el.parentElement;
+          while(parent&&!memory.has(parent))parent=parent.parentElement;
+          if(parent&&el.parentElement&&Math.abs(base-parseFloat(getComputedStyle(parent).fontSize))<.05)base/=scale;
+          memory.set(el,{base});
+        }
+        for(const el of targets){
+          const saved=memory.get(el);if(!Number.isFinite(saved.base))continue;
           const next=(saved.base*scale).toFixed(3)+'px';if(el.style.fontSize!==next)el.style.fontSize=next;
         }
       }
@@ -2384,7 +2391,10 @@
       layoutCurrentAnnotations();
     }
     const schedule=()=>{if(!pending){pending=true;queueMicrotask(apply);}};
-    const observer=new MutationObserver(schedule);for(const root of [$('circuitCard'),$('equationsCard'),$('phaseCard')])observer.observe(root,{subtree:true,childList:true});
+    const observer=new MutationObserver(records=>{
+      if(records.every(r=>r.target.closest?.('.column-text-controls')||r.target.closest?.('[data-current-index]')&&[...r.addedNodes,...r.removedNodes].every(node=>node.classList?.contains('current-label-hit'))))return;
+      schedule();
+    });for(const root of [$('circuitCard'),$('equationsCard'),$('phaseCard')])observer.observe(root,{subtree:true,childList:true});
     document.querySelectorAll('[data-text-change]').forEach(button=>button.onclick=()=>{
       const col=button.closest('[data-text-controls]').dataset.textControls;
       columnTextScales[col]=Math.max(.8,Math.min(1.5,Math.round((columnTextScales[col]+Number(button.dataset.textChange)*.1)*10)/10));

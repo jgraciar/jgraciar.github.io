@@ -29,6 +29,16 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const context=await browser.newContext({viewport:mobile?{width:430,height:932}:{width:1440,height:1100},hasTouch:mobile,isMobile:mobile,reducedMotion});
  const page=await context.newPage(),errors=[];page.on('console',m=>{if(m.type()==='warning')console.log(m.text())});page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR:',e.stack)});
  await page.goto('http://127.0.0.1:8767/wormhoff/');
+ const textControls=page.locator('#circuitCard [data-text-controls="circuit"]'),equationControls=page.locator('#equationsCard [data-text-controls="equations"]');
+ const sourceText=page.locator('#circuit .component-value').first(),equationText=page.locator('#equationsCard .law-formula').first();
+ const originalSizes=await Promise.all([sourceText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)),equationText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize))]);
+ await textControls.locator('[data-text-change="1"]').click();
+ assert((await sourceText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)))>originalSizes[0]+1,'Amplía texto de la columna izquierda');
+ assert.equal(await equationText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)),originalSizes[1],'Escalas independientes');
+ await textControls.locator('[data-text-change="-1"]').click();
+ await equationControls.locator('[data-text-change="1"]').click();
+ assert((await equationText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)))>originalSizes[1]+1,'Amplía texto de la columna derecha');
+ await equationControls.locator('[data-text-change="-1"]').click();
  const circuitCard=await page.locator('#circuitCard').boundingBox(),equationsCard=await page.locator('#equationsCard').boundingBox();
  if(mobile)assert(equationsCard.y>=circuitCard.y+circuitCard.height-1,'Ecuaciones debajo en móvil');
  else assert(equationsCard.x>=circuitCard.x+circuitCard.width-1,'Ecuaciones a la derecha en escritorio');
@@ -135,7 +145,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  };
  await page.selectOption('#exerciseSelect','c75');
  assert.equal(await page.locator('#confirmDirs').isDisabled(),true);
- await tap(146,310);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumberError').textContent());
+ await tap(146,310);assert(await page.locator('[data-current-branch="0"]').evaluate(el=>getComputedStyle(el).outlineStyle==='none'));assert((await page.locator('#branchSelection').getAttribute('d')).length>0);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumberError').textContent());
  await tap(345,310);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
  assert.match(await page.locator('#currentNumberError').textContent(),/ya está asignado/);assert(await page.locator('#currentNameDialog').isVisible());
  await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumberError').textContent());
