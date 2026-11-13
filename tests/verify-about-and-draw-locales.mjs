@@ -132,6 +132,28 @@ for(const code of labLanguageCodes){
     "Créditos o licencia todavía en inglés: "+code);
   }
  }
+ // Auditoría completa de los bloques visibles de «Acerca de» en cada idioma.
+ const visible=(index)=>index<=3||index===5||index===8||index===9||index===10
+   ?labels[index].childNodes[0].nodeValue:labels[index].textContent;
+ for(const index of [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]){
+   if(index===14&&code==="en")continue;
+   const value=visible(index);
+   assert(typeof value==="string"&&value.trim().length>0,
+     "Acerca de: bloque vacío "+index+" idioma "+code);
+ }
+ if(code!=="en"){
+   const all=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(visible).join(" ");
+   for(const phrase of ["Original by Paul Falstad","JavaScript conversion by Iain Sharp",
+     "Thanks to:","This program uses free icons","For details of licensing",
+     "Source code (Paul)","Source code (Iain)","IN NO EVENT SHALL",
+     "THE SOFTWARE IS PROVIDED","All rights reserved"]){
+     assert(!all.includes(phrase),"Acerca de conserva inglés: "+code+" / "+phrase);
+   }
+   assert(labels[14].textContent.includes("canvas2svg: "),
+     "Atribución canvas2svg ausente: "+code);
+   assert(!labels[14].textContent.includes("canvas2svg: Copyright"),
+     "Atribución canvas2svg no traducida: "+code);
+ }
  if(code==="en"){
   assert.equal(labels[0].childNodes[0].nodeValue,"Original CircuitJS1, version ");
  }else{
