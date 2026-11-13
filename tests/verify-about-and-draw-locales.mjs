@@ -97,7 +97,7 @@ for(const code of labLanguageCodes){
  const labels=Array.from({length:16},(_,index)=>{
   const firstChild={nodeType:3,nodeValue:index===0?"Circuit Simulator version ":
    index===4?"Thanks to: Edward Calver for 15 new components": "Original by "};
-  return {firstChild,childNodes:[firstChild],textContent:"",
+  return {firstChild,childNodes:[firstChild],textContent:index===14?"canvas2svg: Copyright (c) 2014 Gliffy Inc.":index===4?"Thanks to: Edward Calver for 15 new components; Colin Howell for code improvements.":index===5?"This program uses free icons.":index===6?"This program is free software":index===7?"WITHOUT ANY WARRANTY":index===11?"Copyright (c) 1985-1991 The Regents of the University of California. All rights reserved.":index===12?"IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA":index===13?"THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES":index===15?"THE SOFTWARE IS PROVIDED AS IS":"Original by Paul Falstad.",
    querySelector:()=>({textContent:"list of authors and licenses"})};
  });
  const dom={
