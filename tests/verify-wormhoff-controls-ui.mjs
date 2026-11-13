@@ -82,9 +82,9 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  };
  assert.equal(await page.locator('#stagebar .phase-reset svg').count(),5);
  assert.equal(await page.locator('[data-phase="1"]').isDisabled(),true);
- await page.evaluate(()=>window.scrollTo(0,document.body.scrollHeight));
+ await page.evaluate(()=>{const spacer=document.createElement('div');spacer.id='scrollProbe';spacer.style.height='1500px';document.body.append(spacer);window.scrollTo(0,500);});
  assert(Math.abs((await page.locator('#stagebar').boundingBox()).y)<2,'Fases fijas al desplazarse');
- await page.evaluate(()=>window.scrollTo(0,0));
+ await page.evaluate(()=>{document.getElementById('scrollProbe').remove();window.scrollTo(0,0);});
  const tap=async(x,y)=>{
   await page.locator('#circuit').scrollIntoViewIfNeeded();
   const p=await page.locator('#circuit').evaluate((svg,[x,y])=>{const p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());return {x:p.x,y:p.y}},[x,y]);
