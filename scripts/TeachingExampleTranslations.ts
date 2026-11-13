@@ -54,6 +54,9 @@ export function teachingExampleTranslation(language:string,label:string):string|
  const connectors:Record<string,string>={de:"§DE§",del:"§DEL§",y:"§Y§",a:"§A§",sin:"§SIN§",bits:"§BITS§"};
  body=body.replace(/\b(de|del|y|a|sin|bits)\b/gi,x=>connectors[x.toLowerCase()]||x);
  const translations=entries[code];
+ // Traducir también el plural «Mapas» y mantener «Karnaugh» como apellido.
+ body=body.replace(/Mapas de Karnaugh/gi,translations[10]+(code==="en"?"s":""));
+ body=body.replace(/Mapa de Karnaugh/gi,translations[10]);
  for(const [i,term] of [...terms.entries()].sort((a,b)=>b[1].length-a[1].length)){
    const re=new RegExp("(?<![\\p{L}])"+escape(term)+"(?![\\p{L}])","giu");
    body=body.replace(re,translations[i]);
