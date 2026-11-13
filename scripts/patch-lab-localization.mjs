@@ -7,6 +7,7 @@ const [dir,translations]=process.argv.slice(2);
 if(!dir||!translations)throw Error("Uso: patch-lab-localization.mjs ts-dir LabTranslations.ts");
 copyFileSync(translations,join(dir,"LabTranslations.ts"));
 copyFileSync(join(dirname(translations),"CircuitJGRArabic.ts"),join(dir,"CircuitJGRArabic.ts"));
+copyFileSync(join(dirname(translations),"TeachingExampleTranslations.ts"),join(dir,"TeachingExampleTranslations.ts"));
 copyFileSync(join(dirname(translations),"LabTranslationsMenus.ts"),join(dir,"LabTranslationsMenus.ts"));
 copyFileSync(join(dirname(translations),"LabTranslationsNativeMenus.ts"),join(dir,"LabTranslationsNativeMenus.ts"));
 copyFileSync(join(dirname(translations),"CircuitJsDrawLabels.ts"),join(dir,"CircuitJsDrawLabels.ts"));
