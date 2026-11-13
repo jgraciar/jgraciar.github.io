@@ -65,9 +65,14 @@ try{
   const original=await info(page,'jgr-2');
   const geometry=await (await bar(page)).evaluate(el=>{
    const d=el.querySelector('#duplicate-tab'),s=el.querySelector('#jgr-sidebar-toggle');
-   return {next:d.nextElementSibling?.id==='arrange-tabs'&&d.nextElementSibling.nextElementSibling===s,duplicate:d.getBoundingClientRect().right,side:s.getBoundingClientRect().left,width:innerWidth,title:d.title};
+   const bounds=el.getBoundingClientRect();
+   return {next:d.nextElementSibling?.id==='arrange-tabs'&&d.nextElementSibling.nextElementSibling===s,
+    duplicate:d.getBoundingClientRect().right,side:s.getBoundingClientRect().left,
+    left:bounds.left,right:bounds.right,width:innerWidth,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,title:d.title};
   });
-  assert(geometry.next&&geometry.duplicate<=geometry.side&&geometry.side<geometry.width);
+  assert(geometry.next&&geometry.duplicate<=geometry.side,'Tab controls must retain their order');
+  assert(geometry.left>=-1&&geometry.right<=geometry.width+1,'Toolbar action group must remain within the viewport');
+  assert(geometry.scrollWidth>=geometry.clientWidth,'Narrow toolbars must support horizontal scrolling');
   assert.equal(geometry.title,'Duplicar pestaña activa');
   await press('#duplicate-tab');await ready(page,3);
   assert.equal(await active(page),'jgr-3');
