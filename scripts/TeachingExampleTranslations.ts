@@ -52,7 +52,7 @@ export function teachingExampleTranslation(language:string,label:string):string|
  body=body.replace(/\b(de|del|y|a|sin|bits)\b/gi,x=>connectors[x.toLowerCase()]||x);
  const translations=entries[code];
  for(const [i,term] of [...terms.entries()].sort((a,b)=>b[1].length-a[1].length)){
-   const re=new RegExp("(?<![\p{L}])"+escape(term)+"(?![\p{L}])","giu");
+   const re=new RegExp("(?<![\\p{L}])"+escape(term)+"(?![\\p{L}])","giu");
    body=body.replace(re,translations[i]);
  }
  body=body.replace(/§(DE|DEL|Y|A|SIN|BITS)§/g,(_,key)=>({DE:j[0],DEL:j[0],Y:j[1],A:j[2],SIN:j[3],BITS:j[4]} as Record<string,string>)[key]);
