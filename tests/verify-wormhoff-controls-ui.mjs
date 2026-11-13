@@ -70,6 +70,21 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.deepEqual(values,['I₂ = 4 A','I₂ = 1,5 A']);
  assert.equal(await page.locator('#algebraProbe .algebra-isolated-value:visible').first().evaluate(el=>getComputedStyle(el).color),'rgb(183, 247, 92)');
  await page.locator('#algebraProbe').evaluate(el=>el.remove());
+ const assertNoCurrentOverlap=async()=>{
+  const problems=await page.locator('#circuit').evaluate(svg=>{
+   const visible=el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden';
+   const rect=el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};};
+   const overlap=(a,b)=>a.x<b.x+b.w-.5&&a.x+a.w>b.x+.5&&a.y<b.y+b.h-.5&&a.y+a.h>b.y+.5;
+   const fixed=[...svg.querySelectorAll('#staticCircuit .symbol,#staticCircuit .source-halo,#staticCircuit .component-value,#staticCircuit .resistor-name,#staticCircuit .txt,#staticCircuit .txtsm,#staticCircuit .nod')].filter(visible).map(rect);
+   const current=[...svg.querySelectorAll('#dirGraphics .dirlabel,#dirGraphics .dir-result,#dirGraphics .direction,#sixRefArrows .dirlabel,#sixRefArrows .dir-result,#sixRefArrows .direction')].filter(visible);
+   return current.flatMap((el,i)=>{const r=rect(el);return fixed.some(b=>overlap(r,b))||current.slice(0,i).some(other=>overlap(r,rect(other)))?[el.parentElement.id+': '+el.textContent]:[];});
+  });assert.deepEqual(problems,[],'Flechas y textos sin solaparse con componentes ni otras corrientes');
+ };
+ assert.equal(await page.locator('#stagebar .phase-reset svg').count(),5);
+ assert.equal(await page.locator('[data-phase="1"]').isDisabled(),true);
+ await page.evaluate(()=>window.scrollTo(0,document.body.scrollHeight));
+ assert(Math.abs((await page.locator('#stagebar').boundingBox()).y)<2,'Fases fijas al desplazarse');
+ await page.evaluate(()=>window.scrollTo(0,0));
  const tap=async(x,y)=>{
   await page.locator('#circuit').scrollIntoViewIfNeeded();
   const p=await page.locator('#circuit').evaluate((svg,[x,y])=>{const p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());return {x:p.x,y:p.y}},[x,y]);
@@ -112,7 +127,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
  await tap(544,235);await page.locator('#currentNumber').fill('3');await page.click('#currentNameForm button[type="submit"]');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
  assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₇');assert.equal(await page.locator('#currentArrow1 .dirlabel').textContent(),'I₁₂');
- await page.selectOption('#symbolStandard','ansi');assert.equal(await page.locator('#circuit .resistor-ansi .symbol:visible').count(),3);assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),0);
+ await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();assert.equal(await page.locator('#circuit .resistor-ansi .symbol:visible').count(),3);assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),0);
  for(const resistor of await page.locator('#circuit .component-resistor').all()){
   assert(await resistor.evaluate(el=>{
    const symbol=el.querySelector('.resistor-ansi .symbol'),value=el.querySelector('.resistor-value'),label=el.querySelector('.resistor-ansi .resistor-name');
@@ -120,7 +135,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    return Math.abs(center.y-anchor.y)<1&&Number(label.getAttribute('x'))<Number(value.getAttribute('x'));
   }),'Valor centrado en altura y nombre a la izquierda');
  }
- await page.selectOption('#symbolStandard','iec');assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),3);
+ await page.selectOption('#symbolStandard','iec');await assertNoCurrentOverlap();assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),3);
  await page.click('#confirmDirs');await page.locator('#nodeChallenge .kcl-answer').fill('I7=I12+I3');await page.click('#nodeChallenge .kcl-check');
  assert.match(await page.locator('#nodeEq').textContent(),/I₇.*I₁₂.*I₃/);
  assert(!/\bKCL\b|\bKVL\b/.test(await page.locator('body').innerText()));
@@ -162,7 +177,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  for(const [i,x,y] of [[0,174,74],[1,350,111],[2,395,74],[3,159,225],[4,379,225],[5,199,355]]){
   const sel='#sixCurrentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente avanzada '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
- await page.selectOption('#symbolStandard','ansi');
+ await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();
  for(const resistor of await page.locator('#circuit .component-resistor').all()){
   assert(await resistor.evaluate(el=>{
    const symbol=el.querySelector('.resistor-ansi .symbol'),value=el.querySelector('.resistor-value');
@@ -186,6 +201,61 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.locator('#sixTermChallenge .term-answer').fill('5I5');await page.click('#sixTermChallenge .term-check');
  await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').waitFor({state:'visible'});
  assert.match(await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').textContent(),/E5:/);
+ await page.click('[data-reset-phase="2"]');
+ assert.equal(await page.locator('#advNext').getAttribute('data-state'),'ready');
+ assert.equal(await page.locator('#advBoardRows [data-equation]').count(),0,'Reiniciar mallas borra los términos');
+ assert.equal(await page.locator('#advKCLtext [data-equation]').count(),3,'Conserva los nudos anteriores');
+ await page.click('[data-phase="1"]');
+ assert(await page.locator('#sixNodeChallenge .kcl-answer').isVisible(),'Volver a nudos');
+ assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);
+ await page.click('[data-reset-phase="1"]');
+ assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0);
+ await page.click('[data-phase="0"]');
+ assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),6,'Volver conserva la numeración');
+ await page.click('[data-reset-phase="0"]');
+ assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),0,'Reiniciar corrientes limpia los números');
+ await assignNumbers([123456789012345,234567890123456,345678901234567,456789012345678,567890123456789,678901234567890]);
+ await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();
+ await page.selectOption('#symbolStandard','iec');await assertNoCurrentOverlap();
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
+const context=await browser.newContext({viewport:{width:1440,height:1100}}),page=await context.newPage(),errors=[];
+page.on('pageerror',e=>errors.push(e.message));
+await page.addInitScript(()=>{
+ const now=performance.now.bind(performance),raf=window.requestAnimationFrame.bind(window);
+ performance.now=()=>now()*80;window.requestAnimationFrame=callback=>raf(time=>callback(time*80));
+});
+await page.goto('http://127.0.0.1:8767/wormhoff/');
+for(const [i,x] of [146,345,544].entries()){
+ await page.locator(`[data-current-branch="${i}"]`).dispatchEvent('click');
+ await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
+}
+await page.click('#confirmDirs');await page.click('#goLoops');
+for(let mesh=0;mesh<2;mesh++){
+ await page.locator(`[data-mesh="${mesh}"]`).dispatchEvent('click');
+ for(let turn=0;turn<250;turn++){
+  if(await page.locator('#advance').getAttribute('data-state')==='complete')break;
+  const state=await page.locator('#advance').getAttribute('data-state');
+  if(['ready','waiting'].includes(state))await page.click('#advance');
+  await page.waitForTimeout(35);
+ }
+ assert.equal(await page.locator('#advance').getAttribute('data-state'),'complete','Malla terminada');
+}
+await page.click('#goMatrix');await page.click('#fillMatrix');await page.click('#verifyMatrix');await page.click('#goSolve');
+await page.click('#nextStep');await page.click('[data-reset-phase="4"]');
+assert.equal(await page.locator('#resultPanel').isVisible(),false);
+await page.click('[data-phase="3"]');
+assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value!=='')),'Volver a matriz conserva sus valores');
+await page.click('[data-reset-phase="3"]');
+assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value==='')),'Reiniciar matriz vacía las casillas');
+assert.equal(await page.locator('#equationsCard [data-equation]:visible').count(),3,'Conserva las ecuaciones previas');
+await page.click('[data-phase="2"]');assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),2);
+await page.click('[data-reset-phase="2"]');assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),0);
+await page.click('#advance');await page.waitForFunction(()=>document.getElementById('advance').dataset.state==='running');
+await page.click('[data-phase="1"]');const position=await page.locator('#hero').getAttribute('transform');await page.waitForTimeout(100);
+assert.equal(await page.locator('#hero').getAttribute('transform'),position,'Retroceder cancela la animación');
+await page.click('[data-reset-phase="1"]');assert(await page.locator('#goLoops').isVisible());
+await page.click('[data-phase="0"]');assert.equal(await page.locator('#dirGraphics .dirlabel').count(),3);
+await page.click('[data-reset-phase="0"]');assert.equal(await page.locator('#dirGraphics .dirlabel').count(),0);
+assert.deepEqual(errors,[]);await context.close();console.log('OK: retroceso y reinicio en las cinco fases, matriz y cancelación del recorrido');
 }finally{await browser.close()}

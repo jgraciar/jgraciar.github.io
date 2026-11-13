@@ -18,13 +18,21 @@
   .stat{background:#0d1b2e;border:1px solid #36516b;padding:9px 14px;border-radius:12px;min-width:105px}
   .stat small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
   .stat strong{font:700 21px/1.45 ui-monospace,Consolas,monospace;color:var(--lime)}
-  .stages{display:flex;gap:7px;margin:12px 0 16px;overflow:auto;padding-bottom:4px}
-  .stage{flex:1;min-width:132px;background:#142035;border:1px solid #2d425c;border-radius:11px;padding:10px 11px;color:#8399b4;font-size:12px;font-weight:700}
+  .stages{display:flex;gap:7px;margin:12px 0 16px;padding:8px 0;position:sticky;top:0;z-index:50;background:#091423;box-shadow:0 5px 12px #0004;isolation:isolate}
+  .stage{display:flex;align-items:center;gap:3px;flex:1;min-width:0;background:#142035;border:1px solid #2d425c;border-radius:11px;padding:3px;color:#8399b4;font-size:12px;font-weight:700}
+  .stage[hidden]{display:none}
   .stage.active{border-color:var(--cyan);color:var(--txt);background:#163045;box-shadow:inset 0 0 0 1px #5ce6f02a}
   .stage.done{color:var(--lime);border-color:#53843e}
-  .stage b{margin-right:8px;color:inherit}
+  .stage b{margin-right:5px;color:inherit}
+  .phase-link{flex:1;min-width:0;border:0;background:transparent!important;color:inherit;padding:8px 4px;text-align:left;font:inherit;line-height:1.4;box-shadow:none}
+  .phase-reset{flex:none;width:29px;height:31px;border:0;padding:5px;background:transparent!important;color:inherit;box-shadow:none}
+  .phase-reset svg{width:19px;height:19px;display:block}
+  .phase-link:disabled,.phase-reset:disabled{opacity:.45;cursor:default}
+  .phase-link:focus-visible,.phase-reset:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+  .current-label-leader{stroke:#ffc66b88;stroke-width:1;stroke-dasharray:3 3;fill:none;pointer-events:none}
+  @media(max-width:600px){.stages{gap:3px}.stage{flex-direction:column;padding:2px;gap:0;font-size:10px}.stage b{display:block;margin:0}.phase-link{text-align:center;padding:5px 1px;width:100%}.phase-reset{height:25px;padding:3px 5px}}
   .layout{display:grid;grid-template-columns:minmax(0,var(--left-track,1.1fr)) 18px minmax(0,var(--right-track,1fr));grid-template-areas:"circuit divider equations" "circuit divider phase";grid-template-rows:auto 1fr;row-gap:17px;column-gap:0;align-items:start}
-  #circuitCard{grid-area:circuit;position:sticky;top:12px;min-width:0}
+  #circuitCard{grid-area:circuit;position:sticky;top:calc(var(--stagebar-height,80px) + 12px);min-width:0}
   #equationsCard{grid-area:equations;min-width:0}
   #phaseCard{grid-area:phase;min-width:0}
   .layout.network-mode{grid-template-areas:"circuit divider phase";grid-template-rows:auto}
@@ -274,7 +282,7 @@
   .hide{display:none!important}
   .flexbetween{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .key{font:12px ui-monospace,monospace;border:1px solid #55718a;border-radius:4px;padding:1px 5px;color:#b7cee4}
-  @media(max-width:970px){.layout{grid-template-columns:1fr;grid-template-areas:"circuit" "equations" "phase";grid-template-rows:auto}.layout.network-mode{grid-template-areas:"circuit" "phase"}.column-divider{display:none}#circuitCard{position:static}.stages{flex-wrap:wrap}.stage{flex:1 1 30%}}
+  @media(max-width:970px){.layout{grid-template-columns:1fr;grid-template-areas:"circuit" "equations" "phase";grid-template-rows:auto}.layout.network-mode{grid-template-areas:"circuit" "phase"}.column-divider{display:none}#circuitCard{position:static}.stage{flex:1;min-width:0}}
   @media(max-width:640px){
     .card,.body,.steps,.step-main,.eqpanel{min-width:0}
     .algebra-desktop{display:none}
@@ -347,11 +355,11 @@
     <div class="score"><div class="stat"><small>Puntos</small><strong id="score">0000</strong></div><div class="stat"><small>Progreso</small><strong id="percent">0%</strong></div></div>
   </header>
   <nav class="stages" id="stagebar" aria-label="Fases">
-    <div class="stage active" data-stage="0"><b>01</b> Corrientes</div>
-    <div class="stage" data-stage="1"><b>02</b> Nudo</div>
-    <div class="stage" data-stage="2"><b>03</b> Mallas</div>
-    <div class="stage" data-stage="3"><b>04</b> Matriz</div>
-    <div class="stage" data-stage="4"><b>05</b> Resolución</div>
+    <div class="stage" data-stage="0"><button type="button" class="phase-link" data-phase="0"><b>01</b><span>Corrientes</span></button><button type="button" class="phase-reset" data-reset-phase="0" aria-label="Reiniciar fase 1: Corrientes" title="Reiniciar corrientes"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg></button></div>
+    <div class="stage" data-stage="1"><button type="button" class="phase-link" data-phase="1"><b>02</b><span>Nudos</span></button><button type="button" class="phase-reset" data-reset-phase="1" aria-label="Reiniciar fase 2: Nudos" title="Reiniciar nudos"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg></button></div>
+    <div class="stage" data-stage="2"><button type="button" class="phase-link" data-phase="2"><b>03</b><span>Mallas</span></button><button type="button" class="phase-reset" data-reset-phase="2" aria-label="Reiniciar fase 3: Mallas" title="Reiniciar mallas"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg></button></div>
+    <div class="stage" data-stage="3"><button type="button" class="phase-link" data-phase="3"><b>04</b><span>Matriz</span></button><button type="button" class="phase-reset" data-reset-phase="3" aria-label="Reiniciar fase 4: Matriz" title="Reiniciar matriz"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg></button></div>
+    <div class="stage" data-stage="4"><button type="button" class="phase-link" data-phase="4"><b>05</b><span>Resolución</span></button><button type="button" class="phase-reset" data-reset-phase="4" aria-label="Reiniciar fase 5: Resolución" title="Reiniciar resolución"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg></button></div>
   </nav>
   <div class="exercisebar">
     <div class="field" style="flex:0 1 205px"><label for="symbolStandard">Simbología</label><select id="symbolStandard"><option value="iec">IEC · rectangular</option><option value="ansi">ANSI · zigzag</option></select></div>
@@ -840,7 +848,7 @@
       $('boardBadge').textContent=$('boardBadge').textContent.replace(/^(IEC|ANSI)/,symbolStandardLabel());
       try{localStorage.setItem('wormhoff-symbol-standard',$('symbolStandard').value);}catch{}
     }
-    $('symbolStandard').addEventListener('change',applySymbols);applySymbols();
+    $('symbolStandard').addEventListener('change',()=>{applySymbols();layoutCurrentAnnotations();});applySymbols();
   }
   function symbolStandardLabel(){return $('symbolStandard').value==='ansi'?'ANSI':'IEC';}
   function resistorSymbol(x,y,vertical,value,label,half=27,angle=null){
@@ -939,7 +947,7 @@
   }
   function startNetwork(){
     S.phase=0;S.finished=false;S.score=0;
-    $('stagebar').classList.add('hide');
+    $('stagebar').classList.remove('hide');
     for(let i=0;i<5;i++)show('phase'+i,false);
     show('networkPhase',true);
     $('phaseHead').textContent='Tema 7 · Resistencia equivalente';
@@ -956,7 +964,7 @@
     $('boardState').textContent='Calcula la resistencia equivalente entre los bornes A y B. No se han añadido fuentes ficticias.';
     $('networkIntro').textContent='Red de '+active.r.length+' resistencias, tomada del ejemplo original. Calcula su resistencia equivalente entre los bornes A y B.';
     $('networkR').value='';$('networkFeedback').textContent='Escribe R_eq en ohmios. Puedes utilizar una coma decimal.';
-    $('networkSteps').innerHTML='';show('networkDone',false);show('networkRestart',false);show('networkExplain',false);
+    syncPhaseNavigation();$('networkSteps').innerHTML='';show('networkDone',false);show('networkRestart',false);show('networkExplain',false);
   }
   function networkResult(){
     if(active.kind!=='network')return;
@@ -980,17 +988,17 @@
     document.querySelectorAll('.stage').forEach((e,i)=>{e.classList.toggle('active',i===S.phase);e.classList.toggle('done',i<S.phase||S.finished&&i===4)});
     const titles=['Fase 1 · Numeración y sentidos','Fase 2 · Primera ley de Kirchhoff','Fase 3 · Segunda ley de Kirchhoff','Fase 4 · Sistema matricial','Fase 5 · Sustitución y reducción'];
     $('phaseHead').textContent=titles[S.phase];
-    $('phaseChip').textContent=S.finished?'SUPERADO':['CORRIENTES','NUDOS','MALLAS','A · I = b','RESUELVE'][S.phase];
+    $('phaseChip').textContent=S.finished?'SUPERADO':['CORRIENTES','NUDOS','MALLAS','A · I = b','RESUELVE'][S.phase];syncPhaseNavigation();
   }
   function phase(n){
-    S.phase=n;$('nodeHit').style.pointerEvents=n===1?'auto':'none';for(let i=0;i<5;i++)show('phase'+i,i===n);
+    rememberPhase(n);S.phase=n;$('nodeHit').style.pointerEvents=n===1?'auto':'none';for(let i=0;i<5;i++)show('phase'+i,i===n);
     show('circuitControls',n===2);show('standardCircuitControls',n===2);show('advancedCircuitControls',false);
     updateHeader();$('nodePulse').classList.toggle('hide',n!==1);$('loopHighlight').classList.toggle('hide',n!==2);
     drawDirs();updateLoopsArrows();
     if(n!==2)clearElementHighlight();
     renderBoardEquations();
-    if(n===1){if(difficulty()===0)analyzeNode(true);else kclChoices('nodeChallenge',S.signs.slice(),names,()=>analyzeNode(true));}
-    if(n===2){S.loop=0;loadLoop(0)}
+    if(n===1){if(S.nodeDone||difficulty()===0)analyzeNode(true);else kclChoices('nodeChallenge',S.signs.slice(),names,()=>analyzeNode(true));}
+    if(n===2){S.loop=Math.max(0,S.loops.findIndex(x=>!x));loadLoop(S.loop)}
     if(n===3){drawMatrix();show('fillMatrix',difficulty()===0);}
     if(n===4){
       const {A,b}=system();
@@ -1012,7 +1020,7 @@
     const numbered=currentNamesReady(false);
     $('dirGraphics').innerHTML=S.signs.map((s,i)=>{
       const g=dirGeo(i,s);
-      if(!numbered)return S.currentNumbers[i]===null?'':`<text class="dirlabel" x="${g.labelX}" y="${g.labelY}">${names[i]}</text>`;
+      if(!numbered)return `<g id="currentArrow${i}">${S.currentNumbers[i]===null?'':`<text class="dirlabel" x="${g.labelX}" y="${g.labelY}">${names[i]}</text>`}</g>`;
       const h=g.a==='left'||g.a==='right',p=h?(g.a==='right'?1:-1):(g.a==='down'?1:-1);
       const len=g.len||17;
       const stem=h?`M${g.x-len*p} ${g.y} L${g.x+len*p} ${g.y}`:`M${g.x} ${g.y-len*p} L${g.x} ${g.y+len*p}`;
@@ -1026,7 +1034,7 @@
       $('dirHit'+i).style.pointerEvents=S.phase===0&&numbered?'auto':'none';
       $('dirHit'+i).setAttribute('tabindex',S.phase===0&&numbered?'0':'-1');
     }
-    drawCurrentBranchTargets(false);
+    layoutCurrentAnnotations();drawCurrentBranchTargets(false);
     if(S.phase===0)$('confirmDirs').disabled=!numbered||!S.reductionDone;
   }
   function reverse(i){if(S.phase!==0||!currentNamesReady(false))return;S.signs[i]*=-1;drawDirs();$('boardState').textContent='Referencia '+names[i]+' invertida. Es una elección válida.'}
@@ -1751,7 +1759,7 @@
   $('nextStep').onclick=()=>{const steps=buildSteps();if(S.step<steps.length){S.step++;renderSteps()}};
   $('restartSteps').onclick=()=>{S.step=0;S.finalVerified=false;$('finalChallenge').replaceChildren();renderSteps()};
   function newGame(){
-     endHeroPress();
+    phaseScores={0:0};endHeroPress();
     flowToken++;stopFlow();if(S.pausedResume){S.pausedResume();S.pausedResume=null}
     $('currentBranchTargets').innerHTML='';
     $('gameLayout').classList.toggle('network-mode',active.kind==='network');
@@ -1917,7 +1925,7 @@
       if(enabled)group.style.cursor='pointer';
       bindClickable(group,()=>{if(A6.stage!=='dirs'||!numbered)return;A6.signs[i]*=-1;sixRefArrow();});
     });
-    drawCurrentBranchTargets(true);
+    layoutCurrentAnnotations();drawCurrentBranchTargets(true);
     if(A6.stage==='dirs')$('advStart').disabled=!numbered;
   }
   function sixMeshArrows(){
@@ -1960,7 +1968,7 @@
     S.phase=6;S.score=0;
     A6.currentNumbers=Array(6).fill(null);NAMES6.splice(0,NAMES6.length,...Array(6).fill('I'));
     A6.stage='dirs';A6.nodeCount=0;$('advKCLtext').innerHTML='';A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
-    $('stagebar').classList.add('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
+    $('stagebar').classList.remove('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
     $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
     $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();
     for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents='none';$('nodeHit').style.pointerEvents='none';
@@ -1972,7 +1980,7 @@
     $('phaseHead').textContent='Tema 7 · Actividad resuelta 7.6';$('phaseChip').textContent='4 NUDOS';
     sixText('advInfo','Pulsa sobre las flechas para invertir las corrientes. Cada elección es una referencia algebraica válida.');
     positionHero(...N6.C,0,true);setHeroGait(false);setHeroMood(false);sixRefArrow();sixMeshArrows();
-    $('score').textContent='0000';$('percent').textContent='0%';
+    $('score').textContent='0000';$('percent').textContent='0%';syncPhaseNavigation();
   }
   function sixNodeSides(row){
     const incoming=[],outgoing=[];
@@ -1989,7 +1997,8 @@
     ).join('')+'</div>';
   }
   function sixNodeStart(){
-    if(A6.stage!=='dirs'||!currentNamesReady(true))return;
+    if(!['dirs','nodes'].includes(A6.stage)||!currentNamesReady(true))return;
+    rememberPhase(1);A6.stage='nodes';syncPhaseNavigation();
     if(difficulty()!==0){
       show('advStart',false);
       let current=0;
@@ -2008,8 +2017,8 @@
     A6.nodeCount=3;A6.stage='loops';show('advStart',false);show('advKCL',true);show('advLoops',true);show('circuitControls',true);show('standardCircuitControls',false);show('advancedCircuitControls',true);
     $('advKCLtext').innerHTML=sixKCLRows();
     sixText('advInfo','4 nudos ⇒ n−1 = 3 ecuaciones independientes; 6 ramas ⇒ 6 incógnitas; 3 mallas ⇒ 3 ecuaciones más.');
-    sixRefArrow();sixSelectLoop(0);
-    S.score+=100;$('score').textContent=String(S.score).padStart(4,'0');$('percent').textContent='18%';
+    sixRefArrow();sixSelectLoop(0);syncPhaseNavigation();
+    S.score+=100;rememberPhase(2);$('score').textContent=String(S.score).padStart(4,'0');$('percent').textContent='18%';
   }
   function sixOrientRoute(loop,cw){
     // Rotación cíclica del contorno: el origen cambia, pero los signos de KVL no.
@@ -2169,12 +2178,12 @@
   function sixNext(){if(A6.waiting){let f=A6.waiting;A6.waiting=null;f();return}if(A6.running)return;sixPlay()}
   function sixMatrix(){
     if(A6.stage!=='loops'||!A6.done.every(Boolean))return;
-    A6.stage='matrix';sixCancel();sixMeshArrows();show('advLoops',false);show('advMatrix',true);show('advFill',difficulty()===0);show('advToMatrix',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);show('advBoardEquations',A6.rowsR.some(row=>row.length)||A6.rowsU.some(row=>row.length));show('advKCL',true);
+    rememberPhase(3);A6.stage='matrix';sixCancel();sixMeshArrows();show('advLoops',false);show('advMatrix',true);show('advFill',difficulty()===0);show('advToMatrix',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);show('advBoardEquations',A6.rowsR.some(row=>row.length)||A6.rowsU.some(row=>row.length));show('advKCL',true);
     const {A,b}=sixSystem();
     $('advMatEqs').innerHTML=A.map((row,i)=>'<div class="eq" style="font-size:13px">'+(i<3?'Nudo '+['A','C','B'][i]:'Malla '+(i-2))+': '+sixEq(row,b[i])+'</div>').join('');
     $('advMatInputs').innerHTML='<div class="adv-mat-head">'+[...NAMES6,'b'].map(x=>'<span>'+x+'</span>').join('')+'</div>'+A.map((row,i)=>'<div class="adv-mat-row">'+[...row,b[i]].map((v,j)=>`<input data-ar="${i}" data-ac="${j}" aria-label="Fila ${i+1} columna ${j+1}" placeholder="?" inputmode="decimal"/>`).join('')+'</div>').join('');
     show('advSolveBtn',false);sixText('advMatFeedback','6 ecuaciones independientes para 6 incógnitas: 3 de nudos y 3 de mallas.');
-    $('percent').textContent='68%';$('phaseChip').textContent='MATRIZ 6 × 6';
+    $('percent').textContent='68%';$('phaseChip').textContent='MATRIZ 6 × 6';syncPhaseNavigation();
   }
   function sixVerifyMatrix(){
     const {A,b}=sixSystem(),all=[...A.map((row,i)=>[...row,b[i]])],inputs=Array.from($('advMatInputs').querySelectorAll('input'));
@@ -2208,7 +2217,7 @@
     return {m1,m2,first:{row:one,b:bA*m1},second:{row:two,b:bB*m2},row:result,b:bA*m1+bB*m2};
   }
   function sixStartSolve(){
-    A6.stage='solve';show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='REDUCCIÓN';
+    rememberPhase(4);A6.stage='solve';syncPhaseNavigation();show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='REDUCCIÓN';
     const {a,b,cols}=sixReduced(),vars=cols.map(ix=>NAMES6[ix]);
     const reduced=matSolve6(a,b),values=reduced.x;
     const j2=values[0]*A6.signs[1],j3=values[1]*A6.signs[2],j5=values[2]*A6.signs[4];
@@ -2283,6 +2292,143 @@
   $('advMatVerify').onclick=sixVerifyMatrix;$('advSolveBtn').onclick=sixStartSolve;
   $('advSolveNext').onclick=()=>{if(A6.step<A6.steps.length){A6.step++;sixRenderSolve()}};
 
+
+  // Place measured SVG annotations against visible circuit symbols and text.
+  function layoutCurrentAnnotations(){
+    const svg=$('circuit'),root=svg.getScreenCTM();if(!root)return;
+    const inverse=root.inverse(),margin=3,placed=[];
+    const box=el=>{
+      const r=el.getBoundingClientRect();if(!r.width&&!r.height)return null;
+      const a=new DOMPoint(r.left,r.top).matrixTransform(inverse),b=new DOMPoint(r.right,r.bottom).matrixTransform(inverse);
+      return {x:a.x,y:a.y,w:b.x-a.x,h:b.y-a.y};
+    };
+    const visible=el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden';
+    const overlap=(a,b)=>a.x<b.x+b.w+margin&&a.x+a.w+margin>b.x&&a.y<b.y+b.h+margin&&a.y+a.h+margin>b.y;
+    const obstacles=[...$('staticCircuit').querySelectorAll('.symbol,.source-halo,.source-plate,.component-value,.resistor-name,.txt,.txtsm,.nod'),...svg.querySelectorAll('#loopArrows .mesh-label,#loopArrows [data-mesh-turn],#sixLoops .mesh-label,#sixLoops [data-mesh-turn]')].filter(visible).map(box).filter(Boolean);
+    for(const wire of $('staticCircuit').querySelectorAll('.wire')){
+      if(!visible(wire))continue;
+      const length=wire.getTotalLength(),matrix=inverse.multiply(wire.getScreenCTM());
+      for(let at=0;at<length;at+=12){
+        const a=wire.getPointAtLength(at).matrixTransform(matrix),b=wire.getPointAtLength(Math.min(at+12,length)).matrixTransform(matrix);
+        obstacles.push({x:Math.min(a.x,b.x)-1.5,y:Math.min(a.y,b.y)-1.5,w:Math.abs(b.x-a.x)+3,h:Math.abs(b.y-a.y)+3});
+      }
+    }
+    const groups=[...svg.querySelectorAll('#dirGraphics > g,#sixRefArrows > g')];
+    svg.querySelectorAll('.current-label-leader,.current-label-hit').forEach(el=>el.remove());
+    // Reserve every arrow before placing names, including branches not yet named.
+    for(const group of groups){
+      const arrow=group.querySelector('.direction');if(!arrow)continue;
+      group.querySelectorAll('.direction,.direction-outline').forEach(el=>el.removeAttribute('transform'));
+      const initial=box(arrow),horizontal=initial.w>initial.h;
+      const offsets=[[0,0],...[-12,12,-24,24].map(d=>horizontal?[0,d]:[d,0])];
+      let shift=offsets.find(([dx,dy])=>!obstacles.some(b=>overlap({...initial,x:initial.x+dx,y:initial.y+dy},b)))||[0,0];
+      group.querySelectorAll('.direction,.direction-outline').forEach(el=>el.setAttribute('transform',`translate(${shift})`));
+      placed.push(box(arrow));
+    }
+    for(const group of groups){
+      for(const text of group.querySelectorAll('.dirlabel,.dir-result')){
+        text.removeAttribute('transform');
+        const initial=box(text);if(!initial)continue;
+        const blocks=[...obstacles,...placed];
+        const vb=svg.viewBox.baseVal;
+        const good=(dx,dy)=>{const r={...initial,x:initial.x+dx,y:initial.y+dy};return r.x>=vb.x+5&&r.y>=vb.y+4&&r.x+r.w<=vb.x+vb.width-5&&r.y+r.h<=vb.y+vb.height-5&&!blocks.some(b=>overlap(r,b));};
+        const offsets=[[0,0]];
+        for(let dy=-120;dy<=210;dy+=21)for(let dx=-180;dx<=180;dx+=18)offsets.push([dx,dy]);
+        offsets.sort((a,b)=>(a[0]*a[0]+a[1]*a[1])-(b[0]*b[0]+b[1]*b[1]));
+        const shift=offsets.find(([dx,dy])=>good(dx,dy));
+        if(shift)text.setAttribute('transform',`translate(${shift})`);
+        const final=box(text);placed.push(final);
+        const arrow=group.querySelector('.direction');
+        if(arrow&&shift&&Math.hypot(...shift)>32){
+          const a=box(arrow),line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('class','current-label-leader');
+          line.setAttribute('d',`M${a.x+a.w/2} ${a.y+a.h/2} L${final.x+final.w/2} ${final.y+final.h}`);group.prepend(line);
+        }
+        // Keep the moved name itself clickable without a wide invisible overlay.
+        const hit=document.createElementNS('http://www.w3.org/2000/svg','rect');hit.setAttribute('class','dirclick current-label-hit');
+        for(const [key,value] of Object.entries({x:final.x-2,y:final.y-2,width:final.w+4,height:final.h+4}))hit.setAttribute(key,value);
+        group.append(hit);
+        if(active.kind!=='multi')bindClickable(hit,()=>reverse(Number(group.id.replace('currentArrow',''))));
+      }
+    }
+  }
+  let phaseScores={0:0};
+  function phaseIndex(){return active.kind==='multi'?({dirs:0,nodes:1,loops:2,matrix:3,solve:4}[A6.stage]??0):S.phase;}
+  function rememberPhase(n){if(phaseScores[n]===undefined)phaseScores[n]=S.score;}
+  function syncPhaseNavigation(){
+    const current=phaseIndex(),network=active.kind==='network';
+    document.querySelectorAll('#stagebar .stage').forEach((el,i)=>{
+      el.hidden=network&&i!==0;
+      el.classList.toggle('active',i===current);el.classList.toggle('done',i<current);
+      const link=el.querySelector('.phase-link'),reset=el.querySelector('.phase-reset');
+      link.disabled=i>current;reset.disabled=i>current;
+      link.setAttribute('aria-current',i===current?'step':'false');
+      link.querySelector('span').textContent=network?'Reducción':['Corrientes','Nudos','Mallas','Matriz','Resolución'][i];
+      link.title=i<current?'Volver a '+link.textContent.trim():i===current?'Fase actual':'Completa las fases anteriores';
+    });
+  }
+  function stopPhaseActivity(){
+    endHeroPress();flowToken++;stopFlow();
+    if(S.pausedResume){const resume=S.pausedResume;S.pausedResume=null;resume();}
+    S.animating=false;S.motionActive=false;S.manualPaused=false;
+    sixCancel();clearFX();clearChallenge();setHeroGait(false);setHeroMood(false);
+    positionHero(heroMotion.x,heroMotion.y,0,true);
+    if($('currentNameDialog').open)$('currentNameDialog').close();
+  }
+  function visitPhase(n,restart=false){
+    if(n>phaseIndex())return;
+    if(active.kind==='network'){if(restart)startNetwork();return;}
+    if(!restart&&n===phaseIndex())return;
+    const six=active.kind==='multi',matrixValues=[...$(six?'advMatInputs':'matrixInputs').querySelectorAll('input')].map(el=>el.value);
+    stopPhaseActivity();
+    // Scores from discarded downstream work cannot be awarded twice.
+    let score=phaseScores[n]??0;
+    if(!restart&&!six){if(n===1&&S.nodeDone)score+=100;if(n===2)score=(phaseScores[3]??S.score);if(n===3&&S.matrixScored)score+=180;}
+    if(!restart&&six&&n===2)score+=150*A6.done.filter(Boolean).length;
+    S.score=score;for(const key of Object.keys(phaseScores))if(Number(key)>n)delete phaseScores[key];
+    if(six){visitSixPhase(n,restart,matrixValues);return;}
+    S.finished=false;S.finalVerified=false;S.step=0;$('finalChallenge').replaceChildren();show('resultPanel',false);
+    if(n<3||restart&&n===3){S.matrixScored=false;show('goSolve',false);}
+    if(n<2||restart&&n===2){S.loops=[null,null];S.scoredLoops=[false,false];S.loopBonusAwarded=false;S.rs=[];S.es=[];show('goMatrix',false);}
+    if(n<1||restart&&n===1){S.nodeDone=false;show('nodeEqPanel',false);show('goLoops',false);$('nodeFeedback').textContent='';}
+    if(n===0&&restart){
+      S.currentNumbers=[null,null,null];names.splice(0,names.length,'I','I','I');S.signs=[1,-1,-1];S.reductionDone=!hasReduction();
+      document.querySelectorAll('[data-reduce]').forEach(el=>{el.value='';el.style.borderColor='';});$('reduceMsg').textContent='';
+    }
+    phase(n);
+    if(n===3&&!restart){$('matrixInputs').querySelectorAll('input').forEach((el,i)=>el.value=matrixValues[i]??'');show('goSolve',S.matrixScored);}
+    if(n!==2)positionHero(345,BOT,0,true);
+    $('boardState').textContent=(restart?'Fase reiniciada: ':'Fase actual: ')+['corrientes','ley de los nudos','ley de las mallas','matriz','resolución'][n]+'.';
+  }
+  function visitSixPhase(n,restart,matrixValues){
+    A6.finalVerified=false;A6.completedScore=false;A6.step=0;$('sixFinalChallenge').replaceChildren();show('advResultPanel',false);
+    if(n<3||restart&&n===3)A6.matrixScore=false;
+    if(n<2||restart&&n===2){A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];show('advToMatrix',false);}
+    if(n<=1){A6.nodeCount=0;$('advKCLtext').innerHTML='';}
+    for(const id of ['advLoops','advMatrix','advSolve','sixNodeChallenge'])show(id,false);
+    show('advStart',n===0);show('advKCL',n>1);show('circuitControls',n===2);show('standardCircuitControls',false);show('advancedCircuitControls',n===2);
+    A6.stage=['dirs','nodes','loops','matrix','solve'][n];
+    if(n===0){
+      if(restart){A6.currentNumbers=Array(6).fill(null);NAMES6.splice(0,6,...Array(6).fill('I'));A6.signs=[1,1,1,1,1,1];}
+      $('advKCLtext').innerHTML='';sixText('advInfo','Pulsa las ramas para numerar las corrientes y elige sus sentidos.');positionHero(...N6.C,0,true);
+    }
+    if(n===1){sixNodeStart();}
+    if(n===2){show('advLoops',true);sixSelectLoop(Math.max(0,A6.done.findIndex(x=>!x)));}
+    if(n===3){
+      A6.stage='loops';sixMatrix();
+      if(!restart){$('advMatInputs').querySelectorAll('input').forEach((el,i)=>el.value=matrixValues[i]??'');show('advSolveBtn',A6.matrixScore);}
+    }
+    if(n===4)sixStartSolve();
+    sixRenderRows();sixRefArrow();sixMeshArrows();syncPhaseNavigation();
+    $('score').textContent=String(S.score).padStart(4,'0');$('percent').textContent=[0,10,18,68,85][n]+'%';
+    $('phaseHead').textContent='Fase '+(n+1)+' · '+['Corrientes','Ley de los nudos','Ley de las mallas','Matriz','Resolución'][n];
+    $('phaseChip').textContent=['CORRIENTES','NUDOS','MALLAS','MATRIZ 6 × 6','REDUCCIÓN'][n];
+  }
+  function initPhaseNavigation(){
+    document.querySelectorAll('[data-phase]').forEach(el=>el.onclick=()=>visitPhase(Number(el.dataset.phase)));
+    document.querySelectorAll('[data-reset-phase]').forEach(el=>el.onclick=()=>visitPhase(Number(el.dataset.resetPhase),true));
+    const resize=()=>document.documentElement.style.setProperty('--stagebar-height',Math.ceil($('stagebar').getBoundingClientRect().height)+'px');
+    new ResizeObserver(resize).observe($('stagebar'));resize();
+  }
   function initBoardActions(){
     const ids=['confirmDirs','advStart','goLoops','resetLoop','advance','advNext','goMatrix','advToMatrix',
       'verifyMatrix','advMatVerify','goSolve','advSolveBtn',
@@ -2358,6 +2504,7 @@
     });
     new ResizeObserver(()=>apply(preferredRatio)).observe(layout);apply(preferredRatio);
   }
+  initPhaseNavigation();
   initCurrentNaming();
   initColumnDivider();
   const syncEquationPlaceholder=initEquationPlaceholder();
