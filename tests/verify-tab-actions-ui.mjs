@@ -26,6 +26,18 @@ try{
   assert.equal(ribbon.tools.background,ribbon.tabs.background,'Toolbar ribbon uses the tab-strip background');
   assert.equal(ribbon.menu.font,ribbon.tabs.font,'Menu ribbon uses the tab-strip font');
   assert.equal(ribbon.tools.font,ribbon.tabs.font,'Toolbar ribbon uses the tab-strip font');
+  const visual=await page.frameLocator('iframe[data-tab-id="jgr-1"]').locator('#jgr-tab-strip').evaluate(strip=>{
+   const doc=strip.ownerDocument,app=doc.defaultView.__CircuitJGRExperimentalApp;
+   const toolbar=app.ui.toolbar.element,dropdown=app.menus.menuBar.querySelector('.menuDropdown');
+   const item=dropdown?.querySelector('.menuItem');
+   return {separators:[...toolbar.children].slice(0,14).map((el,i)=>el.classList.contains('jgr-toolbar-separator')?i:-1).filter(i=>i>=0),
+    itemFont:item?getComputedStyle(item).fontFamily:null,
+    menuFont:getComputedStyle(app.menus.menuBar).fontFamily,
+    shadow:dropdown?getComputedStyle(dropdown).boxShadow:null};
+  });
+  assert.deepEqual(visual.separators,[2,6,8,12],'Grey separators group undo/redo, clipboard, search, zoom and other actions');
+  assert.equal(visual.itemFont,visual.menuFont,'Dropdown items use the ribbon font');
+  assert(visual.shadow&&visual.shadow!=='none','Dropdown menus have a shadow');
   assert.equal(await page.locator('link[rel="icon"]').getAttribute('href'),'./favicon.ico');
   const iconResponse=await page.request.get(new URL('./favicon.ico',page.url()).href);
   assert.equal(iconResponse.status(),200);
