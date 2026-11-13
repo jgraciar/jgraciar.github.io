@@ -143,6 +143,7 @@
     nl:"Oorspronkelijke CircuitJS1, versie ",
     sv:"Ursprungliga CircuitJS1, version "
   };
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   document.documentElement.lang = lang === "ca-es-valencia" ? "ca-ES-valencia" : lang === "csx" ? "cs" : lang === "kr" ? "ko" : lang;
   const p = [...document.querySelectorAll("div > p")];
   const lead = (index, value) => {
