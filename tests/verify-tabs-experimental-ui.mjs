@@ -116,7 +116,7 @@ try{
  assert.equal((await geometry(origin)).stripTop,originalLayout.stripTop);
  assert(Math.abs((await geometry(origin)).sidebarTop-originalLayout.sidebarTop)<=1,
   "Al restaurar la barra de herramientas debe moverse también la barra lateral");
- const sidebarButton=stripOf(origin).locator("#jgr-sidebar-toggle");
+ const sidebarButton=page.frameLocator('iframe[data-tab-id="jgr-1"]').locator(".jgr-toolbar-actions #jgr-sidebar-toggle");
  assert.equal(await sidebarButton.textContent(),"Ocultar panel lateral");
  await sidebarButton.click();
  const hiddenLayout=await geometry(origin);
