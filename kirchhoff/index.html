@@ -531,7 +531,8 @@
             termNodes.set(key,node);
             node.addEventListener('animationend',()=>node.classList.remove('blink-three'),{once:true});
           }
-          if(j)slot.append(document.createTextNode(' + '));
+          if(j)slot.append(document.createTextNode(e.negative?' − ':' + '));
+          else if(e.negative)slot.append(document.createTextNode('−'));
           slot.append(node);
         }
       }
@@ -555,11 +556,12 @@
         const entries=[];
         halves.slice(0,2).forEach((part,side)=>{
           const used=new Set();
-          for(const match of part.matchAll(/I([1-6₁₂₃₄₅₆])/gi)){
-            const index=subs.includes(match[1])?subs.indexOf(match[1]):Number(match[1])-1;
+          for(const match of part.replace(/\s/g,'').matchAll(/([+-]?)I([1-6₁₂₃₄₅₆])/gi)){
+            const index=subs.includes(match[2])?subs.indexOf(match[2]):Number(match[2])-1;
             if(index<0||index>=namesList.length||used.has(index))continue;
             used.add(index);
-            entries.push({side,key:index+':'+side,name:namesList[index]});
+            const negative=match[1]==='-';
+            entries.push({side,key:index+':'+side+':'+negative,name:namesList[index],negative});
           }
         });
         return entries;
