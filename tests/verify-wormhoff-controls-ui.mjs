@@ -40,7 +40,10 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert((await equationText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)))>originalSizes[1]+1,'Amplía texto de la columna derecha');
  await equationControls.locator('[data-text-change="-1"]').click();
  const circuitCard=await page.locator('#circuitCard').boundingBox(),equationsCard=await page.locator('#equationsCard').boundingBox();
- if(mobile)assert(equationsCard.y>=circuitCard.y+circuitCard.height-1,'Ecuaciones debajo en móvil');
+ if(mobile){
+  const diagram=await page.locator('#circuit').boundingBox();assert(equationsCard.y>=diagram.y+diagram.height-1&&equationsCard.y<diagram.y+diagram.height+3,'Ecuaciones inmediatamente debajo del circuito');
+  assert(await page.locator('#equationsCard').evaluate(el=>el.parentElement.id==='circuitCard'));
+ }
  else assert(equationsCard.x>=circuitCard.x+circuitCard.width-1,'Ecuaciones a la derecha en escritorio');
  const svgWidth=await page.locator('#circuit').boundingBox();
  assert(Math.abs(svgWidth.width-circuitCard.width+2)<2,'El circuito ocupa todo el ancho interior de su columna');
@@ -104,8 +107,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   assert(details.every(d=>d.onBranch&&d.near&&d.display!=='none'),JSON.stringify(details));
   assert.equal(await page.locator('.current-label-leader').count(),0,'Sin etiquetas alejadas ni líneas de enlace');
  };
- assert.equal(await page.locator('#stagebar .phase-reset svg').count(),5);
- assert.equal(await page.locator('[data-phase="1"]').isDisabled(),true);
+ assert.equal(await page.locator('#stagebar .phase-reset svg').count(),4);
+ assert.equal(await page.locator('[data-phase="1"]').count(),0);assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);assert.match(await page.locator('[data-phase="0"]').textContent(),/Corrientes y nudos/);
  await page.evaluate(()=>{const spacer=document.createElement('div');spacer.id='scrollProbe';spacer.style.height='1500px';document.body.append(spacer);window.scrollTo(0,500);});
  assert(Math.abs((await page.locator('#stagebar').boundingBox()).y)<2,'Fases fijas al desplazarse');
  await page.evaluate(()=>{document.getElementById('scrollProbe').remove();window.scrollTo(0,0);});
@@ -224,14 +227,14 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await checkAction('confirmDirs');await page.click('#confirmDirs');
  const fixedEquation=await page.locator('#nodeEq').textContent();
  await dragCurrent('#currentArrow0',146,300,true);assert.equal(await page.locator('#nodeEq').textContent(),fixedEquation,'Mover la flecha conserva las ecuaciones');
- await checkAction('goLoops');await page.click('#goLoops');await checkAction('advance');assert(await page.locator('#equationsCard #nodeEqPanel [data-equation="E1"]').isVisible());
+ await checkAction('goLoops');await page.click('#goLoops');await checkAction('confirmMeshDirections');assert.equal(await page.locator('#advance').isDisabled(),true);assert.equal(await page.locator('#advance').isVisible(),false);assert(await page.locator('#equationsCard #nodeEqPanel [data-equation="E1"]').isVisible());
  await tap(490,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'355');
  await tap(445,164);assert.match(await page.locator('#boardState').textContent(),/antihorario/);
  await tap(490,290);assert.match(await page.locator('#boardState').textContent(),/antihorario/,'Pulsar la malla activa conserva el progreso');
  await page.locator('[data-mesh-turn="1"]').focus();await page.locator('[data-mesh-turn="1"]').press('Space');
- assert.match(await page.locator('#boardState').textContent(),/horario/);assert.equal(await page.locator('#advance').isEnabled(),true,'Espacio cambia el giro sin iniciar el recorrido');
+ assert.match(await page.locator('#boardState').textContent(),/horario/);assert.equal(await page.locator('#advance').isEnabled(),false,'No inicia el recorrido sin confirmar los sentidos');
  await tap(210,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'156');
- await page.click('#advance');await tap(490,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'156','No cambiar malla durante el recorrido');
+ await page.click('#confirmMeshDirections');await checkAction('advance');await page.click('#advance');await tap(490,290);assert.equal(await page.locator('#loopHighlight').getAttribute('x'),'156','No cambiar malla durante el recorrido');
  await pauseResume('advance');
  await page.waitForFunction(()=>document.querySelector('#hero').classList.contains('hero-happy'));
  assert.equal(await page.locator('#advance').getAttribute('data-state'),'waiting');
@@ -269,25 +272,25 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await tap(352,294);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
  await tap(460,290);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
  await tap(477,130);assert.match(await page.locator('#advLap').textContent(),/Malla 2/);assert.match(await page.locator('#sixLoops [data-mesh-turn="1"]').textContent(),/↺/);
- await checkAction('advNext');await page.click('#advNext');await tap(300,190);assert.match(await page.locator('#advLap').textContent(),/Malla 2/,'No cambiar malla avanzada durante el recorrido');
+ await checkAction('advConfirmMeshDirections');assert.equal(await page.locator('#advNext').isDisabled(),true);await page.click('#advConfirmMeshDirections');await checkAction('advNext');await page.click('#advNext');await tap(300,190);assert.match(await page.locator('#advLap').textContent(),/Malla 2/,'No cambiar malla avanzada durante el recorrido');
  await pauseResume('advNext');
  await page.locator('#sixTermChallenge .term-answer').waitFor({state:'visible'});
  await page.locator('#sixTermChallenge .term-answer').fill('5I5');await page.click('#sixTermChallenge .term-check');
  await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').waitFor({state:'visible'});
  assert.match(await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').textContent(),/E5:/);
  await page.click('[data-reset-phase="2"]');
- assert.equal(await page.locator('#advNext').getAttribute('data-state'),'ready');
+ assert.equal(await page.locator('#advNext').getAttribute('data-state'),'blocked');assert(await page.locator('#advConfirmMeshDirections').isVisible());
  assert.equal(await page.locator('#advBoardRows [data-equation]').count(),0,'Reiniciar mallas borra los términos');
  assert.equal(await page.locator('#advKCLtext [data-equation]').count(),3,'Conserva los nudos anteriores');
- await page.click('[data-phase="1"]');
- assert(await page.locator('#sixNodeChallenge .kcl-answer').isVisible(),'Volver a nudos');
- assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);
- await page.click('[data-reset-phase="1"]');
- assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0);
  await page.click('[data-phase="0"]');
+ assert(await page.locator('#advStart').isVisible(),'Volver a corrientes y nudos');
+ assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),6,'Volver conserva la numeración');
+ await page.click('#advStart');assert(await page.locator('#sixNodeChallenge .kcl-answer').isVisible());
+ assert.equal(await page.locator('[data-phase="0"]').getAttribute('aria-current'),'step','Nudos en la misma fase que corrientes');
+ await page.click('#advEditCurrentReferences');assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0);
  await page.click('[data-reset-phase="0"]');
- assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),0,'Reiniciar corrientes limpia los números');
+ assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),0,'Reiniciar corrientes y nudos limpia los números');
  const freePoints=[[130,190],[350,190],[535,74],[255,225],[470,225],[370,355]];
  for(let i=0;i<6;i++){
   await tap(...freePoints[i]);await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
@@ -318,7 +321,7 @@ for(const [i,x] of [146,345,544].entries()){
  await page.locator(`[data-current-branch="${i}"]`).dispatchEvent('click');
  await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
 }
-await page.click('#confirmDirs');await page.click('#goLoops');
+await page.click('#confirmDirs');await page.click('#goLoops');await page.click('#confirmMeshDirections');
 for(let mesh=0;mesh<2;mesh++){
  await page.locator(`[data-mesh="${mesh}"]`).dispatchEvent('click');
  for(let turn=0;turn<250;turn++){
@@ -339,11 +342,12 @@ assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(
 assert.equal(await page.locator('#equationsCard [data-equation]:visible').count(),3,'Conserva las ecuaciones previas');
 await page.click('[data-phase="2"]');assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),2);
 await page.click('[data-reset-phase="2"]');assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),0);
-await page.click('#advance');await page.waitForFunction(()=>document.getElementById('advance').dataset.state==='running');
-await page.click('[data-phase="1"]');const position=await page.locator('#hero').getAttribute('transform');await page.waitForTimeout(100);
+await page.click('#confirmMeshDirections');await page.click('#advance');await page.waitForFunction(()=>document.getElementById('advance').dataset.state==='running');
+await page.click('[data-phase="0"]');const position=await page.locator('#hero').getAttribute('transform');await page.waitForTimeout(100);
 assert.equal(await page.locator('#hero').getAttribute('transform'),position,'Retroceder cancela la animación');
-await page.click('[data-reset-phase="1"]');assert(await page.locator('#goLoops').isVisible());
-await page.click('[data-phase="0"]');assert.equal(await page.locator('#dirGraphics .dirlabel').count(),3);
+assert.equal(await page.locator('#dirGraphics .dirlabel').count(),3);
+await page.click('#confirmDirs');assert.equal(await page.locator('[data-phase="0"]').getAttribute('aria-current'),'step');
+assert(await page.locator('#phase0').isVisible()&&await page.locator('#phase1').isVisible(),'Corrientes y nudos comparten vista');
 await page.click('[data-reset-phase="0"]');assert.equal(await page.locator('#dirGraphics .dirlabel').count(),0);
-assert.deepEqual(errors,[]);await context.close();console.log('OK: retroceso y reinicio en las cinco fases, matriz y cancelación del recorrido');
+assert.deepEqual(errors,[]);await context.close();console.log('OK: retroceso y reinicio en las cuatro fases, matriz y cancelación del recorrido');
 }finally{await browser.close()}
