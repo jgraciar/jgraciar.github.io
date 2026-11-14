@@ -29,6 +29,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const context=await browser.newContext({viewport:mobile?{width:430,height:932}:{width:1440,height:1100},hasTouch:mobile,isMobile:mobile,reducedMotion});
  const page=await context.newPage(),errors=[];page.on('console',m=>{if(m.type()==='warning')console.log(m.text())});page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR:',e.stack)});
  await page.goto('http://127.0.0.1:8767/wormhoff/');
+ assert.equal(await page.locator('#currentNumber').getAttribute('maxlength'),'2');
+ assert.equal(await page.locator('#currentNameDialog h3,#currentBranchDescription,#currentNumberError').count(),0,'Conserva el diálogo compacto con I');
  const textControls=page.locator('#circuitCard [data-text-controls="circuit"]'),equationControls=page.locator('#equationsCard [data-text-controls="equations"]');
  const sourceText=page.locator('#circuit .component-value').first(),equationText=page.locator('#equationsCard .law-formula').first();
  const originalSizes=await Promise.all([sourceText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)),equationText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize))]);
@@ -125,6 +127,30 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const p=await page.locator('#circuit').evaluate((svg,[x,y])=>{const p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());return {x:p.x,y:p.y}},[x,y]);
   if(mobile)await page.touchscreen.tap(p.x,p.y);else await page.mouse.click(p.x,p.y);
  };
+ const openNumberEditor=async(selector,gesture=mobile?'long':'double')=>{
+  await page.locator('#circuit').scrollIntoViewIfNeeded();
+  const point=await page.locator(selector+' .dirlabel').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};});
+  const pose=await page.locator(selector).evaluate(el=>({x:el.dataset.arrowX,y:el.dataset.arrowY,d:el.querySelector('.direction').getAttribute('d')}));
+  if(mobile){
+   const session=await context.newCDPSession(page);
+   const start=()=>session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:point.x,y:point.y,id:41,radiusX:1,radiusY:1}]});
+   const end=()=>session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+   await start();await page.waitForTimeout(gesture==='long'?650:60);await end();
+   if(gesture==='double'){await page.waitForTimeout(80);await start();await page.waitForTimeout(50);await end();}
+   await session.detach();
+  }else if(gesture==='double')await page.mouse.dblclick(point.x,point.y,{delay:80});
+  else{await page.mouse.move(point.x,point.y);await page.mouse.down();await page.waitForTimeout(650);await page.mouse.up();}
+  await page.locator('#currentNameDialog').waitFor({state:'visible'});
+  assert(await page.locator('#currentNumber').evaluate(el=>el.selectionStart===0&&el.selectionEnd===el.value.length),'Número actual seleccionado');
+  const dialog=await page.locator('#currentNameDialog').boundingBox();assert(dialog.width<250&&dialog.height<100,'Editor compacto');
+  const current=await page.locator(selector).evaluate(el=>({x:el.dataset.arrowX,y:el.dataset.arrowY,d:el.querySelector('.direction').getAttribute('d')}));
+  assert.deepEqual(current,pose,'Abrir el editor no mueve ni invierte la flecha');return pose;
+ };
+ const saveNumber=async(selector,number,pose)=>{
+  await page.locator('#currentNumber').fill(String(number));await page.click('#currentNameForm button[type="submit"]');
+  assert.equal(await page.locator('#currentNameDialog').isVisible(),false,'Guarda el número editado');
+  assert.deepEqual(await page.locator(selector).evaluate(el=>({x:el.dataset.arrowX,y:el.dataset.arrowY,d:el.querySelector('.direction').getAttribute('d')})),pose,'Cambiar el número conserva posición y sentido');
+ };
  const dragCurrent=async(selector,x,y,byLabel=false)=>{
   await page.locator('#circuit').scrollIntoViewIfNeeded();
   const points=await page.locator(selector).evaluate((group,{x,y,byLabel})=>{
@@ -174,15 +200,25 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  };
  const assignNumbers=async numbers=>{
   const coords=numbers.length===6?[[235,74],[350,150],[465,74],[209,225],[510,225],[466,355]]:[[146,235],[345,235],[544,235]];
-  for(let i=0;i<numbers.length;i++){await tap(...coords[i]);await page.locator('#currentNumber').fill(String(numbers[i]));await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,'Rama '+(i+1)+': '+await page.locator('#currentNumberError').textContent());}
+  for(let i=0;i<numbers.length;i++){await tap(...coords[i]);await page.locator('#currentNumber').fill(String(numbers[i]));await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,'Rama '+(i+1)+': '+await page.locator('#currentNumber').getAttribute('aria-invalid'));}
  };
  await page.selectOption('#exerciseSelect','c75');
  assert.equal(await page.locator('#confirmDirs').isDisabled(),true);
- await tap(146,310);assert(await page.locator('[data-current-branch="0"]').evaluate(el=>getComputedStyle(el).outlineStyle==='none'));assert((await page.locator('#branchSelection').getAttribute('d')).length>0);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumberError').textContent());
+ await tap(146,310);assert(await page.locator('[data-current-branch="0"]').evaluate(el=>getComputedStyle(el).outlineStyle==='none'));assert((await page.locator('#branchSelection').getAttribute('d')).length>0);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
  await tap(345,310);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
- assert.match(await page.locator('#currentNumberError').textContent(),/ya está asignado/);assert(await page.locator('#currentNameDialog').isVisible());
- await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumberError').textContent());
- await tap(544,310);await page.locator('#currentNumber').fill('3');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumberError').textContent());
+ assert.equal(await page.locator('#currentNumber').getAttribute('aria-invalid'),'true');assert(await page.locator('#currentNameDialog').isVisible());
+ await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
+ await tap(544,310);await page.locator('#currentNumber').fill('3');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
+ let editPose=await openNumberEditor('#currentArrow0');
+ assert.equal(await page.locator('#currentNumber').inputValue(),'7');
+ await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');
+ assert.equal(await page.locator('#currentNumber').getAttribute('aria-invalid'),'true','No repite el número de otra rama');
+ assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₇');
+ await saveNumber('#currentArrow0',17,editPose);assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₁₇');
+ assert.equal(await page.locator('#currentArrow1 .dirlabel').textContent(),'I₁₂','No modifica números con prefijos parecidos');
+ editPose=await openNumberEditor('#currentArrow0',mobile?'double':'long');
+ await page.locator('#currentNumber').fill('9');await page.click('#cancelCurrentName');assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₁₇','Cancelar conserva el número');
+ editPose=await openNumberEditor('#currentArrow0');await saveNumber('#currentArrow0',7,editPose);
  for(const [i,x] of [146,345,544].entries()){
   const position=await page.locator('#currentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   assert(Math.abs(position.x-x)<2&&Math.abs(position.y-310)<2,'Flecha sobre la rama en el punto pulsado');
@@ -292,9 +328,13 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await checkAction('advConfirmMeshDirections');assert.equal(await page.locator('#advNext').isDisabled(),true);await page.click('#advConfirmMeshDirections');await checkAction('advNext');await page.click('#advNext');await tap(300,190);assert.match(await page.locator('#advLap').textContent(),/Malla 2/,'No cambiar malla avanzada durante el recorrido');
  await pauseResume('advNext');
  await page.locator('#sixTermChallenge .term-answer').waitFor({state:'visible'});
- await page.locator('#sixTermChallenge .term-answer').fill('5I5');await page.click('#sixTermChallenge .term-check');
+ editPose=await openNumberEditor('#sixCurrentArrow4');await saveNumber('#sixCurrentArrow4',15,editPose);
+ assert.match(await page.locator('#advKCLtext').textContent(),/I₁₅/,'Actualiza las ecuaciones de nudo');
+ assert.match(await page.locator('#sixTermChallenge .term-answer').getAttribute('placeholder'),/I₁₅/,'Actualiza el término pendiente');
+ await page.locator('#sixTermChallenge .term-answer').fill('5I15');await page.click('#sixTermChallenge .term-check');
  await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').waitFor({state:'visible'});
  assert.match(await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').textContent(),/E5:/);
+ assert.match(await page.locator('#advBoardRows').textContent(),/I₁₅/);editPose=await openNumberEditor('#sixCurrentArrow4');await saveNumber('#sixCurrentArrow4',5,editPose);assert(!/I₁₅/.test(await page.locator('#advBoardRows').textContent()));
  await page.click('[data-reset-phase="2"]');
  assert.equal(await page.locator('#advNext').getAttribute('data-state'),'blocked');assert(await page.locator('#advConfirmMeshDirections').isVisible());
  assert.equal(await page.locator('#advBoardRows [data-equation]').count(),0,'Reiniciar mallas borra los términos');
@@ -317,12 +357,9 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await assertBranchPlacement(true);await assertNoCurrentOverlap();
  await tap(570,300);assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente/);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
  await page.click('[data-reset-phase="0"]');
- await tap(130,190);await page.locator('#currentNumber').fill('123456789012345');await page.click('#currentNameForm button[type="submit"]');
- if(await page.locator('#currentNameDialog').isVisible()){
-  assert.match(await page.locator('#currentNumberError').textContent(),/No hay espacio/);await page.click('#cancelCurrentName');
- }else await assertBranchPlacement(true);
- await page.click('[data-reset-phase="0"]');
- await assignNumbers([123,234,345,456,567,678]);
+ await tap(130,105);await page.locator('#currentNumber').fill('123');assert.equal(await page.locator('#currentNumber').inputValue(),'12','Máximo dos cifras');
+ await page.click('#cancelCurrentName');
+ await assignNumbers([11,22,33,44,55,66]);
  await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  await page.selectOption('#symbolStandard','iec');await assertNoCurrentOverlap();
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
@@ -350,7 +387,12 @@ for(let mesh=0;mesh<2;mesh++){
  assert.equal(await page.locator('#advance').getAttribute('data-state'),'complete','Malla terminada');
 }
 await page.click('#goMatrix');await page.click('#fillMatrix');await page.click('#verifyMatrix');await page.click('#goSolve');
-await page.click('#nextStep');await page.click('[data-reset-phase="4"]');
+await page.click('#nextStep');
+await page.locator('#currentArrow1').focus();await page.locator('#currentArrow1').press('F2');
+assert.equal(await page.locator('#currentNumber').inputValue(),'2');await page.locator('#currentNumber').fill('22');await page.click('#currentNameForm button[type="submit"]');
+assert.match(await page.locator('#matrixVariableOrder').textContent(),/I₂₂/);assert(!/I₂(?!₂)/.test(await page.locator('#solutionSteps').textContent()),'Resolución con la referencia nueva');
+await page.click('#nextStep');assert.match(await page.locator('#solutionSteps').textContent(),/I₂₂/,'Los siguientes pasos conservan el número nuevo');
+await page.click('[data-reset-phase="4"]');
 assert.equal(await page.locator('#resultPanel').isVisible(),false);
 await page.click('[data-phase="3"]');
 assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value!=='')),'Volver a matriz conserva sus valores');

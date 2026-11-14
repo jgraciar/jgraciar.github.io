@@ -79,10 +79,14 @@
   .column-text-controls button{padding:3px 8px;min-width:29px;font:700 17px/1.3 system-ui,sans-serif}
   .column-text-controls output{min-width:39px;text-align:center;font:11px ui-monospace,monospace;color:var(--muted)}
   .layout:not(.network-mode) #phaseTextControls{display:none}
-  #currentNameDialog{color:var(--txt);background:#112139;border:1px solid #6586a0;border-radius:14px;width:min(350px,calc(100% - 32px));padding:22px;box-shadow:0 15px 60px #0008}
+  #currentNameDialog{color:var(--txt);background:#112139;border:1px solid #6586a0;border-radius:14px;width:max-content;max-width:calc(100% - 24px);padding:10px 12px;position:fixed;inset:auto;margin:0;left:var(--current-dialog-x,50vw);top:var(--current-dialog-y,25dvh);transform:translate(-50%,-50%);box-shadow:0 15px 60px #0008}
   #currentNameDialog::backdrop{background:#020b18aa}
-  .current-number-field{display:flex;align-items:center;gap:8px;font:800 27px ui-monospace,monospace;margin:14px 0}
-  #currentNumber{min-width:0;width:100%;font:700 23px ui-monospace,monospace;background:#071628;border:1px solid #7896ae;border-radius:8px;padding:9px;color:var(--txt)}
+  .current-number-field{display:flex;align-items:center;gap:6px;font:800 23px ui-monospace,monospace;margin:0}
+  #currentNameForm{display:flex;align-items:center;gap:8px}
+  #currentNameForm button{display:grid;place-items:center;width:40px;height:40px;min-width:40px;padding:8px}
+  #currentNameForm button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  #currentNumber[aria-invalid="true"]{border-color:var(--red);box-shadow:0 0 0 2px #ff778655}
+  #currentNumber{min-width:0;width:calc(2ch + 20px);text-align:center;font:700 23px ui-monospace,monospace;background:#071628;border:1px solid #7896ae;border-radius:8px;padding:9px;color:var(--txt)}
   .law-guide{padding:14px 15px;border-bottom:1px solid #344c67;background:#102339;font-size:15px;line-height:1.7}
   .law-guide strong{display:block;color:var(--cyan);margin-top:7px}
   .law-guide strong:first-child{margin-top:0}
@@ -585,7 +589,7 @@
   </main>
   <footer class="footer flexbetween"><span>Simbología seleccionable IEC o ANSI. Los sentidos de las corrientes son referencias algebraicas, no predicciones.</span><span>Pulsa las ramas para numerar y las flechas para invertir. <span class="key">Espacio</span>: Play/Stop.</span></footer>
 </div>
-<dialog id="currentNameDialog"><form id="currentNameForm"><h3 style="margin:0">Numerar corriente</h3><p id="currentBranchDescription" class="notes"></p><label class="current-number-field"><span>I</span><input id="currentNumber" type="text" inputmode="numeric" pattern="[0-9]+" autocomplete="off" aria-label="Número de la corriente" required></label><p id="currentNumberError" class="message bad hide" role="alert"></p><div class="btnrow"><button class="primary" type="submit">Asignar</button><button type="button" id="cancelCurrentName" class="ghost">Cancelar</button></div></form></dialog>
+<dialog id="currentNameDialog" aria-label="I"><form id="currentNameForm"><label class="current-number-field"><span>I</span><input id="currentNumber" type="text" inputmode="numeric" enterkeyhint="done" maxlength="2" size="2" pattern="[0-9]{1,2}" autocomplete="off" aria-label="Número de la corriente" required></label><button class="primary" type="submit" aria-label="Asignar" title="Asignar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button><button type="button" id="cancelCurrentName" class="ghost" aria-label="Cancelar" title="Cancelar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></form></dialog>
 <script>
 (()=>{'use strict';
   const $=(id)=>document.getElementById(id);
@@ -837,11 +841,13 @@
     }
     const points=branchPoints(six,index);return points[Math.floor(points.length/2)];
   }
-  function openCurrentName(index,six,event){
-    if(six?A6.stage!=='dirs':S.phase!==0)return;
+  function openCurrentName(index,six,event,editing=false){
+    if(!editing&&(six?A6.stage!=='dirs':S.phase!==0))return;
     const model=six?A6:S;
-    if(model.currentNumbers[index]!==null){currentPlacementNotice('Esta rama ya tiene la corriente '+(six?NAMES6:names)[index]+'. Pulsa su flecha para invertir el sentido.');return;}
-    namingBranch={index,six,point:branchClickPoint(event,six,index)};show('currentPlacementNotice',false);
+    if(editing&&model.currentNumbers[index]===null)return;
+    if(!editing&&model.currentNumbers[index]!==null){currentPlacementNotice('Esta rama ya tiene la corriente '+(six?NAMES6:names)[index]+'. Pulsa su flecha para invertir el sentido.');return;}
+    const existing=$((six?'sixCurrentArrow':'currentArrow')+index);
+    namingBranch={index,six,editing,point:editing?{x:Number(existing.dataset.arrowX),y:Number(existing.dataset.arrowY)}:branchClickPoint(event,six,index)};show('currentPlacementNotice',false);
     const points=branchPoints(six,index),p=namingBranch.point;let nearest=null;
     for(let i=1;i<points.length;i++){
       const a=points[i-1],b=points[i],len=Math.hypot(b.x-a.x,b.y-a.y);if(!len)continue;
@@ -849,9 +855,33 @@
       if(!nearest||d<nearest.d)nearest={a,dx,dy,t,len,d};
     }
     if(nearest){const {a,dx,dy,t,len}=nearest,lo=Math.max(0,t-18),hi=Math.min(len,t+18);$('branchSelection').setAttribute('d',`M${a.x+dx*lo} ${a.y+dy*lo} L${a.x+dx*hi} ${a.y+dy*hi}`);}
-    $('currentBranchDescription').textContent='Rama '+(index+1)+'. Escribe un número entero positivo que no esté usado en otra rama.';
-    $('currentNumber').value=model.currentNumbers[index]??'';show('currentNumberError',false);
-    $('currentNameDialog').showModal();$('currentNumber').focus();
+    $('currentNumber').value=model.currentNumbers[index]??'';$('currentNumber').removeAttribute('aria-invalid');
+    $('currentNameDialog').showModal();positionCurrentNameDialog();$('currentNumber').focus({preventScroll:true});if(editing)$('currentNumber').select();
+  }
+
+  function renameCurrentReferences(previous,number,six){
+    const replace=text=>String(text).replace(/I([0-9₀₁₂₃₄₅₆₇₈₉]+)/gi,(all,digits)=>{
+      const ascii=digits.replace(/[₀₁₂₃₄₅₆₇₈₉]/g,d=>String('₀₁₂₃₄₅₆₇₈₉'.indexOf(d)));
+      return Number(ascii)===previous?(/[₀₁₂₃₄₅₆₇₈₉]/.test(digits)?currentLabel(number):'I'+number):all;
+    });
+    const walk=value=>{
+      if(typeof value==='string')return replace(value);
+      if(Array.isArray(value)){for(let i=0;i<value.length;i++)value[i]=walk(value[i]);}
+      else if(value&&typeof value==='object')for(const key of Object.keys(value))value[key]=walk(value[key]);
+      return value;
+    };
+    if(six)walk(A6.steps);
+    const iterator=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
+    while((node=iterator.nextNode())){
+      if(node.parentElement?.closest('script,style'))continue;
+      const changed=replace(node.nodeValue);if(changed!==node.nodeValue)node.nodeValue=changed;
+    }
+    for(const el of document.body.querySelectorAll('[aria-label],[title],[placeholder],input,textarea')){
+      for(const attribute of ['aria-label','title','placeholder']){
+        const old=el.getAttribute(attribute);if(old!==null){const changed=replace(old);if(changed!==old)el.setAttribute(attribute,changed);}
+      }
+      if(el.matches('input,textarea')&&el.id!=='currentNumber'){const changed=replace(el.value);if(changed!==el.value)el.value=changed;}
+    }
   }
   function drawCurrentBranchTargets(six){
     const model=six?A6:S,labels=six?NAMES6:names;
@@ -864,22 +894,53 @@
     $(six?'advInfo':'currentNamingStatus').textContent='Pulsa una rama y numera su corriente: '+count+' de '+labels.length+' asignadas.';
     $('boardState').textContent='Pulsa las ramas para numerar sus corrientes: '+count+' de '+labels.length+' asignadas.';
   }
+  function positionCurrentNameDialog(){
+    const dialog=$('currentNameDialog');if(!dialog.open)return;
+    const viewport=window.visualViewport;
+    const left=viewport?viewport.offsetLeft:0,top=viewport?viewport.offsetTop:0;
+    const width=viewport?viewport.width:window.innerWidth,height=viewport?viewport.height:window.innerHeight;
+    dialog.style.setProperty('--current-dialog-x',(left+width/2)+'px');
+    dialog.style.setProperty('--current-dialog-y',(top+Math.max(dialog.offsetHeight/2+12,Math.min(height/2,120)))+'px');
+  }
   function initCurrentNaming(){
+    window.visualViewport?.addEventListener('resize',positionCurrentNameDialog);
+    window.visualViewport?.addEventListener('scroll',positionCurrentNameDialog);
+    window.addEventListener('resize',positionCurrentNameDialog);
+    $('currentNumber').addEventListener('input',()=>{
+      $('currentNumber').value=$('currentNumber').value.replace(/[^0-9]/g,'').slice(0,2);
+      $('currentNumber').removeAttribute('aria-invalid');
+    });
     $('cancelCurrentName').onclick=()=>$('currentNameDialog').close();
     $('currentNameDialog').addEventListener('close',()=>{if(!$('currentNameDialog').open){namingBranch=null;$('branchSelection').removeAttribute('d');}});
     $('currentNameForm').onsubmit=e=>{
       e.preventDefault();if(!namingBranch)return;
-      const {index,six,point}=namingBranch,model=six?A6:S,labels=six?NAMES6:names,raw=$('currentNumber').value.trim(),number=Number(raw);
-      const valid=/^[0-9]+$/.test(raw)&&Number.isSafeInteger(number)&&number>0;
+      const {index,six,point,editing}=namingBranch,model=six?A6:S,labels=six?NAMES6:names,raw=$('currentNumber').value.trim(),number=Number(raw);
+      const valid=/^[0-9]{1,2}$/.test(raw)&&Number.isSafeInteger(number)&&number>0;
       const duplicate=model.currentNumbers.some((n,i)=>i!==index&&n===number);
-      if(!valid||duplicate){$('currentNumberError').textContent=duplicate?'Ese número ya está asignado a otra rama.':'Introduce un número entero positivo.';show('currentNumberError',true);return;}
+      if(!valid||duplicate){$('currentNumber').setAttribute('aria-invalid','true');$('currentNumber').focus({preventScroll:true});return;}
+      if(editing){
+        const previous=model.currentNumbers[index],group=$((six?'sixCurrentArrow':'currentArrow')+index),oldLabel=labels[index];
+        model.currentNumbers[index]=number;labels[index]=currentLabel(number);group.querySelector('.dirlabel').textContent=labels[index];
+        currentRenamingPlacement={index,six,x:point.x,y:point.y,dx:Number(group.dataset.arrowDx),dy:Number(group.dataset.arrowDy)};
+        layoutCurrentAnnotations();
+        if(group.dataset.placementUnavailable==='true'){
+          model.currentNumbers[index]=previous;labels[index]=oldLabel;group.querySelector('.dirlabel').textContent=oldLabel;layoutCurrentAnnotations();currentRenamingPlacement=null;
+          $('currentNumber').setAttribute('aria-invalid','true');$('currentNumber').focus({preventScroll:true});return;
+        }
+        currentRenamingPlacement=null;
+        for(const current of $('circuit').querySelectorAll('[data-current-index]')){
+          const currentModel=current.dataset.six==='true'?A6:S;
+          currentModel.currentPositions[Number(current.dataset.currentIndex)]={x:Number(current.dataset.arrowX),y:Number(current.dataset.arrowY)};
+        }
+        renameCurrentReferences(previous,number,six);$('currentNameDialog').close();return;
+      }
       model.currentNumbers[index]=number;model.currentPositions[index]={x:point.x,y:point.y};labels[index]=currentLabel(number);
       if(six)sixRefArrow();else drawDirs();
       const arrow=$((six?'sixCurrentArrow':'currentArrow')+index);
       if(arrow?.dataset.placementUnavailable==='true'){
         model.currentNumbers[index]=null;model.currentPositions[index]=null;labels[index]='I';
         if(six)sixRefArrow();else drawDirs();
-        $('currentNumberError').textContent='No hay espacio para esa etiqueta junto a la rama. Usa un número más corto.';show('currentNumberError',true);return;
+        $('currentNumber').setAttribute('aria-invalid','true');$('currentNumber').focus({preventScroll:true});return;
       }
       $('currentNameDialog').close();
       if(currentNamesReady(six)){
@@ -1059,7 +1120,28 @@
     return `<g id="${id}" data-current-index="${index}" data-six="${six}"><path class="direction-outline"/><path class="direction"/><text class="dirlabel">${label}</text>${value===null?'':`<text class="dir-result${six?' six-current-value':''}">${formatNumber(value)}A</text>`}<path class="current-direction-hit"/></g>`;
   }
 
-  let currentArrowDrag=null,suppressedCurrentClick=null;
+  let currentArrowDrag=null,suppressedCurrentClick=null,currentLabelTap=null,currentRenamingPlacement=null;
+
+  function cancelCurrentLabelTap(commit=false){
+    const tap=currentLabelTap;if(!tap)return;clearTimeout(tap.timer);currentLabelTap=null;
+    if(commit)invertInsertedCurrent(tap.index,tap.six);
+  }
+  function invertInsertedCurrent(index,six){
+    if(six){if(A6.stage==='dirs'){A6.signs[index]*=-1;sixRefArrow();}}
+    else reverse(index);
+  }
+  function editInsertedCurrent(index,six){
+    cancelCurrentLabelTap();
+    if(currentArrowDrag)finishCurrentArrowDrag(null,true);
+    suppressedCurrentClick={index,six,until:performance.now()+800};
+    openCurrentName(index,six,null,true);
+  }
+  function isCurrentLabelTarget(group,event){
+    const hit=group.querySelector('[data-current-label-hit]')||group.querySelector('.dirlabel');if(!hit)return false;
+    const box=hit.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)return false;
+    const distance=el=>{const r=el.getBoundingClientRect();return Math.max(r.left-event.clientX,0,event.clientX-r.right)**2+Math.max(r.top-event.clientY,0,event.clientY-r.bottom)**2;};
+    return distance(group.querySelector('.dirlabel'))<=distance(group.querySelector('.direction'));
+  }
   function repositionCurrent(index,six,point){
     const model=six?A6:S,previous=model.currentPositions[index];
     model.currentPositions[index]={x:point.x,y:point.y};layoutCurrentAnnotations();
@@ -1072,20 +1154,32 @@
   }
   function finishCurrentArrowDrag(event,cancelled=false){
     const drag=currentArrowDrag;if(!drag||event&&event.pointerId!==drag.pointerId)return;
-    const model=drag.six?A6:S;
+    clearTimeout(drag.longPressTimer);const model=drag.six?A6:S;
     if(cancelled&&drag.moved){model.currentPositions[drag.index]=drag.originalPosition;layoutCurrentAnnotations();}
     currentArrowDrag=null;$('circuit').classList.remove('dragging-current');
     if($('circuit').hasPointerCapture(drag.pointerId))$('circuit').releasePointerCapture(drag.pointerId);
     suppressedCurrentClick={index:drag.index,six:drag.six,until:performance.now()+500};
     if(cancelled)return;
     if(drag.moved)return;
-    if(drag.six){if(A6.stage==='dirs'){A6.signs[drag.index]*=-1;sixRefArrow();}}
-    else reverse(drag.index);
+    if(drag.labelEditable){
+      const previous=currentLabelTap;
+      if(previous&&previous.index===drag.index&&previous.six===drag.six&&performance.now()-previous.at<500){editInsertedCurrent(drag.index,drag.six);return;}
+      cancelCurrentLabelTap(true);
+      const tap={index:drag.index,six:drag.six,at:performance.now()};
+      tap.timer=setTimeout(()=>{if(currentLabelTap===tap){currentLabelTap=null;invertInsertedCurrent(tap.index,tap.six);}},500);currentLabelTap=tap;return;
+    }
+    cancelCurrentLabelTap(true);invertInsertedCurrent(drag.index,drag.six);
   }
   function initCurrentArrowDragging(){
     const svg=$('circuit');
     svg.addEventListener('touchstart',event=>{if(currentArrowDrag||event.target.closest?.('[data-current-index]'))event.preventDefault();},{passive:false});
     svg.addEventListener('touchmove',event=>{if(currentArrowDrag)event.preventDefault();},{passive:false});
+    svg.addEventListener('contextmenu',event=>{const group=event.target.closest?.('[data-current-index]');if(group&&isCurrentLabelTarget(group,event))event.preventDefault();});
+    svg.addEventListener('dblclick',event=>{
+      if($('currentNameDialog').open)return;
+      const group=event.target.closest?.('[data-current-index]');if(!group||!isCurrentLabelTarget(group,event))return;
+      event.preventDefault();event.stopPropagation();editInsertedCurrent(Number(group.dataset.currentIndex),group.dataset.six==='true');
+    });
     svg.addEventListener('pointerdown',event=>{
       let group=event.target.closest?.('[data-current-index]');
       if(!group||!event.isPrimary||event.button!==0||currentArrowDrag)return;
@@ -1102,29 +1196,33 @@
       const index=Number(group.dataset.currentIndex),six=group.dataset.six==='true',model=six?A6:S;
       currentArrowDrag={index,six,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,
         offsetX:Number(group.dataset.arrowX)-point.x,offsetY:Number(group.dataset.arrowY)-point.y,
-        originalPosition:model.currentPositions[index]?{...model.currentPositions[index]}:null,moved:false};
+        originalPosition:model.currentPositions[index]?{...model.currentPositions[index]}:null,moved:false,labelEditable:isCurrentLabelTarget(group,event)};
+      const drag=currentArrowDrag;
+      if(!drag.labelEditable||currentLabelTap&&(currentLabelTap.index!==index||currentLabelTap.six!==six))cancelCurrentLabelTap(true);
+      if(drag.labelEditable)drag.longPressTimer=setTimeout(()=>{if(currentArrowDrag===drag&&!drag.moved)editInsertedCurrent(index,six);},550);
       svg.setPointerCapture(event.pointerId);event.preventDefault();event.stopPropagation();
     });
     svg.addEventListener('pointermove',event=>{
       const drag=currentArrowDrag;if(!drag||event.pointerId!==drag.pointerId)return;
       if(!drag.moved&&Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)<4)return;
-      drag.moved=true;svg.classList.add('dragging-current');event.preventDefault();
+      clearTimeout(drag.longPressTimer);cancelCurrentLabelTap();drag.moved=true;svg.classList.add('dragging-current');event.preventDefault();
       const point=new DOMPoint(event.clientX,event.clientY).matrixTransform(svg.getScreenCTM().inverse());
       repositionCurrent(drag.index,drag.six,{x:point.x+drag.offsetX,y:point.y+drag.offsetY});
     });
     svg.addEventListener('pointerup',event=>finishCurrentArrowDrag(event));
     svg.addEventListener('pointercancel',event=>finishCurrentArrowDrag(event,true));
     svg.addEventListener('lostpointercapture',event=>finishCurrentArrowDrag(event,true));
-    window.addEventListener('blur',()=>finishCurrentArrowDrag(null,true));
+    window.addEventListener('blur',()=>{cancelCurrentLabelTap();finishCurrentArrowDrag(null,true);});
   }
   function bindCurrentArrows(six){
     const model=six?A6:S,choosing=six?model.stage==='dirs':model.phase===0;
     const layer=$(six?'sixRefArrows':'dirGraphics');
     layer.querySelectorAll('[data-current-index]').forEach(group=>{
       const index=Number(group.dataset.currentIndex);group.setAttribute('role','button');group.setAttribute('tabindex','0');
-      group.setAttribute('aria-label','Corriente '+(six?NAMES6:names)[index]+'. Arrastra la flecha o su texto para moverlos por la rama.'+(choosing?' Pulsa para invertir el sentido.':''));group.setAttribute('aria-disabled','false');
+      group.setAttribute('aria-label','Corriente '+(six?NAMES6:names)[index]+'. Arrastra la flecha o su texto para moverlos por la rama. Pulsación larga o doble clic en la I, o F2, para cambiar su número.'+(choosing?' Pulsa para invertir el sentido.':''));group.setAttribute('aria-disabled','false');
       group.style.cursor='grab';
       group.addEventListener('keydown',event=>{
+        if(event.key==='F2'){event.preventDefault();event.stopPropagation();editInsertedCurrent(index,six);return;}
         const offsets={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]},offset=offsets[event.key];if(!offset)return;
         event.preventDefault();event.stopPropagation();const step=event.shiftKey?2:10;
         repositionCurrent(index,six,{x:Number(group.dataset.arrowX)+offset[0]*step,y:Number(group.dataset.arrowY)+offset[1]*step});
@@ -1862,7 +1960,7 @@
   $('nextStep').onclick=()=>{const steps=buildSteps();if(S.step<steps.length){S.step++;renderSteps()}};
   $('restartSteps').onclick=()=>{S.step=0;S.finalVerified=false;$('finalChallenge').replaceChildren();renderSteps()};
   function newGame(){
-    finishCurrentArrowDrag(null,true);suppressedCurrentClick=null;phaseScores={0:0};clearTimeout(placementNoticeTimer);show('currentPlacementNotice',false);$('branchSelection').removeAttribute('d');endHeroPress();
+    cancelCurrentLabelTap();finishCurrentArrowDrag(null,true);suppressedCurrentClick=null;phaseScores={0:0};clearTimeout(placementNoticeTimer);show('currentPlacementNotice',false);$('branchSelection').removeAttribute('d');endHeroPress();
     flowToken++;stopFlow();if(S.pausedResume){S.pausedResume();S.pausedResume=null}
     $('currentBranchTargets').innerHTML='';
     $('gameLayout').classList.toggle('network-mode',active.kind==='network');
@@ -2375,8 +2473,9 @@
     const overlap=(a,b,pad=2)=>a.x<b.x+b.w+pad&&a.x+a.w+pad>b.x&&a.y<b.y+b.h+pad&&a.y+a.h+pad>b.y;
     const inside=r=>r.x>=vb.x+3&&r.y>=vb.y+3&&r.x+r.w<=vb.x+vb.width-3&&r.y+r.h<=vb.y+vb.height-3;
     const fixed=[...$('staticCircuit').querySelectorAll('.symbol,.source-halo,.source-plate:not(.source-lead),.component-value,.resistor-name,.txt,.txtsm,.nod'),...svg.querySelectorAll('#loopArrows .mesh-label,#loopArrows [data-mesh-turn],#sixLoops .mesh-label,#sixLoops [data-mesh-turn],.mesh-complete')].filter(visible).map(box);
-    if(currentArrowDrag?.moved){
-      const selected=groups.find(group=>Number(group.dataset.currentIndex)===currentArrowDrag.index&&(group.dataset.six==='true')===currentArrowDrag.six);
+    const isolated=currentArrowDrag?.moved?currentArrowDrag:currentRenamingPlacement;
+    if(isolated){
+      const selected=groups.find(group=>Number(group.dataset.currentIndex)===isolated.index&&(group.dataset.six==='true')===isolated.six);
       if(selected){
         for(const group of groups)if(group!==selected)for(const el of group.querySelectorAll('.direction,.dirlabel,.dir-result'))if(visible(el))occupied.push(box(el));
         groups=[selected];
@@ -2397,7 +2496,7 @@
       const wanted=model.currentPositions[index]||points[Math.floor(points.length/2)],label=group.querySelector('.dirlabel'),value=group.querySelector('.dir-result');
       group.style.display='';delete group.dataset.placementUnavailable;
       group.querySelectorAll('.current-label-hit').forEach(el=>el.remove());
-      const candidates=[];
+      let candidates=[];
       for(let i=1;i<points.length;i++){
         const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(length<30)continue;
         const dx=(b.x-a.x)/length,dy=(b.y-a.y)/length;
@@ -2405,6 +2504,7 @@
         const distances=[projected];for(let t=15;t<=length-15;t+=3)distances.push(t);
         for(const t of distances){const x=a.x+dx*t,y=a.y+dy*t;candidates.push({x,y,dx,dy,distance:(x-wanted.x)**2+(y-wanted.y)**2});}
       }
+      if(currentRenamingPlacement&&currentRenamingPlacement.index===index&&currentRenamingPlacement.six===six)candidates=[{...currentRenamingPlacement,distance:0}];
       candidates.sort((a,b)=>a.distance-b.distance);
       let chosen=null;
       const metric=el=>{el.setAttribute('x','0');el.setAttribute('y','0');el.setAttribute('text-anchor','start');el.removeAttribute('transform');return el.getBBox();};
@@ -2436,7 +2536,7 @@
       group.dataset.arrowX=c.x;group.dataset.arrowY=c.y;group.dataset.arrowDx=c.dx;group.dataset.arrowDy=c.dy;
       occupied.push(c.arrow,c.l);if(c.v)occupied.push(c.v);
       for(const r of [c.l,c.v].filter(Boolean)){
-        const hit=document.createElementNS('http://www.w3.org/2000/svg','rect');hit.setAttribute('class','dirclick current-label-hit');
+        const hit=document.createElementNS('http://www.w3.org/2000/svg','rect');hit.setAttribute('class','dirclick current-label-hit');if(r===c.l)hit.setAttribute('data-current-label-hit','true');
         for(const [key,val] of Object.entries({x:r.x-12,y:r.y-12,width:r.w+24,height:r.h+24}))hit.setAttribute(key,val);group.append(hit);
       }
     }
@@ -2506,7 +2606,7 @@
   }
 
   function stopPhaseActivity(){
-    finishCurrentArrowDrag(null,true);endHeroPress();flowToken++;stopFlow();
+    cancelCurrentLabelTap();finishCurrentArrowDrag(null,true);endHeroPress();flowToken++;stopFlow();
     if(S.pausedResume){const resume=S.pausedResume;S.pausedResume=null;resume();}
     S.animating=false;S.motionActive=false;S.manualPaused=false;
     sixCancel();clearFX();clearChallenge();setHeroGait(false);setHeroMood(false);
