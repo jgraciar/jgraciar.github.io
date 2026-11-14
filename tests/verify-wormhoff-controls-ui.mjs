@@ -48,8 +48,12 @@ for(let mesh=0;mesh<2;mesh++){
  assert.equal(await page.locator('#advance').getAttribute('data-state'),'complete','Malla terminada');
 }
 assert(await page.locator('[data-mesh-summary]').evaluateAll(groups=>groups.every(group=>group.querySelector('[data-mesh-complete]').getBoundingClientRect().bottom<group.querySelector('.mesh-turn-hit').getBoundingClientRect().top)),'Check encima del símbolo de giro');
-await page.click('#goMatrix');await page.click('#fillMatrix');await page.click('#verifyMatrix');await page.click('#goSolve');
+await page.click('#goMatrix');
+assert.equal(await page.locator('#phase3>.desc').count(),0);await page.click('#phase3 [data-phase-help]');assert(await page.locator('#phaseHelpDialog').isVisible());assert.equal(await page.locator('#phaseHelpBody li').count(),5);assert.match(await page.locator('#phaseHelpBody').textContent(),/coeficientes|coeficiente/);await page.click('#closePhaseHelp');
+await page.click('#fillMatrix');await page.click('#verifyMatrix');await page.click('#goSolve');
 await page.click('#nextStep');
+assert.equal(await page.locator('#phase4>.desc,#solutionSteps .step-description').count(),0);await page.click('#phase4 [data-phase-help]');assert.equal(await page.locator('#phaseHelpBody li').count(),5);await page.click('#closePhaseHelp');
+await page.locator('#solutionSteps [data-step-help]').first().click();assert.match(await page.locator('#phaseHelpBody').textContent(),/Partimos de/);await page.click('#closePhaseHelp');
 await page.locator('#currentArrow1').focus();await page.locator('#currentArrow1').press('F2');
 assert.equal(await page.locator('#currentNumber').inputValue(),'2');await page.locator('#currentNumber').fill('22');await page.click('#currentNameForm button[type="submit"]');
 assert.match(await page.locator('#matrixVariableOrder').textContent(),/I₂₂/);assert(!/I₂(?!₂)/.test(await page.locator('#solutionSteps').textContent()),'Resolución con la referencia nueva');
@@ -100,6 +104,7 @@ await page.evaluate(()=>{
 // Complete verification using the existing renderer without awarding more points.
 await page.evaluate(()=>{wormhoffTest.sixStartSolve(true);});
 assert(await page.locator('#advResultPanel').isVisible());
+await page.click('#advSolve [data-phase-help]');assert.equal(await page.locator('#phaseHelpBody li').count(),5);assert((await page.locator('#phaseHelpBody .help-step').count())>3);await page.click('#closePhaseHelp');
 const sixBefore=await page.locator('#advResults strong').allTextContents();
 for(let i=0;i<6;i++){
  const working=await page.locator('#advSolveSteps').textContent();
@@ -121,6 +126,9 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.goto('http://127.0.0.1:8767/wormhoff/');
  const selectSymbol=async value=>{await page.click('#openSettings');await page.selectOption('#symbolStandard',value);await page.click('#closeSettings');};
  assert.equal(await page.locator('html').getAttribute('data-theme'),'dark','Tema oscuro por defecto');
+ assert.equal(await page.locator('#exerciseStatus,#exerciseHint,#difficultyInfo,.top .sub,.exercisebar').count(),0,'Cabecera sin estado, observaciones ni subtítulo');
+ assert(await page.locator('#exerciseSelect').evaluate(el=>!!el.closest('.brand-exercise')),'Selector junto al nombre');
+ const headerBoxes=await page.locator('.brand-exercise').evaluate(el=>{const a=el.querySelector('.logo').getBoundingClientRect(),b=el.querySelector('#exerciseSelect').getBoundingClientRect();return {beside:b.left>=a.right,sameRow:Math.abs((a.top+a.bottom)/2-(b.top+b.bottom)/2)<3}});assert(headerBoxes.beside&&headerBoxes.sameRow,'Ejercicio a la derecha de Wormhoff');
  assert.equal(await page.locator('#symbolStandard').isVisible(),false,'Simbología dentro de configuración');
  await page.click('#openSettings');assert(await page.locator('#settingsDialog').isVisible());
  await page.selectOption('#themeSetting','light');
@@ -143,11 +151,17 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
 
  assert.equal(await page.locator('#currentNumber').getAttribute('maxlength'),'2');
  assert.equal(await page.locator('#currentNameDialog h3,#currentBranchDescription,#currentNumberError').count(),0,'Conserva el diálogo compacto con I');
+ if(!mobile){await page.setViewportSize({width:1920,height:1100});assert((await page.locator('.shell').boundingBox()).width>1900,'Utiliza todo el ancho disponible');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.setViewportSize({width:1440,height:1100});}
  const textControls=page.locator('#circuitCard [data-text-controls="circuit"]'),equationControls=page.locator('#equationsCard [data-text-controls="equations"]');
  const sourceText=page.locator('#circuit .component-value').first(),equationText=page.locator('#equationsCard .law-formula').first();
+ const circuitBaseWidth=(await page.locator('#circuit').boundingBox()).width,headerFont=await page.locator('#boardTitle').evaluate(el=>getComputedStyle(el).fontSize);
  const originalSizes=await Promise.all([sourceText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)),equationText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize))]);
  await textControls.locator('[data-text-change="1"]').click();
- assert((await sourceText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)))>originalSizes[0]+1,'Amplía texto de la columna izquierda');
+ assert.equal(await sourceText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)),originalSizes[0],'Conserva el tamaño nativo del texto SVG');
+ assert((await page.locator('#circuit').boundingBox()).width>circuitBaseWidth*1.08,'Amplía el circuito completo');
+ assert.equal(await page.locator('#boardTitle').evaluate(el=>getComputedStyle(el).fontSize),headerFont,'No amplía los rótulos del panel');
+ assert(await page.locator('.board').evaluate(el=>el.scrollWidth>el.clientWidth),'Permite desplazar el circuito ampliado dentro de su panel');
+ assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'El zoom no desborda la página');
  assert.equal(await equationText.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)),originalSizes[1],'Escalas independientes');
  await textControls.locator('[data-text-change="-1"]').click();
  await equationControls.locator('[data-text-change="1"]').click();
@@ -354,7 +368,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  };
  await page.selectOption('#exerciseSelect','c75');
  assert.equal(await page.locator('#confirmDirs').isDisabled(),true);
- await tap(146,310);assert(await page.locator('[data-current-branch="0"]').evaluate(el=>getComputedStyle(el).outlineStyle==='none'));assert((await page.locator('#branchSelection').getAttribute('d')).length>0);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
+ await tap(146,310);if(!mobile){const distance=await page.locator('#currentNameDialog').evaluate(el=>{const p=new DOMPoint(146,310).matrixTransform(document.getElementById('circuit').getScreenCTM()),r=el.getBoundingClientRect();return Math.hypot(Math.max(r.left-p.x,0,p.x-r.right),Math.max(r.top-p.y,0,p.y-r.bottom));});assert(distance<60,'Editor junto a la rama seleccionada: '+distance);}assert(await page.locator('[data-current-branch="0"]').evaluate(el=>getComputedStyle(el).outlineStyle==='none'));assert((await page.locator('#branchSelection').getAttribute('d')).length>0);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
  await tap(345,310);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
  assert.equal(await page.locator('#currentNumber').getAttribute('aria-invalid'),'true');assert(await page.locator('#currentNameDialog').isVisible());
  await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
@@ -522,3 +536,4 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
 }finally{await browser.close()}
+
