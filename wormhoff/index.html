@@ -745,6 +745,8 @@
     .adv-mat-head,.adv-mat-row{min-width:322px}
     #currentNumber{font-size:23px}
   }
+  .stages .stage.active{color:#211900;background:#ffe066;border-color:#ffe066;box-shadow:inset 0 0 0 1px #b78a00}
+  .stages .stage.active .phase-complete{color:#17652c}
 </style>
 </head>
 <body>
@@ -3476,7 +3478,7 @@
     const media=matchMedia('(max-width:970px), (pointer:coarse) and (max-width:1200px)');
     const sync=()=>{
       layout.classList.toggle('mobile-layout',media.matches);
-      if(media.matches)$('circuitCard').querySelector('.board').after(card);else marker.after(card);
+      if(media.matches){const actions=$('boardActions');$('circuitCard').querySelector('.board').after(actions);actions.after(card);}else marker.after(card);
     };
     media.addEventListener('change',sync);sync();
   }
@@ -3485,6 +3487,7 @@
       'verifyMatrix','advMatVerify','goSolve','advSolveBtn',
       'nextStep','restartSteps','advSolveNext','playAgain'];
     const actions=$('boardActions'),transport=$('circuitTransport'),entries=[];
+    $('circuitCard').querySelector('.board').after(actions);
     for(const id of ids){
       const button=$(id);if(!button)continue;
       const marker=document.createElement('span');marker.hidden=true;marker.setAttribute('aria-hidden','true');

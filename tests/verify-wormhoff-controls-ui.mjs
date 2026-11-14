@@ -44,6 +44,7 @@ const assertStageChecks=async(page,indices)=>{
  assert.equal(await page.locator('#stagebar [data-reset-phase]').count(),0,'Los títulos no incluyen reinicio');
  const reset=page.locator('#activePhaseReset');assert(await reset.isVisible(),'Reinicio dentro de la fase activa');
  const current=Number(await page.locator('#stagebar [aria-current="step"]').getAttribute('data-phase'));assert.equal(await reset.getAttribute('data-reset-phase'),String(current));
+ assert.equal(await page.locator('#stagebar .stage.active').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 224, 102)','La fase activa tiene fondo amarillo');
 };
 const browser=await chromium.launch({headless:true});
 let animationReference=null,meshShadeReference=null;
@@ -208,7 +209,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await equationControls.locator('[data-text-change="-1"]').click();
  const circuitCard=await page.locator('#circuitCard').boundingBox(),equationsCard=await page.locator('#equationsCard').boundingBox();
  if(mobile){
-  const diagram=await page.locator('#circuit').boundingBox();assert(equationsCard.y>=diagram.y+diagram.height-1&&equationsCard.y<diagram.y+diagram.height+3,'Ecuaciones inmediatamente debajo del circuito');
+  const diagram=await page.locator('#circuit').boundingBox(),actions=await page.locator('#boardActions').boundingBox(),bottom=actions?actions.y+actions.height:diagram.y+diagram.height;assert(equationsCard.y>=bottom-1&&equationsCard.y<bottom+3,'Ecuaciones bajo el circuito y su botón de avance');
   assert(await page.locator('#equationsCard').evaluate(el=>el.parentElement.id==='circuitCard'));
  }
  else assert(equationsCard.x>=circuitCard.x+circuitCard.width-1,'Ecuaciones a la derecha en escritorio');
@@ -242,7 +243,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   assert(await page.locator('#'+id).evaluate((el,parent)=>!!el.closest('#'+parent),container),'Acción en su barra: '+id);
   const diagram=await page.locator('#circuit').boundingBox(),actions=await page.locator('#'+container).boundingBox();
   if(transport)assert(actions.y+actions.height<=diagram.y+1,'Reproducción encima del circuito');
-  else assert(actions.y>=diagram.y+diagram.height-1,'Navegación debajo del esquema');
+  else assert(Math.abs(actions.y-diagram.y-diagram.height)<3,'Navegación inmediatamente debajo del esquema');
   assert(Math.abs(actions.x+actions.width/2-diagram.x-diagram.width/2)<2,'Acciones centradas');
  };
  await page.evaluate(markup=>{const probe=document.createElement('div');probe.id='algebraProbe';probe.innerHTML=markup;document.body.append(probe)},isolationMarkup);
@@ -595,7 +596,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.click('#advEditCurrentReferences');assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0);
  await page.click('[data-reset-phase="0"]');
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),0,'Reiniciar corrientes y nudos limpia los números');
- const freePoints=[[130,105],[350,105],[535,74],[255,225],[465,225],[370,355]];
+ const freePoints=[[130,190],[350,105],[570,190],[255,225],[465,225],[370,355]];
  for(let i=0;i<6;i++){
   await tap(...freePoints[i]);await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
   const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
