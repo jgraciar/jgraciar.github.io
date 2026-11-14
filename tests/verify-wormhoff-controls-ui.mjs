@@ -36,6 +36,13 @@ const enterNodeEquation=async(page,id,equation)=>{
  await page.click('#nodeEquationChallenge .kcl-check');
  assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'Ecuación validada en '+id);
 };
+const assertStageChecks=async(page,indices)=>{
+ const actual=await page.locator('#stagebar .phase-complete:visible').evaluateAll(nodes=>nodes.map(el=>Number(el.closest('[data-stage]').dataset.stage)));
+ assert.deepEqual(actual,indices,'Checks verdes solo en fases superadas');
+ assert.equal(await page.locator('#stagebar [data-reset-phase]').count(),0,'Los títulos no incluyen reinicio');
+ const reset=page.locator('#activePhaseReset');assert(await reset.isVisible(),'Reinicio dentro de la fase activa');
+ const current=Number(await page.locator('#stagebar [aria-current="step"]').getAttribute('data-phase'));assert.equal(await reset.getAttribute('data-reset-phase'),String(current));
+};
 const browser=await chromium.launch({headless:true});
 let animationReference=null,meshShadeReference=null;
 try{
@@ -50,7 +57,7 @@ for(const [i,x] of [146,345,544].entries()){
  await page.locator(`[data-current-branch="${i}"]`).dispatchEvent('click');
  await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
 }
-await page.click('#confirmDirs');assert.equal(await page.locator('#hero').isVisible(),false);assert.equal(await page.locator('#goLoops').isVisible(),false);assert.match(await page.locator('#nodeEquationCount').textContent(),/2 − 1 = 1/);await enterNodeEquation(page,'B','I1=I2+I3');assert.equal(await page.locator('#selectedNodeLabel').textContent(),'Nudo B');await page.click('#goLoops');assert(await page.locator('#hero').isVisible());await page.click('#confirmMeshDirections');
+await page.click('#confirmDirs');assert.equal(await page.locator('#hero').isVisible(),false);assert.equal(await page.locator('#goLoops').isVisible(),false);assert.match(await page.locator('#nodeEquationCount').textContent(),/2 − 1 = 1/);await enterNodeEquation(page,'B','I1=I2+I3');assert.equal(await page.locator('#selectedNodeLabel').textContent(),'Nudo B');await assertStageChecks(page,[0]);await page.click('#goLoops');assert(await page.locator('#hero').isVisible());await page.click('#confirmMeshDirections');
 for(let mesh=0;mesh<2;mesh++){
  await page.locator(`#meshTargets [data-mesh="${mesh}"]`).dispatchEvent('click');
  for(let turn=0;turn<250;turn++){
@@ -61,10 +68,12 @@ for(let mesh=0;mesh<2;mesh++){
  }
  assert.equal(await page.locator('#advance').getAttribute('data-state'),'complete','Malla terminada');
 }
+await assertStageChecks(page,[0,2]);
 assert(await page.locator('[data-mesh-summary]').evaluateAll(groups=>groups.every(group=>group.querySelector('[data-mesh-complete]').getBoundingClientRect().bottom<group.querySelector('.mesh-turn-hit').getBoundingClientRect().top)),'Check encima del símbolo de giro');
 await page.click('#goMatrix');
 assert.equal(await page.locator('#phase3>.desc').count(),0);await page.click('#phaseSectionHelp');assert(await page.locator('#phaseHelpDialog').isVisible());assert.equal(await page.locator('#phaseHelpBody li').count(),5);assert.match(await page.locator('#phaseHelpBody').textContent(),/coeficientes|coeficiente/);await page.click('#closePhaseHelp');
-await page.click('#fillMatrix');await page.click('#verifyMatrix');await page.click('#goSolve');
+await page.click('#fillMatrix');await assertStageChecks(page,[0,2]);await page.click('#verifyMatrix');await assertStageChecks(page,[0,2,3]);
+const testedCoefficient=page.locator('#matrixInputs input').first(),correctCoefficient=await testedCoefficient.inputValue();await testedCoefficient.fill('999');await assertStageChecks(page,[0,2]);assert.equal(await page.locator('#goSolve').isVisible(),false,'No permite continuar con la matriz modificada');await testedCoefficient.fill(correctCoefficient);await page.click('#verifyMatrix');await assertStageChecks(page,[0,2,3]);await page.click('#goSolve');
 await page.click('#nextStep');
 assert.equal(await page.locator('#phase4>.desc,#solutionSteps .step-description').count(),0);await page.click('#phaseSectionHelp');assert.equal(await page.locator('#phaseHelpBody li').count(),5);await page.click('#closePhaseHelp');
 await page.locator('#solutionSteps [data-step-help]').first().click();assert.match(await page.locator('#phaseHelpBody').textContent(),/Partimos de/);await page.click('#closePhaseHelp');
@@ -74,7 +83,7 @@ assert.match(await page.locator('#matrixVariableOrder').textContent(),/I₂₂/)
 await page.click('#nextStep');assert.match(await page.locator('#solutionSteps').textContent(),/I₂₂/,'Los siguientes pasos conservan el número nuevo');
 
 while(!await page.locator('#nextStep').isDisabled())await page.click('#nextStep');
-assert(await page.locator('#resultPanel').isVisible());
+assert(await page.locator('#resultPanel').isVisible());await assertStageChecks(page,[0,2,3,4]);
 const before={result:await page.locator('#results strong').allTextContents(),matrix:await page.locator('#matrixInputs input').evaluateAll(els=>els.map(el=>({col:Number(el.dataset.col),value:Number(el.value.replace('−','-').replace(',','.'))}))),working:await page.locator('#solutionSteps').textContent(),score:await page.locator('#score').textContent()};
 await page.locator('#currentArrow0').focus();await page.locator('#currentArrow0').press('Enter');
 const numeric=s=>Number(s.replace('−','-').replace(',','.').replace(' A',''));
@@ -84,22 +93,22 @@ assert.notEqual(await page.locator('#solutionSteps').textContent(),before.workin
 assert.deepEqual(await page.locator('#matrixInputs input').evaluateAll(els=>els.map(el=>Number(el.value.replace('−','-').replace(',','.')))),before.matrix.map(cell=>cell.col===0?(-cell.value||0):cell.value),'Invierte la columna correspondiente de la matriz');
 assert.equal(await page.locator('#resultPanel .message.good').count(),1,'El nuevo sistema sigue verificado');assert.equal(await page.locator('#score').textContent(),before.score,'No duplica puntos');
 await page.locator('#currentArrow0').press('Enter');assert.deepEqual(await page.locator('#results strong').allTextContents(),before.result,'Reversible');
-await page.click('[data-reset-phase="4"]');
+await page.click('[data-reset-phase="4"]');await assertStageChecks(page,[0,2,3]);
 assert.equal(await page.locator('#resultPanel').isVisible(),false);
 await page.click('[data-phase="3"]');
 assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value!=='')),'Volver a matriz conserva sus valores');
-await page.click('[data-reset-phase="3"]');
+await page.click('[data-reset-phase="3"]');await assertStageChecks(page,[0,2]);
 assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value==='')),'Reiniciar matriz vacía las casillas');
 assert.equal(await page.locator('#equationsCard [data-equation]:visible').count(),3,'Conserva las ecuaciones previas');
 await page.click('[data-phase="2"]');assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),2);
-await page.click('[data-reset-phase="2"]');assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),0);
+await page.click('[data-reset-phase="2"]');await assertStageChecks(page,[0]);assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),0);
 await page.click('#confirmMeshDirections');await page.click('#advance');await page.waitForFunction(()=>document.getElementById('advance').dataset.state==='running');
 await page.click('[data-phase="0"]');const position=await page.locator('#hero').getAttribute('transform');await page.waitForTimeout(100);
 assert.equal(await page.locator('#hero').getAttribute('transform'),position,'Retroceder cancela la animación');
 assert.equal(await page.locator('#dirGraphics .dirlabel').count(),3);
 await page.click('#confirmDirs');assert.equal(await page.locator('[data-phase="0"]').getAttribute('aria-current'),'step');
 assert(await page.locator('#phase0,#phase1').evaluateAll(nodes=>nodes.every(el=>!el.classList.contains('hide'))),'Corrientes y nudos comparten fase');assert(await page.locator('#editCurrentReferences').isVisible());assert.equal(await page.locator('#nodeTargets [data-node]').count(),2);
-await page.click('[data-reset-phase="0"]');assert.equal(await page.locator('#dirGraphics .dirlabel').count(),0);
+await page.click('[data-reset-phase="0"]');await assertStageChecks(page,[]);assert.equal(await page.locator('#dirGraphics .dirlabel').count(),0);
 
 await page.route('**/wormhoff/',async route=>{
  const response=await route.fetch(),html=await response.text();
@@ -140,6 +149,10 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.goto('http://127.0.0.1:8767/wormhoff/');
  const selectSymbol=async value=>{await page.click('#openSettings');await page.selectOption('#symbolStandard',value);await page.click('#closeSettings');};
  assert.equal(await page.locator('html').getAttribute('data-theme'),'dark','Tema oscuro por defecto');
+ await assertStageChecks(page,[]);
+ const phaseRects=await page.locator('#stagebar .stage').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};}));
+ assert(Math.abs(phaseRects[0].y-phaseRects[1].y)<1&&Math.abs(phaseRects[2].y-phaseRects[3].y)<1,'Fases apiladas de dos en dos');assert(phaseRects[0].x<phaseRects[1].x&&phaseRects[2].x<phaseRects[3].x&&phaseRects[2].y>=phaseRects[0].y+phaseRects[0].h-1,'Orden 1, 2 arriba de 3, 4');
+
  assert.equal(await page.locator('#exerciseStatus,#exerciseHint,#difficultyInfo,.top .sub,.exercisebar').count(),0,'Cabecera sin estado, observaciones ni subtítulo');
  assert(await page.locator('#exerciseSelect').evaluate(el=>!!el.closest('.brand-exercise')),'Selector junto al nombre');
  const headerBoxes=await page.locator('.brand-exercise').evaluate(el=>{const a=el.querySelector('.logo').getBoundingClientRect(),b=el.querySelector('#exerciseSelect').getBoundingClientRect();return {beside:b.left>=a.right,sameRow:Math.abs((a.top+a.bottom)/2-(b.top+b.bottom)/2)<3}});assert(headerBoxes.beside&&headerBoxes.sameRow,'Ejercicio a la derecha de Wormhoff');
@@ -526,7 +539,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   await page.locator('#nodeEquationChallenge .kcl-answer').fill(eq);await page.click('#nodeEquationChallenge .kcl-check');verifiedNodes++;assert.equal(await page.locator('#equationsCard #advKCL [data-equation]').count(),verifiedNodes);
  }
  assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);
- assert.deepEqual(await page.locator('#advKCLtext small').allTextContents(),['Nudo D','Nudo A','Nudo C'],'Conserva el orden de los nudos elegidos');
+ assert.deepEqual(await page.locator('#advKCLtext small').allTextContents(),['Nudo D','Nudo A','Nudo C'],'Conserva el orden de los nudos elegidos');await assertStageChecks(page,[0]);
  await page.locator('#nodeTargets [data-node="B"]').click();assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'El cuarto nudo aporta una ecuación dependiente');
  await checkAction('advGoLoops');await page.click('#advGoLoops');assert(await page.locator('#hero').isVisible());
  await checkMeshSelection(0,true);await checkVisibleMeshShade(185,190); await tap(460,290);assert.match(await page.locator('#advLap').textContent(),/Malla 3/);
