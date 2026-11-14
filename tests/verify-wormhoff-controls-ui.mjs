@@ -185,8 +185,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(await page.locator('#currentNameDialog h3,#currentBranchDescription,#currentNumberError').count(),0,'Conserva el diálogo compacto con I');
  if(!mobile){await page.setViewportSize({width:1920,height:1100});assert((await page.locator('.shell').boundingBox()).width>1900,'Utiliza todo el ancho disponible');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.setViewportSize({width:1440,height:1100});}
  if(mobile){
-  const sizes=await page.evaluate(()=>Object.fromEntries(['body','#exerciseSelect','#boardTitle','#stagebar .stage','#phaseCard .phase-title'].map(selector=>[selector,parseFloat(getComputedStyle(document.querySelector(selector)).fontSize)])));
-  assert(sizes.body>=17&&sizes['#exerciseSelect']>=16&&sizes['#boardTitle']>=17&&sizes['#stagebar .stage']>=15&&sizes['#phaseCard .phase-title']>=23,'Texto móvil más legible: '+JSON.stringify(sizes));
+  const sizes=await page.evaluate(()=>Object.fromEntries(['body','#exerciseSelect','#boardTitle','#stagebar .stage','#phaseHead'].map(selector=>[selector,parseFloat(getComputedStyle(document.querySelector(selector)).fontSize)])));
+  assert(sizes.body>=17&&sizes['#exerciseSelect']>=16&&sizes['#boardTitle']>=17&&sizes['#stagebar .stage']>=15&&sizes['#phaseHead']>=17,'Texto móvil más legible: '+JSON.stringify(sizes));
   assert.equal(await page.locator('#circuit .component-value').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize)),16,'El texto del circuito conserva su tamaño');
  }
  const textControls=page.locator('#circuitCard [data-text-controls="circuit"]'),equationControls=page.locator('#equationsCard [data-text-controls="equations"]');
