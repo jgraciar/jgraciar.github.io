@@ -131,7 +131,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const point=await page.locator(`[data-mesh-turn="${index}"] .mesh-turn-hit`).evaluate(el=>{const b=el.getBBox();return {x:b.x+b.width/2,y:b.y+b.height/2};});await tap(point.x,point.y);
  };
  const checkMeshSelection=async(index,clockwise)=>{
-  assert.equal(await page.locator('#meshSelection').getAttribute('data-mesh'),String(index));
+  assert.equal(await page.locator('#meshSelection').getAttribute('data-selected-mesh'),String(index));
   assert.equal(await page.locator('#meshSelection').getAttribute('data-turn'),clockwise?'clockwise':'counterclockwise');
   assert.equal(await page.locator('#meshSelection .mesh-selection-contour').count(),4,'Cabezas de flecha en los cuatro lados');
   for(const path of await page.locator('#meshSelection .mesh-selection-contour').all()){
@@ -157,7 +157,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    from.forEach((el,i)=>{const style=getComputedStyle(el);for(const prop of properties)to[i].style.setProperty(prop,style.getPropertyValue(prop));});
    const box=svg.viewBox.baseVal;clone.setAttribute('xmlns','http://www.w3.org/2000/svg');clone.setAttribute('width',box.width);clone.setAttribute('height',box.height);clone.style.width=box.width+'px';clone.style.height=box.height+'px';
    const img=new Image();await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(clone));});
-   const canvas=document.createElement('canvas');canvas.width=box.width;canvas.height=box.height;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
+   const canvas=document.createElement('canvas');canvas.width=box.width;canvas.height=box.height;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);
    return {inside:[...ctx.getImageData(Math.round(x-box.x),Math.round(y-box.y),1,1).data],outside:[...ctx.getImageData(580-box.x,110-box.y,1,1).data]};
   },{x,y});
   assert(pixels.inside[3]>pixels.outside[3]+40,'Sombreado visible en la imagen del circuito: '+JSON.stringify(pixels));
@@ -323,13 +323,13 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const fixedEquation=await page.locator('#nodeEq').textContent();
  await dragCurrent('#currentArrow0',146,300,true);assert.equal(await page.locator('#nodeEq').textContent(),fixedEquation,'Mover la flecha conserva las ecuaciones');
  await checkAction('goLoops');await page.click('#goLoops');await checkMeshSelection(0,true);await checkVisibleMeshShade(205,110);await checkAction('confirmMeshDirections');assert.equal(await page.locator('#advance').isDisabled(),true);assert.equal(await page.locator('#advance').isVisible(),false);assert(await page.locator('#equationsCard #nodeEqPanel [data-equation="E1"]').isVisible());
- await tap(490,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-mesh'),'1');
+ await tap(490,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-selected-mesh'),'1');
  await tapMeshTurn(1);await checkMeshSelection(1,false);assert.match(await page.locator('#boardState').textContent(),/antihorario/);
  await tap(490,290);assert.match(await page.locator('#boardState').textContent(),/antihorario/,'Pulsar la malla activa conserva el progreso');
  await page.locator('[data-mesh-turn="1"]').focus();await page.locator('[data-mesh-turn="1"]').press('Space');
  assert.match(await page.locator('#boardState').textContent(),/horario/);assert.equal(await page.locator('#advance').isEnabled(),false,'No inicia el recorrido sin confirmar los sentidos');
- await checkMeshSelection(1,true);await tap(210,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-mesh'),'0');
- await page.click('#confirmMeshDirections');await checkAction('advance');await page.click('#advance');await tap(490,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-mesh'),'0','No cambiar malla durante el recorrido');
+ await checkMeshSelection(1,true);await tap(210,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-selected-mesh'),'0');
+ await page.click('#confirmMeshDirections');await checkAction('advance');await page.click('#advance');await tap(490,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-selected-mesh'),'0','No cambiar malla durante el recorrido');
  await pauseResume('advance');
  await page.waitForFunction(()=>document.querySelector('#hero').classList.contains('hero-happy'));
  assert.equal(await page.locator('#advance').getAttribute('data-state'),'waiting');
@@ -419,7 +419,7 @@ for(const [i,x] of [146,345,544].entries()){
 }
 await page.click('#confirmDirs');await page.click('#goLoops');await page.click('#confirmMeshDirections');
 for(let mesh=0;mesh<2;mesh++){
- await page.locator(`[data-mesh="${mesh}"]`).dispatchEvent('click');
+ await page.locator(`#meshTargets [data-mesh="${mesh}"]`).dispatchEvent('click');
  for(let turn=0;turn<250;turn++){
   if(await page.locator('#advance').getAttribute('data-state')==='complete')break;
   const state=await page.locator('#advance').getAttribute('data-state');

@@ -1003,7 +1003,7 @@
     drawSelectedMesh(S.loop,faces[S.loop],S.loops[S.loop]?.cw??S.cw);
     $('loopArrows').innerHTML=[0,1].map(k=>{
       const chosen=S.loops[k]?.cw??S.meshDirections?.[k]??(S.loop===k?S.cw:true),x=k===0?246:445,done=!!S.loops[k];
-      const title='MALLA '+(k+1)+(S.loop===k&&!done?(S.pass==='resistors'?' · Σ R·I':' · Σ U'):'');
+      const title='MALLA '+(k+1);
       return `<g data-mesh-summary="${k}">`+meshStatusLabel(k,x,166,190,title,done,S.loop===k,false)+meshTurnIcon(k,x,237,chosen,done)+`</g>`;
     }).join('');
     bindMeshTurns($('loopArrows'));
@@ -1347,7 +1347,7 @@
       [`M${bottomX} ${bottom} H${right-r} Q${right} ${bottom} ${right} ${bottom-r} V${sideY}`,'right'],
       [`M${right} ${sideY} V${y+r} Q${right} ${y} ${right-r} ${y} H${topX}`,'top']
     ];
-    const selected=$('meshSelection');selected.dataset.mesh=String(index);selected.dataset.turn=cw?'clockwise':'counterclockwise';
+    const selected=$('meshSelection');selected.dataset.selectedMesh=String(index);selected.dataset.turn=cw?'clockwise':'counterclockwise';
     selected.innerHTML=`<rect class="mesh-selection-fill" x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>`+
       (cw?clockwise:counterclockwise).map(([d,edge])=>`<path class="mesh-selection-contour" data-edge="${edge}" d="${d}" marker-end="url(#meshContourArrow)"/>`).join('');
   }
@@ -2130,10 +2130,10 @@
     if(A6.stage==='loops'){
       drawMeshTargets(faces);drawSelectedMesh(A6.loop,faces[A6.loop],A6.done[A6.loop]?.cw??A6.cw);
     }else{$('meshTargets').innerHTML='';$('meshSelection').innerHTML='';}
-    const positions=[{x:247,titleY:133,statusY:153,turnY:190},{x:497,titleY:133,statusY:153,turnY:190},{x:350,titleY:259,statusY:278,turnY:316}];
+    const positions=[{x:247,titleY:139,statusY:160,turnY:194},{x:497,titleY:139,statusY:160,turnY:194},{x:350,titleY:259,statusY:278,turnY:316}];
     $('sixLoops').innerHTML=positions.map(({x,titleY,statusY,turnY},i)=>{
       const done=!!A6.done[i],cw=A6.done[i]?.cw??A6.meshDirections?.[i]??(i===A6.loop?A6.cw:true);
-      const title='M'+(i+1)+(i===A6.loop&&!done&&i!==2?(A6.pass==='R'?' · Σ R·I':' · Σ U'):'');
+      const title='M'+(i+1);
       return `<g data-mesh-summary="${i}">`+meshStatusLabel(i,x,titleY,statusY,title,done,i===A6.loop,true)+meshTurnIcon(i,x,turnY,cw,done,A6.stage==='loops',28)+`</g>`;
     }).join('');
     bindMeshTurns($('sixLoops'));
