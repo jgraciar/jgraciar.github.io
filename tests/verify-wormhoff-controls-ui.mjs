@@ -258,8 +258,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const {x,y}=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   const sel='#sixCurrentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente avanzada '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
- dragged=await dragCurrent('#sixCurrentArrow4',470,225,true);
- assert(Math.hypot(dragged.x-470,dragged.y-225)<2,'Arrastra I5 y su texto dentro de su rama');
+ dragged=await dragCurrent('#sixCurrentArrow4',462,225,true);
+ assert(Math.hypot(dragged.x-462,dragged.y-225)<2,'Arrastra I5 y su texto dentro de su rama');
  await dragCurrent('#sixCurrentArrow4',130,190);await assertBranchPlacement(true);await assertNoCurrentOverlap();
  await dragCurrent('#sixCurrentArrow4',470,225);
  await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
