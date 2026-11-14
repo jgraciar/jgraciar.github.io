@@ -2985,7 +2985,7 @@
         for(const c of candidates){
           const half=12,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
           const arrow={x:c.x-Math.abs(vx)*half-Math.abs(vy)*7-3,y:c.y-Math.abs(vy)*half-Math.abs(vx)*7-3,w:Math.abs(vx)*2*half+Math.abs(vy)*14+6,h:Math.abs(vy)*2*half+Math.abs(vx)*14+6};
-          if(six&&index===0&&wanted.y>175&&wanted.y<210&&c.distance<.01)console.log('CANDIDATE',JSON.stringify({wanted,c,arrow,inside:inside(arrow),blocked:[...fixed,...occupied].filter(b=>overlap(arrow,b))}));
+          if(six&&index===0&&wanted.y>175&&wanted.y<210&&c.distance<4)console.log('CANDIDATE',JSON.stringify({wanted,c,arrow,inside:inside(arrow),blocked:[...fixed,...occupied].filter(b=>overlap(arrow,b))}));
           if(!inside(arrow)||[...fixed,...occupied].some(b=>overlap(arrow,b)))continue;
           const horizontal=Math.abs(c.dx)>.5;
           const positions=horizontal?[11,18,28].flatMap(offset=>[
@@ -2994,7 +2994,7 @@
             {l:{x:c.x-l.width/2,y:c.y+offset,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+offset+l.height+5,w:v.width,h:v.height}:null},
             {l:{x:c.x-l.width/2,y:c.y-offset-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y-offset-l.height-5-v.height,w:v.width,h:v.height}:null}
           ]):[13,20,27].flatMap(offset=>[1,-1].flatMap(side=>[1,-1].map(vertical=>({l:{x:side>0?c.x+offset:c.x-offset-l.width,y:c.y-l.height/2,w:l.width,h:l.height},v:v?{x:side>0?c.x+offset:c.x-offset-v.width,y:vertical>0?c.y+l.height/2+5:c.y-l.height/2-5-v.height,w:v.width,h:v.height}:null}))));
-          if(six&&index===0&&wanted.y>175&&wanted.y<210&&c.distance<.01)console.log('LABELS',JSON.stringify({l,positions:positions.map(pos=>({pos,inside:inside(pos.l),fixed:fixed.filter(b=>overlap(pos.l,b)),wires:wires.filter(b=>overlap(pos.l,b)),arrow:overlap(pos.l,arrow)}))}));
+          if(six&&index===0&&wanted.y>175&&wanted.y<210&&c.distance<4)console.log('LABELS',JSON.stringify({l,positions:positions.map(pos=>({pos,inside:inside(pos.l),fixed:fixed.filter(b=>overlap(pos.l,b)),wires:wires.filter(b=>overlap(pos.l,b)),arrow:overlap(pos.l,arrow)}))}));
           const arrangement=positions.find(pos=>[pos.l,pos.v].filter(Boolean).every(r=>inside(r)&&![...fixed,...wires,...occupied,arrow].some(b=>overlap(r,b))));
           if(arrangement){chosen={...c,vx,vy,half,arrow,...arrangement,lMetric:l,vMetric:v};break;}
         }
