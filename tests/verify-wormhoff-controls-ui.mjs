@@ -98,7 +98,7 @@ await page.click('[data-phase="0"]');const position=await page.locator('#hero').
 assert.equal(await page.locator('#hero').getAttribute('transform'),position,'Retroceder cancela la animación');
 assert.equal(await page.locator('#dirGraphics .dirlabel').count(),3);
 await page.click('#confirmDirs');assert.equal(await page.locator('[data-phase="0"]').getAttribute('aria-current'),'step');
-assert(await page.locator('#phase0').isVisible()&&await page.locator('#phase1').isVisible(),'Corrientes y nudos comparten vista');
+assert(await page.locator('#phase0,#phase1').evaluateAll(nodes=>nodes.every(el=>!el.classList.contains('hide'))),'Corrientes y nudos comparten fase');assert(await page.locator('#editCurrentReferences').isVisible());assert.equal(await page.locator('#nodeTargets [data-node]').count(),2);
 await page.click('[data-reset-phase="0"]');assert.equal(await page.locator('#dirGraphics .dirlabel').count(),0);
 
 await page.route('**/wormhoff/',async route=>{
