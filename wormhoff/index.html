@@ -1348,7 +1348,7 @@
   }
   for(let i=0;i<3;i++)bindClickable($('dirHit'+i),()=>reverse(i));
   bindClickable($('nodeHit'),()=>{if(S.phase===1)analyzeNode(true)});
-  $('confirmDirs').onclick=()=>{if(!currentNamesReady(false)||hasReduction()&&!S.reductionDone)return;S.score+=50;$('boardState').textContent='Referencias fijadas; ley de nudos calculada.';phase(1)};
+  $('confirmDirs').onclick=()=>{cancelCurrentLabelTap(true);if(!currentNamesReady(false)||hasReduction()&&!S.reductionDone)return;S.score+=50;$('boardState').textContent='Referencias fijadas; ley de nudos calculada.';phase(1)};
   $('checkReductions').onclick=()=>{
     let good=true;document.querySelectorAll('[data-reduce]').forEach(el=>{
       const i=+el.dataset.reduce,actual=Number(el.value.replace(',','.'));
@@ -2167,6 +2167,7 @@
     ).join('')+'</div>';
   }
   function sixNodeStart(){
+    cancelCurrentLabelTap(true);
     if(!['dirs','nodes'].includes(A6.stage)||!currentNamesReady(true))return;
     rememberPhase(1);A6.stage='nodes';syncPhaseNavigation();
     if(difficulty()!==0){

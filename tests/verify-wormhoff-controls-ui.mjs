@@ -236,6 +236,13 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   }),'Valor centrado en altura y nombre a la izquierda');
  }
  await page.selectOption('#symbolStandard','iec');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),3);
+ await page.locator('#circuit').scrollIntoViewIfNeeded();
+ const labelPoint=await page.locator('#currentArrow0 .dirlabel').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};});
+ if(mobile)await page.touchscreen.tap(labelPoint.x,labelPoint.y);else await page.mouse.click(labelPoint.x,labelPoint.y);
+ await page.click('#confirmDirs');await page.locator('#nodeChallenge .kcl-answer').fill('I7+I12+I3=0');await page.click('#nodeChallenge .kcl-check');
+ assert(await page.locator('#goLoops').isVisible(),'Confirma una pulsación simple pendiente antes de fijar referencias');
+ await page.click('#editCurrentReferences');
+ const originalArrow=await page.locator('#currentArrow0').evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));await tap(originalArrow.x,originalArrow.y);
  await page.click('#confirmDirs');await page.locator('#nodeChallenge .kcl-answer').fill('I7=I12+I3');await page.click('#nodeChallenge .kcl-check');
  assert.match(await page.locator('#nodeEq').textContent(),/I₇.*I₁₂.*I₃/);
  assert(!/\bKCL\b|\bKVL\b/.test(await page.locator('body').innerText()));
