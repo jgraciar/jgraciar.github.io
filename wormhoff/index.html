@@ -2850,7 +2850,9 @@
           const horizontal=Math.abs(c.dx)>.5;
           const positions=horizontal?[11,18,28].flatMap(offset=>[
             {l:{x:c.x-l.width/2,y:c.y-offset-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+offset,w:v.width,h:v.height}:null},
-            {l:{x:c.x-l.width/2,y:c.y+offset,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y-offset-v.height,w:v.width,h:v.height}:null}
+            {l:{x:c.x-l.width/2,y:c.y+offset,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y-offset-v.height,w:v.width,h:v.height}:null},
+            {l:{x:c.x-l.width/2,y:c.y+offset,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+offset+l.height+5,w:v.width,h:v.height}:null},
+            {l:{x:c.x-l.width/2,y:c.y-offset-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y-offset-l.height-5-v.height,w:v.width,h:v.height}:null}
           ]):[13,20,27].flatMap(offset=>[1,-1].flatMap(side=>[1,-1].map(vertical=>({l:{x:side>0?c.x+offset:c.x-offset-l.width,y:c.y-l.height/2,w:l.width,h:l.height},v:v?{x:side>0?c.x+offset:c.x-offset-v.width,y:vertical>0?c.y+l.height/2+5:c.y-l.height/2-5-v.height,w:v.width,h:v.height}:null}))));
           const arrangement=positions.find(pos=>[pos.l,pos.v].filter(Boolean).every(r=>inside(r)&&![...fixed,...wires,...occupied,arrow].some(b=>overlap(r,b))));
           if(arrangement){chosen={...c,vx,vy,half,arrow,...arrangement,lMetric:l,vMetric:v};break;}
