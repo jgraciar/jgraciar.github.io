@@ -3021,6 +3021,7 @@
       const place=(el,r,m)=>{el.setAttribute('x',r.x-m.x);el.setAttribute('y',r.y-m.y);};
       place(label,c.l,c.lMetric);if(value)place(value,c.v,c.vMetric);
       group.dataset.arrowX=c.x;group.dataset.arrowY=c.y;group.dataset.arrowDx=c.dx;group.dataset.arrowDy=c.dy;
+      model.currentPositions[index]={x:c.x,y:c.y};
       occupied.push(c.arrow,c.l);if(c.v)occupied.push(c.v);
       for(const r of [c.l,c.v].filter(Boolean)){
         const hit=document.createElementNS('http://www.w3.org/2000/svg','rect');hit.setAttribute('class','dirclick current-label-hit');if(r===c.l)hit.setAttribute('data-current-label-hit','true');
