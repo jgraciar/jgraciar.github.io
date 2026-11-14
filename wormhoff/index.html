@@ -6,25 +6,25 @@
 <meta name="color-scheme" content="dark">
 <title>Wormhoff · MVP 3.7</title>
 <style>
-  :root { --bg:#09101d; --card:#111c30; --card2:#0c182b; --border:#2c415b; --txt:#f0f6ff; --muted:#a7bbd0; --cyan:#5ce6f0; --lime:#b7f75c; --amber:#ffc66b; --red:#ff7786; --purple:#ac98ff; }
+  :root { --bg:var(--paint-09101d,#09101d); --card:var(--paint-111c30,#111c30); --card2:var(--paint-0c182b,#0c182b); --border:var(--paint-2c415b,#2c415b); --txt:var(--paint-f0f6ff,#f0f6ff); --muted:var(--paint-a7bbd0,#a7bbd0); --cyan:var(--paint-5ce6f0,#5ce6f0); --lime:var(--paint-b7f75c,#b7f75c); --amber:var(--paint-ffc66b,#ffc66b); --red:var(--paint-ff7786,#ff7786); --purple:var(--paint-ac98ff,#ac98ff); }
   *{box-sizing:border-box}
   html{scroll-padding-top:calc(var(--stagebar-height,90px) + 12px)}
   #circuit{scroll-margin-top:calc(var(--stagebar-height,90px) + 12px)}
-  body{margin:0;background:radial-gradient(circle at 9% 2%,#183657 0,transparent 28%),radial-gradient(circle at 96% 70%,#1b2050 0,transparent 35%),var(--bg);color:var(--txt);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+  body{margin:0;background:radial-gradient(circle at 9% 2%,var(--paint-183657,#183657) 0,transparent 28%),radial-gradient(circle at 96% 70%,var(--paint-1b2050,#1b2050) 0,transparent 35%),var(--bg);color:var(--txt);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
   .shell{max-width:1580px;margin:auto;padding:20px 18px 34px}
   .top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:15px}
   .logo{font-size:clamp(25px,3vw,35px);font-weight:900;letter-spacing:.04em;line-height:1.1}
   .logo span{color:var(--cyan)}
   .sub{font:12px/1.4 ui-monospace,Consolas,monospace;color:var(--muted);margin-top:6px;letter-spacing:.04em}
   .score{display:flex;gap:11px;flex-wrap:wrap}
-  .stat{background:#0d1b2e;border:1px solid #36516b;padding:9px 14px;border-radius:12px;min-width:105px}
+  .stat{background:var(--paint-0d1b2e,#0d1b2e);border:1px solid var(--paint-36516b,#36516b);padding:9px 14px;border-radius:12px;min-width:105px}
   .stat small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
   .stat strong{font:700 21px/1.45 ui-monospace,Consolas,monospace;color:var(--lime)}
-  .stages{display:flex;gap:7px;margin:12px 0 16px;padding:8px 0;position:sticky;top:0;z-index:50;background:#091423;box-shadow:0 5px 12px #0004;isolation:isolate}
-  .stage{display:flex;align-items:center;gap:3px;flex:1;min-width:0;background:#142035;border:1px solid #2d425c;border-radius:11px;padding:3px;color:#8399b4;font-size:12px;font-weight:700}
+  .stages{display:flex;gap:7px;margin:12px 0 16px;padding:8px 0;position:sticky;top:0;z-index:50;background:var(--paint-091423,#091423);box-shadow:0 5px 12px var(--paint-0004,#0004);isolation:isolate}
+  .stage{display:flex;align-items:center;gap:3px;flex:1;min-width:0;background:var(--paint-142035,#142035);border:1px solid var(--paint-2d425c,#2d425c);border-radius:11px;padding:3px;color:var(--paint-8399b4,#8399b4);font-size:12px;font-weight:700}
   .stage[hidden]{display:none}
-  .stage.active{border-color:var(--cyan);color:var(--txt);background:#163045;box-shadow:inset 0 0 0 1px #5ce6f02a}
-  .stage.done{color:var(--lime);border-color:#53843e}
+  .stage.active{border-color:var(--cyan);color:var(--txt);background:var(--paint-163045,#163045);box-shadow:inset 0 0 0 1px var(--paint-5ce6f02a,#5ce6f02a)}
+  .stage.done{color:var(--lime);border-color:var(--paint-53843e,#53843e)}
   .stage b{margin-right:5px;color:inherit}
   .phase-link{flex:1;min-width:0;border:0;background:transparent!important;color:inherit;padding:8px 4px;text-align:left;font:inherit;line-height:1.4;box-shadow:none}
   .phase-reset{flex:none;width:29px;height:31px;border:0;padding:5px;background:transparent!important;color:inherit;box-shadow:none}
@@ -34,7 +34,7 @@
   [data-current-index]{touch-action:none;user-select:none;cursor:grab}
   #circuit.dragging-current [data-current-index],#circuit.dragging-current .current-direction-hit{cursor:grabbing!important}
   .current-direction-hit{fill:none;stroke:transparent;stroke-width:44;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke;cursor:inherit}
-  .current-placement-notice{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:4;width:max-content;max-width:calc(100% - 20px);padding:8px 12px;background:#19334b;color:#ffe0a1;border:1px solid #d5aa61;border-radius:9px;font-size:13px;line-height:1.4;box-shadow:0 4px 15px #0005;pointer-events:none}
+  .current-placement-notice{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:4;width:max-content;max-width:calc(100% - 20px);padding:8px 12px;background:var(--paint-19334b,#19334b);color:var(--paint-ffe0a1,#ffe0a1);border:1px solid var(--paint-d5aa61,#d5aa61);border-radius:9px;font-size:13px;line-height:1.4;box-shadow:0 4px 15px var(--paint-0005,#0005);pointer-events:none}
   @media(max-width:600px){.stages{gap:3px}.stage{flex-direction:column;padding:2px;gap:0;font-size:10px}.stage b{display:block;margin:0}.phase-link{text-align:center;padding:5px 1px;width:100%}.phase-reset{height:25px;padding:3px 5px}}
   .layout{display:grid;grid-template-columns:minmax(0,var(--left-track,1.1fr)) 18px minmax(0,var(--right-track,1fr));grid-template-areas:"circuit divider equations" "circuit divider phase";grid-template-rows:auto 1fr;row-gap:17px;column-gap:0;align-items:start}
   #circuitCard{grid-area:circuit;position:sticky;top:calc(var(--stagebar-height,80px) + 12px);min-width:0}
@@ -44,10 +44,10 @@
   .layout.network-mode #equationsCard{display:none}
   #equationsCard,#phaseCard{container-type:inline-size}
   .column-divider{grid-area:divider;align-self:stretch;position:relative;display:flex;justify-content:center;align-items:flex-start;cursor:col-resize;touch-action:none;user-select:none;outline:none;min-height:160px}
-  .column-divider::before{content:"";position:absolute;top:0;bottom:0;left:8px;width:2px;background:#37556b;border-radius:2px}
+  .column-divider::before{content:"";position:absolute;top:0;bottom:0;left:8px;width:2px;background:var(--paint-37556b,#37556b);border-radius:2px}
   .column-divider:hover::before,.column-divider:focus-visible::before{background:var(--cyan)}
   .column-divider:focus-visible{outline:2px solid var(--cyan);outline-offset:-3px;border-radius:6px}
-  .resize-grip{position:sticky;top:40vh;width:6px;height:48px;border-radius:5px;background:#6b91aa;box-shadow:0 0 0 3px #13263b;margin:24px 0;pointer-events:none}
+  .resize-grip{position:sticky;top:40vh;width:6px;height:48px;border-radius:5px;background:var(--paint-6b91aa,#6b91aa);box-shadow:0 0 0 3px var(--paint-13263b,#13263b);margin:24px 0;pointer-events:none}
   .is-resizing,.is-resizing *{cursor:col-resize!important;user-select:none!important}
   .equations-body{padding:0;min-width:0;overflow-wrap:anywhere}
   .card .body{min-width:0;overflow-wrap:anywhere}
@@ -55,53 +55,53 @@
   .cardhead strong{min-width:0;overflow-wrap:anywhere}
   .equation-placeholder{padding:16px;margin:0;color:var(--muted);font-size:13px}
   .matrix-actions{justify-content:center}
-  .board-eq-label small,.node-eq-label small{display:block;font:500 10px system-ui,sans-serif;color:#8faac2}
-  .card{background:linear-gradient(145deg,#111e33,#0c1729);border:1px solid var(--border);border-radius:17px;box-shadow:0 16px 33px #0000001f;overflow:hidden}
-  .cardhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 17px;border-bottom:1px solid var(--border);background:#15253b}
+  .board-eq-label small,.node-eq-label small{display:block;font:500 10px system-ui,sans-serif;color:var(--paint-8faac2,#8faac2)}
+  .card{background:linear-gradient(145deg,var(--paint-111e33,#111e33),var(--paint-0c1729,#0c1729));border:1px solid var(--border);border-radius:17px;box-shadow:0 16px 33px var(--paint-0000001f,#0000001f);overflow:hidden}
+  .cardhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 17px;border-bottom:1px solid var(--border);background:var(--paint-15253b,#15253b)}
   .cardhead strong{font-size:14px}
-  .chip{border:1px solid #476480;background:#0e2136;border-radius:7px;padding:3px 8px;color:var(--muted);font:11px ui-monospace,Consolas,monospace}
-  .board{padding:0;background:radial-gradient(circle at 50% 46%,#162d42 0,#0d1a2c 65%);position:relative}
+  .chip{border:1px solid var(--paint-476480,#476480);background:var(--paint-0e2136,#0e2136);border-radius:7px;padding:3px 8px;color:var(--muted);font:11px ui-monospace,Consolas,monospace}
+  .board{padding:0;background:radial-gradient(circle at 50% 46%,var(--paint-162d42,#162d42) 0,var(--paint-0d1a2c,#0d1a2c) 65%);position:relative}
   #circuit{display:block;width:100%;height:auto;max-width:none;max-height:none;overflow:visible}
-  .wire{stroke:#e9f4fd;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
-  .symbol{stroke:#f5f6fa;stroke-width:2.8;fill:#15233a;stroke-linejoin:round}
-  .source-plate{stroke:#f5f6fa;stroke-width:3;stroke-linecap:square}
-  .txt{fill:#f5f6fa;font:600 17px ui-monospace,Consolas,monospace}
-  .txtsm{fill:#b2c7da;font:13px ui-monospace,Consolas,monospace}
-  .component-value{fill:#ecf5ff;font:400 16px/1.2 ui-monospace,Consolas,monospace;pointer-events:none}
+  .wire{stroke:var(--paint-e9f4fd,#e9f4fd);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .symbol{stroke:var(--paint-f5f6fa,#f5f6fa);stroke-width:2.8;fill:var(--paint-15233a,#15233a);stroke-linejoin:round}
+  .source-plate{stroke:var(--paint-f5f6fa,#f5f6fa);stroke-width:3;stroke-linecap:square}
+  .txt{fill:var(--paint-f5f6fa,#f5f6fa);font:600 17px ui-monospace,Consolas,monospace}
+  .txtsm{fill:var(--paint-b2c7da,#b2c7da);font:13px ui-monospace,Consolas,monospace}
+  .component-value{fill:var(--paint-ecf5ff,#ecf5ff);font:400 16px/1.2 ui-monospace,Consolas,monospace;pointer-events:none}
   #circuit .resistor-ansi{display:none}
   #circuit[data-symbol-standard="ansi"] .resistor-iec{display:none}
   #circuit[data-symbol-standard="ansi"] .resistor-ansi{display:inline}
   .resistor-ansi .symbol{fill:none!important}
   .current-branch-hit{outline:none!important;fill:none;stroke:transparent;stroke-width:28;pointer-events:stroke;cursor:pointer;stroke-linejoin:round}
   .current-branch-hit:focus,.current-branch-hit:focus-visible{outline:none!important;stroke:transparent}
-  .branch-selection{fill:none;stroke:#5ce6f088;stroke-width:12;stroke-linecap:round;pointer-events:none}
+  .branch-selection{fill:none;stroke:var(--paint-5ce6f088,#5ce6f088);stroke-width:12;stroke-linecap:round;pointer-events:none}
   .column-text-controls{display:flex;align-items:center;gap:4px;margin-left:auto;flex:none}
   .column-text-controls button{padding:3px 8px;min-width:29px;font:700 17px/1.3 system-ui,sans-serif}
   .column-text-controls output{min-width:39px;text-align:center;font:11px ui-monospace,monospace;color:var(--muted)}
   .layout:not(.network-mode) #phaseTextControls{display:none}
-  #currentNameDialog{color:var(--txt);background:#112139;border:1px solid #6586a0;border-radius:14px;width:max-content;max-width:calc(100% - 24px);padding:10px 12px;position:fixed;inset:auto;margin:0;left:var(--current-dialog-x,50vw);top:var(--current-dialog-y,25dvh);transform:translate(-50%,-50%);box-shadow:0 15px 60px #0008}
-  #currentNameDialog::backdrop{background:#020b18aa}
+  #currentNameDialog{color:var(--txt);background:var(--paint-112139,#112139);border:1px solid var(--paint-6586a0,#6586a0);border-radius:14px;width:max-content;max-width:calc(100% - 24px);padding:10px 12px;position:fixed;inset:auto;margin:0;left:var(--current-dialog-x,50vw);top:var(--current-dialog-y,25dvh);transform:translate(-50%,-50%);box-shadow:0 15px 60px var(--paint-0008,#0008)}
+  #currentNameDialog::backdrop{background:var(--paint-020b18aa,#020b18aa)}
   .current-number-field{display:flex;align-items:center;gap:6px;font:800 23px ui-monospace,monospace;margin:0}
   #currentNameForm{display:flex;align-items:center;gap:8px}
   #currentNameForm button{display:grid;place-items:center;width:40px;height:40px;min-width:40px;padding:8px}
   #currentNameForm button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  #currentNumber[aria-invalid="true"]{border-color:var(--red);box-shadow:0 0 0 2px #ff778655}
-  #currentNumber{min-width:0;width:calc(2ch + 20px);text-align:center;font:700 23px ui-monospace,monospace;background:#071628;border:1px solid #7896ae;border-radius:8px;padding:9px;color:var(--txt)}
-  .law-guide{padding:14px 15px;border-bottom:1px solid #344c67;background:#102339;font-size:15px;line-height:1.7}
+  #currentNumber[aria-invalid="true"]{border-color:var(--red);box-shadow:0 0 0 2px var(--paint-ff778655,#ff778655)}
+  #currentNumber{min-width:0;width:calc(2ch + 20px);text-align:center;font:700 23px ui-monospace,monospace;background:var(--paint-071628,#071628);border:1px solid var(--paint-7896ae,#7896ae);border-radius:8px;padding:9px;color:var(--txt)}
+  .law-guide{padding:14px 15px;border-bottom:1px solid var(--paint-344c67,#344c67);background:var(--paint-102339,#102339);font-size:15px;line-height:1.7}
   .law-guide strong{display:block;color:var(--cyan);margin-top:7px}
   .law-guide strong:first-child{margin-top:0}
   .law-guide .law-formula{font-family:ui-monospace,monospace;overflow-wrap:anywhere}
   #equationsCard .board-eq-formula,#equationsCard .node-eq-formula{font-size:clamp(18px,1.6vw,23px);line-height:1.65}
   #equationsCard .board-eq-equal{font-size:26px}
-  .resistor-name{fill:#fff;font:700 12px ui-monospace,Consolas,monospace;text-anchor:middle;pointer-events:none}
-  .direction-outline{fill:none;stroke:#13283d;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+  .resistor-name{fill:var(--paint-fff,#fff);font:700 12px ui-monospace,Consolas,monospace;text-anchor:middle;pointer-events:none}
+  .direction-outline{fill:none;stroke:var(--paint-13283d,#13283d);stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
   .direction{stroke:var(--amber);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
   .dirlabel{fill:var(--amber);font:750 16px ui-monospace,Consolas,monospace;pointer-events:none}
-  .dir-result{fill:var(--amber);stroke:#0b1c2c;stroke-width:3;paint-order:stroke;stroke-linejoin:round;font:650 16px ui-monospace,Consolas,monospace;pointer-events:none}
+  .dir-result{fill:var(--amber);stroke:var(--paint-0b1c2c,#0b1c2c);stroke-width:3;paint-order:stroke;stroke-linejoin:round;font:650 16px ui-monospace,Consolas,monospace;pointer-events:none}
   .dir-result.six-current-value{font-size:16px}
   .dir-result.six-current-value.tight-value{font-size:16px}
   .dir-result.six-current-value.narrow-value{font-size:16px}
-  .nod{fill:var(--amber);stroke:#fff3ce;stroke-width:2}
+  .nod{fill:var(--amber);stroke:var(--paint-fff3ce,#fff3ce);stroke-width:2}
   .nodeglow{fill:none;stroke:var(--amber);stroke-width:2;opacity:.7}
   .branch-hit{fill:transparent;cursor:pointer}
   .branch-hit:focus{outline:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:5 5}
@@ -117,19 +117,19 @@
   .dirclick{fill:transparent;cursor:pointer}
   /* Un sombreado violeta tenue distingue la malla activa del ámbar de las corrientes,
      del verde del personaje y del blanco de los símbolos. Detrás de todos ellos. */
-  .mesh-selection-fill{fill:#7569a8;fill-opacity:.34;stroke:none;pointer-events:none}
-  .mesh-selection-contour{fill:none;stroke:#c4b9f0;stroke-opacity:.95;stroke-width:2;stroke-dasharray:8 7;vector-effect:non-scaling-stroke;pointer-events:none}
-  .mesh-contour-arrowhead{fill:#d7c9ff;stroke:none}
+  .mesh-selection-fill{fill:var(--paint-7569a8,#7569a8);fill-opacity:.34;stroke:none;pointer-events:none}
+  .mesh-selection-contour{fill:none;stroke:var(--paint-c4b9f0,#c4b9f0);stroke-opacity:.95;stroke-width:2;stroke-dasharray:8 7;vector-effect:non-scaling-stroke;pointer-events:none}
+  .mesh-contour-arrowhead{fill:var(--paint-d7c9ff,#d7c9ff);stroke:none}
   #meshSelection{pointer-events:none}
-  #hero{--worm-fill:#b7f75c;--worm-edge:#edffbe;--worm-dark:#619b36;--worm-glow:#b7f755}
-  #hero.hero-sad{--worm-fill:#a64a17;--worm-edge:#e99659;--worm-dark:#723317;--worm-glow:#e9965955}
+  #hero{--worm-fill:var(--paint-b7f75c,#b7f75c);--worm-edge:var(--paint-edffbe,#edffbe);--worm-dark:var(--paint-619b36,#619b36);--worm-glow:var(--paint-b7f755,#b7f755)}
+  #hero.hero-sad{--worm-fill:var(--paint-a64a17,#a64a17);--worm-edge:var(--paint-e99659,#e99659);--worm-dark:var(--paint-723317,#723317);--worm-glow:var(--paint-e9965955,#e9965955)}
   .hero-body,.hero-segment{fill:var(--worm-fill);stroke:var(--worm-edge);stroke-width:1.4}
   .hero-segment{stroke-width:1.1}
   .hero-spine{fill:none;stroke:var(--worm-dark);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
   .hero-shine{fill:none;stroke:var(--worm-edge);stroke-width:1.5;stroke-linecap:round;opacity:.5;pointer-events:none}
-  .hero-eye{fill:#15233a}
-  .hero-eye-light{fill:#fff;opacity:.9}
-  .hero-mouth{stroke:#122236;stroke-width:1.7;fill:none;stroke-linecap:round}
+  .hero-eye{fill:var(--paint-15233a,#15233a)}
+  .hero-eye-light{fill:var(--paint-fff,#fff);opacity:.9}
+  .hero-mouth{stroke:var(--paint-122236,#122236);stroke-width:1.7;fill:none;stroke-linecap:round}
   .hero-eyes{transform-box:fill-box;transform-origin:center;transition:transform .28s ease-in-out,opacity .25s ease-in-out}
   #heroMouth{transition:opacity .25s ease-in-out}
   .hero-open-smile{opacity:0;transform:scaleY(.2);transform-box:fill-box;transform-origin:center;transition:opacity .28s ease-in-out,transform .28s ease-in-out}
@@ -161,52 +161,52 @@
   #hero{filter:drop-shadow(0 0 6px var(--worm-glow));cursor:pointer;pointer-events:all;touch-action:none;user-select:none}
   #hero.hero-user-hidden,#hero.hero-user-hidden *{visibility:hidden!important;pointer-events:none!important}
   #heroHit{fill:none;stroke:transparent;stroke-width:28;pointer-events:stroke;cursor:pointer}
-  .boardfoot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 15px;background:#0d1b2e;border-top:1px solid var(--border);color:var(--muted);font-size:12px}
+  .boardfoot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 15px;background:var(--paint-0d1b2e,#0d1b2e);border-top:1px solid var(--border);color:var(--muted);font-size:12px}
   .boardfoot b{color:var(--cyan);font-weight:600}
   .body{padding:18px}
   .phase-title{margin:0 0 7px;font-size:22px;font-weight:850;line-height:1.25}
   .desc{color:var(--muted);margin:0 0 14px;font-size:14px}
   .btnrow{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
-  button{color:var(--txt);font:600 14px system-ui,sans-serif;border:1px solid #45607c;background:#1e3550;padding:10px 13px;border-radius:9px;cursor:pointer;transition:filter .12s,transform .12s}
+  button{color:var(--txt);font:600 14px system-ui,sans-serif;border:1px solid var(--paint-45607c,#45607c);background:var(--paint-1e3550,#1e3550);padding:10px 13px;border-radius:9px;cursor:pointer;transition:filter .12s,transform .12s}
   button:hover:not(:disabled){filter:brightness(1.18)}
   button:active:not(:disabled){transform:translateY(1px)}
   button:disabled{opacity:.4;cursor:not-allowed}
-  button.primary{background:linear-gradient(100deg,#187d9a,#2c638b);border-color:#4be6f0;color:white}
-  button.success{background:#376c37;border-color:#91db66}
-  button.ghost{background:transparent;border-color:#47627b;color:#afc6dc}
+  button.primary{background:linear-gradient(100deg,var(--paint-187d9a,#187d9a),var(--paint-2c638b,#2c638b));border-color:var(--paint-4be6f0,#4be6f0);color:white}
+  button.success{background:var(--paint-376c37,#376c37);border-color:var(--paint-91db66,#91db66)}
+  button.ghost{background:transparent;border-color:var(--paint-47627b,#47627b);color:var(--paint-afc6dc,#afc6dc)}
   button.small{padding:7px 10px;font-size:12px}
-  button.selected{background:#3d4f76;border-color:var(--cyan);box-shadow:inset 0 0 0 1px #5ce6f050}
-  .eqpanel{padding:13px;background:#0a1729;border:1px solid #324967;border-radius:12px;margin:13px 0}
+  button.selected{background:var(--paint-3d4f76,#3d4f76);border-color:var(--cyan);box-shadow:inset 0 0 0 1px var(--paint-5ce6f050,#5ce6f050)}
+  .eqpanel{padding:13px;background:var(--paint-0a1729,#0a1729);border:1px solid var(--paint-324967,#324967);border-radius:12px;margin:13px 0}
   .eqtitle{color:var(--cyan);font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
   .eq{font:600 clamp(15px,2vw,20px)/1.8 ui-monospace,Consolas,monospace;word-break:break-word}
-  .eq + .eq{border-top:1px dashed #294661;padding-top:6px;margin-top:6px}
+  .eq + .eq{border-top:1px dashed var(--paint-294661,#294661);padding-top:6px;margin-top:6px}
   .eq.good{color:var(--lime)}
   .node-eq-list{display:grid;gap:0;width:100%;margin:3px 0}
-  .node-eq-row{display:grid;grid-template-columns:75px minmax(0,1fr);gap:10px;align-items:baseline;padding:9px 2px;border-bottom:1px solid #29415b}
+  .node-eq-row{display:grid;grid-template-columns:75px minmax(0,1fr);gap:10px;align-items:baseline;padding:9px 2px;border-bottom:1px solid var(--paint-29415b,#29415b)}
   .node-eq-row:last-child{border-bottom:0}
-  .node-eq-label{color:#a9c4db;font:700 12px/1.6 system-ui,sans-serif}
+  .node-eq-label{color:var(--paint-a9c4db,#a9c4db);font:700 12px/1.6 system-ui,sans-serif}
   .node-eq-formula{font:700 clamp(14px,1.6vw,17px)/1.5 ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;white-space:normal;overflow-wrap:anywhere}
 
   .notes{font-size:13px;color:var(--muted)}
-  .message{padding:10px 12px;border-radius:9px;background:#14304a;color:#d8f5fb;border:1px solid #285a78;font-size:13px;min-height:43px;margin:12px 0}
-  .message.bad{background:#3c2233;border-color:#a95166;color:#ffe1e7}
-  .message.good{background:#1b382b;border-color:#5f9f64;color:#d2ffd8}
+  .message{padding:10px 12px;border-radius:9px;background:var(--paint-14304a,#14304a);color:var(--paint-d8f5fb,#d8f5fb);border:1px solid var(--paint-285a78,#285a78);font-size:13px;min-height:43px;margin:12px 0}
+  .message.bad{background:var(--paint-3c2233,#3c2233);border-color:var(--paint-a95166,#a95166);color:var(--paint-ffe1e7,#ffe1e7)}
+  .message.good{background:var(--paint-1b382b,#1b382b);border-color:var(--paint-5f9f64,#5f9f64);color:var(--paint-d2ffd8,#d2ffd8)}
   .dirbuttons{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}
   .dirbuttons button{min-width:82px}
   .build{display:grid;grid-template-columns:minmax(0,1fr) 38px minmax(0,1fr);gap:9px;margin:13px 0}
   .build .eqpanel{margin:0;min-height:100px}
   .mathlabel{display:block;color:var(--muted);font-size:11px;line-height:1.3}
-  .eqlist{margin-top:10px;padding:10px 12px;background:#101f35;border-radius:10px;border:1px solid #314d6b}
+  .eqlist{margin-top:10px;padding:10px 12px;background:var(--paint-101f35,#101f35);border-radius:10px;border:1px solid var(--paint-314d6b,#314d6b)}
   .eqlist .eq{font-size:14px}
-  .component-source.component-lit,.component-resistor.component-lit{filter:drop-shadow(0 0 9px #ffe288) drop-shadow(0 0 7px #ffca55)}
-  .component-source.component-lit .source-plate{stroke:#fff1ae;stroke-width:5;filter:drop-shadow(0 0 7px #ffd463)}
-  .component-source.component-lit .source-halo{fill:#715119;stroke:#ffe08a;stroke-width:2.2}
-  .component-source.component-lit rect:not(.source-halo){fill:#79551d;stroke:#ffe08a;stroke-width:2}
-  .component-source.component-lit .source-lead{stroke:#ffe9a0;stroke-width:4}
-  .component-source.component-lit text{fill:#fff0af;filter:drop-shadow(0 0 5px #ffd463)}
-  .component-resistor.component-lit .symbol{stroke:#fff2b9;stroke-width:5;fill:#79551f;filter:drop-shadow(0 0 10px #ffe288)}
-  .component-resistor.component-lit text{fill:#fff0af;filter:drop-shadow(0 0 5px #ffe28c)}
-  .circuit-controls{padding:14px 16px 16px;background:#102139;border-top:1px solid #3d5772;display:grid;gap:10px}
+  .component-source.component-lit,.component-resistor.component-lit{filter:drop-shadow(0 0 9px var(--paint-ffe288,#ffe288)) drop-shadow(0 0 7px var(--paint-ffca55,#ffca55))}
+  .component-source.component-lit .source-plate{stroke:var(--paint-fff1ae,#fff1ae);stroke-width:5;filter:drop-shadow(0 0 7px var(--paint-ffd463,#ffd463))}
+  .component-source.component-lit .source-halo{fill:var(--paint-715119,#715119);stroke:var(--paint-ffe08a,#ffe08a);stroke-width:2.2}
+  .component-source.component-lit rect:not(.source-halo){fill:var(--paint-79551d,#79551d);stroke:var(--paint-ffe08a,#ffe08a);stroke-width:2}
+  .component-source.component-lit .source-lead{stroke:var(--paint-ffe9a0,#ffe9a0);stroke-width:4}
+  .component-source.component-lit text{fill:var(--paint-fff0af,#fff0af);filter:drop-shadow(0 0 5px var(--paint-ffd463,#ffd463))}
+  .component-resistor.component-lit .symbol{stroke:var(--paint-fff2b9,#fff2b9);stroke-width:5;fill:var(--paint-79551f,#79551f);filter:drop-shadow(0 0 10px var(--paint-ffe288,#ffe288))}
+  .component-resistor.component-lit text{fill:var(--paint-fff0af,#fff0af);filter:drop-shadow(0 0 5px var(--paint-ffe28c,#ffe28c))}
+  .circuit-controls{padding:14px 16px 16px;background:var(--paint-102139,#102139);border-top:1px solid var(--paint-3d5772,#3d5772);display:grid;gap:10px}
   .circuit-controls .message{margin:2px 0}
   .circuit-controls .lap-chip{margin:2px 0}
   .circuit-controls .btnrow{margin:0}
@@ -216,89 +216,89 @@
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   .icon-button,.transport-button{display:inline-flex;align-items:center;justify-content:center;min-width:52px;min-height:48px;padding:9px 15px}
   .icon-button svg,.transport-button svg{width:26px;height:26px;pointer-events:none}
-  .transport-button[data-state="running"]{background:#235c3c;border-color:#89df99;color:#d7ffe2}
-  .transport-button[data-state="ready"],.transport-button[data-state="paused"],.transport-button[data-state="waiting"]{background:#59421f;border-color:#ffcf78;color:#ffe0a1}
-  .transport-button[data-state="blocked"],.transport-button[data-state="complete"]{background:#223449;border-color:#52677c;color:#b8c7d6}
+  .transport-button[data-state="running"]{background:var(--paint-235c3c,#235c3c);border-color:var(--paint-89df99,#89df99);color:var(--paint-d7ffe2,#d7ffe2)}
+  .transport-button[data-state="ready"],.transport-button[data-state="paused"],.transport-button[data-state="waiting"]{background:var(--paint-59421f,#59421f);border-color:var(--paint-ffcf78,#ffcf78);color:var(--paint-ffe0a1,#ffe0a1)}
+  .transport-button[data-state="blocked"],.transport-button[data-state="complete"]{background:var(--paint-223449,#223449);border-color:var(--paint-52677c,#52677c);color:var(--paint-b8c7d6,#b8c7d6)}
   .transport-button .transport-play{display:block}.transport-button .transport-stop{display:none}
   .transport-button[data-state="running"] .transport-play{display:none}
   .transport-button[data-state="running"] .transport-stop{display:block}
   .mesh-complete{pointer-events:none}
-  .board-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;padding:15px 16px;background:#102139;border-top:1px solid #3d5772}
-  .circuit-transport{border-top:0;border-bottom:1px solid #3d5772;padding:10px 16px}
+  .board-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;padding:15px 16px;background:var(--paint-102139,#102139);border-top:1px solid var(--paint-3d5772,#3d5772)}
+  .circuit-transport{border-top:0;border-bottom:1px solid var(--paint-3d5772,#3d5772);padding:10px 16px}
   .board-action-item{display:flex;justify-content:center;max-width:100%}
   .board-action-item[hidden]{display:none}
   .board-actions button{max-width:100%;white-space:normal}
   .circuit-controls .control-actions,.circuit-controls .control-groups,.circuit-controls .choices{justify-content:center}
   .circuit-controls .term-check{display:block;margin-inline:auto}
-  .algebra-isolation{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 10px;padding:8px 0;font:600 14px/1.6 ui-monospace,Consolas,monospace;color:#dceafa}
-  .algebra-isolation-label{font:600 11px system-ui,sans-serif;color:#a6c8e1}
-  .algebra-isolated-value{display:inline-block;color:var(--lime);font-weight:800;background:#163529;border:1px solid #5a9358;border-radius:7px;padding:3px 9px}
+  .algebra-isolation{display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 10px;padding:8px 0;font:600 14px/1.6 ui-monospace,Consolas,monospace;color:var(--paint-dceafa,#dceafa)}
+  .algebra-isolation-label{font:600 11px system-ui,sans-serif;color:var(--paint-a6c8e1,#a6c8e1)}
+  .algebra-isolated-value{display:inline-block;color:var(--lime);font-weight:800;background:var(--paint-163529,#163529);border:1px solid var(--paint-5a9358,#5a9358);border-radius:7px;padding:3px 9px}
   .algebra-table .alg-isolation-row td{white-space:normal;text-align:left;font-size:14px}
-  .algebra-mobile .algebra-isolation{padding:8px 10px;border-bottom:1px solid #28445b}
-  .board-equations{padding:12px 15px;background:#0a1729;border-top:1px solid #344c67}
+  .algebra-mobile .algebra-isolation{padding:8px 10px;border-bottom:1px solid var(--paint-28445b,#28445b)}
+  .board-equations{padding:12px 15px;background:var(--paint-0a1729,#0a1729);border-top:1px solid var(--paint-344c67,#344c67)}
   .board-equations .eqtitle{margin-bottom:8px}
-  .board-eq-row{display:grid;grid-template-columns:75px minmax(0,1fr);align-items:baseline;gap:9px;padding:6px 0;border-top:1px solid #263b53}
+  .board-eq-row{display:grid;grid-template-columns:75px minmax(0,1fr);align-items:baseline;gap:9px;padding:6px 0;border-top:1px solid var(--paint-263b53,#263b53)}
   .board-eq-row:first-of-type{border-top:0}
-  .board-eq-label{color:#b8cddf;font-size:12px;font-weight:700}
+  .board-eq-label{color:var(--paint-b8cddf,#b8cddf);font-size:12px;font-weight:700}
   .board-eq-formula{display:flex;align-items:baseline;justify-content:flex-start;flex-wrap:wrap;column-gap:14px;row-gap:2px;font:650 clamp(14px,1.65vw,18px)/1.7 ui-monospace,Consolas,monospace}
   .board-eq-left,.board-eq-right{min-width:50px}
   .board-eq-equal{color:var(--cyan);font-weight:900;font-size:22px}
-  .flash-term{display:inline-block;white-space:nowrap;border-radius:4px;padding:0 3px;animation:termBlink .9s step-end infinite!important;will-change:opacity,background-color;color:#ffec95}
-  @keyframes termBlink{0%,49%{color:#ffe083;opacity:1;background:#99681b;text-shadow:0 0 12px #ffce55;box-shadow:0 0 9px #ffc95866}50%,100%{color:#f4f7ff;opacity:.23;background:transparent;text-shadow:none;box-shadow:none}}
+  .flash-term{display:inline-block;white-space:nowrap;border-radius:4px;padding:0 3px;animation:termBlink .9s step-end infinite!important;will-change:opacity,background-color;color:var(--paint-ffec95,#ffec95)}
+  @keyframes termBlink{0%,49%{color:var(--paint-ffe083,#ffe083);opacity:1;background:var(--paint-99681b,#99681b);text-shadow:0 0 12px var(--paint-ffce55,#ffce55);box-shadow:0 0 9px var(--paint-ffc95866,#ffc95866)}50%,100%{color:var(--paint-f4f7ff,#f4f7ff);opacity:.23;background:transparent;text-shadow:none;box-shadow:none}}
   /* La flecha y el término comienzan su ciclo en el mismo fotograma al detenerse el personaje. */
   .flash-arrow{animation:arrowBlink .9s step-end infinite!important;filter:drop-shadow(0 0 4px var(--amber))}
   @keyframes arrowBlink{0%,49%{opacity:1}50%,100%{opacity:.23}}
-  .reductions{padding:12px;border:1px solid #67805e;border-radius:10px;margin-bottom:12px;background:#142d2a}
-  .reductions input{width:88px;background:#071426;color:#fff;border:1px solid #65896c;border-radius:6px;padding:8px;font:700 15px monospace}
+  .reductions{padding:12px;border:1px solid var(--paint-67805e,#67805e);border-radius:10px;margin-bottom:12px;background:var(--paint-142d2a,#142d2a)}
+  .reductions input{width:88px;background:var(--paint-071426,#071426);color:var(--paint-fff,#fff);border:1px solid var(--paint-65896c,#65896c);border-radius:6px;padding:8px;font:700 15px monospace}
   .reductions .reduce-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0}
   .matrix{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 12px minmax(0,1fr);gap:6px;align-items:center}
   .mat-head{text-align:center;color:var(--muted);font-size:11px}
   .mat-sep{height:36px;border-left:2px solid var(--cyan);margin:0 5px}
-  .matrix input{width:100%;height:42px;text-align:center;background:#071426;border:1px solid #46637a;border-radius:7px;color:var(--txt);font:700 16px ui-monospace,monospace;outline:0}
+  .matrix input{width:100%;height:42px;text-align:center;background:var(--paint-071426,#071426);border:1px solid var(--paint-46637a,#46637a);border-radius:7px;color:var(--txt);font:700 16px ui-monospace,monospace;outline:0}
   .matrix input:focus{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan)}
-  .matrix input.correct{border-color:#80b957;background:#18352c}
-  .matrix input.wrong{border-color:#fc8595;background:#3b2030}
+  .matrix input.correct{border-color:var(--paint-80b957,#80b957);background:var(--paint-18352c,#18352c)}
+  .matrix input.wrong{border-color:var(--paint-fc8595,#fc8595);background:var(--paint-3b2030,#3b2030)}
   .muted{color:var(--muted)}
   .steps{margin:14px 0;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-width:0;width:100%}
-  .step{display:flex;align-items:start;gap:10px;min-width:0;width:100%;padding:10px;border:1px solid #36516b;background:#132740;border-radius:10px;font-size:14px}
-  .stepnum{flex:0 0 26px;background:#27627e;border-radius:7px;color:#e9fdff;font:800 13px ui-monospace,monospace;text-align:center;padding:4px 0}
+  .step{display:flex;align-items:start;gap:10px;min-width:0;width:100%;padding:10px;border:1px solid var(--paint-36516b,#36516b);background:var(--paint-132740,#132740);border-radius:10px;font-size:14px}
+  .stepnum{flex:0 0 26px;background:var(--paint-27627e,#27627e);border-radius:7px;color:var(--paint-e9fdff,#e9fdff);font:800 13px ui-monospace,monospace;text-align:center;padding:4px 0}
   .step-main{flex:1;min-width:0}
-  .step-heading{font-weight:800;color:#c2f3fb;font-size:14px;margin-bottom:5px}
-  .step-description{color:#d3e3f4;font-size:13px;line-height:1.5;margin:5px 0 8px}
-  .algebra-scroll{width:100%;min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:1px solid #34506a;border-radius:8px;margin:9px 0}
-  .algebra-table{border-collapse:collapse;width:max-content;min-width:100%;table-layout:auto;font:600 13px/1.4 ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;background:#0b1b2d}
+  .step-heading{font-weight:800;color:var(--paint-c2f3fb,#c2f3fb);font-size:14px;margin-bottom:5px}
+  .step-description{color:var(--paint-d3e3f4,#d3e3f4);font-size:13px;line-height:1.5;margin:5px 0 8px}
+  .algebra-scroll{width:100%;min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:1px solid var(--paint-34506a,#34506a);border-radius:8px;margin:9px 0}
+  .algebra-table{border-collapse:collapse;width:max-content;min-width:100%;table-layout:auto;font:600 13px/1.4 ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;background:var(--paint-0b1b2d,#0b1b2d)}
   .algebra-table col.alg-label-col{width:19%}
   .algebra-table col.alg-term-col{width:20%}
   .algebra-table col.alg-eq-col{width:6%}
   .algebra-table col.alg-result-col{width:15%}
-  .algebra-table th,.algebra-table td{padding:7px 6px;text-align:right;white-space:nowrap;vertical-align:middle;border-bottom:1px solid #28445b}
-  .algebra-table th{color:#94bcd6;background:#142943;font-size:11px}
-  .algebra-table th:first-child,.algebra-table td:first-child{text-align:left;color:#a6c8e1;font-size:11px}
+  .algebra-table th,.algebra-table td{padding:7px 6px;text-align:right;white-space:nowrap;vertical-align:middle;border-bottom:1px solid var(--paint-28445b,#28445b)}
+  .algebra-table th{color:var(--paint-94bcd6,#94bcd6);background:var(--paint-142943,#142943);font-size:11px}
+  .algebra-table th:first-child,.algebra-table td:first-child{text-align:left;color:var(--paint-a6c8e1,#a6c8e1);font-size:11px}
   .algebra-table td.alg-equal{text-align:center;color:var(--cyan);font-weight:900}
-  .algebra-table td.alg-empty{color:#6a8197}
+  .algebra-table td.alg-empty{color:var(--paint-6a8197,#6a8197)}
   .algebra-table tr:last-child td{border-bottom:0}
-  .algebra-table tr.alg-total td{border-top:2px solid var(--amber);color:#ffe1a2}
+  .algebra-table tr.alg-total td{border-top:2px solid var(--amber);color:var(--paint-ffe1a2,#ffe1a2)}
   .algebra-table tr.alg-total td:first-child{font-weight:800}
   /* En móvil, ecuación completa en filas flexibles: ningún coeficiente se recorta. */
   .algebra-mobile{display:none}
-  .alg-mobile-row{padding:10px 9px;border-bottom:1px solid #29435b;background:#0b1b2d}
+  .alg-mobile-row{padding:10px 9px;border-bottom:1px solid var(--paint-29435b,#29435b);background:var(--paint-0b1b2d,#0b1b2d)}
   .alg-mobile-row:first-child{border-radius:8px 8px 0 0}
   .alg-mobile-row:last-child{border-bottom:0;border-radius:0 0 8px 8px}
-  .alg-mobile-row.alg-total{border-top:2px solid var(--amber);background:#273028}
-  .alg-mobile-label{font:700 12px/1.4 system-ui,sans-serif;color:#a9cde4;margin-bottom:7px;overflow-wrap:anywhere}
-  .alg-mobile-equation{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;font:650 14px/1.65 ui-monospace,Consolas,monospace;color:#f1f6fd;font-variant-numeric:tabular-nums}
+  .alg-mobile-row.alg-total{border-top:2px solid var(--amber);background:var(--paint-273028,#273028)}
+  .alg-mobile-label{font:700 12px/1.4 system-ui,sans-serif;color:var(--paint-a9cde4,#a9cde4);margin-bottom:7px;overflow-wrap:anywhere}
+  .alg-mobile-equation{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;font:650 14px/1.65 ui-monospace,Consolas,monospace;color:var(--paint-f1f6fd,#f1f6fd);font-variant-numeric:tabular-nums}
   .alg-mobile-term,.alg-mobile-answer{white-space:nowrap}
   .alg-mobile-equal{color:var(--cyan);font-weight:900}
-  .alg-mobile-answer{color:#ffda90}
-  .alg-total .alg-mobile-equation{color:#ffe1a2}
+  .alg-mobile-answer{color:var(--paint-ffda90,#ffda90)}
+  .alg-total .alg-mobile-equation{color:var(--paint-ffe1a2,#ffe1a2)}
   .result{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:15px 0}
-  .result div{background:#163529;border:1px solid #5a9358;padding:12px 7px;text-align:center;border-radius:11px}
-  .result small{display:block;color:#bed4c0;font:12px ui-monospace,monospace}
+  .result div{background:var(--paint-163529,#163529);border:1px solid var(--paint-5a9358,#5a9358);padding:12px 7px;text-align:center;border-radius:11px}
+  .result small{display:block;color:var(--paint-bed4c0,#bed4c0);font:12px ui-monospace,monospace}
   .result strong{font:800 clamp(19px,2.5vw,27px) ui-monospace,monospace;color:var(--lime)}
-  .footer{margin-top:18px;font-size:12px;color:#96adc5;line-height:1.6}
+  .footer{margin-top:18px;font-size:12px;color:var(--paint-96adc5,#96adc5);line-height:1.6}
   .hide{display:none!important}
   .flexbetween{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  .key{font:12px ui-monospace,monospace;border:1px solid #55718a;border-radius:4px;padding:1px 5px;color:#b7cee4}
+  .key{font:12px ui-monospace,monospace;border:1px solid var(--paint-55718a,#55718a);border-radius:4px;padding:1px 5px;color:var(--paint-b7cee4,#b7cee4)}
   @media(max-width:970px){.layout{grid-template-columns:1fr;grid-template-areas:"circuit" "equations" "phase";grid-template-rows:auto}.layout.network-mode{grid-template-areas:"circuit" "phase"}.column-divider{display:none}#circuitCard{position:static}.stage{flex:1;min-width:0}}
   .layout.mobile-layout{grid-template-columns:1fr;grid-template-areas:"circuit" "phase";grid-template-rows:auto;gap:17px}
   .layout.mobile-layout .column-divider{display:none}
@@ -308,55 +308,55 @@
   @media(max-width:640px){
     .card,.body,.steps,.step-main,.eqpanel{min-width:0}
     .algebra-desktop{display:none}
-    .algebra-mobile{display:grid;border:1px solid #34506a;border-radius:8px;margin:9px 0;min-width:0;width:100%}
+    .algebra-mobile{display:grid;border:1px solid var(--paint-34506a,#34506a);border-radius:8px;margin:9px 0;min-width:0;width:100%}
     .eq,.node-eq-formula,.board-eq-formula,.adv-eqline{overflow-wrap:anywhere;word-break:normal}
     .board-eq-row,.node-eq-row{grid-template-columns:58px minmax(0,1fr);gap:6px}
     .result{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
   }
   @media(max-width:540px){.shell{padding:12px 8px 25px}.body{padding:13px}.logo{font-size:24px}.stage{min-width:0;padding:2px;font-size:10px}.stat{min-width:76px}.build{grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr)}.board{padding:0}.cardhead{padding:10px}}
   
-  .challenge{padding:12px;margin:10px 0;border:1px solid #805b25;border-radius:11px;background:#1d2436;display:grid;gap:10px;min-width:0}
-  .challenge h3{margin:0;font-size:15px;color:#ffd88c}
+  .challenge{padding:12px;margin:10px 0;border:1px solid var(--paint-805b25,#805b25);border-radius:11px;background:var(--paint-1d2436,#1d2436);display:grid;gap:10px;min-width:0}
+  .challenge h3{margin:0;font-size:15px;color:var(--paint-ffd88c,#ffd88c)}
   .challenge .choices{display:flex;flex-wrap:wrap;gap:7px}
-  .challenge input,.challenge select{min-width:0;max-width:100%;padding:10px;border-radius:7px;background:#0a1728;color:#f3f5fb;border:1px solid #7293a5;font:600 16px ui-monospace,monospace}
+  .challenge input,.challenge select{min-width:0;max-width:100%;padding:10px;border-radius:7px;background:var(--paint-0a1728,#0a1728);color:var(--paint-f3f5fb,#f3f5fb);border:1px solid var(--paint-7293a5,#7293a5);font:600 16px ui-monospace,monospace}
   .challenge input{width:100%}
-  .challenge .feedback{font-size:13px;color:#ffcc99}
-  .challenge .feedback.good{color:#b7f75c}
-  .challenge label{display:grid;gap:5px;font-size:13px;color:#d3e0f1}
+  .challenge .feedback{font-size:13px;color:var(--paint-ffcc99,#ffcc99)}
+  .challenge .feedback.good{color:var(--paint-b7f75c,#b7f75c)}
+  .challenge label{display:grid;gap:5px;font-size:13px;color:var(--paint-d3e0f1,#d3e0f1)}
   .challenge-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(116px,1fr));gap:8px}
-  .challenge .chosen{border-color:#f6bb5c;background:#514125}
-  .kcl-live{background:#0a1729;border:1px solid #46627e;border-radius:9px;padding:11px 12px;min-width:0}
-  .kcl-live-title{font:700 12px system-ui,sans-serif;color:#b8cddf;margin-bottom:6px}
+  .challenge .chosen{border-color:var(--paint-f6bb5c,#f6bb5c);background:var(--paint-514125,#514125)}
+  .kcl-live{background:var(--paint-0a1729,#0a1729);border:1px solid var(--paint-46627e,#46627e);border-radius:9px;padding:11px 12px;min-width:0}
+  .kcl-live-title{font:700 12px system-ui,sans-serif;color:var(--paint-b8cddf,#b8cddf);margin-bottom:6px}
   .kcl-live-expression{display:flex;align-items:baseline;gap:8px;min-height:35px;font:700 clamp(17px,3.6vw,22px)/1.6 ui-monospace,Consolas,monospace;flex-wrap:wrap;overflow-wrap:anywhere}
   .kcl-live-side{display:inline-flex;align-items:baseline;flex-wrap:wrap;column-gap:7px;row-gap:3px;min-width:12px}
   .kcl-live-equals{color:var(--cyan)}
-  .kcl-live-term{display:inline-block;white-space:nowrap;border-radius:4px;padding:0 2px;color:#f5f6fa}
+  .kcl-live-term{display:inline-block;white-space:nowrap;border-radius:4px;padding:0 2px;color:var(--paint-f5f6fa,#f5f6fa)}
   .kcl-live-term.blink-three{animation:kclTermBlink .48s steps(1,end) 3}
-  @keyframes kclTermBlink{0%,49%{color:#ffe6a4;background:#87601e;opacity:1;text-shadow:0 0 7px #ffdf84}50%,99%{color:#ffe6a4;background:transparent;opacity:.22;text-shadow:none}100%{color:#f5f6fa;background:transparent;opacity:1;text-shadow:none}}
-  .difficulty{font-weight:800;color:#ffdc91}
+  @keyframes kclTermBlink{0%,49%{color:var(--paint-ffe6a4,#ffe6a4);background:var(--paint-87601e,#87601e);opacity:1;text-shadow:0 0 7px var(--paint-ffdf84,#ffdf84)}50%,99%{color:var(--paint-ffe6a4,#ffe6a4);background:transparent;opacity:.22;text-shadow:none}100%{color:var(--paint-f5f6fa,#f5f6fa);background:transparent;opacity:1;text-shadow:none}}
+  .difficulty{font-weight:800;color:var(--paint-ffdc91,#ffdc91)}
   .exercisebar{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin:0 0 16px}
   .field{display:grid;gap:5px;min-width:0;max-width:100%;flex:1 1 270px}
   .field label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-  select{max-width:100%;background:#0d1b2e;border:1px solid #47627b;color:var(--txt);border-radius:9px;padding:10px 12px;font:600 14px system-ui,sans-serif}
+  select{max-width:100%;background:var(--paint-0d1b2e,#0d1b2e);border:1px solid var(--paint-47627b,#47627b);color:var(--txt);border-radius:9px;padding:10px 12px;font:600 14px system-ui,sans-serif}
   .mini{font-size:12px;color:var(--muted)}
-  .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #47627b;border-radius:999px;background:#0d1b2e;font-size:12px;color:#d9e9f6}
-  .helper{margin-top:10px;padding:10px 12px;background:#0f1d31;border:1px dashed #39536d;border-radius:10px;font-size:13px;color:#c6d8e8}
-  .fx-plusminus{fill:#0d1b2e;stroke:#ffd78f;stroke-width:2}
-  .fx-pm-text{fill:#ffd78f;font:900 16px ui-monospace,monospace;text-anchor:middle;dominant-baseline:middle}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--paint-47627b,#47627b);border-radius:999px;background:var(--paint-0d1b2e,#0d1b2e);font-size:12px;color:var(--paint-d9e9f6,#d9e9f6)}
+  .helper{margin-top:10px;padding:10px 12px;background:var(--paint-0f1d31,#0f1d31);border:1px dashed var(--paint-39536d,#39536d);border-radius:10px;font-size:13px;color:var(--paint-c6d8e8,#c6d8e8)}
+  .fx-plusminus{fill:var(--paint-0d1b2e,#0d1b2e);stroke:var(--paint-ffd78f,#ffd78f);stroke-width:2}
+  .fx-pm-text{fill:var(--paint-ffd78f,#ffd78f);font:900 16px ui-monospace,monospace;text-anchor:middle;dominant-baseline:middle}
   .fx-arrow{stroke:var(--amber);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
-  .fx-current-dot{fill:#ffe0a0;filter:drop-shadow(0 0 5px #ffd58f)}
-  .fx-current-halo{fill:#ffecc6;opacity:.19}
-  .adv-mat-overflow{overflow-x:auto;margin:12px 0;padding:10px;background:#0b1c30;border:1px solid #36506a;border-radius:10px}
+  .fx-current-dot{fill:var(--paint-ffe0a0,#ffe0a0);filter:drop-shadow(0 0 5px var(--paint-ffd58f,#ffd58f))}
+  .fx-current-halo{fill:var(--paint-ffecc6,#ffecc6);opacity:.19}
+  .adv-mat-overflow{overflow-x:auto;margin:12px 0;padding:10px;background:var(--paint-0b1c30,#0b1c30);border:1px solid var(--paint-36506a,#36506a);border-radius:10px}
   .adv-mat-head,.adv-mat-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;min-width:0;margin:4px 0}
-  .adv-mat-head span{font:700 12px monospace;color:#a4cde3;text-align:center}
-  .adv-mat-row input{width:100%;min-width:0;height:36px;text-align:center;background:#081526;color:#fff;border:1px solid #4c6884;border-radius:5px;font:700 13px monospace}
-  .adv-mat-row input.correct{border-color:#93cd72;background:#153528}
-  .adv-mat-row input.wrong{border-color:#f47c8b;background:#3a1b2b}
-  .adv-eqline{font:600 13px/1.65 ui-monospace,Consolas,monospace;white-space:normal;word-break:break-word;padding:4px 6px;border-bottom:1px solid #2e4560}
+  .adv-mat-head span{font:700 12px monospace;color:var(--paint-a4cde3,#a4cde3);text-align:center}
+  .adv-mat-row input{width:100%;min-width:0;height:36px;text-align:center;background:var(--paint-081526,#081526);color:var(--paint-fff,#fff);border:1px solid var(--paint-4c6884,#4c6884);border-radius:5px;font:700 13px monospace}
+  .adv-mat-row input.correct{border-color:var(--paint-93cd72,#93cd72);background:var(--paint-153528,#153528)}
+  .adv-mat-row input.wrong{border-color:var(--paint-f47c8b,#f47c8b);background:var(--paint-3a1b2b,#3a1b2b)}
+  .adv-eqline{font:600 13px/1.65 ui-monospace,Consolas,monospace;white-space:normal;word-break:break-word;padding:4px 6px;border-bottom:1px solid var(--paint-2e4560,#2e4560)}
   /* Los parpadeos didácticos y los gestos del gusano comparten tiempos en todos los dispositivos. */
   @container(max-width:640px){
     .algebra-desktop{display:none}
-    .algebra-mobile{display:grid;border:1px solid #34506a;border-radius:8px;margin:9px 0;min-width:0;width:100%}
+    .algebra-mobile{display:grid;border:1px solid var(--paint-34506a,#34506a);border-radius:8px;margin:9px 0;min-width:0;width:100%}
     .eq,.node-eq-formula,.board-eq-formula,.adv-eqline{overflow-wrap:anywhere;word-break:normal}
     .board-eq-row,.node-eq-row{grid-template-columns:48px minmax(0,1fr);gap:6px}
     .board-eq-formula{column-gap:7px;font-size:14px}
@@ -368,13 +368,283 @@
     .adv-mat-row input{font-size:11px;padding:0}
   }
   @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+  :root{color-scheme:dark}
+  .settings-button{width:48px;height:48px;padding:10px;align-self:center;display:grid;place-items:center}
+  .settings-button svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round}
+  #settingsDialog{color:var(--txt);background:var(--card);border:1px solid var(--border);border-radius:17px;width:min(430px,calc(100% - 28px));max-height:calc(100dvh - 28px);overflow:auto;padding:22px;box-shadow:0 20px 70px #0008}
+  #settingsDialog::backdrop{background:#020b18b8}
+  .settings-heading{display:flex;gap:15px;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .settings-heading h2{margin:0;font-size:22px}
+  .settings-heading button{font-size:27px;padding:0;width:40px;height:40px}
+  .settings-fields{display:grid;gap:18px}
+  .settings-fields label{display:grid;gap:7px;font-weight:650}
+  .settings-fields select{width:100%}
+  .speed-row{display:flex;gap:15px;align-items:center}
+  .speed-row input{min-width:0;flex:1;accent-color:var(--cyan)}
+  .speed-row output{min-width:48px;font-variant-numeric:tabular-nums}
+  .mesh-status-moving{animation:meshStatusBlink .9s step-end infinite}
+  @keyframes meshStatusBlink{0%,49%{opacity:1}50%,100%{opacity:.25}}
+  :root[data-theme="light"]{color-scheme:light;--bg:#fff;--card:#fff;--card2:#f4f7fa;--border:#526174;--txt:#080d16;--muted:#303e50;--cyan:#005266;--lime:#175500;--amber:#813900;--red:#a50025;--purple:#4b267f;
+    --paint-0000001f:#f7f7f71f;
+    --paint-0004:#f7f7f744;
+    --paint-0005:#f7f7f755;
+    --paint-0008:#f7f7f788;
+    --paint-020b18aa:#f1f6feaa;
+    --paint-071426:#f2f6fd;
+    --paint-071628:#f2f7fd;
+    --paint-081526:#f2f7fc;
+    --paint-081527:#f2f7fc;
+    --paint-09101d:#f3f6fb;
+    --paint-091423:#f3f7fc;
+    --paint-0a1728:#f3f7fc;
+    --paint-0a1729:#f3f7fc;
+    --paint-0b1b2d:#f3f7fc;
+    --paint-0b1c2c:#f3f7fc;
+    --paint-0b1c30:#f3f7fc;
+    --paint-0c1729:#f3f6fc;
+    --paint-0c182b:#f3f6fc;
+    --paint-0d1a2c:#f3f7fc;
+    --paint-0d1b2e:#f3f7fc;
+    --paint-0e1d2f:#f3f7fb;
+    --paint-0e2136:#f3f7fc;
+    --paint-0f1d31:#f3f7fb;
+    --paint-101f35:#f3f7fb;
+    --paint-102139:#e3ebf7;
+    --paint-102339:#e3ecf7;
+    --paint-111c30:#f4f6fb;
+    --paint-111e33:#f4f6fb;
+    --paint-112139:#e4ebf7;
+    --paint-122236:#e4ecf6;
+    --paint-12263a:#e4edf7;
+    --paint-13263b:#e4edf6;
+    --paint-132740:#e3ecf7;
+    --paint-13283d:#e4edf7;
+    --paint-142035:#e5ebf5;
+    --paint-142943:#e4ecf7;
+    --paint-142d2a:#f4fafa;
+    --paint-14304a:#e3eef7;
+    --paint-15233a:#e5ebf6;
+    --paint-15253b:#e5ecf6;
+    --paint-153528:#e5f5ef;
+    --paint-162d42:#e4eef6;
+    --paint-163045:#e4eef6;
+    --paint-163529:#e6f5ef;
+    --paint-173d2a:#e5f5ed;
+    --paint-18352c:#e6f4f0;
+    --paint-183657:#e3edf7;
+    --paint-187d9a:#177a96;
+    --paint-19334b:#e4eef6;
+    --paint-1b2050:#e4e6f6;
+    --paint-1b382b:#e7f3ee;
+    --paint-1d2436:#e8ebf3;
+    --paint-1e3550:#e5edf5;
+    --paint-223449:#e7edf4;
+    --paint-235c3c:#307e52;
+    --paint-263b53:#e7edf4;
+    --paint-273028:#ebefec;
+    --paint-27627e:#296784;
+    --paint-28445b:#355a78;
+    --paint-285a78:#2b6282;
+    --paint-29415b:#365578;
+    --paint-29435b:#365878;
+    --paint-294661:#34587a;
+    --paint-2c415b:#395375;
+    --paint-2c638b:#2a5e84;
+    --paint-2d425c:#395474;
+    --paint-2e4560:#385475;
+    --paint-314d6b:#365677;
+    --paint-324967:#395375;
+    --paint-344c67:#3a5573;
+    --paint-34506a:#395874;
+    --paint-34516e:#385776;
+    --paint-36506a:#3b5773;
+    --paint-36516b:#3a5773;
+    --paint-37556b:#3b5b73;
+    --paint-376c37:#3b733b;
+    --paint-39536d:#3c5772;
+    --paint-3a1b2b:#f4e7ed;
+    --paint-3b2030:#f2e8ee;
+    --paint-3c2233:#f2e8ef;
+    --paint-3d4f76:#3b4d72;
+    --paint-3d5772:#3c5671;
+    --paint-45607c:#3e566f;
+    --paint-46627e:#3e576f;
+    --paint-46637a:#3f596e;
+    --paint-47627b:#3f586e;
+    --paint-476480:#3e5770;
+    --paint-4be6f0:#096268;
+    --paint-4c6884:#3f576e;
+    --paint-514125:#f4efe6;
+    --paint-52677c:#455768;
+    --paint-53843e:#4a7637;
+    --paint-55718a:#42586b;
+    --paint-56748e:#41586c;
+    --paint-59421f:#f6efe5;
+    --paint-5a9358:#426c41;
+    --paint-5ce6f0:#096067;
+    --paint-5ce6f02a:#0960672a;
+    --paint-5ce6f050:#09606750;
+    --paint-5ce6f088:#09606788;
+    --paint-5f9f64:#416d44;
+    --paint-619b36:#50812d;
+    --paint-6586a0:#42596b;
+    --paint-65896c:#4a644f;
+    --paint-66c77c:#1e522a;
+    --paint-67805e:#506449;
+    --paint-6a8197:#475766;
+    --paint-6b91aa:#3f5c6e;
+    --paint-715119:#8e661f;
+    --paint-723317:#90411d;
+    --paint-7293a5:#445c6a;
+    --paint-7569a8:#48406e;
+    --paint-7896ae:#2a3a46;
+    --paint-79551d:#8c6222;
+    --paint-79551f:#8a6123;
+    --paint-805b25:#876027;
+    --paint-80b957:#517a33;
+    --paint-8399b4:#2a3746;
+    --paint-87601e:#8e6520;
+    --paint-89df99:#185824;
+    --paint-8ce7ef:#0e5c62;
+    --paint-8df09c:#0d631a;
+    --paint-8ee8fa:#085868;
+    --paint-8faac2:#283949;
+    --paint-91db66:#2f5b15;
+    --paint-93cd72:#31531d;
+    --paint-94bcd6:#1f3d51;
+    --paint-96adc5:#283848;
+    --paint-99681b:#93641a;
+    --paint-9cb5c9:#283a49;
+    --paint-9fe78a:#245d13;
+    --paint-a4cde3:#1a4156;
+    --paint-a64a17:#984415;
+    --paint-a6c8e1:#1c3c54;
+    --paint-a7bbd0:#273849;
+    --paint-a95166:#753847;
+    --paint-a9c4db:#213a4f;
+    --paint-a9cde4:#1b3f55;
+    --paint-ac98ff:#1b0868;
+    --paint-afc6dc:#22394e;
+    --paint-b2c7da:#24394c;
+    --paint-b7cee4:#1f3952;
+    --paint-b7f755:#426808;
+    --paint-b7f75c:#406808;
+    --paint-b8c7d6:#293847;
+    --paint-b8cddf:#233a4d;
+    --paint-bed4c0:#2d442f;
+    --paint-c2f3fb:#085a68;
+    --paint-c4b9f0:#22145c;
+    --paint-c6d8e8:#203a50;
+    --paint-d2ffd8:#086815;
+    --paint-d3e0f1:#1b3455;
+    --paint-d3e3f4:#16375a;
+    --paint-d5aa61:#594118;
+    --paint-d7c9ff:#210868;
+    --paint-d7ffe2:#086823;
+    --paint-d8f5fb:#0a5666;
+    --paint-d9e9f6:#153c5b;
+    --paint-dceafa:#0e3562;
+    --paint-e99659:#63320d;
+    --paint-e9965955:#63320d55;
+    --paint-e9f4fd:#093d67;
+    --paint-e9fdff:#085f68;
+    --paint-ecf5ff:#083668;
+    --paint-edffbe:#4d6808;
+    --paint-f0f6ff:#082f68;
+    --paint-f1f6fd:#0e3162;
+    --paint-f3f5fb:#1c2a54;
+    --paint-f47c8b:#680915;
+    --paint-f49b98:#650e0b;
+    --paint-f4f7ff:#082268;
+    --paint-f5f6fa:#252d4b;
+    --paint-f6bb5c:#684308;
+    --paint-fc8595:#680815;
+    --paint-ff7786:#680813;
+    --paint-ff778655:#68081355;
+    --paint-ff8796:#680814;
+    --paint-ffc66b:#684308;
+    --paint-ffc95866:#68490866;
+    --paint-ffca55:#684a08;
+    --paint-ffcc99:#683808;
+    --paint-ffce55:#684c08;
+    --paint-ffcf78:#684608;
+    --paint-ffd463:#684d08;
+    --paint-ffd58f:#684408;
+    --paint-ffd78f:#684608;
+    --paint-ffd88c:#684708;
+    --paint-ffda90:#684808;
+    --paint-ffdc91:#684908;
+    --paint-ffdf84:#684f08;
+    --paint-ffe083:#685008;
+    --paint-ffe08a:#684f08;
+    --paint-ffe0a0:#684908;
+    --paint-ffe0a1:#684808;
+    --paint-ffe1a2:#684908;
+    --paint-ffe1e7:#68081b;
+    --paint-ffe288:#685108;
+    --paint-ffe28c:#685008;
+    --paint-ffe2a0:#684b08;
+    --paint-ffe6a4:#684e08;
+    --paint-ffe9a0:#685208;
+    --paint-ffec95:#685708;
+    --paint-ffecc6:#684808;
+    --paint-fff:#383838;
+    --paint-fff0af:#685608;
+    --paint-fff0d6:#684508;
+    --paint-fff1ae:#685708;
+    --paint-fff2b9:#685608;
+    --paint-fff3ce:#685008;
+  }
+
+  :root[data-theme="light"] body{background:#f4f6fa}
+  :root[data-theme="light"] .card,:root[data-theme="light"] .board{background:#fff}
+  :root[data-theme="light"] .cardhead,:root[data-theme="light"] .stages{background:#edf2f7}
+  :root[data-theme="light"] .stage{background:#fff;color:#303e50;border-color:#68778a}
+  :root[data-theme="light"] .stage.active{background:#d8f0f4;color:#003d4d;border-color:#005266;box-shadow:inset 0 0 0 1px #005266}
+  :root[data-theme="light"] .stage.done{color:#175500;border-color:#357020}
+  :root[data-theme="light"] button{background:#e7edf5;border-color:#4e6078;color:#0b1829}
+  :root[data-theme="light"] button.primary{background:#005266;border-color:#003540;color:#fff}
+  :root[data-theme="light"] button.success{background:#175500;border-color:#0f3b00;color:#fff}
+  :root[data-theme="light"] button.ghost{color:#213c58;background:transparent;border-color:#526174}
+  :root[data-theme="light"] button.selected{background:#cbdcec;color:#102c48;border-color:#005266}
+  :root[data-theme="light"] button:hover:not(:disabled){filter:brightness(.92)}
+  :root[data-theme="light"] .transport-button[data-state="running"]{background:#175500;border-color:#123c04;color:#fff}
+  :root[data-theme="light"] .transport-button[data-state="ready"],:root[data-theme="light"] .transport-button[data-state="paused"],:root[data-theme="light"] .transport-button[data-state="waiting"]{background:#fff0c2;border-color:#813900;color:#663000}
+  :root[data-theme="light"] .transport-button[data-state="blocked"],:root[data-theme="light"] .transport-button[data-state="complete"]{background:#e5eaf0;border-color:#5c6d80;color:#2b3d53}
+  :root[data-theme="light"] .wire,:root[data-theme="light"] .source-lead{stroke:#070e19}
+  :root[data-theme="light"] .symbol{stroke:#070e19;fill:#fff}
+  :root[data-theme="light"] .source-plate{stroke:#070e19}
+  :root[data-theme="light"] .component-value,:root[data-theme="light"] .resistor-name,:root[data-theme="light"] .txt{fill:#070e19}
+  :root[data-theme="light"] .direction-outline,:root[data-theme="light"] .dir-result{stroke:#fff}
+  :root[data-theme="light"] .mesh-selection-fill{fill:#9780c4;fill-opacity:.25}
+  :root[data-theme="light"] .mesh-selection-contour{stroke:#51317c}
+  :root[data-theme="light"] .mesh-contour-arrowhead{fill:#51317c}
+  :root[data-theme="light"] #hero{--worm-fill:#9de625;--worm-edge:#173c00;--worm-dark:#2c6200;--worm-glow:#396f0040}
+  :root[data-theme="light"] #hero.hero-sad{--worm-fill:#f28b24;--worm-edge:#6a2100;--worm-dark:#8a3400;--worm-glow:#9a370030}
+  :root[data-theme="light"] .hero-eye{fill:#061504}
+  :root[data-theme="light"] .hero-eye-light{fill:#fff}
+  :root[data-theme="light"] .hero-mouth{stroke:#071a05}
+  :root[data-theme="light"] .hero-open-smile path:first-child{fill:#071a05}
+  :root[data-theme="light"] .hero-open-smile path:last-child{fill:#bd3045}
+  :root[data-theme="light"] .hero-pain path:nth-child(2){fill:#fff}
+  :root[data-theme="light"] .hero-pain path{stroke:#331000}
+  :root[data-theme="light"] .hero-pain .hero-tear{fill:#004e8a;stroke:#004e8a}
+  :root[data-theme="light"] .hero-tip{fill:#173c00;stroke:#fff;stroke-width:1}
+  :root[data-theme="light"] #hero.hero-sad .hero-tip{fill:#6a2100}
+  :root[data-theme="light"] .component-source.component-lit .source-plate,:root[data-theme="light"] .component-source.component-lit .source-lead{stroke:#6b3000}
+  :root[data-theme="light"] .component-resistor.component-lit .symbol,:root[data-theme="light"] .component-source.component-lit .source-halo{stroke:#6b3000;fill:#ffdd73}
+  :root[data-theme="light"] .component-source.component-lit text,:root[data-theme="light"] .component-resistor.component-lit text{fill:#4a2100;filter:none}
+  :root[data-theme="light"] .flash-term{color:#301b00}
+  :root[data-theme="light"] .flash-term{animation-name:lightTermBlink!important}
+  @keyframes lightTermBlink{0%,49%{color:#301b00;opacity:1;background:#ffdf80;text-shadow:none;box-shadow:none}50%,100%{color:#080d16;opacity:.25;background:transparent;text-shadow:none;box-shadow:none}}
 </style>
 </head>
 <body>
 <div class="shell">
   <header class="top">
     <div><div class="logo">WORM<span>HOFF</span></div><div class="sub">MVP 3.7 · TEMA 7 · IEC/ANSI · LEYES DE KIRCHHOFF</div></div>
-    <div class="score"><div class="stat"><small>Puntos</small><strong id="score">0000</strong></div><div class="stat"><small>Progreso</small><strong id="percent">0%</strong></div></div>
+    <div class="score"><button type="button" id="openSettings" class="settings-button" aria-label="Configuración" title="Configuración"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4l.5 3 1.5.9 2.9-1 2 3.4-2.3 2v1.7l2.3 2-2 3.4-2.9-1-1.5.9-.5 3h-4l-.5-3-1.5-.9-2.9 1-2-3.4 2.3-2v-1.7l-2.3-2 2-3.4 2.9 1 1.5-.9Z"/><circle cx="12" cy="11.8" r="3.2"/></svg></button><div class="stat"><small>Puntos</small><strong id="score">0000</strong></div><div class="stat"><small>Progreso</small><strong id="percent">0%</strong></div></div>
   </header>
   <nav class="stages" id="stagebar" aria-label="Fases">
     <div class="stage" data-stage="0"><button type="button" class="phase-link" data-phase="0"><b>01</b><span>Corrientes y nudos</span></button><button type="button" class="phase-reset" data-reset-phase="0" aria-label="Reiniciar fase 1: Corrientes y nudos" title="Reiniciar corrientes"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg></button></div>
@@ -383,7 +653,6 @@
     <div class="stage" data-stage="4"><button type="button" class="phase-link" data-phase="4"><b>04</b><span>Resolución</span></button><button type="button" class="phase-reset" data-reset-phase="4" aria-label="Reiniciar fase 4: Resolución" title="Reiniciar resolución"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg></button></div>
   </nav>
   <div class="exercisebar">
-    <div class="field" style="flex:0 1 205px"><label for="symbolStandard">Simbología</label><select id="symbolStandard"><option value="iec">IEC · rectangular</option><option value="ansi">ANSI · zigzag</option></select></div>
     <div class="field">
       <label for="exerciseSelect">Ejercicio del tema 7</label>
       <select id="exerciseSelect"></select>
@@ -404,7 +673,7 @@
       <div id="circuitTransport" class="board-actions circuit-transport hide" aria-label="Controles de reproducción del circuito"></div>
       <div class="board"><div id="currentPlacementNotice" class="current-placement-notice hide" role="status" aria-live="polite"></div>
         <svg id="circuit" viewBox="0 0 700 430" role="group" aria-label="Circuito de corriente continua con símbolos seleccionables y flechas seleccionables">
-          <defs><pattern id="dots" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="#34516e" opacity=".8"/></pattern><marker id="meshContourArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="mesh-contour-arrowhead" d="M1 1 L9 5 L1 9 Z"/></marker></defs>
+          <defs><pattern id="dots" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="var(--paint-34516e,#34516e)" opacity=".8"/></pattern><marker id="meshContourArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="mesh-contour-arrowhead" d="M1 1 L9 5 L1 9 Z"/></marker></defs>
           <rect x="0" y="0" width="700" height="430" fill="url(#dots)"/>
           <g id="meshSelection" aria-hidden="true"></g>
           <g id="meshTargets"></g>
@@ -435,14 +704,14 @@
               <circle class="hero-eye-light" cx="3.3" cy="-6" r=".7"/></g>
               <path id="heroMouth" class="hero-mouth" d="M-4 1 Q0 5 4 1"/>
               <g class="hero-open-smile" aria-hidden="true">
-                <path d="M-5 1 Q0 3 5 1 Q4 8 0 8 Q-4 8 -5 1Z" fill="#122236"/>
-                <path d="M-2.8 6 Q0 4.5 2.8 6 Q0 8.5 -2.8 6Z" fill="#f49b98"/>
+                <path d="M-5 1 Q0 3 5 1 Q4 8 0 8 Q-4 8 -5 1Z" fill="var(--paint-122236,#122236)"/>
+                <path d="M-2.8 6 Q0 4.5 2.8 6 Q0 8.5 -2.8 6Z" fill="var(--paint-f49b98,#f49b98)"/>
               </g>
               <g class="hero-pain" aria-hidden="true">
-                <path d="M-6.5 -7 L-2.5 -5 L-6.5 -3 M6.5 -7 L2.5 -5 L6.5 -3 M-7 -10 Q-4 -11 -2 -9 M2 -9 Q4 -11 7 -10" fill="none" stroke="#122236" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M-5 2 Q0 -1 5 2 L4 7 Q0 5 -4 7Z" fill="#fff0d6" stroke="#122236" stroke-width="1.2" stroke-linejoin="round"/>
-                <path d="M-4.5 4 H4.5 M-1.5 1 V6 M1.5 1 V6" fill="none" stroke="#122236" stroke-width=".7"/>
-                <path class="hero-tear" d="M8 -2 Q12 3 8 3 Q5 3 8 -2Z" fill="#8ee8fa"/>
+                <path d="M-6.5 -7 L-2.5 -5 L-6.5 -3 M6.5 -7 L2.5 -5 L6.5 -3 M-7 -10 Q-4 -11 -2 -9 M2 -9 Q4 -11 7 -10" fill="none" stroke="var(--paint-122236,#122236)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M-5 2 Q0 -1 5 2 L4 7 Q0 5 -4 7Z" fill="var(--paint-fff0d6,#fff0d6)" stroke="var(--paint-122236,#122236)" stroke-width="1.2" stroke-linejoin="round"/>
+                <path d="M-4.5 4 H4.5 M-1.5 1 V6 M1.5 1 V6" fill="none" stroke="var(--paint-122236,#122236)" stroke-width=".7"/>
+                <path class="hero-tear" d="M8 -2 Q12 3 8 3 Q5 3 8 -2Z" fill="var(--paint-8ee8fa,#8ee8fa)"/>
               </g></g>
               <g class="hero-hand" aria-hidden="true"><g transform="translate(11 4)"><g id="heroWave">
                 <path d="M-2 0 Q7 2 7 -8" fill="none" stroke="var(--worm-edge)" stroke-width="2.6" stroke-linecap="round"/>
@@ -523,7 +792,7 @@
             <div id="sixFinalChallenge" class="challenge hide" aria-live="polite"></div>
             <div id="advResultPanel" class="hide" style="margin-top:14px">
               <div class="eqtitle">Intensidades calculadas</div>
-              <div class="result" id="advResults"></div>
+              <p class="helper">Pulsa una flecha de corriente para invertir su referencia y recalcular todo el desarrollo.</p><div class="result" id="advResults"></div>
               <div class="message good" id="advResultCheck">Comprobación de las ecuaciones originales.</div>
             </div>
           </div>
@@ -539,7 +808,7 @@
           <h1 class="phase-title">Resistencia equivalente entre A y B</h1>
           <p class="desc" id="networkIntro">Observa la red original del ejercicio y calcula la resistencia equivalente vista desde los terminales A y B.</p>
           <div class="eqpanel"><div class="eqtitle">Desafío de equivalencias</div>
-            <div class="btnrow"><label for="networkR">R<sub>eq</sub> (Ω):</label><input id="networkR" style="background:#081527;border:1px solid #56748e;color:#fff;border-radius:8px;padding:10px;width:130px;font:700 18px monospace" type="text" inputmode="decimal" placeholder="?"/><button class="primary" id="networkVerify">Comprobar</button></div>
+            <div class="btnrow"><label for="networkR">R<sub>eq</sub> (Ω):</label><input id="networkR" style="background:var(--paint-081527,#081527);border:1px solid var(--paint-56748e,#56748e);color:var(--paint-fff,#fff);border-radius:8px;padding:10px;width:130px;font:700 18px monospace" type="text" inputmode="decimal" placeholder="?"/><button class="primary" id="networkVerify">Comprobar</button></div>
             <div class="message" id="networkFeedback">Utiliza los símbolos IEC y las asociaciones eléctricas que correspondan.</div>
           </div>
           <div class="btnrow"><button id="networkHint" class="ghost">Mostrar una pista</button><button id="networkExplain" class="small ghost hide">Ver procedimiento</button></div>
@@ -581,7 +850,7 @@
           <div class="btnrow"><button class="primary" id="nextStep">Siguiente paso →</button><button class="ghost small" id="restartSteps">Repetir resolución</button></div>
           <div id="finalChallenge" class="challenge hide" aria-live="polite"></div>
           <div id="resultPanel" class="hide">
-            <div class="result" id="results"></div>
+            <p class="helper">Pulsa una flecha de corriente para invertir su referencia y recalcular todo el desarrollo.</p><div class="result" id="results"></div>
             <div class="message good">Verificación: al sustituir las intensidades, <b>A · I = b</b> en las tres ecuaciones. Nivel superado.</div>
             <div class="helper" id="undoEquivalence"></div>
             <button class="success" id="playAgain">Volver a jugar ↻</button>
@@ -593,6 +862,15 @@
   <footer class="footer flexbetween"><span>Simbología seleccionable IEC o ANSI. Los sentidos de las corrientes son referencias algebraicas, no predicciones.</span><span>Pulsa las ramas para numerar y las flechas para invertir. <span class="key">Espacio</span>: Play/Stop.</span></footer>
 </div>
 <dialog id="currentNameDialog" aria-label="I"><form id="currentNameForm"><label class="current-number-field"><span>I</span><input id="currentNumber" type="text" inputmode="numeric" enterkeyhint="done" maxlength="2" size="2" pattern="[0-9]{1,2}" autocomplete="off" aria-label="Número de la corriente" required></label><button class="primary" type="submit" aria-label="Asignar" title="Asignar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button><button type="button" id="cancelCurrentName" class="ghost" aria-label="Cancelar" title="Cancelar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></form></dialog>
+<dialog id="settingsDialog" aria-labelledby="settingsTitle">
+  <div class="settings-heading"><h2 id="settingsTitle">Configuración</h2><button type="button" id="closeSettings" class="ghost" aria-label="Cerrar configuración">×</button></div>
+  <div class="settings-fields">
+    <label for="symbolStandard">Simbología<select id="symbolStandard"><option value="iec">IEC · rectangular</option><option value="ansi">ANSI · zigzag</option></select></label>
+    <label for="languageSetting">Idioma<select id="languageSetting"><option value="es">Español</option><option value="en">English</option></select></label>
+    <label for="themeSetting">Apariencia<select id="themeSetting"><option value="dark">Modo oscuro</option><option value="light">Modo claro</option><option value="system">El del sistema</option></select></label>
+    <label for="speedSetting"><span>Velocidad de Wormhoff</span><div class="speed-row"><input type="range" id="speedSetting" min="25" max="200" step="5" value="100"><output id="speedValue" for="speedSetting">100%</output></div></label>
+  </div>
+</dialog>
 <script>
 (()=>{'use strict';
   const $=(id)=>document.getElementById(id);
@@ -621,6 +899,7 @@
   document.addEventListener('pointercancel',endHeroPress);
   window.addEventListener('blur',()=>endHeroPress());
   $('hero').addEventListener('contextmenu',e=>e.preventDefault());
+  const wormhoffSettings={theme:'dark',language:'es',speed:100};
   const S={phase:0,currentNumbers:[null,null,null],currentPositions:[null,null,null],meshDirections:[true,true],meshDirectionsConfirmed:false,signs:[1,-1,-1],score:0,nodeDone:false,loops:[null,null],scoredLoops:[false,false],loopBonusAwarded:false,loop:0,cw:true,pass:"resistors",route:null,waypoint:-1,legIndex:0,flowBranch:null,flowReq:null,es:[],rs:[],animating:false,motionActive:false,manualPaused:false,finished:false,step:0};
   const X=[146,345,544],TOP=74,BOT=360,SY=136,RY=235;
   const names=['I₁','I₂','I₃'];
@@ -756,7 +1035,7 @@
       host.querySelectorAll('[data-final]').forEach(inp=>{
         const expected=values[Number(inp.dataset.final)],v=Number(inp.value.replace(',','.'));
         const good=inp.value.trim()!==''&&Number.isFinite(v)&&Math.abs(v-expected)<=Math.max(.001,Math.abs(expected)*.0001);
-        inp.style.borderColor=good?'#9fe78a':'#ff8796';if(!good)valid=false;
+        inp.style.borderColor=good?'var(--paint-9fe78a,#9fe78a)':'var(--paint-ff8796,#ff8796)';if(!good)valid=false;
       });
       host.querySelector('.feedback').textContent=valid?'Resultados correctos: comprobación superada.':'Hay intensidades incorrectas. Revisa los signos y la sustitución regresiva.';
       if(valid){show(id,false);onSuccess()}
@@ -966,7 +1245,7 @@
     const points=[[-1,0],[-.82,0],[-.64,-10],[-.42,10],[-.2,-10],[.02,10],[.24,-10],[.46,10],[.7,0],[1,0]];
     const zigzag=points.map(([a,b],i)=>`${i?'L':'M'}${(a*half).toFixed(2)} ${b}`).join(' ');
     return `<g class="resistor-iec"><g transform="${transform}"><rect class="symbol" x="${-half}" y="-13" width="${2*half}" height="26"/></g><text class="resistor-name" x="${x}" y="${y}" dominant-baseline="middle">${label}</text></g>`+
-      `<g class="resistor-ansi"><g transform="${transform}"><rect x="${-half}" y="-13" width="${2*half}" height="26" fill="#15233a"/><path class="symbol" d="${zigzag}"/></g><text class="resistor-name" x="${x-(vertical?27:half+12)}" y="${y-(vertical?0:20)}" dominant-baseline="middle" style="text-anchor:end">${label}</text></g>`+
+      `<g class="resistor-ansi"><g transform="${transform}"><rect x="${-half}" y="-13" width="${2*half}" height="26" fill="var(--paint-15233a,#15233a)"/><path class="symbol" d="${zigzag}"/></g><text class="resistor-name" x="${x-(vertical?27:half+12)}" y="${y-(vertical?0:20)}" dominant-baseline="middle" style="text-anchor:end">${label}</text></g>`+
       `<text class="component-value resistor-value" x="${vertical?x+30:x}" y="${vertical?y:y+35}" text-anchor="${vertical?'start':'middle'}" dominant-baseline="middle">${formatNumber(value)}Ω</text>`;
   }
   function drawBoard(){
@@ -1004,7 +1283,7 @@
     $('loopArrows').innerHTML=[0,1].map(k=>{
       const chosen=S.loops[k]?.cw??S.meshDirections?.[k]??(S.loop===k?S.cw:true),x=k===0?246:445,done=!!S.loops[k];
       const title='MALLA '+(k+1);
-      return `<g data-mesh-summary="${k}">`+meshStatusLabel(k,x,166,190,title,done,S.loop===k,false)+meshTurnIcon(k,x,237,chosen,done)+`</g>`;
+      return `<g data-mesh-summary="${k}">`+meshStatusLabel(k,x,166,190,title,done,S.loop===k,false,S.loop===k&&S.meshDirectionsConfirmed?(S.pass==='resistors'?'Σ I·R':'Σ U'):null)+meshTurnIcon(k,x,237,chosen,done)+`</g>`;
     }).join('');
     bindMeshTurns($('loopArrows'));
   }
@@ -1031,7 +1310,7 @@
     const ex=active;
     $('exerciseStatus').textContent=ex.id==='base'?'Demostración':('Nivel '+difficulty()+' · '+ex.status);
     $('difficultyInfo').textContent=difficulty()===0?'Demostración: observa el procedimiento completo; el programa construye las ecuaciones.':difficulty()===1?'Nivel 1: construye la ley de nudos clasificando corrientes y elige el signo de cada término de malla.':'Nivel 2: escribe las ecuaciones de nudo y cada término de las mallas antes de continuar.';
-    $('exerciseHint').innerHTML=ex.hint+(ex.source?' · <a style="color:#8ce7ef" href="'+exampleUrl(ex.source)+'" target="_blank" rel="noopener">Ver esquema original en Circuit JGR</a>':'');
+    $('exerciseHint').innerHTML=ex.hint+(ex.source?' · <a style="color:var(--paint-8ce7ef,#8ce7ef)" href="'+exampleUrl(ex.source)+'" target="_blank" rel="noopener">Ver esquema original en Circuit JGR</a>':'');
   }
   function networkSVG(ex){
     const coords=[...ex.r.flatMap(v=>[[v[0],v[1]],[v[2],v[3]]]),...ex.w.flatMap(v=>[[v[0],v[1]],[v[2],v[3]]]),...ex.ports];
@@ -1128,7 +1407,7 @@
     if(commit)invertInsertedCurrent(tap.index,tap.six);
   }
   function invertInsertedCurrent(index,six){
-    if(six){if(A6.stage==='dirs'){A6.signs[index]*=-1;sixRefArrow();}}
+    if(six){if(currentReferenceEditable(true)){A6.signs[index]*=-1;if(solutionComplete(true))refreshCompletedReferences(index,true);else sixRefArrow();}}
     else reverse(index);
   }
   function editInsertedCurrent(index,six){
@@ -1216,7 +1495,7 @@
     window.addEventListener('blur',()=>{cancelCurrentLabelTap();finishCurrentArrowDrag(null,true);});
   }
   function bindCurrentArrows(six){
-    const model=six?A6:S,choosing=six?model.stage==='dirs':model.phase===0;
+    const model=six?A6:S,choosing=currentReferenceEditable(six);
     const layer=$(six?'sixRefArrows':'dirGraphics');
     layer.querySelectorAll('[data-current-index]').forEach(group=>{
       const index=Number(group.dataset.currentIndex);group.setAttribute('role','button');group.setAttribute('tabindex','0');
@@ -1228,7 +1507,7 @@
         event.preventDefault();event.stopPropagation();const step=event.shiftKey?2:10;
         repositionCurrent(index,six,{x:Number(group.dataset.arrowX)+offset[0]*step,y:Number(group.dataset.arrowY)+offset[1]*step});
       });
-      bindClickable(group,event=>{event?.stopPropagation();if(event&&suppressedCurrentClick&&performance.now()<suppressedCurrentClick.until)return;if(six?A6.stage!=='dirs':S.phase!==0)return;if(six){A6.signs[index]*=-1;sixRefArrow();}else reverse(index);});
+      bindClickable(group,event=>{event?.stopPropagation();if(event&&suppressedCurrentClick&&performance.now()<suppressedCurrentClick.until)return;if(!currentReferenceEditable(six))return;invertInsertedCurrent(index,six);});
     });
   }
   function drawDirs(showAnswers=false){
@@ -1238,7 +1517,30 @@
     bindCurrentArrows(false);layoutCurrentAnnotations();drawCurrentBranchTargets(false);
     if(S.phase===0)$('confirmDirs').disabled=!currentNamesReady(false)||!S.reductionDone;
   }
-  function reverse(i){if(S.phase!==0||S.currentNumbers[i]===null)return;S.signs[i]*=-1;drawDirs();$('boardState').textContent='Referencia '+names[i]+' invertida. Es una elección válida.'}
+  function solutionComplete(six){return six?A6.stage==='solve'&&A6.step===A6.steps.length&&A6.finalGood&&(difficulty()===0||A6.finalVerified):S.phase===4&&S.finished&&S.step>=buildSteps().length&&(difficulty()===0||S.finalVerified);}
+  function currentReferenceEditable(six){return (six?A6.stage==='dirs':S.phase===0)||solutionComplete(six);}
+  function reverse(i){
+    if(!currentReferenceEditable(false)||S.currentNumbers[i]===null)return;
+    const completed=solutionComplete(false);S.signs[i]*=-1;
+    if(completed)refreshCompletedReferences(i,false);
+    else{drawDirs();$('boardState').textContent='Referencia '+names[i]+' invertida. Es una elección válida.';}
+  }
+  function refreshCompletedReferences(index,six){
+    // A changed reference multiplies exactly one coefficient column by −1.
+    // Source voltages, traversal senses and physical branch currents stay fixed.
+    if(six){
+      for(const row of A6.rowsR)for(const term of row)if(term.i===index)term.v*=-1;
+      $('advKCLtext').innerHTML=sixKCLRows();sixRenderRows();sixRenderMatrix();sixStartSolve(true);
+    }else{
+      for(const loop of S.loops){loop.row[index]*=-1;for(const term of loop.resistors)if(term.i===index)term.v*=-1;}
+      drawFinished();renderBoardEquations();drawMatrix();
+      const {A,b}=system();document.querySelectorAll('#matrixInputs input').forEach(el=>{el.value=fmt(Number(el.dataset.col)===3?b[Number(el.dataset.row)]:A[Number(el.dataset.row)][Number(el.dataset.col)]);el.classList.add('correct');});show('goSolve',true);
+      $('solveNodal').textContent='Nudo A (Σ I entran = Σ I salen): '+nodeSides();
+      $('solveMesh1').textContent='Malla 1: '+coefEq(A[1],b[1]);$('solveMesh2').textContent='Malla 2: '+coefEq(A[2],b[2]);
+      analyzeNode(true);renderSteps();
+    }
+    $('boardState').textContent='Referencia '+(six?NAMES6:names)[index]+' invertida. Ecuaciones, matriz, desarrollo y resultados recalculados.';
+  }
   function terms(parts,kind){
     if(!parts.length)return '0';
     return parts.map((p,j)=>{
@@ -1306,12 +1608,12 @@
   function nodeSides(){const into=[],out=[];S.signs.forEach((s,i)=>(s===1?into:out).push(names[i]));return (into.join(' + ')||'0')+' = '+(out.join(' + ')||'0')}
   function bindClickable(el,fn){el.addEventListener('click',fn);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})}
   function meshCompleteMark(index,x,y){
-    return `<g class="mesh-complete" data-mesh-complete="${index}" role="img" aria-label="Malla ${index+1} completada"><circle cx="${x}" cy="${y}" r="13" fill="#173d2a" stroke="#66c77c"/><path d="M${x-7} ${y} L${x-2} ${y+5} L${x+8} ${y-6}" fill="none" stroke="#8df09c" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+    return `<g class="mesh-complete" data-mesh-complete="${index}" role="img" aria-label="Malla ${index+1} completada"><circle cx="${x}" cy="${y}" r="13" fill="var(--paint-173d2a,#173d2a)" stroke="var(--paint-66c77c,#66c77c)"/><path d="M${x-7} ${y} L${x-2} ${y+5} L${x+8} ${y-6}" fill="none" stroke="var(--paint-8df09c,#8df09c)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g>`;
   }
-  function meshStatusLabel(index,x,titleY,statusY,title,done,active,compact){
-    const width=compact?82:110,height=compact?18:22,accent=active?'#ffe2a0':'#9cb5c9';
-    return `<text class="mesh-label" data-mesh-name="${index}" x="${x}" y="${titleY}" text-anchor="middle" style="fill:#8ce7ef;font:600 ${compact?10.5:11}px sans-serif">${title}</text>`+
-      (done?meshCompleteMark(index,x,statusY):`<g data-mesh-pending="${index}"><rect class="mesh-label" x="${x-width/2}" y="${statusY-height/2}" width="${width}" height="${height}" rx="7" fill="#12263a" stroke="${accent}" stroke-width="1"/><text class="mesh-label" x="${x}" y="${statusY}" dominant-baseline="middle" text-anchor="middle" style="fill:${accent};font:700 ${compact?10.5:13}px ui-monospace,monospace">PENDIENTE</text></g>`);
+  function meshStatusLabel(index,x,titleY,statusY,title,done,active,compact,operation=null){
+    const width=compact?82:110,height=compact?18:22,accent=active?'var(--paint-ffe2a0,#ffe2a0)':'var(--paint-9cb5c9,#9cb5c9)';
+    return `<text class="mesh-label" data-mesh-name="${index}" x="${x}" y="${titleY}" text-anchor="middle" style="fill:var(--paint-8ce7ef,#8ce7ef);font:600 ${compact?10.5:11}px sans-serif">${title}</text>`+
+      (done?meshCompleteMark(index,x,statusY):`<g data-mesh-pending="${index}" data-mesh-operation="${operation||''}"><rect class="mesh-label" x="${x-width/2}" y="${statusY-height/2}" width="${width}" height="${height}" rx="7" fill="var(--paint-12263a,#12263a)" stroke="${accent}" stroke-width="1"/><text class="mesh-label" x="${x}" y="${statusY}" dominant-baseline="middle" text-anchor="middle" style="fill:${accent};font:700 ${compact?10.5:13}px ui-monospace,monospace">${operation||'PENDIENTE'}</text></g>`);
   }
   function setTransportState(id,state){
     const button=$(id),labels={ready:'Iniciar recorrido',running:'Detener recorrido',paused:'Reanudar recorrido',waiting:'Continuar recorrido',blocked:'Recorrido detenido: completa el término para continuar',complete:'Malla completada'};
@@ -1332,7 +1634,7 @@
   }
   function meshTurnIcon(index,x,y,cw,done,enabled=true,size=36){
     const disabled=!enabled||done;
-    return `<g class="mesh-turn" data-mesh-turn="${index}" role="button" tabindex="${disabled?-1:0}" aria-label="Invertir giro de malla ${index+1}" aria-disabled="${disabled}"><rect class="mesh-turn-hit" x="${x-(size+14)/2}" y="${y-(size+12)/2}" width="${size+14}" height="${size+12}" rx="9"/><text class="mesh-label" x="${x}" y="${y+size*.39}" text-anchor="middle" style="fill:#8ce7ef;font:700 ${size}px sans-serif">${cw?'↻':'↺'}</text></g>`;
+    return `<g class="mesh-turn" data-mesh-turn="${index}" role="button" tabindex="${disabled?-1:0}" aria-label="Invertir giro de malla ${index+1}" aria-disabled="${disabled}"><rect class="mesh-turn-hit" x="${x-(size+14)/2}" y="${y-(size+12)/2}" width="${size+14}" height="${size+12}" rx="9"/><text class="mesh-label" x="${x}" y="${y+size*.39}" text-anchor="middle" style="fill:var(--paint-8ce7ef,#8ce7ef);font:700 ${size}px sans-serif">${cw?'↻':'↺'}</text></g>`;
   }
   function drawSelectedMesh(index,face,cw){
     const {x,y,w,h}=face,right=x+w,bottom=y+h,r=Math.min(10,w/4,h/4),topX=face.topX??x+w/2,bottomX=face.bottomX??x+w/2,sideY=face.sideY??y+h/2;
@@ -1375,7 +1677,7 @@
   $('checkReductions').onclick=()=>{
     let good=true;document.querySelectorAll('[data-reduce]').forEach(el=>{
       const i=+el.dataset.reduce,actual=Number(el.value.replace(',','.'));
-      if(!el.value.trim()||Math.abs(actual-R[i])>1e-5){el.style.borderColor='#ff7786';good=false}else el.style.borderColor='#b7f75c';
+      if(!el.value.trim()||Math.abs(actual-R[i])>1e-5){el.style.borderColor='var(--paint-ff7786,#ff7786)';good=false}else el.style.borderColor='var(--paint-b7f75c,#b7f75c)';
     });
     $('reduceMsg').textContent=good?' Equivalencias correctas. Ya puedes fijar las corrientes.':' Revisa la asociación en serie o paralelo y el valor equivalente.';
     if(good){S.reductionDone=true;$('confirmDirs').disabled=!currentNamesReady(false);S.score+=70;updateHeader()}
@@ -1511,6 +1813,7 @@
     const soften=growth*growth*(3-2*growth)*h.retract;
     $('heroTail').setAttribute('opacity',(Math.min(1,h.distance/9)*h.retract).toFixed(3));
     h.moving=moving;
+    document.querySelectorAll('[data-mesh-pending]').forEach(el=>el.classList.toggle('mesh-status-moving',moving&&!!el.dataset.meshOperation));
     syncHeroGreeting();
     const squeeze=(1-Math.cos(h.phase))/2;
     const length=Math.min(h.distance,43-13*squeeze)*h.retract;
@@ -1679,7 +1982,7 @@
         if(flowToken!==token){resolve();return}
         const delta=previous===null?0:now-previous;previous=now;
         if(S.manualPaused){requestAnimationFrame(frame);return;}
-        elapsed+=delta;
+        elapsed+=delta*wormhoffSettings.speed/100;
         const travelled=Math.min(total,elapsed/duration*total);
         // La misma animación continúa atravesando las esquinas; no se reinicia el tiempo.
         while(segment<points.length-2&&travelled>=distances[segment+1]-1e-8)segment++;
@@ -2013,7 +2316,7 @@
     if(e.defaultPrevented)return;
     if(e.target instanceof Element&&e.target.closest('[role="separator"]'))return;
     if(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLButtonElement)return;
-    if(S.phase===0&&['1','2','3'].includes(e.key))reverse(Number(e.key)-1);
+    if(active.kind!=='multi'&&currentReferenceEditable(false)&&['1','2','3'].includes(e.key))reverse(Number(e.key)-1);
     else if(e.code==='Space'){
       if(S.phase===2){e.preventDefault();toggleTransport('advance')}
       else if(active.kind==='multi'&&A6.stage==='loops'){e.preventDefault();toggleTransport('advNext')}
@@ -2102,7 +2405,7 @@
           // conectar ambos extremos del símbolo IEC a la rama.
           const big=vert?y-6:(plus?x+6:x-6);
           const small=vert?y+6:(plus?x-6:x+6);
-          h+=`<g id="${rid}" class="component-source"><rect class="source-halo" x="${x-(vert?24:16)}" y="${y-(vert?16:24)}" width="${vert?48:32}" height="${vert?32:48}" rx="3" fill="#0e1d2f" stroke="transparent"/>`;
+          h+=`<g id="${rid}" class="component-source"><rect class="source-halo" x="${x-(vert?24:16)}" y="${y-(vert?16:24)}" width="${vert?48:32}" height="${vert?32:48}" rx="3" fill="var(--paint-0e1d2f,#0e1d2f)" stroke="transparent"/>`;
           h+=vert?`<path class="source-lead source-plate" d="M${x} ${y-24} V${y-6} M${x} ${y+6} V${y+24}"/><path class="source-plate" d="M${x-19} ${big} H${x+19} M${x-9} ${small} H${x+9}"/>`:
                       `<path class="source-lead source-plate" d="M${x-24} ${y} H${x-6} M${x+6} ${y} H${x+24}"/><path class="source-plate" d="M${big} ${y-19} V${y+19} M${small} ${y-9} V${y+9}"/>`;
           h+=`<text class="component-value" text-anchor="${vert?'start':'middle'}" x="${vert?x+28:x}" y="${vert?y+5:y+35}">${fmt6(Math.abs(ep))}V</text></g>`;
@@ -2134,7 +2437,7 @@
     $('sixLoops').innerHTML=positions.map(({x,titleY,statusY,turnY},i)=>{
       const done=!!A6.done[i],cw=A6.done[i]?.cw??A6.meshDirections?.[i]??(i===A6.loop?A6.cw:true);
       const title='M'+(i+1);
-      return `<g data-mesh-summary="${i}">`+meshStatusLabel(i,x,titleY,statusY,title,done,i===A6.loop,true)+meshTurnIcon(i,x,turnY,cw,done,A6.stage==='loops',28)+`</g>`;
+      return `<g data-mesh-summary="${i}">`+meshStatusLabel(i,x,titleY,statusY,title,done,i===A6.loop,true,i===A6.loop&&A6.stage==='loops'&&A6.meshDirectionsConfirmed?(A6.pass==='R'?'Σ I·R':'Σ U'):null)+meshTurnIcon(i,x,turnY,cw,done,A6.stage==='loops',28)+`</g>`;
     }).join('');
     bindMeshTurns($('sixLoops'));
   }
@@ -2259,7 +2562,7 @@
         if(token!==A6.runId){resolve();return}
         const delta=previous===null?0:ts-previous;previous=ts;
         if(A6.manualPaused){A6.animReq=requestAnimationFrame(step);return;}
-        elapsed+=delta;
+        elapsed+=delta*wormhoffSettings.speed/100;
         const walked=Math.min(total,elapsed/HERO_MS_PER_PX),pos=sixPointAt(pts,distances,walked);
         positionHero(pos.x,pos.y,pos.angle);setHeroGait(walked<total,walked);
         setHeroMood(A6.pass==='R'&&opposite);
@@ -2372,11 +2675,15 @@
   function sixMatrix(){
     if(A6.stage!=='loops'||!A6.done.every(Boolean))return;
     rememberPhase(3);A6.stage='matrix';sixCancel();sixMeshArrows();show('advLoops',false);show('advMatrix',true);show('advFill',difficulty()===0);show('advToMatrix',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);show('advBoardEquations',A6.rowsR.some(row=>row.length)||A6.rowsU.some(row=>row.length));show('advKCL',true);
+    sixRenderMatrix();
+    show('advSolveBtn',false);sixText('advMatFeedback','6 ecuaciones independientes para 6 incógnitas: 3 de nudos y 3 de mallas.');
+    $('percent').textContent='68%';$('phaseChip').textContent='MATRIZ 6 × 6';syncPhaseNavigation();
+  }
+  function sixRenderMatrix(){
     const {A,b}=sixSystem();
     $('advMatEqs').innerHTML=A.map((row,i)=>'<div class="eq" style="font-size:13px">'+(i<3?'Nudo '+['A','C','B'][i]:'Malla '+(i-2))+': '+sixEq(row,b[i])+'</div>').join('');
     $('advMatInputs').innerHTML='<div class="adv-mat-head">'+[...NAMES6,'b'].map(x=>'<span>'+x+'</span>').join('')+'</div>'+A.map((row,i)=>'<div class="adv-mat-row">'+[...row,b[i]].map((v,j)=>`<input data-ar="${i}" data-ac="${j}" aria-label="Fila ${i+1} columna ${j+1}" placeholder="?" inputmode="decimal"/>`).join('')+'</div>').join('');
-    show('advSolveBtn',false);sixText('advMatFeedback','6 ecuaciones independientes para 6 incógnitas: 3 de nudos y 3 de mallas.');
-    $('percent').textContent='68%';$('phaseChip').textContent='MATRIZ 6 × 6';syncPhaseNavigation();
+    if(solutionComplete(true))$('advMatInputs').querySelectorAll('input').forEach(el=>{const {A,b}=sixSystem(),i=Number(el.dataset.ar),j=Number(el.dataset.ac);el.value=fmt6(j===6?b[i]:A[i][j]);el.classList.add('correct');});
   }
   function sixVerifyMatrix(){
     const {A,b}=sixSystem(),all=[...A.map((row,i)=>[...row,b[i]])],inputs=Array.from($('advMatInputs').querySelectorAll('input'));
@@ -2409,7 +2716,8 @@
     const result=one.map((z,i)=>Math.abs(z+two[i])<1e-9?0:z+two[i]);
     return {m1,m2,first:{row:one,b:bA*m1},second:{row:two,b:bB*m2},row:result,b:bA*m1+bB*m2};
   }
-  function sixStartSolve(){
+  function sixStartSolve(preserve=false){
+    const previous=preserve===true?{step:A6.step,verified:A6.finalVerified,scored:A6.completedScore}:null;
     rememberPhase(4);A6.stage='solve';syncPhaseNavigation();show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='REDUCCIÓN';
     const {a,b,cols}=sixReduced(),vars=cols.map(ix=>NAMES6[ix]);
     const reduced=matSolve6(a,b),values=reduced.x;
@@ -2460,7 +2768,7 @@
     A6.steps.push({title:'Comprobación del circuito',
       detail:good?'Las seis intensidades satisfacen las tres ecuaciones de nudo y las tres de malla. Nivel superado.':'Los resultados no satisfacen las ecuaciones.',
       vars:NAMES6,rows:A.map((row,i)=>({label:i<3?'Nudo '+['A','C','B'][i]:'Malla '+(i-2),row,b:origB[i]}))});
-    A6.finalCurrents=ii;A6.finalGood=good;A6.step=0;A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.completedScore=false;sixRenderSolve();$('percent').textContent='85%';
+    A6.finalCurrents=ii;A6.finalGood=good;A6.step=0;A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.completedScore=previous?.scored||false;if(previous){A6.step=Math.min(previous.step,A6.steps.length);A6.finalVerified=previous.verified;}sixRenderSolve();if(!previous)$('percent').textContent='85%';
   }
   function sixRenderSolve(){
     $('advSolveSteps').innerHTML=algebraStepsHTML(A6.steps,A6.step);
@@ -2700,9 +3008,84 @@
     show('advancedCircuitControls',six&&loops&&model.meshDirectionsConfirmed);
     if(loops&&!model.meshDirectionsConfirmed)$('boardState').textContent='Primero confirma los sentidos de las mallas. Pulsa sus iconos para cambiarlos.';
   }
-  $('confirmMeshDirections').onclick=()=>{S.meshDirectionsConfirmed=true;syncMeshDirectionSetup();updateLoopSelect();};
+  $('confirmMeshDirections').onclick=()=>{S.meshDirectionsConfirmed=true;syncMeshDirectionSetup();updateLoopSelect();updateLoopsArrows();};
   $('advConfirmMeshDirections').onclick=()=>{A6.meshDirectionsConfirmed=true;syncMeshDirectionSetup();sixSelectLoop(A6.loop);};
   $('editCurrentReferences').onclick=()=>visitPhase(0);$('advEditCurrentReferences').onclick=()=>visitPhase(0);
+  const englishText={"Configuración": "Settings", "Cerrar configuración": "Close settings", "Simbología": "Circuit symbols", "IEC · rectangular": "IEC · rectangular", "ANSI · zigzag": "ANSI · zigzag", "Idioma": "Language", "Apariencia": "Appearance", "Modo oscuro": "Dark mode", "Modo claro": "Light mode", "El del sistema": "System default", "Velocidad de Wormhoff": "Wormhoff speed", "Puntos": "Score", "Progreso": "Progress", "Fases": "Stages", "Corrientes y nudos": "Currents and nodes", "Mallas": "Meshes", "Matriz": "Matrix", "Resolución": "Solution", "Ejercicio del tema 7": "Chapter 7 exercise", "Estado": "Status", "Observaciones": "Notes", "Adaptado al MVP": "Adapted to the MVP", "Ecuaciones del circuito": "Circuit equations", "Nudos · Mallas": "Nodes · Meshes", "Ley de los nudos": "Kirchhoff’s current law", "Ley de nudos · n − 1 = 1": "Current law · n − 1 = 1", "Ley de las mallas": "Kirchhoff’s voltage law", "Σ I que entran − Σ I que salen = 0": "Σ incoming I − Σ outgoing I = 0", "Σ I que entran = Σ I que salen": "Σ incoming I = Σ outgoing I", "Nº de ecuaciones independientes = n − 1 (n: número de nudos)": "Independent equations = n − 1 (n: number of nodes)", "Ley de Ohm: U = I · R. Las tensiones de las fuentes se suman con su signo.": "Ohm’s law: U = I · R. Add source voltages with their signs.", "Las ecuaciones aparecerán al analizar los nudos y recorrer las mallas.": "Equations appear as you analyse nodes and traverse meshes.", "Primera ley · 3 ecuaciones independientes": "Current law · 3 independent equations", "Confirmar referencias": "Confirm references", "Confirmar corrientes": "Confirm currents", "Cambiar referencias": "Change references", "Confirmar sentidos de las mallas": "Confirm mesh directions", "Primero, confirma los sentidos de las mallas.": "First, confirm the mesh directions.", "Puedes invertir cada sentido pulsando su icono ↻/↺ dentro del circuito. Confirma las referencias antes de iniciar el recorrido.": "Tap the ↻/↺ icon inside each mesh to reverse its direction. Confirm directions before starting.", "Continuar con las mallas →": "Continue to meshes →", "Continuar con las mallas": "Continue to meshes", "Construir matriz →": "Build matrix →", "Construir matriz 6 × 6 →": "Build 6 × 6 matrix →", "Comprobar matriz": "Check matrix", "Rellenar para probar": "Fill to try", "Rellenar la matriz": "Fill matrix", "Resolver sistema →": "Solve system →", "Siguiente paso →": "Next step →", "Repetir resolución": "Restart solution", "Volver a jugar ↻": "Play again ↻", "Resolución completa ✓": "Solution complete ✓", "Ejercicio completado ✓": "Exercise complete ✓", "Recorrido detenido: completa el término para continuar": "Traversal stopped: complete the term to continue", "Iniciar recorrido": "Start traversal", "Detener recorrido": "Stop traversal", "Reanudar recorrido": "Resume traversal", "Continuar recorrido": "Continue traversal", "Malla completada": "Mesh complete", "PENDIENTE": "PENDING", "Operación": "Operation", "Resultado": "Result", "Despeje": "Isolate variable", "Ecuaciones obtenidas": "Equations obtained", "Sustitución y reducción": "Substitution and elimination", "Sustitución en las dos mallas": "Substitution into both meshes", "Sustitución en las tres mallas": "Substitution into all three meshes", "Reducción: preparación de los coeficientes": "Elimination: preparing coefficients", "Sustitución regresiva": "Back substitution", "Reducción directa": "Direct elimination", "Cálculo de la intensidad restante": "Calculating the remaining current", "Cálculo de las intensidades restantes": "Calculating the remaining currents", "Comprobación del circuito": "Circuit verification", "Pulsa una flecha de corriente para invertir su referencia y recalcular todo el desarrollo.": "Tap a current arrow to reverse its reference and recalculate the full solution.", "Simbología seleccionable IEC o ANSI. Los sentidos de las corrientes son referencias algebraicas, no predicciones.": "Choose IEC or ANSI symbols. Current directions are algebraic references, not predictions.", "Pulsa las ramas para numerar y las flechas para invertir.": "Tap branches to number currents and arrows to reverse them.", "Espacio": "Space", "Aceptar": "Accept", "Cancelar": "Cancel", "Comprobar": "Check", "Continuar": "Continue", "Correcto": "Correct", "Incorrecto": "Incorrect", "Ninguna todavía.": "None yet.", "Ninguna": "None", "Entrante": "Incoming", "Saliente": "Outgoing", "Entra": "Incoming", "Sale": "Outgoing", "Entran": "Incoming", "Salen": "Outgoing", "Nivel superado.": "Level complete.", "Referencias fijadas; ley de nudos calculada.": "References confirmed; node equation calculated.", "Dos vueltas completadas": "Both laps complete", "Demostración": "Demonstration", "Demostración: observa el procedimiento completo; el programa construye las ecuaciones.": "Demonstration: watch the full procedure; the program builds the equations.", "Ver esquema original en Circuit JGR": "View original circuit in Circuit JGR", "Circuito de tres ramas · 2 nudos": "Three-branch circuit · 2 nodes", "Selecciona las flechas: cualquier referencia es válida.": "Select the arrows: any reference direction is valid.", "Selecciona un ejercicio: reinicia la partida con sus resistencias y fuentes.": "Select an exercise to restart with its resistances and sources.", "Pulsa las ramas para numerar las corrientes y elige sus sentidos.": "Tap branches to number currents and choose their directions.", "Primero confirma los sentidos de las mallas. Pulsa sus iconos para cambiarlos.": "First confirm mesh directions. Tap their icons to change them.", "Las seis intensidades satisfacen las tres ecuaciones de nudo y las tres de malla. Nivel superado.": "All six currents satisfy the three node equations and the three mesh equations. Level complete.", "Los resultados no satisfacen todas las ecuaciones.": "The results do not satisfy all equations.", "Verificación: A · I = b en las seis ecuaciones. Nivel superado.": "Verification: A · I = b in all six equations. Level complete.", "3 ecuaciones y 3 incógnitas. La matriz debe recoger los signos de las flechas y de cada recorrido.": "3 equations and 3 unknowns. The matrix includes the signs of the current arrows and traversal directions.", "6 ecuaciones independientes para 6 incógnitas: 3 de nudos y 3 de mallas.": "6 independent equations for 6 unknowns: 3 node equations and 3 mesh equations.", "Matriz correcta. Ya puedes hacer la sustitución de nudos y resolver por reducción.": "Correct matrix. Substitute node equations and solve by elimination.", "Hay coeficientes incorrectos o casillas vacías.": "Some coefficients are incorrect or missing.", "Pulsa «Siguiente paso» para sustituir directamente la ecuación del nudo en las dos mallas.": "Press “Next step” to substitute the node equation into both meshes.", "Corrientes numeradas. Pulsa las flechas para invertir sus sentidos; arrástralas con su texto para moverlas por su rama. Después confirma las referencias.": "Currents numbered. Tap arrows to reverse them; drag arrows or labels along their branch. Then confirm references.", "Selecciona una sola ecuación independiente.": "Select a single independent equation.", "No hay resistencias compuestas que deshacer; las intensidades calculadas son las de las ramas originales.": "There are no compound resistances to expand; the calculated currents belong to the original branches.", "Las dos mallas comienzan en B. Las ecuaciones se construyen en su panel. En la vuelta Σ R·I se iluminan las resistencias y circulan las bolitas amarillas; en Σ U se iluminan las fuentes. El término nuevo parpadea hasta continuar. Los controles de reproducción están encima del circuito y las ecuaciones debajo en móvil.": "Both meshes start at B. Equations appear in their panel. Resistors light up and yellow dots flow during Σ R·I; sources light up during Σ U. Each new term blinks until you continue. Playback controls are above the circuit; equations are below it on mobile.", "Nivel 1: construye la ley de nudos clasificando corrientes y elige el signo de cada término de malla.": "Level 1: classify currents to build the node equation and choose the sign of each mesh term.", "Nivel 2: escribe las ecuaciones de nudo y cada término de las mallas antes de continuar.": "Level 2: enter node equations and each mesh term before continuing.", "Demo: observación guiada. Primer ejercicio: nivel 1. Resto: nivel 2.": "Demo: guided observation. First exercise: level 1. Other exercises: level 2.", "Repetir recorrido": "Restart traversal", "Comienza el recorrido de la malla 1.": "Start traversing mesh 1.", "Avanzar al siguiente elemento →": "Advance to next component →", "Organizar el sistema →": "Organise the system →", "Cada malla parte de su nudo indicado: C, C o D.": "Each mesh starts at its indicated node: C, C or D.", "Iniciar recorrido desde C →": "Start traversal from C →", "Ecuaciones de malla": "Mesh equations", "Fase 1 · Numeración y sentidos": "Stage 1 · Numbering and directions", "Actividad resuelta 7.6 · Kirchhoff completo": "Worked example 7.6 · Complete Kirchhoff solution", "Circuito original organizado en": "Original circuit organised into", "4 nudos (n−1 = 3)": "4 nodes (n−1 = 3)", "6 ramas": "6 branches", "3 mallas": "3 meshes", ". Los elementos en serie de cada rama conservan sus valores y polaridades. Las referencias de corriente son elecciones algebraicas.": ". Series components in each branch retain their values and polarities. Current references are algebraic choices.", "Numeración y sentido de las corrientes": "Current numbering and directions", "Confirmar referencias y analizar los nudos →": "Confirm references and analyse nodes →", "Modificar referencias": "Edit references", "Mallas · dos vueltas por malla": "Meshes · two laps per mesh", "Confirma o modifica primero los sentidos de las mallas. Después selecciona la malla y usa los controles situados encima del circuito. Las ecuaciones se construyen en el panel de ecuaciones, a la derecha en ordenador.": "First confirm or change mesh directions. Then select a mesh and use the controls above the circuit. Equations appear in the equation panel, on the right on desktop.", "Sistema matricial 6 × 6": "6 × 6 matrix system", "Las ecuaciones de nudo se normalizan con todas las incógnitas a la izquierda y cero a la derecha. Escribe los coeficientes de cada ecuación.": "Node equations place all unknowns on the left and zero on the right. Enter the coefficients of each equation.", "Tres nudos + tres mallas": "Three nodes + three meshes", "Resolver mediante sustitución y reducción →": "Solve by substitution and elimination →", "Resolución algebraica": "Algebraic solution", "Como en la demostración: sustituimos los nudos en las mallas, aplicamos reducción con los coeficientes alineados, hacemos sustitución regresiva y comprobamos el circuito.": "As in the demonstration: substitute node equations into meshes, eliminate variables with aligned coefficients, back-substitute and verify the circuit.", "Intensidades calculadas": "Calculated currents", "Comprobación de las ecuaciones originales.": "Verification of the original equations.", "Primero pulsa cada rama y asigna el número de su corriente, sin repetirlo. Después pulsa las flechas para elegir sus sentidos. Arrastra una flecha o su texto para desplazarlos por su rama.": "First tap each branch and assign a unique current number. Then tap arrows to choose directions. Drag an arrow or its label along its branch.", "Paso inicial · simplificación de resistencias": "Initial step · simplifying resistances", "Comprobar equivalencias": "Check equivalent resistances", "Los nudos son A y B. Trabajaremos con las tres intensidades de rama como incógnitas.": "The nodes are A and B. The three branch currents are the unknowns.", "Resistencia equivalente entre A y B": "Equivalent resistance between A and B", "Observa la red original del ejercicio y calcula la resistencia equivalente vista desde los terminales A y B.": "Examine the original network and calculate its equivalent resistance between terminals A and B.", "Desafío de equivalencias": "Equivalent resistance challenge", "Utiliza los símbolos IEC y las asociaciones eléctricas que correspondan.": "Use IEC symbols and the appropriate electrical connections.", "Mostrar una pista": "Show hint", "Ver procedimiento": "Show procedure", "Ejercicio resuelto y verificado.": "Exercise solved and verified.", "Volver a jugar": "Play again", "Construye la igualdad:": "Build the equality:", "corrientes que entran = corrientes que salen": "incoming currents = outgoing currents", ". Hay 2 nudos, por tanto": ". There are 2 nodes, so", "n − 1 = 1 ecuación independiente": "n − 1 = 1 independent equation", "Analizar nudo A": "Analyse node A", "Analizar nudo B": "Analyse node B", "Los dos nudos proporcionan ecuaciones equivalentes; basta una independiente.": "Both nodes give equivalent equations; one independent equation is enough.", "Continuar a las mallas →": "Continue to meshes →", "Recorre las mallas": "Traverse the meshes", "Cada malla requiere": "Each mesh requires", "dos vueltas completas": "two complete laps", ": primero construye los términos": ": first build the terms", "y después recoge las tensiones de las fuentes.": "and then collect the source voltages.", "Ambas mallas comienzan siempre en el nudo B": "Both meshes always start at node B", ". Pulsa dentro de una malla para seleccionarla y sobre su icono ↻/↺ para invertir el giro. Las caídas de tensión quedan a la izquierda del signo igual y las fuentes a la derecha.": ". Tap inside a mesh to select it and its ↻/↺ icon to reverse direction. Voltage drops go on the left of the equals sign and sources on the right.", "Construye la matriz": "Build the matrix", "Ya tienes": "You now have", "3 ecuaciones independientes para 3 incógnitas": "3 independent equations for 3 unknowns", ". Escribe los coeficientes de": ". Enter the coefficients of", "las corrientes": "the currents", "y el término independiente de cada ecuación, en el orden mostrado.": "and the constant term of each equation, in the order shown.", "Sistema obtenido": "Resulting system", "Utiliza números con signo. Los huecos de coeficientes nulos son 0.": "Use signed numbers. Enter 0 for zero coefficients.", "Resolver algebraicamente →": "Solve algebraically →", "Orden de resolución:": "Solution order:", "1. Sustitución de la ecuación del nudo en las mallas; 2. Reducción de las dos ecuaciones resultantes; 3. Sustitución regresiva": "1. Substitute the node equation into the meshes; 2. Eliminate variables from the resulting equations; 3. Back substitution", ". La igualación solo se usaría cuando resultase estrictamente necesaria. Se respetan los sentidos de referencia elegidos.": ". Equating expressions is used only when necessary. Selected reference directions are preserved.", "Verificación: al sustituir las intensidades,": "Verification: substituting the currents gives", "en las tres ecuaciones. Nivel superado.": "in all three equations. Level complete.", "Fase 1 · Corrientes y nudos": "Stage 1 · Currents and nodes", "Fase 2 · Ley de las mallas": "Stage 2 · Mesh law", "Fase 3 · Sistema matricial": "Stage 3 · Matrix system", "Fase 4 · Sustitución y reducción": "Stage 4 · Substitution and elimination", "No se pueden repetir los números de corriente.": "Current numbers must be unique."};
+  const englishFragments=[["Primera vuelta de R·I completada en B. Los términos resistivos aparecen a la izquierda de =. Segunda vuelta: tensiones y polaridades de las fuentes.", "First R·I lap complete at B. Resistive terms appear to the left of =. Second lap: source voltages and polarities."], ["La igualación solo se usaría cuando resultase estrictamente necesaria. Se respetan los sentidos de referencia elegidos.", "Equating expressions is used only when necessary. The selected reference directions are preserved."], ["El nudo B aporta la misma ecuación multiplicada por −1. Debes seleccionar una sola ecuación independiente.", "Node B gives the same equation multiplied by −1. Select just one independent equation."], ["Recorrido reiniciado. Los términos volverán a generarse al visitar cada componente.", "Traversal restarted. Terms will be generated again at each component."], ["Primera vuelta terminada: los términos R·I quedan a la izquierda de =.", "First lap complete: R·I terms appear to the left of =."], ["Pulsación larga o doble clic en la I, o F2, para cambiar su número.", "Long-press or double-click I, or press F2, to edit its number."], ["Estas intensidades satisfacen las ecuaciones de nudo y mallas.", "These currents satisfy the node and mesh equations."], ["Puedes pasar a la siguiente fase si ambas están resueltas.", "You can continue when both meshes are complete."], ["Ecuaciones, matriz, desarrollo y resultados recalculados.", "Equations, matrix, working and results recalculated."], ["ecuaciones, matriz, desarrollo y resultados recalculados.", "equations, matrix, working and results recalculated."], ["Arrastra la flecha o su texto para moverlos por la rama.", "Drag the arrow or its label along the branch."], ["1. Sustitución de la ecuación de nudo en las mallas", "1. Substitute the node equation into the meshes"], ["2. Reducción de las dos ecuaciones resultantes", "2. Eliminate variables from the two resulting equations"], ["Los resultados no satisfacen las ecuaciones.", "Results do not satisfy the equations."], ["Selecciona otra malla pendiente.", "Select another pending mesh."], ["Ajustar el ancho de las columnas", "Adjust column widths"], ["Pulsa para invertir el sentido.", "Tap to reverse direction."], ["Completa las fases anteriores", "Complete earlier stages"], ["Aumentar texto de la columna", "Increase text in column"], ["referencia algebraica válida", "valid algebraic reference"], ["Reducir texto de la columna", "Decrease text in column"], ["Selecciona ahora la malla", "Now select mesh"], ["Reducción: eliminación de", "Elimination of"], ["ecuaciones independientes", "independent equations"], ["3. Sustitución regresiva", "3. Back substitution"], ["Es una elección válida.", "This is a valid reference."], ["Pulsa ▶ para continuar.", "Press ▶ to continue."], ["resistencia equivalente", "equivalent resistance"], ["Invertir giro de malla", "Reverse mesh direction"], ["Deshacer equivalencias", "Expand equivalent resistances"], ["sumatorio de tensiones", "sum of voltages"], ["Término independiente", "Constant term"], ["Reiniciar corrientes", "Restart currents"], ["Reiniciar resolución", "Restart solution"], ["Comprobar resultados", "Check results"], ["Corrientes supuestas", "Assumed currents"], ["Comprobar ecuación", "Check equation"], ["fuentes de tensión", "voltage sources"], ["LEYES DE KIRCHHOFF", "KIRCHHOFF’S LAWS"], ["Actividad resuelta", "Worked example"], ["Seleccionar malla", "Select mesh"], ["Comprobar término", "Check term"], ["Ley de las mallas", "Voltage law"], ["Sistema matricial", "Matrix system"], ["Nº de ecuaciones", "Number of equations"], ["Reiniciar mallas", "Restart meshes"], ["Reiniciar matriz", "Restart matrix"], ["Ley de los nudos", "Current law"], ["Tamaño de texto", "Text size"], ["Reiniciar fase", "Restart stage"], ["Coeficiente de", "Coefficient of"], ["Sustitución en", "Substitution into"], ["signo negativo", "negative sign"], ["signo positivo", "positive sign"], ["Ley de nudos", "Current law"], ["resistencias", "resistors"], ["Resistencias", "Resistors"], ["intensidades", "currents"], ["Demostración", "Demonstration"], ["Fase actual", "Current stage"], ["Primera ley", "Current law"], ["Segunda ley", "Voltage law"], ["Resistencia", "Resistor"], ["recorriendo", "traversing"], ["Recorriendo", "Traversing"], ["antihorario", "counterclockwise"], ["verificados", "verified"], ["Ley de Ohm", "Ohm’s law"], ["corrientes", "currents"], ["Corrientes", "Currents"], ["intensidad", "current"], ["ecuaciones", "equations"], ["incógnitas", "unknowns"], ["completada", "complete"], ["completado", "complete"], ["verificada", "verified"], ["CORRIENTES", "CURRENTS"], ["Corriente", "Current"], ["recorrido", "traversal"], ["Recorrido", "Traversal"], ["invertida", "reversed"], ["correctas", "correct"], ["Actividad", "Exercise"], ["Ejercicio", "Exercise"], ["Operación", "Operation"], ["Resultado", "Result"], ["Volver a", "Return to"], ["ecuación", "equation"], ["Recorrer", "Traverse"], ["RESUELVE", "SOLVE"], ["SUPERADO", "COMPLETE"], ["resuelto", "solved"], ["paralelo", "parallel"], ["fuentes", "sources"], ["Fuentes", "Sources"], ["horario", "clockwise"], ["Despeje", "Isolate variable"], ["Fuente", "Source"], ["mallas", "meshes"], ["MALLAS", "MESHES"], ["Vuelta", "Lap"], ["salida", "start"], ["inicio", "start"], ["signos", "signs"], ["entran", "incoming"], ["Nudos", "Nodes"], ["nudos", "nodes"], ["MALLA", "MESH"], ["Malla", "Mesh"], ["malla", "mesh"], ["Nivel", "Level"], ["NUDOS", "NODES"], ["signo", "sign"], ["Entra", "Incoming"], ["salen", "outgoing"], ["serie", "series"], ["Nudo", "Node"], ["nudo", "node"], ["Fase", "Stage"], ["TEMA", "CHAPTER"], ["Sale", "Outgoing"]];
+  const englishTranslationCache=new Map();
+  const languageNodes=new WeakMap(),languageAttributes=new WeakMap();let languageObserver=null;
+  function translateText(original){
+    if(wormhoffSettings.language==='es')return original;
+    if(englishTranslationCache.has(original))return englishTranslationCache.get(original);
+    const trimmed=original.trim(),exact=englishText[trimmed];
+    if(exact)return original.replace(trimmed,exact);
+    const patterns=[
+      [/^Referencia (.*?) invertida\. (.*)$/u,(_,name,detail)=>'Reference '+name+' reversed. '+translateText(detail)],
+      [/^Malla (\d+) · (horario|antihorario) · inicio en ([A-D])\.$/u,(_,n,turn,start)=>'Mesh '+n+' · '+(turn==='horario'?'clockwise':'counterclockwise')+' · start at '+start+'.'],
+      [/^Fase (\d+) · (.*)$/u,(_,n,detail)=>'Stage '+n+' · '+translateText(detail)],
+      [/^Nudo ([A-D]) \(Σ I entran = Σ I salen\): (.*)$/u,(_,n,eq)=>'Node '+n+' (Σ incoming I = Σ outgoing I): '+eq],
+      [/^Vuelta (\d\/\d) · (.*)$/u,(_,n,detail)=>'Lap '+n+' · '+translateText(detail)],
+      [/^Partimos de (.*?)\. Sustituimos (.*?) mediante (.*?) en las dos mallas y obtenemos:$/u,(_,node,name,eq)=>'Starting from '+node+', substitute '+name+' using '+eq+' into both meshes:'],
+      [/^Multiplicamos la malla 1 por (.*?) y la malla 2 por (.*?) para obtener coeficientes opuestos o iguales de (.*?)\.$/u,(_,a,b,v)=>'Multiply mesh 1 by '+a+' and mesh 2 by '+b+' to obtain opposite or equal coefficients of '+v+'.'],
+      [/^(Restamos|Sumamos) ambas ecuaciones, miembro a miembro, y desaparece (.*?)\.$/u,(_,op,v)=>(op==='Restamos'?'Subtract':'Add')+' both equations term by term to eliminate '+v+'.'],
+      [/^De la ecuación reducida obtenemos (.*?)\. Sustituimos ese valor en la primera malla para hallar (.*?)\.$/u,(_,a,b)=>'The reduced equation gives '+a+'. Substitute this value into the first mesh to find '+b+'.'],
+      [/^Volvemos a (.*?) y calculamos (.*?) mediante la ecuación del nudo\.$/u,(_,eq,v)=>'Return to '+eq+' and calculate '+v+' using the node equation.'],
+      [/^Una ecuación ya no tiene (.*?): obtenemos (.*?) directamente, sin aplicar igualación\.$/u,(_,v,x)=>'One equation no longer contains '+v+': obtain '+x+' directly.'],
+      [/^Sustituimos (.*?) en la otra malla y hallamos (.*?)\.$/u,(_,a,b)=>'Substitute '+a+' into the other mesh to find '+b+'.'],
+      [/^Partimos de las tres igualdades de nudo\. Sustituimos (.*?) en las mallas y trabajamos con (.*?)\.$/u,(_,a,b)=>'Start with the three node equalities. Substitute '+a+' into the meshes and work with '+b+'.'],
+      [/^Multiplicamos las dos ecuaciones por los factores indicados y sumamos miembro a miembro para eliminar (.*?)\.$/u,(_,v)=>'Multiply both equations by the indicated factors and add them term by term to eliminate '+v+'.'],
+      [/^Repetimos la reducción entre las mallas 1 y 3\. Obtenemos otra ecuación con (.*?) y (.*?)\.$/u,(_,a,b)=>'Repeat elimination between meshes 1 and 3 to obtain another equation in '+a+' and '+b+'.'],
+      [/^Combinamos las dos ecuaciones reducidas\. Desaparece (.*?) y queda una ecuación con una sola incógnita\.$/u,(_,v)=>'Combine both reduced equations to eliminate '+v+' and obtain one equation with one unknown.'],
+      [/^Calculamos (.*?); sustituimos ese valor para obtener (.*?) y después (.*?)\.$/u,(_,a,b,c)=>'Calculate '+a+'; substitute this value to obtain '+b+' and then '+c+'.'],
+      [/^Recuperamos (.*?) mediante las igualdades originales de los nudos\. (.*)$/u,(_,v,eq)=>'Recover '+v+' using the original node equalities. '+eq],
+      [/^Corriente (.*?)\. (.*)$/u,(_,name,detail)=>'Current '+name+'. '+translateText(detail)],
+      [/^Recorriendo la rama de (.*?) a (.*?), desde un nudo hasta el otro, sin saltos\.$/u,(_,a,b)=>'Traversing the branch from '+a+' to '+b+', node to node without jumps.'],
+    ];
+    for(const [pattern,replacement] of patterns)if(pattern.test(trimmed))return original.replace(trimmed,trimmed.replace(pattern,replacement));
+    // Replace against the Spanish source in one pass; never translate an English replacement again.
+    const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const fragments=new Map(englishFragments);
+    const pattern=new RegExp('(?<![\\p{L}])('+englishFragments.map(([key])=>escape(key)).join('|')+')(?![\\p{L}])','gu');
+    const translated=original.replace(pattern,match=>fragments.get(match));englishTranslationCache.set(original,translated);return translated;
+  }
+  function applyLanguage(){
+    languageObserver?.disconnect();document.documentElement.lang=wormhoffSettings.language;
+    const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
+    while(node=walker.nextNode()){
+      if(node.parentElement?.closest('script,style')||!node.nodeValue.trim())continue;
+      const saved=languageNodes.get(node),original=saved?.rendered===node.nodeValue?saved.original:node.nodeValue,rendered=translateText(original);
+      languageNodes.set(node,{original,rendered});if(rendered!==node.nodeValue)node.nodeValue=rendered;
+    }
+    for(const el of document.querySelectorAll('[aria-label],[title],[placeholder]')){
+      const values=languageAttributes.get(el)||{};
+      for(const attr of ['aria-label','title','placeholder']){
+        if(!el.hasAttribute(attr))continue;const current=el.getAttribute(attr),saved=values[attr],original=saved?.rendered===current?saved.original:current,rendered=translateText(original);
+        values[attr]={original,rendered};if(rendered!==current)el.setAttribute(attr,rendered);
+      }languageAttributes.set(el,values);
+    }
+    languageObserver?.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','title','placeholder']});
+  }
+  function initLanguage(){
+    let pending=false;languageObserver=new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;applyLanguage();});});applyLanguage();
+  }
+  function initSettings(){
+    try{const saved=JSON.parse(localStorage.getItem('wormhoff-settings')||'{}');
+      if(['dark','light','system'].includes(saved.theme))wormhoffSettings.theme=saved.theme;
+      if(['es','en'].includes(saved.language))wormhoffSettings.language=saved.language;
+      if(Number.isFinite(saved.speed)&&saved.speed>=25&&saved.speed<=200)wormhoffSettings.speed=saved.speed;
+    }catch{}
+    const scheme=matchMedia('(prefers-color-scheme: light)');
+    const apply=()=>{document.documentElement.dataset.theme=wormhoffSettings.theme==='system'?(scheme.matches?'light':'dark'):wormhoffSettings.theme;document.querySelector('meta[name="color-scheme"]').content=document.documentElement.dataset.theme;};
+    const save=()=>{try{localStorage.setItem('wormhoff-settings',JSON.stringify(wormhoffSettings));}catch{}};
+    $('themeSetting').value=wormhoffSettings.theme;$('languageSetting').value=wormhoffSettings.language;$('speedSetting').value=wormhoffSettings.speed;$('speedValue').textContent=wormhoffSettings.speed+'%';
+    $('themeSetting').onchange=()=>{wormhoffSettings.theme=$('themeSetting').value;apply();save();};
+    scheme.addEventListener('change',apply);apply();
+    $('speedSetting').oninput=()=>{wormhoffSettings.speed=Number($('speedSetting').value);$('speedValue').textContent=wormhoffSettings.speed+'%';save();};
+    $('languageSetting').onchange=()=>{wormhoffSettings.language=$('languageSetting').value;save();applyLanguage();};
+    $('openSettings').onclick=()=>$('settingsDialog').showModal();$('closeSettings').onclick=()=>$('settingsDialog').close();
+    $('settingsDialog').addEventListener('click',event=>{if(event.target!==$('settingsDialog'))return;const r=$('settingsDialog').getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)$('settingsDialog').close();});
+  }
   function initMobileEquations(){
     const card=$('equationsCard'),marker=document.createComment('equations desktop position'),layout=$('gameLayout');card.before(marker);
     const media=matchMedia('(max-width:970px), (pointer:coarse) and (max-width:1200px)');
@@ -2787,6 +3170,7 @@
     });
     new ResizeObserver(()=>apply(preferredRatio)).observe(layout);apply(preferredRatio);
   }
+  initSettings();
   initMobileEquations();
   const syncColumnText=initColumnTextControls();
   initPhaseNavigation();
@@ -2804,7 +3188,7 @@
     if(j.some(x=>!Number.isFinite(x))||Math.abs(j.reduce((a,b)=>a+b,0))>1e-8)throw Error('Datos inconsistentes en '+ex.id);
     active=oldActive;R=oldR;E=oldE;
   }
-  newGame();syncBoardActions();syncEquationPlaceholder();syncColumnText();
+  newGame();syncBoardActions();syncEquationPlaceholder();syncColumnText();initLanguage();
 })();
 </script>
 </body>
