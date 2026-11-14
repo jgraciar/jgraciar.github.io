@@ -90,7 +90,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    const visible=el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden';
    const rect=el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};};
    const overlap=(a,b)=>a.x<b.x+b.w-.5&&a.x+a.w>b.x+.5&&a.y<b.y+b.h-.5&&a.y+a.h>b.y+.5;
-   const fixed=[...svg.querySelectorAll('#staticCircuit .symbol,#staticCircuit .source-halo,#staticCircuit .component-value,#staticCircuit .resistor-name,#staticCircuit .txt,#staticCircuit .txtsm,#staticCircuit .nod')].filter(visible).map(rect);
+   const fixed=[...svg.querySelectorAll('#staticCircuit .symbol,#staticCircuit .source-halo,#staticCircuit .component-value,#staticCircuit .resistor-name,#staticCircuit .txt,#staticCircuit .txtsm,#staticCircuit .nod,#loopArrows .mesh-label,#loopArrows .mesh-complete')].filter(visible).map(rect);
    const current=[...svg.querySelectorAll('#dirGraphics .dirlabel,#dirGraphics .dir-result,#dirGraphics .direction,#sixRefArrows .dirlabel,#sixRefArrows .dir-result,#sixRefArrows .direction')].filter(visible);
    return current.flatMap((el,i)=>{const r=rect(el);return fixed.some(b=>overlap(r,b))||current.slice(0,i).some(other=>overlap(r,rect(other)))?[{id:el.parentElement.id,text:el.textContent,rect:r,transform:el.getAttribute('transform'),fixed:fixed.filter(b=>overlap(r,b)),currents:current.slice(0,i).filter(other=>overlap(r,rect(other))).map(other=>({id:other.parentElement.id,text:other.textContent,rect:rect(other)}))}]:[];});
   });assert.deepEqual(problems,[],'Flechas y textos sin solaparse con componentes ni otras corrientes');
@@ -160,7 +160,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    const canvas=document.createElement('canvas');canvas.width=box.width;canvas.height=box.height;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);
    return {inside:[...ctx.getImageData(Math.round(x-box.x),Math.round(y-box.y),1,1).data],outside:[...ctx.getImageData(580-box.x,110-box.y,1,1).data]};
   },{x,y});
-  assert(pixels.inside[3]>pixels.outside[3]+40,'Sombreado visible en la imagen del circuito: '+JSON.stringify(pixels));
+  assert(pixels.inside[3]>=80&&pixels.inside[3]<=95&&pixels.outside[3]<20&&[117,105,168].every((n,i)=>Math.abs(pixels.inside[i]-n)<=4),'Mismo sombreado violeta visible en la imagen del circuito: '+JSON.stringify(pixels));
  };
  const openNumberEditor=async(selector,gesture=mobile?'long':'double')=>{
   await page.locator('#circuit').scrollIntoViewIfNeeded();

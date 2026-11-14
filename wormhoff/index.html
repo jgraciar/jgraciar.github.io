@@ -410,8 +410,8 @@
           <g id="meshTargets"></g>
           <g id="staticCircuit"></g>
           <path id="branchSelection" class="branch-selection"/><g id="currentBranchTargets"></g>
-          <g id="loopArrows"></g>
           <g id="dirGraphics"></g>
+          <g id="loopArrows"></g>
           <g id="flowFX"></g>
           <g id="sourceArrowFX"></g>
           <g id="componentFX"></g>
@@ -2162,7 +2162,7 @@
     A6.meshDirections=[true,true,true];A6.meshDirectionsConfirmed=false;A6.stage='dirs';A6.nodeCount=0;$('advKCLtext').innerHTML='';A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
     $('stagebar').classList.remove('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
     $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('meshSelection').innerHTML='';
-    $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();$('dirGraphics').append($('sixRefArrows'));
+    $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();$('dirGraphics').append($('sixRefArrows'));$('loopArrows').append($('sixLoops'));
     for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents='none';$('nodeHit').style.pointerEvents='none';
     $('boardTitle').textContent=active.label;$('boardBadge').textContent=symbolStandardLabel()+' · 4 nudos · 6 ramas · 3 mallas';
     $('boardSummary').textContent='R: 4 / 3 / 2 / 2 / 5 / 3 Ω · U: 10, 4, 6, 12, 2 V';
@@ -2495,7 +2495,7 @@
     const box=el=>{const r=el.getBoundingClientRect(),a=new DOMPoint(r.left,r.top).matrixTransform(inverse),b=new DOMPoint(r.right,r.bottom).matrixTransform(inverse);return {x:a.x,y:a.y,w:b.x-a.x,h:b.y-a.y};};
     const overlap=(a,b,pad=2)=>a.x<b.x+b.w+pad&&a.x+a.w+pad>b.x&&a.y<b.y+b.h+pad&&a.y+a.h+pad>b.y;
     const inside=r=>r.x>=vb.x+3&&r.y>=vb.y+3&&r.x+r.w<=vb.x+vb.width-3&&r.y+r.h<=vb.y+vb.height-3;
-    const fixed=[...$('staticCircuit').querySelectorAll('.symbol,.source-halo,.source-plate:not(.source-lead),.component-value,.resistor-name,.txt,.txtsm,.nod'),...svg.querySelectorAll('#loopArrows .mesh-label,#loopArrows [data-mesh-turn],#sixLoops .mesh-label,#sixLoops [data-mesh-turn],.mesh-complete')].filter(visible).map(box);
+    const fixed=[...$('staticCircuit').querySelectorAll('.symbol,.source-halo,.source-plate:not(.source-lead),.component-value,.resistor-name,.txt,.txtsm,.nod'),...svg.querySelectorAll('#loopArrows .mesh-label,#sixLoops .mesh-label,.mesh-complete')].filter(visible).map(box);
     const isolated=currentArrowDrag?.moved?currentArrowDrag:currentRenamingPlacement;
     if(isolated){
       const selected=groups.find(group=>Number(group.dataset.currentIndex)===isolated.index&&(group.dataset.six==='true')===isolated.six);
