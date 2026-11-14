@@ -600,6 +600,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  for(let i=0;i<6;i++){
   await tap(...freePoints[i]);await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
   const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
+  if(i===0&&Math.abs(position.y-190)>2)console.log('SOURCE B OBSTACLES',JSON.stringify(await page.locator('#circuit').evaluate(svg=>{const inverse=svg.getScreenCTM().inverse();return [...document.querySelectorAll('#staticCircuit .symbol,#staticCircuit .source-halo,#staticCircuit .source-plate:not(.source-lead),#staticCircuit .component-value,#staticCircuit .resistor-name,#staticCircuit .txt,#staticCircuit .txtsm,#staticCircuit .nod')].filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden').map(el=>{const r=el.getBoundingClientRect(),a=new DOMPoint(r.left,r.top).matrixTransform(inverse),b=new DOMPoint(r.right,r.bottom).matrixTransform(inverse);return {class:el.getAttribute('class'),text:el.textContent,x:a.x,y:a.y,w:b.x-a.x,h:b.y-a.y}}).filter(r=>r.x<165&&r.x+r.w>85&&r.y<230&&r.y+r.h>155)})));
   assert(Math.hypot(position.x-freePoints[i][0],position.y-freePoints[i][1])<2,'Posición de la flecha avanzada más próxima al clic: rama '+(i+1)+' '+JSON.stringify(position));
  }
  await assertBranchPlacement(true);await assertNoCurrentOverlap();
