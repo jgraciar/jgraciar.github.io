@@ -2417,7 +2417,7 @@
         }
         if(chosen)break;
       }
-      if(!chosen){group.dataset.placementUnavailable='true';group.style.display='none';continue;}
+      if(!chosen){console.warn('No placement',JSON.stringify({index,six,wanted,occupied,fixed,candidates:candidates.slice(0,2)}));group.dataset.placementUnavailable='true';group.style.display='none';continue;}
       const c=chosen;
       const stem=`M${c.x-c.vx*c.half} ${c.y-c.vy*c.half} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half}`;
       const tip=`M${c.x+c.vx*(c.half-9)-c.vy*7} ${c.y+c.vy*(c.half-9)+c.vx*7} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half} L${c.x+c.vx*(c.half-9)+c.vy*7} ${c.y+c.vy*(c.half-9)-c.vx*7}`;
