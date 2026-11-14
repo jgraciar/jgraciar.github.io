@@ -2934,6 +2934,18 @@
 
 
   // Move the arrow and its adjacent label together, strictly along their own branch.
+  function arrowSegmentTouchesRect(a,b,r,radius=3.1){
+    const dx=b.x-a.x,dy=b.y-a.y,length=dx*dx+dy*dy;
+    const pointDistance=p=>{const t=length?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/length)):0;return (p.x-a.x-t*dx)**2+(p.y-a.y-t*dy)**2;};
+    const rectDistance=p=>Math.max(r.x-p.x,0,p.x-r.x-r.w)**2+Math.max(r.y-p.y,0,p.y-r.y-r.h)**2;
+    let lo=0,hi=1;
+    for(const [start,delta,min,max] of [[a.x,dx,r.x,r.x+r.w],[a.y,dy,r.y,r.y+r.h]]){
+      if(Math.abs(delta)<1e-10){if(start<min||start>max){lo=2;break;}}
+      else{const u=(min-start)/delta,v=(max-start)/delta;lo=Math.max(lo,Math.min(u,v));hi=Math.min(hi,Math.max(u,v));}
+    }
+    if(lo<=hi)return true;
+    return Math.min(rectDistance(a),rectDistance(b),...[[r.x,r.y],[r.x+r.w,r.y],[r.x,r.y+r.h],[r.x+r.w,r.y+r.h]].map(([x,y])=>pointDistance({x,y})))<radius*radius;
+  }
   function layoutCurrentAnnotations(){
     const svg=$('circuit'),matrix=svg.getScreenCTM();if(!matrix)return;
     let groups=[...svg.querySelectorAll('[data-current-index]')];if(!groups.length)return;
@@ -2985,8 +2997,10 @@
         for(const c of candidates){
           const half=12,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
           const arrow={x:c.x-Math.abs(vx)*half-Math.abs(vy)*7-3,y:c.y-Math.abs(vy)*half-Math.abs(vx)*7-3,w:Math.abs(vx)*2*half+Math.abs(vy)*14+6,h:Math.abs(vy)*2*half+Math.abs(vx)*14+6};
-          if(six&&index===0&&wanted.y>175&&wanted.y<210&&c.distance<4)console.log('CANDIDATE',JSON.stringify({wanted,c,arrow,inside:inside(arrow),blocked:[...fixed,...occupied].filter(b=>overlap(arrow,b))}));
-          if(!inside(arrow)||[...fixed,...occupied].some(b=>overlap(arrow,b)))continue;
+          const tail={x:c.x-vx*half,y:c.y-vy*half},tipPoint={x:c.x+vx*half,y:c.y+vy*half};
+          const segments=[[tail,tipPoint],...[-1,1].map(side=>[{x:c.x+vx*(half-9)+side*vy*7,y:c.y+vy*(half-9)-side*vx*7},tipPoint])];
+          // Compara el trazo real y su contorno: el rectángulo completo de la punta bloqueaba el texto de B y D sin tocarlo.
+          if(!inside(arrow)||fixed.some(r=>segments.some(([a,b])=>arrowSegmentTouchesRect(a,b,r)))||occupied.some(b=>overlap(arrow,b)))continue;
           const horizontal=Math.abs(c.dx)>.5;
           const positions=horizontal?[11,18,28].flatMap(offset=>[
             {l:{x:c.x-l.width/2,y:c.y-offset-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+offset,w:v.width,h:v.height}:null},
@@ -2994,7 +3008,6 @@
             {l:{x:c.x-l.width/2,y:c.y+offset,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+offset+l.height+5,w:v.width,h:v.height}:null},
             {l:{x:c.x-l.width/2,y:c.y-offset-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y-offset-l.height-5-v.height,w:v.width,h:v.height}:null}
           ]):[13,20,27].flatMap(offset=>[1,-1].flatMap(side=>[1,-1].map(vertical=>({l:{x:side>0?c.x+offset:c.x-offset-l.width,y:c.y-l.height/2,w:l.width,h:l.height},v:v?{x:side>0?c.x+offset:c.x-offset-v.width,y:vertical>0?c.y+l.height/2+5:c.y-l.height/2-5-v.height,w:v.width,h:v.height}:null}))));
-          if(six&&index===0&&wanted.y>175&&wanted.y<210&&c.distance<4)console.log('LABELS',JSON.stringify({l,positions:positions.map(pos=>({pos,inside:inside(pos.l),fixed:fixed.filter(b=>overlap(pos.l,b)),wires:wires.filter(b=>overlap(pos.l,b)),arrow:overlap(pos.l,arrow)}))}));
           const arrangement=positions.find(pos=>[pos.l,pos.v].filter(Boolean).every(r=>inside(r)&&![...fixed,...wires,...occupied,arrow].some(b=>overlap(r,b))));
           if(arrangement){chosen={...c,vx,vy,half,arrow,...arrangement,lMetric:l,vMetric:v};break;}
         }
