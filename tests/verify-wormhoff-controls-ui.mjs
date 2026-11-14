@@ -29,6 +29,8 @@ const enterNodeEquation=async(page,id,equation)=>{
  if(!await page.locator('#nodeEquationDialog').isVisible()){assert.match(await page.locator('#boardNodeSelectionCounter').textContent(),/1 de 1/);await page.locator('#startNodeEquations:visible,#advStartNodeEquations:visible').click();}
  assert(await page.locator('#nodeEquationDialog').isVisible(),'Ventana del nudo '+id);
  assert.match(await page.locator('#nodeEquationTitle').textContent(),new RegExp('Nudo '+id));
+ assert.deepEqual(await page.locator('#nodeTargets [data-node-blinking="true"]').evaluateAll(nodes=>nodes.map(el=>el.dataset.node)),[id],'Solo parpadea el nudo cuya ecuación se pide');
+ assert.equal(await page.locator('#nodeTargets [data-node="'+id+'"] circle').evaluate(el=>getComputedStyle(el).animationName),'nodeRingBlink');
  await page.locator('#nodeEquationChallenge .kcl-answer').fill(equation);
  await page.click('#nodeEquationDialog [data-context-help="nodeEquation"]');assert(await page.locator('#phaseHelpDialog').isVisible());assert.match(await page.locator('#phaseHelpBody').textContent(),/Σ I que entran/);
  await page.click('#closePhaseHelp');assert(await page.locator('#nodeEquationDialog').isVisible());assert.equal(await page.locator('#nodeEquationChallenge .kcl-answer').inputValue(),equation,'La ayuda conserva la ecuación escrita');
@@ -408,9 +410,11 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.selectOption('#exerciseSelect','c75');
  assert.equal(await page.locator('#confirmDirs').isDisabled(),true);
  const circuitScale=()=>page.locator('#circuit').evaluate(el=>({width:el.getBoundingClientRect().width,scale:el.getScreenCTM().a,zoom:el.style.getPropertyValue('--circuit-zoom'),viewport:visualViewport?.scale||1}));
- const beforeNumbering=await circuitScale();
+ const beforeNumbering=await circuitScale(),originalViewport=await page.locator('meta[name=viewport]').getAttribute('content');
  await tap(146,310);
  assert.deepEqual(await circuitScale(),beforeNumbering,'Abrir la numeración no hace zoom en el circuito ni en la página');
+ if(mobile)assert.match(await page.locator('meta[name=viewport]').getAttribute('content'),/maximum-scale=1(?:,|$)/,'Se evita expresamente el autozoom del teclado durante la numeración');
+ else assert.equal(await page.locator('meta[name=viewport]').getAttribute('content'),originalViewport);
  assert(await page.locator('#currentNumber').evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=16),'Campo sin reducción que provoque zoom al enfocar');
  assert.equal(await page.locator('[data-current-branch="0"]').evaluate(el=>getComputedStyle(el).touchAction),'manipulation','La pulsación de ramas no dispara el zoom de doble toque');
  if(mobile){
@@ -419,6 +423,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   await page.setViewportSize(viewport);
  }
  if(!mobile){const distance=await page.locator('#currentNameDialog').evaluate(el=>{const p=new DOMPoint(146,310).matrixTransform(document.getElementById('circuit').getScreenCTM()),r=el.getBoundingClientRect();return Math.hypot(Math.max(r.left-p.x,0,p.x-r.right),Math.max(r.top-p.y,0,p.y-r.bottom));});assert(distance<60,'Editor junto a la rama seleccionada: '+distance);}assert(await page.locator('[data-current-branch="0"]').evaluate(el=>getComputedStyle(el).outlineStyle==='none'));assert((await page.locator('#branchSelection').getAttribute('d')).length>0);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
+ assert.equal(await page.locator('meta[name=viewport]').getAttribute('content'),originalViewport,'Al cerrar se restaura el zoom habitual de la página');
  await tap(345,310);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
  assert.equal(await page.locator('#currentNumber').getAttribute('aria-invalid'),'true');assert(await page.locator('#currentNameDialog').isVisible());
  await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
@@ -546,12 +551,15 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  for(const [index,node] of ['D','A','C'].entries()){
   await page.locator('#nodeTargets [data-node="'+node+'"]').click();assert.match(await page.locator('#advNodeEquationCount [data-node-selection-progress]').textContent(),new RegExp((index+1)+' de 3'));assert.equal(await page.locator('#boardNodeSelectionCounter').textContent(),(index+1)+' de 3');assert(await page.locator('#boardNodeSelectionCounter').isVisible(),'Contador en la cabecera del circuito');assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'Selecciona todos los nudos antes de pedir ecuaciones');
   assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0,'No crea ecuaciones al seleccionar');
+  assert.equal(await page.locator('#nodeTargets [data-node="'+node+'"] circle').evaluate(el=>getComputedStyle(el).animationName),'nodeRingBlink','Parpadea cada nudo elegido');
+  if(index===2)assert.equal(await page.locator('#nodeTargets [data-node="B"] circle').evaluate(el=>getComputedStyle(el).stroke),'none','Desaparece el círculo del nudo excluido');
  }
  await page.locator('#nodeTargets [data-node="B"]').click();assert.match(await page.locator('#advNodeEquationCount [data-node-selection-progress]').textContent(),/3 de 3/);assert.equal(await page.locator('#nodeTargets [data-node="B"]').getAttribute('aria-pressed'),'false','Deja un nudo sin considerar');
  await checkAction('advStartNodeEquations');await page.click('#advStartNodeEquations');
  let verifiedNodes=0;
  for(const [node,eq] of [['D','I3+I5+I6=0'],['A','I1=I2+I3'],['C','I2+I4=I5']]){
   await page.locator('#nodeEquationDialog').waitFor({state:'visible'});assert.match(await page.locator('#nodeEquationTitle').textContent(),new RegExp('Nudo '+node),'Pregunta las ecuaciones en el orden de selección');
+  assert.deepEqual(await page.locator('#nodeTargets [data-node-blinking="true"]').evaluateAll(nodes=>nodes.map(el=>el.dataset.node)),[node],'El parpadeo pasa al nudo cuya ecuación se solicita');
   await page.locator('#nodeEquationChallenge .kcl-answer').fill(eq);await page.click('#nodeEquationChallenge .kcl-check');verifiedNodes++;assert.equal(await page.locator('#equationsCard #advKCL [data-equation]').count(),verifiedNodes);
  }
  assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);

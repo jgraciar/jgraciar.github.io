@@ -683,6 +683,10 @@
 
   .node-equation-target[data-node-selected="true"] circle{stroke:var(--amber);stroke-dasharray:none;stroke-width:2.5}
   .node-equation-target[data-node-complete="true"] circle{stroke:var(--lime)}
+  .node-equation-target[data-node-blinking="true"] circle{animation:nodeRingBlink .9s step-end infinite}
+  .node-equation-target[data-node-excluded="true"] circle{stroke:none;animation:none}
+  @keyframes nodeRingBlink{0%,49%{stroke-opacity:1}50%,100%{stroke-opacity:.15}}
+
 
   [data-node-selection-progress]{font:800 21px/1.4 ui-monospace,monospace;color:var(--amber)}
 
@@ -1206,6 +1210,20 @@
     return isParallel(i)?`${parts.map(r=>`1/${formatNumber(r)}`).join(' + ')} = 1/R${i+1}`:`${parts.map(formatNumber).join(' + ')} Ω`;
   }
   let namingBranch=null;
+  let currentNamingViewport=null;
+  function holdCurrentNamingScale(){
+    if(currentNamingViewport||!matchMedia('(max-width:970px), (pointer:coarse)').matches)return;
+    const meta=document.querySelector('meta[name="viewport"]');
+    const original=meta.getAttribute('content'),scale=Math.max(1,window.visualViewport?.scale||1);
+    currentNamingViewport={meta,original};
+    // Limita solo el autozoom del teclado mientras se edita el número; al cerrar se restaura el zoom de la página.
+    meta.setAttribute('content',original.replace(/,?\s*maximum-scale\s*=\s*[^,]+/g,'')+', maximum-scale='+scale);
+  }
+  function releaseCurrentNamingScale(){
+    if(!currentNamingViewport)return;
+    currentNamingViewport.meta.setAttribute('content',currentNamingViewport.original);currentNamingViewport=null;
+  }
+
   function currentNamesReady(six){return (six?A6:S).currentNumbers.every(n=>Number.isSafeInteger(n)&&n>0);}
   function currentLabel(number){return 'I'+String(number).replace(/[0-9]/g,d=>'₀₁₂₃₄₅₆₇₈₉'[Number(d)]);}
   function normalizeCurrentToken(text){return String(text).replace(/[₀₁₂₃₄₅₆₇₈₉]/g,d=>String('₀₁₂₃₄₅₆₇₈₉'.indexOf(d))).replace(/I([0-9]+)/gi,(_,n)=>'i'+String(Number(n))).toLowerCase();}
@@ -1237,7 +1255,7 @@
     if(nearest){const {a,dx,dy,t,len}=nearest,lo=Math.max(0,t-18),hi=Math.min(len,t+18);$('branchSelection').setAttribute('d',`M${a.x+dx*lo} ${a.y+dy*lo} L${a.x+dx*hi} ${a.y+dy*hi}`);}
     $('currentNumber').value=model.currentNumbers[index]??'';$('currentNumber').removeAttribute('aria-invalid');
     // Sitúa el diálogo antes de abrir el teclado para conservar la escala del circuito.
-    $('currentNameDialog').showModal();positionCurrentNameDialog();$('currentNumber').focus({preventScroll:true});if(editing)$('currentNumber').select();
+    holdCurrentNamingScale();$('currentNameDialog').showModal();positionCurrentNameDialog();$('currentNumber').focus({preventScroll:true});if(editing)$('currentNumber').select();
   }
 
   function renameCurrentReferences(previous,number,six){
@@ -1301,7 +1319,7 @@
       $('currentNumber').removeAttribute('aria-invalid');
     });
     $('cancelCurrentName').onclick=()=>$('currentNameDialog').close();
-    $('currentNameDialog').addEventListener('close',()=>{if(!$('currentNameDialog').open){namingBranch=null;$('branchSelection').removeAttribute('d');}});
+    $('currentNameDialog').addEventListener('close',()=>{if(!$('currentNameDialog').open){releaseCurrentNamingScale();namingBranch=null;$('branchSelection').removeAttribute('d');}});
     $('currentNameForm').onsubmit=e=>{
       e.preventDefault();if(!namingBranch)return;
       const {index,six,point,editing}=namingBranch,model=six?A6:S,labels=six?NAMES6:names,raw=$('currentNumber').value.trim(),number=Number(raw);
@@ -3266,7 +3284,7 @@
     const definitions=nodeDefinitions(six);
     $(six?'advNodeEquationCount':'nodeEquationCount').innerHTML='<strong>N.º de ecuaciones independientes = n − 1 = '+definitions.length+' − 1 = '+required+'</strong><span data-node-selection-progress>'+choices.length+' de '+required+' nudos seleccionados</span>'+(model.nodeSelectionConfirmed?'<span>'+verified.length+' de '+required+' ecuaciones verificadas</span>':'');
     $(six?'advStartNodeEquations':'startNodeEquations').textContent=model.nodeSelectionConfirmed?'Continuar ecuaciones de los nudos':'Introducir ecuaciones de los nudos';
-    layer.innerHTML=definitions.map(node=>'<g class="node-equation-target" data-node="'+node.id+'" data-node-selected="'+choices.includes(node.id)+'" data-node-complete="'+verified.includes(node.id)+'" role="button" tabindex="0" aria-pressed="'+choices.includes(node.id)+'" aria-label="Seleccionar nudo '+node.id+'"><circle cx="'+node.x+'" cy="'+node.y+'" r="21"/></g>').join('');
+    layer.innerHTML=definitions.map(node=>'<g class="node-equation-target" data-node="'+node.id+'" data-node-selected="'+choices.includes(node.id)+'" data-node-complete="'+verified.includes(node.id)+'" data-node-excluded="'+(ready&&!choices.includes(node.id))+'" data-node-blinking="'+(choices.includes(node.id)&&(!model.nodeSelectionConfirmed||$('nodeEquationDialog').open&&$('nodeEquationDialog').dataset.node===node.id))+'" role="button" tabindex="0" aria-pressed="'+choices.includes(node.id)+'" aria-label="Seleccionar nudo '+node.id+'"><circle cx="'+node.x+'" cy="'+node.y+'" r="21"/></g>').join('');
     layer.querySelectorAll('[data-node]').forEach(el=>bindClickable(el,()=>selectEquationNode(el.dataset.node,six)));
   }
   function selectEquationNode(id,six){
@@ -3304,6 +3322,7 @@
       const text='Ya tienes las '+required+' ecuaciones independientes. La ecuación del nudo '+id+' depende de las anteriores.';
       if(six)sixText('advInfo',text);else msg('nodeFeedback',text);$('boardState').textContent=text;return;
     }
+    $('nodeEquationDialog').dataset.node=id;
     $('nodeEquationTitle').textContent='Nudo '+id+' · Ecuación de intensidades';
     $('nodeEquationSummary').textContent=definitions.length+' nudos: necesitas n − 1 = '+required+' ecuaciones independientes.';
     const row=node.row.map((v,i)=>v*model.signs[i]),labels=six?NAMES6:names;
@@ -3315,7 +3334,7 @@
       if(ids.length<required)requestAnimationFrame(()=>{if((six?A6.stage==='nodes':S.phase===1)&&model.nodeSelectionConfirmed)openNextNodeEquation(six);});
     },true);
     $('nodeEquationChallenge').querySelector('h3').textContent='Escribe la igualdad de corrientes que entran y salen';
-    $('nodeEquationDialog').showModal();positionNodeEquationDialog();$('nodeEquationChallenge').querySelector('.kcl-answer').focus({preventScroll:true});
+    $('nodeEquationDialog').showModal();syncNodeSelection();positionNodeEquationDialog();$('nodeEquationChallenge').querySelector('.kcl-answer').focus({preventScroll:true});
   }
   function positionNodeEquationDialog(){
     const dialog=$('nodeEquationDialog');if(!dialog.open)return;
@@ -3324,6 +3343,7 @@
     dialog.style.left=(left+width/2)+'px';dialog.style.top=(top+Math.max(12,(height-dialog.offsetHeight)/2))+'px';
   }
   function initNodeEquations(){
+    $('nodeEquationDialog').addEventListener('close',()=>{if(!$('nodeEquationDialog').open){delete $('nodeEquationDialog').dataset.node;syncNodeSelection();}});
     window.visualViewport?.addEventListener('resize',positionNodeEquationDialog);window.visualViewport?.addEventListener('scroll',positionNodeEquationDialog);window.addEventListener('resize',positionNodeEquationDialog);
     $('startNodeEquations').onclick=()=>beginNodeEquations(false);$('advStartNodeEquations').onclick=()=>beginNodeEquations(true);
     $('closeNodeEquation').onclick=()=>$('nodeEquationDialog').close();$('advGoLoops').onclick=sixNodeStartVerified;
