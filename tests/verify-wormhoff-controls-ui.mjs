@@ -50,7 +50,7 @@ const browser=await chromium.launch({headless:true});
 let animationReference=null,meshShadeReference=null;
 try{
 const context=await browser.newContext({viewport:{width:1440,height:1100}}),page=await context.newPage(),errors=[];
-page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR:',e.stack)});
+page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR:',e.stack)});page.on('console',msg=>{if(/^(CANDIDATE|LABELS)/.test(msg.text()))console.log(msg.text())});
 await page.addInitScript(()=>{
  const now=performance.now.bind(performance),raf=window.requestAnimationFrame.bind(window);
  performance.now=()=>now()*80;window.requestAnimationFrame=callback=>raf(time=>callback(time*80));
@@ -148,7 +148,7 @@ for(let i=0;i<6;i++){
 assert.deepEqual(errors,[]);await context.close();console.log('OK: retroceso y reinicio en las cuatro fases, matriz y cancelación del recorrido');
 for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preference'],[false,'reduce'],[true,'reduce']]){
  const context=await browser.newContext({viewport:mobile?{width:430,height:932}:{width:1440,height:1100},hasTouch:mobile,isMobile:mobile,reducedMotion});
- const page=await context.newPage(),errors=[];page.on('console',m=>{if(m.type()==='warning')console.log(m.text())});page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR:',e.stack)});
+ const page=await context.newPage(),errors=[];page.on('console',m=>{if(m.type()==='warning')console.log(m.text())});page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR:',e.stack)});page.on('console',msg=>{if(/^(CANDIDATE|LABELS)/.test(msg.text()))console.log(msg.text())});
  await page.goto('http://127.0.0.1:8767/wormhoff/');
  const selectSymbol=async value=>{await page.click('#openSettings');await page.selectOption('#symbolStandard',value);await page.click('#closeSettings');};
  assert.equal(await page.locator('html').getAttribute('data-theme'),'dark','Tema oscuro por defecto');
