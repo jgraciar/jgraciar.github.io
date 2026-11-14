@@ -1534,7 +1534,7 @@
     }else{
       for(const loop of S.loops){loop.row[index]*=-1;for(const term of loop.resistors)if(term.i===index)term.v*=-1;}
       drawFinished();renderBoardEquations();drawMatrix();
-      const {A,b}=system();document.querySelectorAll('#matrixInputs input').forEach(el=>{el.value=fmt(Number(el.dataset.col)===3?b[Number(el.dataset.row)]:A[Number(el.dataset.row)][Number(el.dataset.col)]);el.classList.add('correct');});show('goSolve',true);
+      const {A,b}=system();document.querySelectorAll('#matrixInputs input').forEach(el=>{el.value=String(Number(el.dataset.col)===3?b[Number(el.dataset.row)]:A[Number(el.dataset.row)][Number(el.dataset.col)]);el.classList.add('correct');});show('goSolve',true);
       $('solveNodal').textContent='Nudo A (Σ I entran = Σ I salen): '+nodeSides();
       $('solveMesh1').textContent='Malla 1: '+coefEq(A[1],b[1]);$('solveMesh2').textContent='Malla 2: '+coefEq(A[2],b[2]);
       analyzeNode(true);renderSteps();
