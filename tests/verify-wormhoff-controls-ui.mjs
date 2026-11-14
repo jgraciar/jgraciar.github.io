@@ -20,7 +20,7 @@ vm.runInContext(
  ';updateLoopsArrows();sixMeshArrows();',algebraContext);
 const completedMarkup=meshElements.loopArrows.innerHTML+meshElements.sixLoops.innerHTML;
 assert(completedMarkup.includes('data-mesh-complete="0"'));assert(completedMarkup.includes('data-mesh-complete="1"'));
-assert(completedMarkup.includes('stroke="#8df09c"'));assert(!/FINALIZADA|HECHA/.test(completedMarkup));
+assert(completedMarkup.includes('--paint-8df09c,#8df09c'));assert(!/FINALIZADA|HECHA/.test(completedMarkup));
 assert(isolationMarkup.includes('I₂ = 4 A'));assert(isolationMarkup.includes('I₂ = 1,5 A'));
 const browser=await chromium.launch({headless:true});
 let animationReference=null,meshShadeReference=null;
@@ -29,6 +29,28 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const context=await browser.newContext({viewport:mobile?{width:430,height:932}:{width:1440,height:1100},hasTouch:mobile,isMobile:mobile,reducedMotion});
  const page=await context.newPage(),errors=[];page.on('console',m=>{if(m.type()==='warning')console.log(m.text())});page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR:',e.stack)});
  await page.goto('http://127.0.0.1:8767/wormhoff/');
+ const selectSymbol=async value=>{await page.click('#openSettings');await page.selectOption('#symbolStandard',value);await page.click('#closeSettings');};
+ assert.equal(await page.locator('html').getAttribute('data-theme'),'dark','Tema oscuro por defecto');
+ assert.equal(await page.locator('#symbolStandard').isVisible(),false,'Simbología dentro de configuración');
+ await page.click('#openSettings');assert(await page.locator('#settingsDialog').isVisible());
+ await page.selectOption('#themeSetting','light');
+ const contrast=await page.evaluate(()=>{
+  const rgb=s=>s.match(/[\d.]+/g).slice(0,3).map(Number),lum=rgb=>rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
+  const ratio=(a,b)=>{const x=lum(rgb(a)),y=lum(rgb(b));return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+  const style=sel=>getComputedStyle(document.querySelector(sel));
+  return {text:ratio(style('body').color,style('.card').backgroundColor),wire:ratio(style('.wire').stroke,style('.board').backgroundColor),worm:ratio(style('.hero-eye').fill,style('#heroBody').fill),edge:ratio(style('#heroBody').stroke,style('.board').backgroundColor)};
+ });
+ assert(Object.values(contrast).every(r=>r>=7),'Contraste alto en textos, circuito y muñeco: '+JSON.stringify(contrast));
+ await page.selectOption('#themeSetting','system');await page.emulateMedia({colorScheme:'light'});assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
+ await page.emulateMedia({colorScheme:'dark'});await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');
+ await page.selectOption('#themeSetting','dark');
+ await page.locator('#speedSetting').evaluate(el=>{el.value='75';el.dispatchEvent(new Event('input',{bubbles:true}))});assert.equal(await page.locator('#speedValue').textContent(),'75%');
+ await page.selectOption('#languageSetting','en');assert.equal(await page.locator('#settingsTitle').textContent(),'Settings');assert.equal(await page.locator('[data-phase="0"] span').textContent(),'Currents and nodes');
+ await page.selectOption('#languageSetting','es');assert.equal(await page.locator('#settingsTitle').textContent(),'Configuración');
+ await page.click('#closeSettings');await page.reload();
+ assert.equal(await page.locator('#speedSetting').inputValue(),'75','Conserva la configuración');
+ await page.click('#openSettings');await page.locator('#speedSetting').evaluate(el=>{el.value='100';el.dispatchEvent(new Event('input',{bubbles:true}))});await page.click('#closeSettings');
+
  assert.equal(await page.locator('#currentNumber').getAttribute('maxlength'),'2');
  assert.equal(await page.locator('#currentNameDialog h3,#currentBranchDescription,#currentNumberError').count(),0,'Conserva el diálogo compacto con I');
  const textControls=page.locator('#circuitCard [data-text-controls="circuit"]'),equationControls=page.locator('#equationsCard [data-text-controls="equations"]');
@@ -212,12 +234,15 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const button=page.locator('#'+id);
   await page.waitForFunction(id=>document.getElementById(id).dataset.state==='running',id);
   await page.waitForTimeout(80);
+  assert.equal(await page.locator('.mesh-status-moving').count(),1,'Rótulo de operación parpadea al moverse');
+  assert.match(await page.locator('.mesh-status-moving').textContent(),/Σ I·R|Σ U/);
   const runningColor=await button.evaluate(el=>getComputedStyle(el).backgroundColor);
   await button.click();assert.equal(await button.getAttribute('data-state'),'paused');
   assert(await button.locator('.transport-play').isVisible());assert.equal(await button.locator('.transport-stop').isVisible(),false);
+  assert.equal(await page.locator('.mesh-status-moving').count(),0,'Rótulo quieto con pausa');
   const position=await page.locator('#hero').getAttribute('transform');
-  await page.selectOption('#symbolStandard','ansi');assert.equal(await button.getAttribute('data-state'),'paused');assert.equal(await page.locator('#hero').getAttribute('transform'),position);
-  await page.selectOption('#symbolStandard','iec');
+  await selectSymbol('ansi');assert.equal(await button.getAttribute('data-state'),'paused');assert.equal(await page.locator('#hero').getAttribute('transform'),position);
+  await selectSymbol('iec');
   await page.locator('#hero').dispatchEvent('pointerdown',{pointerId:71,isPrimary:true,pointerType:'touch',button:0});
   assert.equal(await page.locator('#heroBody').evaluate(el=>getComputedStyle(el).visibility),'hidden');
   assert.equal(await page.locator('#heroTail').evaluate(el=>getComputedStyle(el).visibility),'hidden');
@@ -262,7 +287,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente I₇/);
  assert.equal(await page.locator('#dirGraphics [data-current-index]').count(),3,'No duplica la corriente de una rama ocupada');
  assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₇');assert.equal(await page.locator('#currentArrow1 .dirlabel').textContent(),'I₁₂');
- await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);assert.equal(await page.locator('#circuit .resistor-ansi .symbol:visible').count(),3);assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),0);
+ await selectSymbol('ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);assert.equal(await page.locator('#circuit .resistor-ansi .symbol:visible').count(),3);assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),0);
  for(const resistor of await page.locator('#circuit .component-resistor').all()){
   assert(await resistor.evaluate(el=>{
    const symbol=el.querySelector('.resistor-ansi .symbol'),value=el.querySelector('.resistor-value'),label=el.querySelector('.resistor-ansi .resistor-name');
@@ -270,7 +295,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    return Math.abs(center.y-anchor.y)<1&&Number(label.getAttribute('x'))<Number(value.getAttribute('x'));
   }),'Valor centrado en altura y nombre a la izquierda');
  }
- await page.selectOption('#symbolStandard','iec');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),3);
+ await selectSymbol('iec');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);assert.equal(await page.locator('#circuit .resistor-iec .symbol:visible').count(),3);
  await page.locator('#circuit').scrollIntoViewIfNeeded();
  const labelPoint=await page.locator('#currentArrow0 .dirlabel').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};});
  if(mobile)await page.touchscreen.tap(labelPoint.x,labelPoint.y);else await page.mouse.click(labelPoint.x,labelPoint.y);
@@ -349,7 +374,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert(Math.hypot(dragged.x-388,dragged.y-225)<2,'Arrastra I5 y su texto dentro de su rama');
  await dragCurrent('#sixCurrentArrow4',130,190);await assertBranchPlacement(true);await assertNoCurrentOverlap();
  await dragCurrent('#sixCurrentArrow4',465,225);
- await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
+ await selectSymbol('ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  for(const resistor of await page.locator('#circuit .component-resistor').all()){
   assert(await resistor.evaluate(el=>{
    const symbol=el.querySelector('.resistor-ansi .symbol'),value=el.querySelector('.resistor-value');
@@ -357,7 +382,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    return value.getAttribute('text-anchor')==='middle'?Math.abs(center.x-anchor.x)<1:Math.abs(center.y-anchor.y)<1;
   }),'Valor centrado en resistencia horizontal o vertical');
  }
- await page.selectOption('#symbolStandard','iec');
+ await selectSymbol('iec');
  await checkAction('advStart');await page.click('#advStart');
  let verifiedNodes=0;
  for(const eq of ['I1=I2+I3','I2+I4=I5','I1+I4+I6=0']){
@@ -402,8 +427,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await tap(130,105);await page.locator('#currentNumber').fill('123');assert.equal(await page.locator('#currentNumber').inputValue(),'12','Máximo dos cifras');
  await page.click('#cancelCurrentName');
  await assignNumbers([11,22,33,44,55,66]);
- await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
- await page.selectOption('#symbolStandard','iec');await assertNoCurrentOverlap();
+ await selectSymbol('ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
+ await selectSymbol('iec');await assertNoCurrentOverlap();
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
 const context=await browser.newContext({viewport:{width:1440,height:1100}}),page=await context.newPage(),errors=[];
@@ -435,6 +460,18 @@ await page.locator('#currentArrow1').focus();await page.locator('#currentArrow1'
 assert.equal(await page.locator('#currentNumber').inputValue(),'2');await page.locator('#currentNumber').fill('22');await page.click('#currentNameForm button[type="submit"]');
 assert.match(await page.locator('#matrixVariableOrder').textContent(),/I₂₂/);assert(!/I₂(?!₂)/.test(await page.locator('#solutionSteps').textContent()),'Resolución con la referencia nueva');
 await page.click('#nextStep');assert.match(await page.locator('#solutionSteps').textContent(),/I₂₂/,'Los siguientes pasos conservan el número nuevo');
+
+while(!await page.locator('#nextStep').isDisabled())await page.click('#nextStep');
+assert(await page.locator('#resultPanel').isVisible());
+const before={result:await page.locator('#results strong').allTextContents(),matrix:await page.locator('#matrixInputs input').evaluateAll(els=>els.map(el=>({col:Number(el.dataset.col),value:Number(el.value.replace('−','-').replace(',','.'))}))),working:await page.locator('#solutionSteps').textContent(),score:await page.locator('#score').textContent()};
+await page.locator('#currentArrow0').focus();await page.locator('#currentArrow0').press('Enter');
+const numeric=s=>Number(s.replace('−','-').replace(',','.').replace(' A',''));
+const after=await page.locator('#results strong').allTextContents();
+assert.deepEqual(after.map(numeric),before.result.map((v,i)=>i===0?-numeric(v):numeric(v)),'Solo cambia de signo la referencia invertida');
+assert.notEqual(await page.locator('#solutionSteps').textContent(),before.working,'Recalcula todos los pasos algebraicos');
+assert.deepEqual(await page.locator('#matrixInputs input').evaluateAll(els=>els.map(el=>Number(el.value.replace('−','-').replace(',','.')))),before.matrix.map(cell=>cell.col===0?(-cell.value||0):cell.value),'Invierte la columna correspondiente de la matriz');
+assert.equal(await page.locator('#resultPanel .message.good').count(),1,'El nuevo sistema sigue verificado');assert.equal(await page.locator('#score').textContent(),before.score,'No duplica puntos');
+await page.locator('#currentArrow0').press('Enter');assert.deepEqual(await page.locator('#results strong').allTextContents(),before.result,'Reversible');
 await page.click('[data-reset-phase="4"]');
 assert.equal(await page.locator('#resultPanel').isVisible(),false);
 await page.click('[data-phase="3"]');
@@ -451,5 +488,33 @@ assert.equal(await page.locator('#dirGraphics .dirlabel').count(),3);
 await page.click('#confirmDirs');assert.equal(await page.locator('[data-phase="0"]').getAttribute('aria-current'),'step');
 assert(await page.locator('#phase0').isVisible()&&await page.locator('#phase1').isVisible(),'Corrientes y nudos comparten vista');
 await page.click('[data-reset-phase="0"]');assert.equal(await page.locator('#dirGraphics .dirlabel').count(),0);
+
+await page.route('**/wormhoff/',async route=>{
+ const response=await route.fetch(),html=await response.text();
+ await route.fulfill({response,body:html.replace('  newGame();syncBoardActions();','  globalThis.wormhoffTest={A6,S,sixStartSolve,sixRefArrow,sixRenderRows,sixKCLRows,NAMES6};\n  newGame();syncBoardActions();')});
+});
+await page.reload();await page.selectOption('#exerciseSelect','r76');
+await page.evaluate(()=>{
+ const {A6,S,sixStartSolve,sixRefArrow,sixRenderRows,sixKCLRows,NAMES6}=wormhoffTest;
+ A6.currentNumbers=[1,2,3,4,5,6];NAMES6.splice(0,6,'I₁','I₂','I₃','I₄','I₅','I₆');A6.signs=[1,1,1,1,1,1];
+ // Canonical CW rows from the original six branches, R=[4,3,2,2,5,3].
+ const rows=[[4,3,0,-2,0,0],[0,-3,2,0,-5,0],[0,0,0,2,5,-3]],b=[16,-16,8];
+ A6.done=rows.map((row,i)=>({row,b:b[i],cw:true}));A6.rowsR=rows.map(row=>row.flatMap((v,i)=>v?[{i,v}]:[]));A6.rowsU=b.map(v=>[{i:0,v}]);A6.nodeCount=3;
+ document.getElementById('advKCLtext').innerHTML=sixKCLRows();sixRenderRows();sixRefArrow();sixStartSolve();
+ A6.step=A6.steps.length;A6.finalVerified=true;A6.completedScore=true;
+});
+// Complete verification using the existing renderer without awarding more points.
+await page.evaluate(()=>{wormhoffTest.sixStartSolve(true);});
+assert(await page.locator('#advResultPanel').isVisible());
+const sixBefore=await page.locator('#advResults strong').allTextContents();
+for(let i=0;i<6;i++){
+ const working=await page.locator('#advSolveSteps').textContent();
+ await page.locator('#sixCurrentArrow'+i).focus();await page.locator('#sixCurrentArrow'+i).press('Enter');
+ const results=await page.locator('#advResults strong').allTextContents();
+ assert.deepEqual(results.map(numeric),sixBefore.map((v,j)=>i===j?-numeric(v):numeric(v)),'Referencia avanzada '+i);
+ assert.notEqual(await page.locator('#advSolveSteps').textContent(),working);
+ assert.equal(await page.locator('#advResultCheck').getAttribute('class'),'message good');
+ await page.locator('#sixCurrentArrow'+i).press('Enter');assert.deepEqual(await page.locator('#advResults strong').allTextContents(),sixBefore);
+}
 assert.deepEqual(errors,[]);await context.close();console.log('OK: retroceso y reinicio en las cuatro fases, matriz y cancelación del recorrido');
 }finally{await browser.close()}
