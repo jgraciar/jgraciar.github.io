@@ -2425,6 +2425,7 @@
   }
   function sixMeshArrows(){
     if(!$('sixLoops'))return;
+    if(A6.stage!=='loops'){$('sixLoops').innerHTML='';$('meshTargets').innerHTML='';$('meshSelection').innerHTML='';return;}
     const faces=[
       {x:141,y:86,w:199,h:128,topX:175,bottomX:250,sideY:108},
       {x:360,y:86,w:199,h:128,topX:395,bottomX:465,sideY:108},
@@ -2718,7 +2719,7 @@
   }
   function sixStartSolve(preserve=false){
     const previous=preserve===true?{step:A6.step,verified:A6.finalVerified,scored:A6.completedScore}:null;
-    rememberPhase(4);A6.stage='solve';syncPhaseNavigation();show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='REDUCCIÓN';
+    rememberPhase(4);A6.stage='solve';sixMeshArrows();syncPhaseNavigation();show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='REDUCCIÓN';
     const {a,b,cols}=sixReduced(),vars=cols.map(ix=>NAMES6[ix]);
     const reduced=matSolve6(a,b),values=reduced.x;
     const j2=values[0]*A6.signs[1],j3=values[1]*A6.signs[2],j5=values[2]*A6.signs[4];
