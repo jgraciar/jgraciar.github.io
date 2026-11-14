@@ -3186,8 +3186,8 @@
       if(six){A6.nodeCount=ids.length;$('advKCLtext').innerHTML=sixKCLRows(ids.length);show('advKCL',true);sixText('advInfo','Ecuación del nudo '+id+' verificada. '+ids.length+' / '+required+' ecuaciones independientes.');syncNodeSelection();}
       else{S.nodeSelected=id;analyzeNode(id==='A');}
     },true);
-    $('nodeEquationChallenge h3').textContent='Escribe la igualdad de corrientes que entran y salen';
-    $('nodeEquationDialog').showModal();positionNodeEquationDialog();$('nodeEquationChallenge .kcl-answer').focus({preventScroll:true});
+    $('nodeEquationChallenge').querySelector('h3').textContent='Escribe la igualdad de corrientes que entran y salen';
+    $('nodeEquationDialog').showModal();positionNodeEquationDialog();$('nodeEquationChallenge').querySelector('.kcl-answer').focus({preventScroll:true});
   }
   function positionNodeEquationDialog(){
     const dialog=$('nodeEquationDialog');if(!dialog.open)return;
