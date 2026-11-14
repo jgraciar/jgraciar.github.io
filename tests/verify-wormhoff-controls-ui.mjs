@@ -514,7 +514,7 @@ for(let i=0;i<6;i++){
  assert.deepEqual(results.map(numeric),sixBefore.map((v,j)=>i===j?-numeric(v):numeric(v)),'Referencia avanzada '+i);
  assert.notEqual(await page.locator('#advSolveSteps').textContent(),working);
  assert.equal(await page.locator('#advResultCheck').getAttribute('class'),'message good');
- await page.locator('#sixCurrentArrow'+i).press('Enter');assert.deepEqual(await page.locator('#advResults strong').allTextContents(),sixBefore);
+ assert(await page.locator('#sixCurrentArrow'+i).isVisible(),'Referencia visible después de cambiar el signo: '+i);await page.locator('#sixCurrentArrow'+i).press('Enter');assert.deepEqual(await page.locator('#advResults strong').allTextContents(),sixBefore);
 }
 assert.deepEqual(errors,[]);await context.close();console.log('OK: retroceso y reinicio en las cuatro fases, matriz y cancelación del recorrido');
 }finally{await browser.close()}
