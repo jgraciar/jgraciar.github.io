@@ -33,7 +33,7 @@
   .phase-link:focus-visible,.phase-reset:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
   [data-current-index]{touch-action:none;user-select:none;cursor:grab}
   #circuit.dragging-current [data-current-index],#circuit.dragging-current .current-direction-hit{cursor:grabbing!important}
-  .current-direction-hit{fill:none;stroke:transparent;stroke-width:23;pointer-events:stroke;cursor:inherit}
+  .current-direction-hit{fill:none;stroke:transparent;stroke-width:44;pointer-events:stroke;cursor:inherit}
   .current-placement-notice{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:4;width:max-content;max-width:calc(100% - 20px);padding:8px 12px;background:#19334b;color:#ffe0a1;border:1px solid #d5aa61;border-radius:9px;font-size:13px;line-height:1.4;box-shadow:0 4px 15px #0005;pointer-events:none}
   @media(max-width:600px){.stages{gap:3px}.stage{flex-direction:column;padding:2px;gap:0;font-size:10px}.stage b{display:block;margin:0}.phase-link{text-align:center;padding:5px 1px;width:100%}.phase-reset{height:25px;padding:3px 5px}}
   .layout{display:grid;grid-template-columns:minmax(0,var(--left-track,1.1fr)) 18px minmax(0,var(--right-track,1fr));grid-template-areas:"circuit divider equations" "circuit divider phase";grid-template-rows:auto 1fr;row-gap:17px;column-gap:0;align-items:start}
@@ -1087,8 +1087,17 @@
     svg.addEventListener('touchstart',event=>{if(currentArrowDrag||event.target.closest?.('[data-current-index]'))event.preventDefault();},{passive:false});
     svg.addEventListener('touchmove',event=>{if(currentArrowDrag)event.preventDefault();},{passive:false});
     svg.addEventListener('pointerdown',event=>{
-      const group=event.target.closest?.('[data-current-index]');
+      let group=event.target.closest?.('[data-current-index]');
       if(!group||!event.isPrimary||event.button!==0||currentArrowDrag)return;
+      // Expanded hit areas may overlap; prefer the nearest visible arrow or text.
+      let closest=Infinity;
+      for(const candidate of svg.querySelectorAll('[data-current-index]')){
+        if(getComputedStyle(candidate).display==='none')continue;
+        const distance=Math.min(...[...candidate.querySelectorAll('.direction,.dirlabel,.dir-result')].map(el=>{
+          const r=el.getBoundingClientRect();return Math.max(r.left-event.clientX,0,event.clientX-r.right)**2+Math.max(r.top-event.clientY,0,event.clientY-r.bottom)**2;
+        }));
+        if(distance<closest){closest=distance;group=candidate;}
+      }
       const point=new DOMPoint(event.clientX,event.clientY).matrixTransform(svg.getScreenCTM().inverse());
       const index=Number(group.dataset.currentIndex),six=group.dataset.six==='true',model=six?A6:S;
       currentArrowDrag={index,six,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,
@@ -1120,7 +1129,7 @@
         event.preventDefault();event.stopPropagation();const step=event.shiftKey?2:10;
         repositionCurrent(index,six,{x:Number(group.dataset.arrowX)+offset[0]*step,y:Number(group.dataset.arrowY)+offset[1]*step});
       });
-      bindClickable(group,event=>{event?.stopPropagation();if(event&&suppressedCurrentClick&&suppressedCurrentClick.index===index&&suppressedCurrentClick.six===six&&performance.now()<suppressedCurrentClick.until)return;if(six?A6.stage!=='dirs':S.phase!==0)return;if(six){A6.signs[index]*=-1;sixRefArrow();}else reverse(index);});
+      bindClickable(group,event=>{event?.stopPropagation();if(event&&suppressedCurrentClick&&performance.now()<suppressedCurrentClick.until)return;if(six?A6.stage!=='dirs':S.phase!==0)return;if(six){A6.signs[index]*=-1;sixRefArrow();}else reverse(index);});
     });
   }
   function drawDirs(showAnswers=false){
@@ -2390,10 +2399,10 @@
       group.querySelectorAll('.current-label-hit').forEach(el=>el.remove());
       const candidates=[];
       for(let i=1;i<points.length;i++){
-        const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(length<18)continue;
+        const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(length<30)continue;
         const dx=(b.x-a.x)/length,dy=(b.y-a.y)/length;
-        const projected=Math.max(9,Math.min(length-9,(wanted.x-a.x)*dx+(wanted.y-a.y)*dy));
-        const distances=[projected];for(let t=9;t<=length-9;t+=3)distances.push(t);
+        const projected=Math.max(15,Math.min(length-15,(wanted.x-a.x)*dx+(wanted.y-a.y)*dy));
+        const distances=[projected];for(let t=15;t<=length-15;t+=3)distances.push(t);
         for(const t of distances){const x=a.x+dx*t,y=a.y+dy*t;candidates.push({x,y,dx,dy,distance:(x-wanted.x)**2+(y-wanted.y)**2});}
       }
       candidates.sort((a,b)=>a.distance-b.distance);
@@ -2404,7 +2413,7 @@
         label.removeAttribute('textLength');label.removeAttribute('lengthAdjust');
         const l=metric(label),v=value?metric(value):null;
         for(const c of candidates){
-          const half=6,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
+          const half=12,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
           const arrow={x:c.x-Math.abs(vx)*half-Math.abs(vy)*7-3,y:c.y-Math.abs(vy)*half-Math.abs(vx)*7-3,w:Math.abs(vx)*2*half+Math.abs(vy)*14+6,h:Math.abs(vy)*2*half+Math.abs(vx)*14+6};
           if(!inside(arrow)||[...fixed,...occupied].some(b=>overlap(arrow,b)))continue;
           const horizontal=Math.abs(c.dx)>.5;
@@ -2428,7 +2437,7 @@
       occupied.push(c.arrow,c.l);if(c.v)occupied.push(c.v);
       for(const r of [c.l,c.v].filter(Boolean)){
         const hit=document.createElementNS('http://www.w3.org/2000/svg','rect');hit.setAttribute('class','dirclick current-label-hit');
-        for(const [key,val] of Object.entries({x:r.x-1,y:r.y-1,width:r.w+2,height:r.h+2}))hit.setAttribute(key,val);group.append(hit);
+        for(const [key,val] of Object.entries({x:r.x-12,y:r.y-12,width:r.w+24,height:r.h+24}))hit.setAttribute(key,val);group.append(hit);
       }
     }
   }

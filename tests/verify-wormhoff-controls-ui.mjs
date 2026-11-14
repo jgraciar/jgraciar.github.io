@@ -113,7 +113,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
     return {matching:[...group.querySelectorAll('.dirlabel,.dir-result')].every(text=>Math.abs(parseFloat(getComputedStyle(text).fontSize)-base)<.05&&!text.hasAttribute('textLength')),shaft:Math.hypot(Number(stem[3])-Number(stem[1]),Number(stem[4])-Number(stem[2])),length:Math.max(box.width,box.height),stroke:parseFloat(getComputedStyle(path).strokeWidth)};
    });
   });
-  assert(sizes.every(s=>s.matching&&Math.abs(s.shaft-12)<.01&&s.length>=13.9&&s.stroke>=2.5),JSON.stringify(sizes));
+  assert(sizes.every(s=>s.matching&&Math.abs(s.shaft-24)<.01&&s.length>=23.9&&s.stroke>=2.5),JSON.stringify(sizes));
  };
  assert.equal(await page.locator('#stagebar .phase-reset svg').count(),4);
  assert.equal(await page.locator('[data-phase="1"]').count(),0);assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);assert.match(await page.locator('[data-phase="0"]').textContent(),/Corrientes y nudos/);
@@ -129,7 +129,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   await page.locator('#circuit').scrollIntoViewIfNeeded();
   const points=await page.locator(selector).evaluate((group,{x,y,byLabel})=>{
    const svg=document.getElementById('circuit'),matrix=svg.getScreenCTM(),arrow=new DOMPoint(Number(group.dataset.arrowX),Number(group.dataset.arrowY)).matrixTransform(matrix);
-   const label=group.querySelector('.dirlabel').getBoundingClientRect(),start=byLabel?{x:label.x+label.width/2,y:label.y+label.height/2}:{x:arrow.x,y:arrow.y};
+   const label=group.querySelector('.dirlabel').getBoundingClientRect(),start=byLabel?{x:byLabel==='padding'?label.x-8:label.x+label.width/2,y:label.y+label.height/2}:{x:arrow.x,y:arrow.y};
    const target=new DOMPoint(x,y).matrixTransform(matrix);
    return {start,end:{x:target.x+start.x-arrow.x,y:target.y+start.y-arrow.y}};
   },{x,y,byLabel});
@@ -214,7 +214,16 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.waitForFunction(()=>!document.querySelector('#nodeChallenge .blink-three'));
  assert.equal(await term.evaluate(el=>getComputedStyle(el).opacity),'1');
  await page.selectOption('#exerciseSelect','base');await assignNumbers([1,2,3]);
- let dragged=await dragCurrent('#currentArrow0',146,310);
+ const expandedHit=await page.locator('#currentArrow0').evaluate(group=>{
+  const x=Number(group.dataset.arrowX),y=Number(group.dataset.arrowY),dx=Number(group.dataset.arrowDx),dy=Number(group.dataset.arrowDy),label=group.querySelector('.dirlabel').getBBox();
+  const side=Math.abs(dx)>.5?(label.y+label.height/2<y?1:-1):(label.x+label.width/2<x?1:-1);
+  return {x:x+(Math.abs(dy)>.5?24*side:0),y:y+(Math.abs(dx)>.5?24*side:0)};
+ });
+ const originalDirection=await page.locator('#currentArrow0 .direction').getAttribute('d');
+ await tap(expandedHit.x,expandedHit.y);assert.notEqual(await page.locator('#currentArrow0 .direction').getAttribute('d'),originalDirection,'Pulsación fuera del dibujo dentro de la zona ampliada');
+ await tap(expandedHit.x,expandedHit.y);assert.equal(await page.locator('#currentArrow0 .direction').getAttribute('d'),originalDirection);
+ assert(parseFloat(await page.locator('#currentArrow0 .current-direction-hit').evaluate(el=>getComputedStyle(el).strokeWidth))>=44);
+ let dragged=await dragCurrent('#currentArrow0',146,310,'padding');
  assert(Math.hypot(dragged.x-146,dragged.y-310)<2,'Arrastra flecha por su conductor');
  let direction=await page.locator('#currentArrow0 .direction').getAttribute('d');
  assert(Number(direction.split(' ')[1])>Number(direction.split(' L')[1].split(' ')[1]),'Arrastrar conserva el sentido ascendente');
@@ -258,10 +267,10 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const {x,y}=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   const sel='#sixCurrentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente avanzada '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
- dragged=await dragCurrent('#sixCurrentArrow4',462,225,true);
- assert(Math.hypot(dragged.x-462,dragged.y-225)<2,'Arrastra I5 y su texto dentro de su rama');
+ dragged=await dragCurrent('#sixCurrentArrow4',388,225,true);
+ assert(Math.hypot(dragged.x-388,dragged.y-225)<2,'Arrastra I5 y su texto dentro de su rama');
  await dragCurrent('#sixCurrentArrow4',130,190);await assertBranchPlacement(true);await assertNoCurrentOverlap();
- await dragCurrent('#sixCurrentArrow4',470,225);
+ await dragCurrent('#sixCurrentArrow4',465,225);
  await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  for(const resistor of await page.locator('#circuit .component-resistor').all()){
   assert(await resistor.evaluate(el=>{
@@ -299,7 +308,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.click('#advEditCurrentReferences');assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0);
  await page.click('[data-reset-phase="0"]');
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),0,'Reiniciar corrientes y nudos limpia los números');
- const freePoints=[[130,182],[350,105],[535,74],[255,225],[470,225],[370,355]];
+ const freePoints=[[130,105],[350,105],[535,74],[255,225],[465,225],[370,355]];
  for(let i=0;i<6;i++){
   await tap(...freePoints[i]);await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
   const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
