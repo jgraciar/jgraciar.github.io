@@ -299,11 +299,11 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.click('#advEditCurrentReferences');assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0);
  await page.click('[data-reset-phase="0"]');
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),0,'Reiniciar corrientes y nudos limpia los números');
- const freePoints=[[130,190],[350,190],[535,74],[255,225],[470,225],[370,355]];
+ const freePoints=[[130,182],[350,105],[535,74],[255,225],[470,225],[370,355]];
  for(let i=0;i<6;i++){
   await tap(...freePoints[i]);await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
   const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
-  assert(Math.hypot(position.x-freePoints[i][0],position.y-freePoints[i][1])<2,'Posición de la flecha avanzada más próxima al clic');
+  assert(Math.hypot(position.x-freePoints[i][0],position.y-freePoints[i][1])<2,'Posición de la flecha avanzada más próxima al clic: rama '+(i+1)+' '+JSON.stringify(position));
  }
  await assertBranchPlacement(true);await assertNoCurrentOverlap();
  await tap(570,300);assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente/);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
