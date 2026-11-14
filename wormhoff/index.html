@@ -33,7 +33,7 @@
   .phase-link:focus-visible,.phase-reset:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
   [data-current-index]{touch-action:none;user-select:none;cursor:grab}
   #circuit.dragging-current [data-current-index],#circuit.dragging-current .current-direction-hit{cursor:grabbing!important}
-  .current-direction-hit{fill:none;stroke:transparent;stroke-width:44;pointer-events:stroke;cursor:inherit}
+  .current-direction-hit{fill:none;stroke:transparent;stroke-width:44;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke;cursor:inherit}
   .current-placement-notice{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:4;width:max-content;max-width:calc(100% - 20px);padding:8px 12px;background:#19334b;color:#ffe0a1;border:1px solid #d5aa61;border-radius:9px;font-size:13px;line-height:1.4;box-shadow:0 4px 15px #0005;pointer-events:none}
   @media(max-width:600px){.stages{gap:3px}.stage{flex-direction:column;padding:2px;gap:0;font-size:10px}.stage b{display:block;margin:0}.phase-link{text-align:center;padding:5px 1px;width:100%}.phase-reset{height:25px;padding:3px 5px}}
   .layout{display:grid;grid-template-columns:minmax(0,var(--left-track,1.1fr)) 18px minmax(0,var(--right-track,1fr));grid-template-areas:"circuit divider equations" "circuit divider phase";grid-template-rows:auto 1fr;row-gap:17px;column-gap:0;align-items:start}
