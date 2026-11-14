@@ -685,6 +685,8 @@
   .node-equation-target[data-node-complete="true"] circle{stroke:var(--lime)}
 
   [data-node-selection-progress]{font:800 21px/1.4 ui-monospace,monospace;color:var(--amber)}
+
+  #boardNodeSelectionCounter{color:var(--amber);border-color:var(--amber);font-size:16px;font-weight:800;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -701,7 +703,7 @@
   </nav>
   <main class="layout" id="gameLayout">
     <section class="card" id="circuitCard">
-      <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span><div class="column-text-controls" data-text-controls="circuit" aria-label="Tamaño del circuito"><button type="button" class="ghost" data-text-change="-1" aria-label="Reducir circuito">−</button><output>100%</output><button type="button" class="ghost" data-text-change="1" aria-label="Ampliar circuito">+</button></div></div>
+      <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span><span class="chip hide" id="boardNodeSelectionCounter" role="status" aria-live="polite" title="Nudos seleccionados"></span><div class="column-text-controls" data-text-controls="circuit" aria-label="Tamaño del circuito"><button type="button" class="ghost" data-text-change="-1" aria-label="Reducir circuito">−</button><output>100%</output><button type="button" class="ghost" data-text-change="1" aria-label="Ampliar circuito">+</button></div></div>
       <div id="circuitTransport" class="board-actions circuit-transport hide" aria-label="Controles de reproducción del circuito"></div>
       <div class="board"><div id="currentPlacementNotice" class="current-placement-notice hide" role="status" aria-live="polite"></div>
         <svg id="circuit" viewBox="0 0 700 430" role="group" aria-label="Circuito de corriente continua con símbolos seleccionables y flechas seleccionables">
@@ -3176,6 +3178,7 @@
     $('circuit').dataset.nodePhase=String(early);show('hero',!early&&active.kind!=='network');if(early)stopHeroGreeting();
     const layer=$('nodeTargets');layer.replaceChildren();
     const required=requiredNodeEquations(six),choices=model.nodeChoices||[],verified=model.nodeIds||[],ready=choices.length===required,done=verified.length===required;
+    show('boardNodeSelectionCounter',choosing&&active.kind!=='network');$('boardNodeSelectionCounter').textContent=choices.length+' de '+required;
     show('advGoLoops',six&&choosing&&done);show('startNodeEquations',!six&&choosing&&ready&&!done);show('advStartNodeEquations',six&&choosing&&ready&&!done);
     show('advNodeEquationCount',six&&choosing);if(!choosing||active.kind==='network')return;
     const definitions=nodeDefinitions(six);
