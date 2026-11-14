@@ -184,6 +184,11 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(await page.locator('#currentNumber').getAttribute('maxlength'),'2');
  assert.equal(await page.locator('#currentNameDialog h3,#currentBranchDescription,#currentNumberError').count(),0,'Conserva el diálogo compacto con I');
  if(!mobile){await page.setViewportSize({width:1920,height:1100});assert((await page.locator('.shell').boundingBox()).width>1900,'Utiliza todo el ancho disponible');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.setViewportSize({width:1440,height:1100});}
+ if(mobile){
+  const sizes=await page.evaluate(()=>Object.fromEntries(['body','#exerciseSelect','#boardTitle','#stagebar .stage','#phaseCard .phase-title'].map(selector=>[selector,parseFloat(getComputedStyle(document.querySelector(selector)).fontSize)])));
+  assert(sizes.body>=17&&sizes['#exerciseSelect']>=16&&sizes['#boardTitle']>=17&&sizes['#stagebar .stage']>=15&&sizes['#phaseCard .phase-title']>=23,'Texto móvil más legible: '+JSON.stringify(sizes));
+  assert.equal(await page.locator('#circuit .component-value').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize)),16,'El texto del circuito conserva su tamaño');
+ }
  const textControls=page.locator('#circuitCard [data-text-controls="circuit"]'),equationControls=page.locator('#equationsCard [data-text-controls="equations"]');
  const sourceText=page.locator('#circuit .component-value').first(),equationText=page.locator('#equationsCard .cardhead strong').first();
  const circuitBaseWidth=(await page.locator('#circuit').boundingBox()).width,headerFont=await page.locator('#boardTitle').evaluate(el=>getComputedStyle(el).fontSize);
@@ -402,7 +407,18 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  };
  await page.selectOption('#exerciseSelect','c75');
  assert.equal(await page.locator('#confirmDirs').isDisabled(),true);
- await tap(146,310);if(!mobile){const distance=await page.locator('#currentNameDialog').evaluate(el=>{const p=new DOMPoint(146,310).matrixTransform(document.getElementById('circuit').getScreenCTM()),r=el.getBoundingClientRect();return Math.hypot(Math.max(r.left-p.x,0,p.x-r.right),Math.max(r.top-p.y,0,p.y-r.bottom));});assert(distance<60,'Editor junto a la rama seleccionada: '+distance);}assert(await page.locator('[data-current-branch="0"]').evaluate(el=>getComputedStyle(el).outlineStyle==='none'));assert((await page.locator('#branchSelection').getAttribute('d')).length>0);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
+ const circuitScale=()=>page.locator('#circuit').evaluate(el=>({width:el.getBoundingClientRect().width,scale:el.getScreenCTM().a,zoom:el.style.getPropertyValue('--circuit-zoom'),viewport:visualViewport?.scale||1}));
+ const beforeNumbering=await circuitScale();
+ await tap(146,310);
+ assert.deepEqual(await circuitScale(),beforeNumbering,'Abrir la numeración no hace zoom en el circuito ni en la página');
+ assert(await page.locator('#currentNumber').evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=16),'Campo sin reducción que provoque zoom al enfocar');
+ assert.equal(await page.locator('[data-current-branch="0"]').evaluate(el=>getComputedStyle(el).touchAction),'manipulation','La pulsación de ramas no dispara el zoom de doble toque');
+ if(mobile){
+  const viewport=page.viewportSize();await page.setViewportSize({width:viewport.width,height:Math.round(viewport.height*.65)});
+  assert.deepEqual(await circuitScale(),beforeNumbering,'El teclado no cambia la escala del circuito');
+  await page.setViewportSize(viewport);
+ }
+ if(!mobile){const distance=await page.locator('#currentNameDialog').evaluate(el=>{const p=new DOMPoint(146,310).matrixTransform(document.getElementById('circuit').getScreenCTM()),r=el.getBoundingClientRect();return Math.hypot(Math.max(r.left-p.x,0,p.x-r.right),Math.max(r.top-p.y,0,p.y-r.bottom));});assert(distance<60,'Editor junto a la rama seleccionada: '+distance);}assert(await page.locator('[data-current-branch="0"]').evaluate(el=>getComputedStyle(el).outlineStyle==='none'));assert((await page.locator('#branchSelection').getAttribute('d')).length>0);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
  await tap(345,310);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
  assert.equal(await page.locator('#currentNumber').getAttribute('aria-invalid'),'true');assert(await page.locator('#currentNameDialog').isVisible());
  await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));

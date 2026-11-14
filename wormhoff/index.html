@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-visual">
 <meta name="color-scheme" content="dark">
 <title>Wormhoff · MVP 3.7</title>
 <style>
   :root { --bg:var(--paint-09101d,#09101d); --card:var(--paint-111c30,#111c30); --card2:var(--paint-0c182b,#0c182b); --border:var(--paint-2c415b,#2c415b); --txt:var(--paint-f0f6ff,#f0f6ff); --muted:var(--paint-a7bbd0,#a7bbd0); --cyan:var(--paint-5ce6f0,#5ce6f0); --lime:var(--paint-b7f75c,#b7f75c); --amber:var(--paint-ffc66b,#ffc66b); --red:var(--paint-ff7786,#ff7786); --purple:var(--paint-ac98ff,#ac98ff); }
   *{box-sizing:border-box}
-  html{scroll-padding-top:calc(var(--stagebar-height,90px) + 12px)}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-top:calc(var(--stagebar-height,90px) + 12px)}
   #circuit{scroll-margin-top:calc(var(--stagebar-height,90px) + 12px)}
   body{margin:0;background:radial-gradient(circle at 9% 2%,var(--paint-183657,#183657) 0,transparent 28%),radial-gradient(circle at 96% 70%,var(--paint-1b2050,#1b2050) 0,transparent 35%),var(--bg);color:var(--txt);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
   .shell{max-width:1580px;margin:auto;padding:20px 18px 34px}
@@ -72,7 +72,7 @@
   #circuit[data-symbol-standard="ansi"] .resistor-iec{display:none}
   #circuit[data-symbol-standard="ansi"] .resistor-ansi{display:inline}
   .resistor-ansi .symbol{fill:none!important}
-  .current-branch-hit{outline:none!important;fill:none;stroke:transparent;stroke-width:28;pointer-events:stroke;cursor:pointer;stroke-linejoin:round}
+  .current-branch-hit{touch-action:manipulation;outline:none!important;fill:none;stroke:transparent;stroke-width:28;pointer-events:stroke;cursor:pointer;stroke-linejoin:round}
   .current-branch-hit:focus,.current-branch-hit:focus-visible{outline:none!important;stroke:transparent}
   .branch-selection{fill:none;stroke:var(--paint-5ce6f088,#5ce6f088);stroke-width:12;stroke-linecap:round;pointer-events:none}
   .column-text-controls{display:flex;align-items:center;gap:4px;margin-left:auto;flex:none}
@@ -717,6 +717,30 @@
   :root[data-theme="light"] .phase-complete{color:#17652c}
   #activePhaseReset{display:grid;place-items:center;flex:none;width:36px;height:36px;min-width:36px;padding:7px;border:1px solid var(--border);border-radius:8px;color:var(--txt)}
   #activePhaseReset svg{width:21px;height:21px}
+
+  /* Tipografía móvil de la interfaz: no modifica los textos del SVG. */
+  @media(max-width:970px), (pointer:coarse) and (max-width:1200px){
+    body{font-size:17px}
+    button,button.small,select,.header-exercise select{font-size:16px}
+    .stages .stage{font-size:15px}
+    .stages .phase-link{padding:9px 7px;line-height:1.4}
+    .cardhead strong,.challenge h3,.field label,.challenge label,.settings-fields label{font-size:17px}
+    .stat small,.column-text-controls output,.chip,.mini,.pill,.eqtitle,.mathlabel,.key{font-size:14px}
+    .desc,.notes,.helper,.message,.challenge .feedback,.equation-placeholder,.step-description,
+    #phaseCard .desc,#phaseHelpDialog .desc,#phaseHelpDialog .step-description,
+    #phaseHelpBody .boardfoot,#phaseHelpBody .footer{font-size:17px}
+    .node-eq-label,.board-eq-label,.alg-mobile-label,.result small,.kcl-live-title{font-size:15px}
+    .step,.step-heading{font-size:17px}.stepnum,.mat-head{font-size:14px}
+    .node-eq-label small,.board-eq-label small{font-size:14px}
+    #phaseCard .eq,.eqlist .eq,.adv-eqline,.alg-mobile-equation{font-size:18px}
+    #equationsCard .board-eq-formula,#equationsCard .node-eq-formula{font-size:20px}
+    #phaseCard .phase-title{font-size:23px}
+    .adv-mat-head span{font-size:14px}
+    input,textarea,.adv-mat-row input,.matrix input{font-size:16px}
+    .adv-mat-overflow{overflow-x:auto}
+    .adv-mat-head,.adv-mat-row{min-width:322px}
+    #currentNumber{font-size:23px}
+  }
 </style>
 </head>
 <body>
@@ -926,7 +950,7 @@
   <footer class="footer flexbetween"><span>Simbología seleccionable IEC o ANSI. Los sentidos de las corrientes son referencias algebraicas, no predicciones.</span><span>Pulsa las ramas para numerar y las flechas para invertir. <span class="key">Espacio</span>: Play/Stop.</span></footer>
 </div>
 <dialog id="nodeEquationDialog" aria-labelledby="nodeEquationTitle"><div class="settings-heading"><h2 id="nodeEquationTitle">Ecuación del nudo</h2><button type="button" class="help-button" data-context-help="nodeEquation" aria-label="Ayuda de la ecuación del nudo" title="Ayuda">?</button><button type="button" id="closeNodeEquation" class="ghost" aria-label="Cerrar ecuación del nudo">×</button></div><p id="nodeEquationSummary"></p><div id="nodeEquationChallenge" class="challenge" aria-live="polite"></div></dialog>
-<dialog id="currentNameDialog" aria-label="I"><form id="currentNameForm"><label class="current-number-field"><span>I</span><input id="currentNumber" type="text" inputmode="numeric" enterkeyhint="done" maxlength="2" size="2" pattern="[0-9]{1,2}" autocomplete="off" aria-label="Número de la corriente" required></label><button class="primary" type="submit" aria-label="Asignar" title="Asignar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button><button type="button" class="help-button" data-context-help="currentName" aria-label="Ayuda de la intensidad" title="Ayuda">?</button><button type="button" id="cancelCurrentName" class="ghost" aria-label="Cancelar" title="Cancelar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></form></dialog>
+<dialog id="currentNameDialog" aria-label="I" autofocus><form id="currentNameForm"><label class="current-number-field"><span>I</span><input id="currentNumber" type="text" inputmode="numeric" enterkeyhint="done" maxlength="2" size="2" pattern="[0-9]{1,2}" autocomplete="off" aria-label="Número de la corriente" required></label><button class="primary" type="submit" aria-label="Asignar" title="Asignar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button><button type="button" class="help-button" data-context-help="currentName" aria-label="Ayuda de la intensidad" title="Ayuda">?</button><button type="button" id="cancelCurrentName" class="ghost" aria-label="Cancelar" title="Cancelar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></form></dialog>
 <div id="contextHelpSources" hidden aria-hidden="true"></div>
 <dialog id="phaseHelpDialog" aria-labelledby="phaseHelpTitle">
   <div class="settings-heading"><h2 id="phaseHelpTitle">Ayuda</h2><button type="button" id="closePhaseHelp" class="ghost" aria-label="Cerrar ayuda">×</button></div>
@@ -1212,6 +1236,7 @@
     }
     if(nearest){const {a,dx,dy,t,len}=nearest,lo=Math.max(0,t-18),hi=Math.min(len,t+18);$('branchSelection').setAttribute('d',`M${a.x+dx*lo} ${a.y+dy*lo} L${a.x+dx*hi} ${a.y+dy*hi}`);}
     $('currentNumber').value=model.currentNumbers[index]??'';$('currentNumber').removeAttribute('aria-invalid');
+    // Sitúa el diálogo antes de abrir el teclado para conservar la escala del circuito.
     $('currentNameDialog').showModal();positionCurrentNameDialog();$('currentNumber').focus({preventScroll:true});if(editing)$('currentNumber').select();
   }
 
@@ -2995,7 +3020,7 @@
         }
         for(const el of targets){
           const saved=memory.get(el);if(!Number.isFinite(saved.base))continue;
-          const next=(saved.base*scale).toFixed(3)+'px';if(el.style.fontSize!==next)el.style.fontSize=next;
+          const next=Math.max(el.matches('input,select,textarea')?16:0,saved.base*scale).toFixed(3)+'px';if(el.style.fontSize!==next)el.style.fontSize=next;
         }
       }
       for(const controls of document.querySelectorAll('[data-text-controls]')){
