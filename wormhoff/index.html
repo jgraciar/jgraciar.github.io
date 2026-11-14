@@ -108,7 +108,7 @@
   .node-hit{fill:transparent;cursor:pointer}
 
   .mesh-hit{fill:transparent;cursor:pointer;pointer-events:all}
-  .mesh-hit:focus-visible{outline:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:5 4}
+  .mesh-hit:focus-visible{outline:none;stroke:var(--cyan);stroke-width:1;stroke-dasharray:none}
   .mesh-turn{cursor:pointer}
   .mesh-turn-hit{fill:transparent;stroke:transparent;stroke-width:1.5}
   .mesh-turn:focus-visible{outline:none}
@@ -117,7 +117,10 @@
   .dirclick{fill:transparent;cursor:pointer}
   /* Un sombreado violeta tenue distingue la malla activa del ámbar de las corrientes,
      del verde del personaje y del blanco de los símbolos. Detrás de todos ellos. */
-  .glowloop{fill:#7569a8;fill-opacity:.28;stroke:#c4b9f0;stroke-opacity:.67;stroke-width:1.8;stroke-dasharray:8 7;pointer-events:none}
+  .mesh-selection-fill{fill:#7569a8;fill-opacity:.34;stroke:none;pointer-events:none}
+  .mesh-selection-contour{fill:none;stroke:#c4b9f0;stroke-opacity:.95;stroke-width:2;stroke-dasharray:8 7;vector-effect:non-scaling-stroke;pointer-events:none}
+  .mesh-contour-arrowhead{fill:#d7c9ff;stroke:none}
+  #meshSelection{pointer-events:none}
   #hero{--worm-fill:#b7f75c;--worm-edge:#edffbe;--worm-dark:#619b36;--worm-glow:#b7f755}
   #hero.hero-sad{--worm-fill:#a64a17;--worm-edge:#e99659;--worm-dark:#723317;--worm-glow:#e9965955}
   .hero-body,.hero-segment{fill:var(--worm-fill);stroke:var(--worm-edge);stroke-width:1.4}
@@ -401,9 +404,9 @@
       <div id="circuitTransport" class="board-actions circuit-transport hide" aria-label="Controles de reproducción del circuito"></div>
       <div class="board"><div id="currentPlacementNotice" class="current-placement-notice hide" role="status" aria-live="polite"></div>
         <svg id="circuit" viewBox="0 0 700 430" role="group" aria-label="Circuito de corriente continua con símbolos seleccionables y flechas seleccionables">
-          <defs><pattern id="dots" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="#34516e" opacity=".8"/></pattern></defs>
+          <defs><pattern id="dots" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="#34516e" opacity=".8"/></pattern><marker id="meshContourArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="mesh-contour-arrowhead" d="M1 1 L9 5 L1 9 Z"/></marker></defs>
           <rect x="0" y="0" width="700" height="430" fill="url(#dots)"/>
-          <rect id="loopHighlight" class="glowloop hide" x="156" y="87" width="179" height="260" rx="11"/>
+          <g id="meshSelection" aria-hidden="true"></g>
           <g id="meshTargets"></g>
           <g id="staticCircuit"></g>
           <path id="branchSelection" class="branch-selection"/><g id="currentBranchTargets"></g>
@@ -994,16 +997,14 @@
     $('circuit').setAttribute('aria-label',active.label+'; tres ramas con resistencias '+R.join(', ')+' ohmios y fuentes '+E.join(', ')+' voltios');
   }
   function updateLoopsArrows(){
-    if(S.phase!==2){$('loopArrows').innerHTML='';$('meshTargets').innerHTML='';return}
+    if(S.phase!==2){$('loopArrows').innerHTML='';$('meshTargets').innerHTML='';$('meshSelection').innerHTML='';return;}
+    const faces=[{x:156,y:87,w:179,h:260,sideY:180},{x:355,y:87,w:179,h:260,sideY:180}];
     drawMeshTargets([{x:163,y:87,w:169,h:258},{x:359,y:87,w:169,h:258}]);
+    drawSelectedMesh(S.loop,faces[S.loop],S.loops[S.loop]?.cw??S.cw);
     $('loopArrows').innerHTML=[0,1].map(k=>{
-      const chosen=S.loops[k]?.cw??S.meshDirections?.[k]??(S.loop===k?S.cw:true);
-      const x=k===0?246:445;
-      const state=S.loop!==k?'PENDIENTE':S.pass==='resistors'?'Σ R·I':'Σ U';
-      const accent=S.loop===k&&!S.loops[k]?'#ffe2a0':'#9cb5c9';
-      return meshTurnIcon(k,x,164,chosen,!!S.loops[k])+
-        `<text class="mesh-label" x="${x}" y="199" text-anchor="middle" style="fill:#8ce7ef;font:600 11px sans-serif">MALLA ${k+1}</text>`+
-        (S.loops[k]?meshCompleteMark(k,x,219):`<rect class="mesh-label" x="${x-50}" y="208" width="100" height="22" rx="8" fill="#12263a" stroke="${accent}" stroke-width="1"/><text class="mesh-label" x="${x}" y="223" text-anchor="middle" style="fill:${accent};font:700 14px ui-monospace,monospace">${state}</text>`);
+      const chosen=S.loops[k]?.cw??S.meshDirections?.[k]??(S.loop===k?S.cw:true),x=k===0?246:445,done=!!S.loops[k];
+      const title='MALLA '+(k+1)+(S.loop===k&&!done?(S.pass==='resistors'?' · Σ R·I':' · Σ U'):'');
+      return `<g data-mesh-summary="${k}">`+meshStatusLabel(k,x,166,190,title,done,S.loop===k,false)+meshTurnIcon(k,x,237,chosen,done)+`</g>`;
     }).join('');
     bindMeshTurns($('loopArrows'));
   }
@@ -1060,7 +1061,7 @@
     $('phaseChip').textContent='REDUCCIÓN';
     $('score').textContent='0000';$('percent').textContent='0%';
     $('staticCircuit').innerHTML=networkSVG(active);
-    $('hero').classList.add('hide');$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
+    $('hero').classList.add('hide');$('nodePulse').classList.add('hide');$('meshSelection').innerHTML='';
     clearElementHighlight();show('boardEquations',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);
     $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('meshTargets').innerHTML='';
     $('dirHit0').style.pointerEvents='none';$('dirHit1').style.pointerEvents='none';$('dirHit2').style.pointerEvents='none';
@@ -1099,7 +1100,7 @@
   function phase(n){
     rememberPhase(n);S.phase=n;$('nodeHit').style.pointerEvents=n===1?'auto':'none';for(let i=0;i<5;i++)show('phase'+i,i===n||i===0&&n===1);show('confirmDirs',n===0);show('editCurrentReferences',n===1);
     show('circuitControls',n===2);show('standardCircuitControls',n===2);show('advancedCircuitControls',false);
-    updateHeader();$('nodePulse').classList.toggle('hide',n!==1);$('loopHighlight').classList.toggle('hide',n!==2);
+    updateHeader();$('nodePulse').classList.toggle('hide',n!==1);
     drawDirs();updateLoopsArrows();
     if(n!==2)clearElementHighlight();
     renderBoardEquations();
@@ -1307,6 +1308,11 @@
   function meshCompleteMark(index,x,y){
     return `<g class="mesh-complete" data-mesh-complete="${index}" role="img" aria-label="Malla ${index+1} completada"><circle cx="${x}" cy="${y}" r="13" fill="#173d2a" stroke="#66c77c"/><path d="M${x-7} ${y} L${x-2} ${y+5} L${x+8} ${y-6}" fill="none" stroke="#8df09c" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g>`;
   }
+  function meshStatusLabel(index,x,titleY,statusY,title,done,active,compact){
+    const width=compact?82:110,height=compact?18:22,accent=active?'#ffe2a0':'#9cb5c9';
+    return `<text class="mesh-label" data-mesh-name="${index}" x="${x}" y="${titleY}" text-anchor="middle" style="fill:#8ce7ef;font:600 ${compact?10.5:11}px sans-serif">${title}</text>`+
+      (done?meshCompleteMark(index,x,statusY):`<g data-mesh-pending="${index}"><rect class="mesh-label" x="${x-width/2}" y="${statusY-height/2}" width="${width}" height="${height}" rx="7" fill="#12263a" stroke="${accent}" stroke-width="1"/><text class="mesh-label" x="${x}" y="${statusY}" dominant-baseline="middle" text-anchor="middle" style="fill:${accent};font:700 ${compact?10.5:13}px ui-monospace,monospace">PENDIENTE</text></g>`);
+  }
   function setTransportState(id,state){
     const button=$(id),labels={ready:'Iniciar recorrido',running:'Detener recorrido',paused:'Reanudar recorrido',waiting:'Continuar recorrido',blocked:'Recorrido detenido: completa el término para continuar',complete:'Malla completada'};
     button.dataset.state=state;button.classList.add('transport-button');
@@ -1324,9 +1330,26 @@
     }
     if(id==='advance')nextInLoop();else sixNext();
   }
-  function meshTurnIcon(index,x,y,cw,done,enabled=true){
+  function meshTurnIcon(index,x,y,cw,done,enabled=true,size=36){
     const disabled=!enabled||done;
-    return `<g class="mesh-turn" data-mesh-turn="${index}" role="button" tabindex="${disabled?-1:0}" aria-label="Invertir giro de malla ${index+1}" aria-disabled="${disabled}"><rect class="mesh-turn-hit" x="${x-25}" y="${y-24}" width="50" height="48" rx="9"/><text class="mesh-label" x="${x}" y="${y+14}" text-anchor="middle" style="fill:#8ce7ef;font:700 36px sans-serif">${cw?'↻':'↺'}</text></g>`;
+    return `<g class="mesh-turn" data-mesh-turn="${index}" role="button" tabindex="${disabled?-1:0}" aria-label="Invertir giro de malla ${index+1}" aria-disabled="${disabled}"><rect class="mesh-turn-hit" x="${x-(size+14)/2}" y="${y-(size+12)/2}" width="${size+14}" height="${size+12}" rx="9"/><text class="mesh-label" x="${x}" y="${y+size*.39}" text-anchor="middle" style="fill:#8ce7ef;font:700 ${size}px sans-serif">${cw?'↻':'↺'}</text></g>`;
+  }
+  function drawSelectedMesh(index,face,cw){
+    const {x,y,w,h}=face,right=x+w,bottom=y+h,r=Math.min(10,w/4,h/4),topX=face.topX??x+w/2,bottomX=face.bottomX??x+w/2,sideY=face.sideY??y+h/2;
+    const clockwise=[
+      [`M${topX} ${y} H${right-r} Q${right} ${y} ${right} ${y+r} V${sideY}`,'right'],
+      [`M${right} ${sideY} V${bottom-r} Q${right} ${bottom} ${right-r} ${bottom} H${bottomX}`,'bottom'],
+      [`M${bottomX} ${bottom} H${x+r} Q${x} ${bottom} ${x} ${bottom-r} V${sideY}`,'left'],
+      [`M${x} ${sideY} V${y+r} Q${x} ${y} ${x+r} ${y} H${topX}`,'top']
+    ],counterclockwise=[
+      [`M${topX} ${y} H${x+r} Q${x} ${y} ${x} ${y+r} V${sideY}`,'left'],
+      [`M${x} ${sideY} V${bottom-r} Q${x} ${bottom} ${x+r} ${bottom} H${bottomX}`,'bottom'],
+      [`M${bottomX} ${bottom} H${right-r} Q${right} ${bottom} ${right} ${bottom-r} V${sideY}`,'right'],
+      [`M${right} ${sideY} V${y+r} Q${right} ${y} ${right-r} ${y} H${topX}`,'top']
+    ];
+    const selected=$('meshSelection');selected.dataset.mesh=String(index);selected.dataset.turn=cw?'clockwise':'counterclockwise';
+    selected.innerHTML=`<rect class="mesh-selection-fill" x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>`+
+      (cw?clockwise:counterclockwise).map(([d,edge])=>`<path class="mesh-selection-contour" data-edge="${edge}" d="${d}" marker-end="url(#meshContourArrow)"/>`).join('');
   }
   function drawMeshTargets(faces){
     $('meshTargets').innerHTML=faces.map((f,i)=>`<rect class="mesh-hit" data-mesh="${i}" x="${f.x}" y="${f.y}" width="${f.w}" height="${f.h}" rx="9" tabindex="0" role="button" aria-label="Seleccionar malla ${i+1}"/>`).join('');
@@ -1371,7 +1394,6 @@
   function changeOrientation(v){if(S.phase!==2||S.animating||S.loops[S.loop])return;S.cw=v;S.meshDirections[S.loop]=v;resetCurrentLoop();updateLoopSelect()}
   function updateLoopSelect(){
     // El sombreado queda dentro del contorno, sin tapar sus símbolos IEC.
-    $('loopHighlight').setAttribute('x',String(S.loop===0?156:355));
     setTransportState('advance',!S.meshDirectionsConfirmed?'blocked':S.loops[S.loop]?'complete':S.animating?'blocked':'ready');
     $('lapLabel').textContent=S.pass==='resistors'?'Vuelta 1/2 · resistencias (R·I)':'Vuelta 2/2 · fuentes de tensión';
     if(S.loops[S.loop]){$('sourceBuild').textContent=terms(S.loops[S.loop].sources,'E');$('resBuild').textContent=terms(S.loops[S.loop].resistors,'R');$('lapLabel').textContent='Dos vueltas completadas';msg('loopFeedback','Esta malla ya está cerrada y verificada. Selecciona otra malla pendiente.','good')}
@@ -1962,7 +1984,7 @@
   function newGame(){
     cancelCurrentLabelTap();finishCurrentArrowDrag(null,true);suppressedCurrentClick=null;phaseScores={0:0};clearTimeout(placementNoticeTimer);show('currentPlacementNotice',false);$('branchSelection').removeAttribute('d');endHeroPress();
     flowToken++;stopFlow();if(S.pausedResume){S.pausedResume();S.pausedResume=null}
-    $('currentBranchTargets').innerHTML='';
+    $('currentBranchTargets').innerHTML='';$('meshSelection').innerHTML='';
     $('gameLayout').classList.toggle('network-mode',active.kind==='network');
     $('circuit').setAttribute('viewBox',active.kind==='network'?'0 0 700 430':'60 20 600 410');
     show('nodeEqPanel',false);show('advKCL',false);
@@ -2063,7 +2085,7 @@
   }
   function sixSVG(){
     // Capa inferior: el fondo de la malla activa jamás tapa conductores ni valores.
-    let h='<g id="sixMeshFocus"></g><g id="sixSymbols">';
+    let h='<g id="sixSymbols">';
     for(const [i,edge] of EDGES6.entries()){
       h+='<polyline class="wire" points="'+edge.p.map(p=>p[0]+','+p[1]).join(' ')+'"/>';
       for(const c of edge.p){if(c.length<3)continue;
@@ -2100,19 +2122,19 @@
   }
   function sixMeshArrows(){
     if(!$('sixLoops'))return;
-    // Las tres mallas forman tres caras interiores: dos superiores y una inferior.
-    // El relleno queda detrás de las ramas compartidas y desaparece fuera de KVL.
-    const faces=[{x:141,y:86,w:199,h:128},{x:360,y:86,w:199,h:128},{x:141,y:237,w:418,h:106}];
-    if(A6.stage==='loops')drawMeshTargets(faces);else $('meshTargets').innerHTML='';
-    const face=faces[A6.loop];
-    const focus=$('sixMeshFocus');
-    if(focus)focus.innerHTML=A6.stage==='loops'
-      ?`<rect class="glowloop" x="${face.x}" y="${face.y}" width="${face.w}" height="${face.h}" rx="9"/>`:'';
-    const pts=[[232,135],[477,141],[352,305]];
-    $('sixLoops').innerHTML=pts.map(([x,y],i)=>{
-      const done=A6.done[i],cw=done?.cw??A6.meshDirections?.[i]??(i===A6.loop?A6.cw:true);
-      const sub=i===A6.loop?(A6.pass==='R'?'Σ R·I':'Σ U'):'PENDIENTE';
-      return meshTurnIcon(i,x,y-11,cw,!!done,A6.stage==='loops')+`<text class="mesh-label" x="${x}" y="${y+17}" text-anchor="middle" style="fill:#f5db9b;font:700 11px monospace">M${i+1}${done?'':' · '+sub}</text>`+(done?meshCompleteMark(i,x,y+35):'');
+    const faces=[
+      {x:141,y:86,w:199,h:128,topX:175,bottomX:250,sideY:108},
+      {x:360,y:86,w:199,h:128,topX:395,bottomX:465,sideY:108},
+      {x:141,y:237,w:418,h:106,topX:382,bottomX:380,sideY:292}
+    ];
+    if(A6.stage==='loops'){
+      drawMeshTargets(faces);drawSelectedMesh(A6.loop,faces[A6.loop],A6.done[A6.loop]?.cw??A6.cw);
+    }else{$('meshTargets').innerHTML='';$('meshSelection').innerHTML='';}
+    const positions=[{x:247,titleY:133,statusY:153,turnY:190},{x:497,titleY:133,statusY:153,turnY:190},{x:350,titleY:259,statusY:278,turnY:316}];
+    $('sixLoops').innerHTML=positions.map(({x,titleY,statusY,turnY},i)=>{
+      const done=!!A6.done[i],cw=A6.done[i]?.cw??A6.meshDirections?.[i]??(i===A6.loop?A6.cw:true);
+      const title='M'+(i+1)+(i===A6.loop&&!done&&i!==2?(A6.pass==='R'?' · Σ R·I':' · Σ U'):'');
+      return `<g data-mesh-summary="${i}">`+meshStatusLabel(i,x,titleY,statusY,title,done,i===A6.loop,true)+meshTurnIcon(i,x,turnY,cw,done,A6.stage==='loops',28)+`</g>`;
     }).join('');
     bindMeshTurns($('sixLoops'));
   }
@@ -2139,7 +2161,7 @@
     A6.currentNumbers=Array(6).fill(null);A6.currentPositions=Array(6).fill(null);NAMES6.splice(0,NAMES6.length,...Array(6).fill('I'));
     A6.meshDirections=[true,true,true];A6.meshDirectionsConfirmed=false;A6.stage='dirs';A6.nodeCount=0;$('advKCLtext').innerHTML='';A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
     $('stagebar').classList.remove('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
-    $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('loopHighlight').classList.add('hide');
+    $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('meshSelection').innerHTML='';
     $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();$('dirGraphics').append($('sixRefArrows'));
     for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents='none';$('nodeHit').style.pointerEvents='none';
     $('boardTitle').textContent=active.label;$('boardBadge').textContent=symbolStandardLabel()+' · 4 nudos · 6 ramas · 3 mallas';
