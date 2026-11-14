@@ -1,3 +1,4 @@
+import './verify-wormhoff-nodes-math.mjs';
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {readFileSync} from 'node:fs';
@@ -22,6 +23,15 @@ const completedMarkup=meshElements.loopArrows.innerHTML+meshElements.sixLoops.in
 assert(completedMarkup.includes('data-mesh-complete="0"'));assert(completedMarkup.includes('data-mesh-complete="1"'));
 assert(completedMarkup.includes('--paint-8df09c,#8df09c'));assert(!/FINALIZADA|HECHA/.test(completedMarkup));
 assert(isolationMarkup.includes('I₂ = 4 A'));assert(isolationMarkup.includes('I₂ = 1,5 A'));
+const enterNodeEquation=async(page,id,equation)=>{
+ assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);
+ await page.locator('#nodeTargets [data-node="'+id+'"]').click();
+ assert(await page.locator('#nodeEquationDialog').isVisible(),'Ventana del nudo '+id);
+ assert.match(await page.locator('#nodeEquationTitle').textContent(),new RegExp('Nudo '+id));
+ await page.locator('#nodeEquationChallenge .kcl-answer').fill(equation);
+ await page.click('#nodeEquationChallenge .kcl-check');
+ assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'Ecuación validada en '+id);
+};
 const browser=await chromium.launch({headless:true});
 let animationReference=null,meshShadeReference=null;
 try{
@@ -36,7 +46,7 @@ for(const [i,x] of [146,345,544].entries()){
  await page.locator(`[data-current-branch="${i}"]`).dispatchEvent('click');
  await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
 }
-await page.click('#confirmDirs');await page.click('#goLoops');await page.click('#confirmMeshDirections');
+await page.click('#confirmDirs');assert.equal(await page.locator('#hero').isVisible(),false);assert.equal(await page.locator('#goLoops').isVisible(),false);assert.match(await page.locator('#nodeEquationCount').textContent(),/2 − 1 = 1/);await enterNodeEquation(page,'B','I1=I2+I3');assert.equal(await page.locator('#selectedNodeLabel').textContent(),'Nudo B');await page.click('#goLoops');assert(await page.locator('#hero').isVisible());await page.click('#confirmMeshDirections');
 for(let mesh=0;mesh<2;mesh++){
  await page.locator(`#meshTargets [data-mesh="${mesh}"]`).dispatchEvent('click');
  for(let turn=0;turn<250;turn++){
@@ -97,7 +107,7 @@ await page.evaluate(()=>{
  A6.currentNumbers=[1,2,3,4,5,6];NAMES6.splice(0,6,'I₁','I₂','I₃','I₄','I₅','I₆');A6.signs=[1,1,1,1,1,1];
  // Canonical CW rows from the original six branches, R=[4,3,2,2,5,3].
  const rows=[[4,3,0,-2,0,0],[0,-3,2,0,-5,0],[0,0,0,2,5,-3]],b=[16,-16,8];
- A6.done=rows.map((row,i)=>({row,b:b[i],cw:true}));A6.rowsR=rows.map(row=>row.flatMap((v,i)=>v?[{i,v}]:[]));A6.rowsU=b.map(v=>[{i:0,v}]);A6.nodeCount=3;
+ A6.done=rows.map((row,i)=>({row,b:b[i],cw:true}));A6.rowsR=rows.map(row=>row.flatMap((v,i)=>v?[{i,v}]:[]));A6.rowsU=b.map(v=>[{i:0,v}]);A6.nodeCount=3;A6.nodeIds=['D','B','C'];
  document.getElementById('advKCLtext').innerHTML=sixKCLRows();sixRenderRows();sixRefArrow();sixStartSolve();
  A6.step=A6.steps.length;A6.finalVerified=true;A6.completedScore=true;
 });
@@ -149,6 +159,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(await page.locator('#speedSetting').inputValue(),'75','Conserva la configuración');
  await page.click('#openSettings');await page.locator('#speedSetting').evaluate(el=>{el.value='100';el.dispatchEvent(new Event('input',{bubbles:true}))});await page.click('#closeSettings');
 
+ assert.equal(await page.locator('#hero').isVisible(),false,'Gusano oculto al numerar intensidades');
  assert.equal(await page.locator('#currentNumber').getAttribute('maxlength'),'2');
  assert.equal(await page.locator('#currentNameDialog h3,#currentBranchDescription,#currentNumberError').count(),0,'Conserva el diálogo compacto con I');
  if(!mobile){await page.setViewportSize({width:1920,height:1100});assert((await page.locator('.shell').boundingBox()).width>1900,'Utiliza todo el ancho disponible');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.setViewportSize({width:1440,height:1100});}
@@ -403,23 +414,23 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.locator('#circuit').scrollIntoViewIfNeeded();
  const labelPoint=await page.locator('#currentArrow0 .dirlabel').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};});
  if(mobile)await page.touchscreen.tap(labelPoint.x,labelPoint.y);else await page.mouse.click(labelPoint.x,labelPoint.y);
- await page.click('#confirmDirs');await page.locator('#nodeChallenge .kcl-answer').fill('I7+I12+I3=0');await page.click('#nodeChallenge .kcl-check');
+ await page.click('#confirmDirs');await enterNodeEquation(page,'A','I7+I12+I3=0');
  assert(await page.locator('#goLoops').isVisible(),'Confirma una pulsación simple pendiente antes de fijar referencias');
  await page.click('#editCurrentReferences');
  const originalArrow=await page.locator('#currentArrow0').evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));await tap(originalArrow.x,originalArrow.y);
- await page.click('#confirmDirs');await page.locator('#nodeChallenge .kcl-answer').fill('I7=I12+I3');await page.click('#nodeChallenge .kcl-check');
+ await page.click('#confirmDirs');await enterNodeEquation(page,'A','I7=I12+I3');
  assert.match(await page.locator('#nodeEq').textContent(),/I₇.*I₁₂.*I₃/);
  assert(!/\bKCL\b|\bKVL\b/.test(await page.locator('body').innerText()));
  assert(parseFloat(await page.locator('#nodeEq').evaluate(el=>getComputedStyle(el).fontSize))>=18);
  const arrow=async s=>page.locator(s+' .direction').getAttribute('d');
  await page.selectOption('#exerciseSelect','c71');await assignNumbers([1,2,3]);
  await page.locator('[data-reduce="2"]').fill('12');await page.click('#checkReductions');await page.click('#confirmDirs');
- await page.locator('[data-kcl="0"]').selectOption('1');
- const term=page.locator('#nodeChallenge .kcl-live-term').first();
+ assert.equal(await page.locator('#hero').isVisible(),false);await page.locator('#nodeTargets [data-node="A"]').click();await page.locator('#nodeEquationChallenge .kcl-answer').fill('I1');
+ const term=page.locator('#nodeEquationChallenge .kcl-live-term').first();
  const blink=await term.evaluate(el=>{const s=getComputedStyle(el);return {name:s.animationName,duration:s.animationDuration,count:s.animationIterationCount}});
  assert.equal(blink.name,'kclTermBlink');assert.equal(blink.count,'3');
- await page.waitForFunction(()=>!document.querySelector('#nodeChallenge .blink-three'));
- assert.equal(await term.evaluate(el=>getComputedStyle(el).opacity),'1');
+ await page.waitForFunction(()=>!document.querySelector('#nodeEquationChallenge .blink-three'));
+ assert.equal(await term.evaluate(el=>getComputedStyle(el).opacity),'1');await page.click('#closeNodeEquation');
  await page.selectOption('#exerciseSelect','base');await assignNumbers([1,2,3]);
  const expandedHit=await page.locator('#currentArrow0').evaluate(group=>{
   const x=Number(group.dataset.arrowX),y=Number(group.dataset.arrowY),dx=Number(group.dataset.arrowDx),dy=Number(group.dataset.arrowDy),label=group.querySelector('.dirlabel').getBBox();
@@ -449,6 +460,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const sel='#currentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
  await checkAction('confirmDirs');await page.click('#confirmDirs');
+ assert.equal(await page.locator('#hero').isVisible(),false);assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);await page.locator('#nodeTargets [data-node="A"]').click();await page.locator('#nodeEquationChallenge .kcl-answer').fill('I1=I2');await page.click('#nodeEquationChallenge .kcl-check');assert(await page.locator('#nodeEquationDialog').isVisible(),'Rechaza una ecuación incorrecta');await page.click('#closeNodeEquation');assert.equal(await page.locator('#goLoops').isVisible(),false,'Cancelar no completa el nudo');await enterNodeEquation(page,'A','I1=I2+I3');
+ await page.locator('#nodeTargets [data-node="B"]').click();assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'No duplica una ecuación dependiente');
  const fixedEquation=await page.locator('#nodeEq').textContent();
  await dragCurrent('#currentArrow0',146,300,true);assert.equal(await page.locator('#nodeEq').textContent(),fixedEquation,'Mover la flecha conserva las ecuaciones');
  await checkAction('goLoops');await page.click('#goLoops');await checkMeshSelection(0,true);await checkVisibleMeshShade(205,110);await checkAction('confirmMeshDirections');assert.equal(await page.locator('#advance').isDisabled(),true);assert.equal(await page.locator('#advance').isVisible(),false);assert(await page.locator('#equationsCard #nodeEqPanel [data-equation="E1"]').isVisible());
@@ -488,10 +501,14 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  }
  await selectSymbol('iec');
  await checkAction('advStart');await page.click('#advStart');
+ assert.equal(await page.locator('#hero').isVisible(),false);assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);assert.match(await page.locator('#advNodeEquationCount').textContent(),/4 − 1 = 3/);
  let verifiedNodes=0;
- for(const eq of ['I1=I2+I3','I2+I4=I5','I1+I4+I6=0']){
-  await page.locator('#sixNodeChallenge .kcl-answer').fill(eq);await page.click('#sixNodeChallenge .kcl-check');verifiedNodes++;assert.equal(await page.locator('#equationsCard #advKCL [data-equation]').count(),verifiedNodes);
+ for(const [node,eq] of [['D','I3+I5+I6=0'],['A','I1=I2+I3'],['C','I2+I4=I5']]){
+  await enterNodeEquation(page,node,eq);verifiedNodes++;assert.equal(await page.locator('#equationsCard #advKCL [data-equation]').count(),verifiedNodes);
  }
+ assert.deepEqual(await page.locator('#advKCLtext small').allTextContents(),['Nudo D','Nudo A','Nudo C'],'Conserva el orden de los nudos elegidos');
+ await page.locator('#nodeTargets [data-node="B"]').click();assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'El cuarto nudo aporta una ecuación dependiente');
+ await checkAction('advGoLoops');await page.click('#advGoLoops');assert(await page.locator('#hero').isVisible());
  await checkMeshSelection(0,true);await checkVisibleMeshShade(185,190); await tap(460,290);assert.match(await page.locator('#advLap').textContent(),/Malla 3/);
  await tapMeshTurn(2);await checkMeshSelection(2,false);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
  await tap(460,290);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
@@ -514,7 +531,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert(await page.locator('#advStart').isVisible(),'Volver a corrientes y nudos');
  assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),6,'Volver conserva la numeración');
- await page.click('#advStart');assert(await page.locator('#sixNodeChallenge .kcl-answer').isVisible());
+ await page.click('#advStart');assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);await page.locator('#nodeTargets [data-node="D"]').click();assert(await page.locator('#nodeEquationChallenge .kcl-answer').isVisible());await page.click('#closeNodeEquation');
  assert.equal(await page.locator('[data-phase="0"]').getAttribute('aria-current'),'step','Nudos en la misma fase que corrientes');
  await page.click('#advEditCurrentReferences');assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0);
  await page.click('[data-reset-phase="0"]');
