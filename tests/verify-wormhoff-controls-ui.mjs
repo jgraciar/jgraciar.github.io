@@ -106,6 +106,14 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   }),branches);
   assert(details.every(d=>d.onBranch&&d.near&&d.display!=='none'),JSON.stringify(details));
   assert.equal(await page.locator('.current-label-leader').count(),0,'Sin etiquetas alejadas ni líneas de enlace');
+  const sizes=await page.locator('#circuit').evaluate(svg=>{
+   const base=parseFloat(getComputedStyle(svg.querySelector('.component-value')).fontSize);
+   return [...svg.querySelectorAll('[data-current-index]')].filter(el=>getComputedStyle(el).display!=='none').map(group=>{
+    const path=group.querySelector('.direction'),box=path.getBBox();
+    return {matching:[...group.querySelectorAll('.dirlabel,.dir-result')].every(text=>Math.abs(parseFloat(getComputedStyle(text).fontSize)-base)<.05&&!text.hasAttribute('textLength')),length:Math.max(box.width,box.height),stroke:parseFloat(getComputedStyle(path).strokeWidth)};
+   });
+  });
+  assert(sizes.every(s=>s.matching&&s.length>=23.9&&s.stroke>=3),JSON.stringify(sizes));
  };
  assert.equal(await page.locator('#stagebar .phase-reset svg').count(),4);
  assert.equal(await page.locator('[data-phase="1"]').count(),0);assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);assert.match(await page.locator('[data-phase="0"]').textContent(),/Corrientes y nudos/);
@@ -250,10 +258,10 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const {x,y}=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   const sel='#sixCurrentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente avanzada '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
- dragged=await dragCurrent('#sixCurrentArrow4',470,225,true);
- assert(Math.hypot(dragged.x-470,dragged.y-225)<2,'Arrastra I5 y su texto dentro de su rama');
+ dragged=await dragCurrent('#sixCurrentArrow4',465,225,true);
+ assert(Math.hypot(dragged.x-465,dragged.y-225)<2,'Arrastra I5 y su texto dentro de su rama');
  await dragCurrent('#sixCurrentArrow4',130,190);await assertBranchPlacement(true);await assertNoCurrentOverlap();
- await dragCurrent('#sixCurrentArrow4',470,225);
+ await dragCurrent('#sixCurrentArrow4',465,225);
  await page.selectOption('#symbolStandard','ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  for(const resistor of await page.locator('#circuit .component-resistor').all()){
   assert(await resistor.evaluate(el=>{
@@ -291,7 +299,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.click('#advEditCurrentReferences');assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0);
  await page.click('[data-reset-phase="0"]');
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),0,'Reiniciar corrientes y nudos limpia los números');
- const freePoints=[[130,190],[350,190],[535,74],[255,225],[470,225],[370,355]];
+ const freePoints=[[130,190],[350,195],[535,74],[255,225],[465,225],[370,355]];
  for(let i=0;i<6;i++){
   await tap(...freePoints[i]);await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
   const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));

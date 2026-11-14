@@ -33,7 +33,7 @@
   .phase-link:focus-visible,.phase-reset:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
   [data-current-index]{touch-action:none;user-select:none;cursor:grab}
   #circuit.dragging-current [data-current-index],#circuit.dragging-current .current-direction-hit{cursor:grabbing!important}
-  .current-direction-hit{fill:none;stroke:transparent;stroke-width:17;pointer-events:stroke;cursor:inherit}
+  .current-direction-hit{fill:none;stroke:transparent;stroke-width:23;pointer-events:stroke;cursor:inherit}
   .current-placement-notice{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:4;width:max-content;max-width:calc(100% - 20px);padding:8px 12px;background:#19334b;color:#ffe0a1;border:1px solid #d5aa61;border-radius:9px;font-size:13px;line-height:1.4;box-shadow:0 4px 15px #0005;pointer-events:none}
   @media(max-width:600px){.stages{gap:3px}.stage{flex-direction:column;padding:2px;gap:0;font-size:10px}.stage b{display:block;margin:0}.phase-link{text-align:center;padding:5px 1px;width:100%}.phase-reset{height:25px;padding:3px 5px}}
   .layout{display:grid;grid-template-columns:minmax(0,var(--left-track,1.1fr)) 18px minmax(0,var(--right-track,1fr));grid-template-areas:"circuit divider equations" "circuit divider phase";grid-template-rows:auto 1fr;row-gap:17px;column-gap:0;align-items:start}
@@ -91,12 +91,12 @@
   #equationsCard .board-eq-equal{font-size:26px}
   .resistor-name{fill:#fff;font:700 12px ui-monospace,Consolas,monospace;text-anchor:middle;pointer-events:none}
   .direction-outline{fill:none;stroke:#13283d;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
-  .direction{stroke:var(--amber);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
-  .dirlabel{fill:var(--amber);font:750 17px ui-monospace,Consolas,monospace;pointer-events:none}
-  .dir-result{fill:var(--amber);stroke:#0b1c2c;stroke-width:3;paint-order:stroke;stroke-linejoin:round;font:650 17px ui-monospace,Consolas,monospace;pointer-events:none}
-  .dir-result.six-current-value{font-size:15px}
-  .dir-result.six-current-value.tight-value{font-size:13px}
-  .dir-result.six-current-value.narrow-value{font-size:12px}
+  .direction{stroke:var(--amber);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .dirlabel{fill:var(--amber);font:750 16px ui-monospace,Consolas,monospace;pointer-events:none}
+  .dir-result{fill:var(--amber);stroke:#0b1c2c;stroke-width:3;paint-order:stroke;stroke-linejoin:round;font:650 16px ui-monospace,Consolas,monospace;pointer-events:none}
+  .dir-result.six-current-value{font-size:16px}
+  .dir-result.six-current-value.tight-value{font-size:16px}
+  .dir-result.six-current-value.narrow-value{font-size:16px}
   .nod{fill:var(--amber);stroke:#fff3ce;stroke-width:2}
   .nodeglow{fill:none;stroke:var(--amber);stroke-width:2;opacity:.7}
   .branch-hit{fill:transparent;cursor:pointer}
@@ -2390,23 +2390,22 @@
       group.querySelectorAll('.current-label-hit').forEach(el=>el.remove());
       const candidates=[];
       for(let i=1;i<points.length;i++){
-        const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(length<18)continue;
+        const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(length<30)continue;
         const dx=(b.x-a.x)/length,dy=(b.y-a.y)/length;
-        const projected=Math.max(9,Math.min(length-9,(wanted.x-a.x)*dx+(wanted.y-a.y)*dy));
-        const distances=[projected];for(let t=9;t<=length-9;t+=3)distances.push(t);
+        const projected=Math.max(15,Math.min(length-15,(wanted.x-a.x)*dx+(wanted.y-a.y)*dy));
+        const distances=[projected];for(let t=15;t<=length-15;t+=3)distances.push(t);
         for(const t of distances){const x=a.x+dx*t,y=a.y+dy*t;candidates.push({x,y,dx,dy,distance:(x-wanted.x)**2+(y-wanted.y)**2});}
       }
       candidates.sort((a,b)=>a.distance-b.distance);
       let chosen=null;
       const metric=el=>{el.setAttribute('x','0');el.setAttribute('y','0');el.setAttribute('text-anchor','start');el.removeAttribute('transform');return el.getBBox();};
-      for(const fontSize of [17,15,13,11]){
-        label.style.fontSize=(fontSize*columnTextScales.circuit)+'px';if(value)value.style.fontSize=((six?15:17)*columnTextScales.circuit)+'px';
+      for(const fontSize of [16]){
+        label.style.fontSize=(fontSize*columnTextScales.circuit)+'px';if(value)value.style.fontSize=(16*columnTextScales.circuit)+'px';
         label.removeAttribute('textLength');label.removeAttribute('lengthAdjust');
-        if(label.getComputedTextLength()>80*columnTextScales.circuit){label.setAttribute('textLength',80*columnTextScales.circuit);label.setAttribute('lengthAdjust','spacingAndGlyphs');}
         const l=metric(label),v=value?metric(value):null;
         for(const c of candidates){
-          const half=6,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
-          const arrow={x:c.x-Math.abs(vx)*half-Math.abs(vy)*4-1.5,y:c.y-Math.abs(vy)*half-Math.abs(vx)*4-1.5,w:Math.abs(vx)*2*half+Math.abs(vy)*8+3,h:Math.abs(vy)*2*half+Math.abs(vx)*8+3};
+          const half=12,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
+          const arrow={x:c.x-Math.abs(vx)*half-Math.abs(vy)*7-3,y:c.y-Math.abs(vy)*half-Math.abs(vx)*7-3,w:Math.abs(vx)*2*half+Math.abs(vy)*14+6,h:Math.abs(vy)*2*half+Math.abs(vx)*14+6};
           if(!inside(arrow)||[...fixed,...occupied].some(b=>overlap(arrow,b)))continue;
           const horizontal=Math.abs(c.dx)>.5;
           const positions=horizontal?[11,18,28].flatMap(offset=>[
@@ -2421,7 +2420,7 @@
       if(!chosen){group.dataset.placementUnavailable='true';group.style.display='none';continue;}
       const c=chosen;
       const stem=`M${c.x-c.vx*c.half} ${c.y-c.vy*c.half} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half}`;
-      const tip=`M${c.x+c.vx*(c.half-6)-c.vy*4} ${c.y+c.vy*(c.half-6)+c.vx*4} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half} L${c.x+c.vx*(c.half-6)+c.vy*4} ${c.y+c.vy*(c.half-6)-c.vx*4}`;
+      const tip=`M${c.x+c.vx*(c.half-9)-c.vy*7} ${c.y+c.vy*(c.half-9)+c.vx*7} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half} L${c.x+c.vx*(c.half-9)+c.vy*7} ${c.y+c.vy*(c.half-9)-c.vx*7}`;
       group.querySelectorAll('.direction,.direction-outline,.current-direction-hit').forEach(el=>{el.removeAttribute('transform');el.setAttribute('d',stem+' '+tip);});
       const place=(el,r,m)=>{el.setAttribute('x',r.x-m.x);el.setAttribute('y',r.y-m.y);};
       place(label,c.l,c.lMetric);if(value)place(value,c.v,c.vMetric);
