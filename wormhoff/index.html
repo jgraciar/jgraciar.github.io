@@ -2365,7 +2365,7 @@
     const box=el=>{const r=el.getBoundingClientRect(),a=new DOMPoint(r.left,r.top).matrixTransform(inverse),b=new DOMPoint(r.right,r.bottom).matrixTransform(inverse);return {x:a.x,y:a.y,w:b.x-a.x,h:b.y-a.y};};
     const overlap=(a,b,pad=2)=>a.x<b.x+b.w+pad&&a.x+a.w+pad>b.x&&a.y<b.y+b.h+pad&&a.y+a.h+pad>b.y;
     const inside=r=>r.x>=vb.x+3&&r.y>=vb.y+3&&r.x+r.w<=vb.x+vb.width-3&&r.y+r.h<=vb.y+vb.height-3;
-    const fixed=[...$('staticCircuit').querySelectorAll('.symbol,.source-halo,.source-plate,.component-value,.resistor-name,.txt,.txtsm,.nod'),...svg.querySelectorAll('#loopArrows .mesh-label,#loopArrows [data-mesh-turn],#sixLoops .mesh-label,#sixLoops [data-mesh-turn],.mesh-complete')].filter(visible).map(box);
+    const fixed=[...$('staticCircuit').querySelectorAll('.symbol,.source-halo,.source-plate:not(.source-lead),.component-value,.resistor-name,.txt,.txtsm,.nod'),...svg.querySelectorAll('#loopArrows .mesh-label,#loopArrows [data-mesh-turn],#sixLoops .mesh-label,#sixLoops [data-mesh-turn],.mesh-complete')].filter(visible).map(box);
     if(currentArrowDrag?.moved){
       const selected=groups.find(group=>Number(group.dataset.currentIndex)===currentArrowDrag.index&&(group.dataset.six==='true')===currentArrowDrag.six);
       if(selected){
@@ -2374,7 +2374,7 @@
       }
     }
     const wires=[];
-    for(const wire of $('staticCircuit').querySelectorAll('.wire')){
+    for(const wire of $('staticCircuit').querySelectorAll('.wire,.source-lead')){
       if(!visible(wire))continue;
       const length=wire.getTotalLength(),transform=inverse.multiply(wire.getScreenCTM());
       for(let at=0;at<length;at+=10){
