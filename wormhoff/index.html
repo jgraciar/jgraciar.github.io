@@ -3034,7 +3034,7 @@
     const {A,b}=six?sixSystem():system(),inputs=[...$(six?'advMatInputs':'matrixInputs').querySelectorAll('input')];
     return inputs.length===A.length*(A[0].length+1)&&inputs.every(input=>{
       const row=Number(six?input.dataset.ar:input.dataset.row),col=Number(six?input.dataset.ac:input.dataset.col),expected=col===A[0].length?b[row]:A[row][col],value=Number(input.value.replace(',','.'));
-      return input.value.trim()!==''&&Number.isFinite(value)&&Math.abs(value-expected)<1e-6;
+      return input.value.trim()!==''&&Number.isFinite(value)&&Math.abs(value-expected)<(six?1e-6:1e-7);
     });
   }
   function phaseComplete(index){

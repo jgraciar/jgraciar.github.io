@@ -275,7 +275,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   });
   assert(sizes.every(s=>s.matching&&Math.abs(s.shaft-24)<.01&&s.length>=23.9&&s.stroke>=2.5),JSON.stringify(sizes));
  };
- assert.equal(await page.locator('#stagebar .phase-reset svg').count(),4);
+ assert.equal(await page.locator('#stagebar .phase-reset svg').count(),0);assert.equal(await page.locator('#stagebar .phase-complete svg').count(),4);assert.equal(await page.locator('#activePhaseReset svg').count(),1);
  assert.equal(await page.locator('[data-phase="1"]').count(),0);assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);assert.match(await page.locator('[data-phase="0"]').textContent(),/Corrientes y nudos/);
  await page.evaluate(()=>{const spacer=document.createElement('div');spacer.id='scrollProbe';spacer.style.height='1500px';document.body.append(spacer);window.scrollTo(0,500);});
  assert(Math.abs((await page.locator('#stagebar').boundingBox()).y)<2,'Fases fijas al desplazarse');
