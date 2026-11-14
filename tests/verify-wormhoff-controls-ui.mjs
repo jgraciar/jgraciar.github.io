@@ -25,6 +25,96 @@ assert(isolationMarkup.includes('I₂ = 4 A'));assert(isolationMarkup.includes('
 const browser=await chromium.launch({headless:true});
 let animationReference=null,meshShadeReference=null;
 try{
+const context=await browser.newContext({viewport:{width:1440,height:1100}}),page=await context.newPage(),errors=[];
+page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR:',e.stack)});
+await page.addInitScript(()=>{
+ const now=performance.now.bind(performance),raf=window.requestAnimationFrame.bind(window);
+ performance.now=()=>now()*80;window.requestAnimationFrame=callback=>raf(time=>callback(time*80));
+});
+await page.goto('http://127.0.0.1:8767/wormhoff/');
+for(const [i,x] of [146,345,544].entries()){
+ await page.locator(`[data-current-branch="${i}"]`).dispatchEvent('click');
+ await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
+}
+await page.click('#confirmDirs');await page.click('#goLoops');await page.click('#confirmMeshDirections');
+for(let mesh=0;mesh<2;mesh++){
+ await page.locator(`#meshTargets [data-mesh="${mesh}"]`).dispatchEvent('click');
+ for(let turn=0;turn<250;turn++){
+  if(await page.locator('#advance').getAttribute('data-state')==='complete')break;
+  const state=await page.locator('#advance').getAttribute('data-state');
+  if(['ready','waiting'].includes(state))await page.click('#advance');
+  await page.waitForTimeout(35);
+ }
+ assert.equal(await page.locator('#advance').getAttribute('data-state'),'complete','Malla terminada');
+}
+assert(await page.locator('[data-mesh-summary]').evaluateAll(groups=>groups.every(group=>group.querySelector('[data-mesh-complete]').getBoundingClientRect().bottom<group.querySelector('.mesh-turn-hit').getBoundingClientRect().top)),'Check encima del símbolo de giro');
+await page.click('#goMatrix');await page.click('#fillMatrix');await page.click('#verifyMatrix');await page.click('#goSolve');
+await page.click('#nextStep');
+await page.locator('#currentArrow1').focus();await page.locator('#currentArrow1').press('F2');
+assert.equal(await page.locator('#currentNumber').inputValue(),'2');await page.locator('#currentNumber').fill('22');await page.click('#currentNameForm button[type="submit"]');
+assert.match(await page.locator('#matrixVariableOrder').textContent(),/I₂₂/);assert(!/I₂(?!₂)/.test(await page.locator('#solutionSteps').textContent()),'Resolución con la referencia nueva');
+await page.click('#nextStep');assert.match(await page.locator('#solutionSteps').textContent(),/I₂₂/,'Los siguientes pasos conservan el número nuevo');
+
+while(!await page.locator('#nextStep').isDisabled())await page.click('#nextStep');
+assert(await page.locator('#resultPanel').isVisible());
+const before={result:await page.locator('#results strong').allTextContents(),matrix:await page.locator('#matrixInputs input').evaluateAll(els=>els.map(el=>({col:Number(el.dataset.col),value:Number(el.value.replace('−','-').replace(',','.'))}))),working:await page.locator('#solutionSteps').textContent(),score:await page.locator('#score').textContent()};
+await page.locator('#currentArrow0').focus();await page.locator('#currentArrow0').press('Enter');
+const numeric=s=>Number(s.replace('−','-').replace(',','.').replace(' A',''));
+const after=await page.locator('#results strong').allTextContents();
+assert.deepEqual(after.map(numeric),before.result.map((v,i)=>i===0?-numeric(v):numeric(v)),'Solo cambia de signo la referencia invertida');
+assert.notEqual(await page.locator('#solutionSteps').textContent(),before.working,'Recalcula todos los pasos algebraicos');
+assert.deepEqual(await page.locator('#matrixInputs input').evaluateAll(els=>els.map(el=>Number(el.value.replace('−','-').replace(',','.')))),before.matrix.map(cell=>cell.col===0?(-cell.value||0):cell.value),'Invierte la columna correspondiente de la matriz');
+assert.equal(await page.locator('#resultPanel .message.good').count(),1,'El nuevo sistema sigue verificado');assert.equal(await page.locator('#score').textContent(),before.score,'No duplica puntos');
+await page.locator('#currentArrow0').press('Enter');assert.deepEqual(await page.locator('#results strong').allTextContents(),before.result,'Reversible');
+await page.click('[data-reset-phase="4"]');
+assert.equal(await page.locator('#resultPanel').isVisible(),false);
+await page.click('[data-phase="3"]');
+assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value!=='')),'Volver a matriz conserva sus valores');
+await page.click('[data-reset-phase="3"]');
+assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value==='')),'Reiniciar matriz vacía las casillas');
+assert.equal(await page.locator('#equationsCard [data-equation]:visible').count(),3,'Conserva las ecuaciones previas');
+await page.click('[data-phase="2"]');assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),2);
+await page.click('[data-reset-phase="2"]');assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),0);
+await page.click('#confirmMeshDirections');await page.click('#advance');await page.waitForFunction(()=>document.getElementById('advance').dataset.state==='running');
+await page.click('[data-phase="0"]');const position=await page.locator('#hero').getAttribute('transform');await page.waitForTimeout(100);
+assert.equal(await page.locator('#hero').getAttribute('transform'),position,'Retroceder cancela la animación');
+assert.equal(await page.locator('#dirGraphics .dirlabel').count(),3);
+await page.click('#confirmDirs');assert.equal(await page.locator('[data-phase="0"]').getAttribute('aria-current'),'step');
+assert(await page.locator('#phase0').isVisible()&&await page.locator('#phase1').isVisible(),'Corrientes y nudos comparten vista');
+await page.click('[data-reset-phase="0"]');assert.equal(await page.locator('#dirGraphics .dirlabel').count(),0);
+
+await page.route('**/wormhoff/',async route=>{
+ const response=await route.fetch(),html=await response.text();
+ await route.fulfill({response,body:html.replace('  newGame();syncBoardActions();','  globalThis.wormhoffTest={A6,S,sixStartSolve,sixRefArrow,sixRenderRows,sixKCLRows,NAMES6};\n  newGame();syncBoardActions();')});
+});
+await page.reload();await page.selectOption('#exerciseSelect','r76');
+await page.evaluate(()=>{
+ const {A6,S,sixStartSolve,sixRefArrow,sixRenderRows,sixKCLRows,NAMES6}=wormhoffTest;
+ A6.currentNumbers=[1,2,3,4,5,6];NAMES6.splice(0,6,'I₁','I₂','I₃','I₄','I₅','I₆');A6.signs=[1,1,1,1,1,1];
+ // Canonical CW rows from the original six branches, R=[4,3,2,2,5,3].
+ const rows=[[4,3,0,-2,0,0],[0,-3,2,0,-5,0],[0,0,0,2,5,-3]],b=[16,-16,8];
+ A6.done=rows.map((row,i)=>({row,b:b[i],cw:true}));A6.rowsR=rows.map(row=>row.flatMap((v,i)=>v?[{i,v}]:[]));A6.rowsU=b.map(v=>[{i:0,v}]);A6.nodeCount=3;
+ document.getElementById('advKCLtext').innerHTML=sixKCLRows();sixRenderRows();sixRefArrow();sixStartSolve();
+ A6.step=A6.steps.length;A6.finalVerified=true;A6.completedScore=true;
+});
+// Complete verification using the existing renderer without awarding more points.
+await page.evaluate(()=>{wormhoffTest.sixStartSolve(true);});
+assert(await page.locator('#advResultPanel').isVisible());
+const sixBefore=await page.locator('#advResults strong').allTextContents();
+for(let i=0;i<6;i++){
+ const working=await page.locator('#advSolveSteps').textContent();
+ await page.locator('#sixCurrentArrow'+i).focus();await page.locator('#sixCurrentArrow'+i).press('Enter');
+ const results=await page.locator('#advResults strong').allTextContents();
+ assert.deepEqual(results.map(numeric),sixBefore.map((v,j)=>i===j?-numeric(v):numeric(v)),'Referencia avanzada '+i);
+ assert.notEqual(await page.locator('#advSolveSteps').textContent(),working);
+ assert.equal(await page.locator('#advResultCheck').getAttribute('class'),'message good');
+ if(!await page.locator('#sixCurrentArrow'+i).isVisible())console.log('PLACEMENT DIAGNOSTIC',JSON.stringify(await page.locator('#circuit').evaluate(svg=>{
+  const inverse=svg.getScreenCTM().inverse(),box=el=>{const r=el.getBoundingClientRect(),a=new DOMPoint(r.left,r.top).matrixTransform(inverse),b=new DOMPoint(r.right,r.bottom).matrixTransform(inverse);return {x:a.x,y:a.y,w:b.x-a.x,h:b.y-a.y};};
+  return [...svg.querySelectorAll('#staticCircuit .symbol,#staticCircuit .source-halo,#staticCircuit .component-value,#staticCircuit .resistor-name,#staticCircuit .txt,#staticCircuit .txtsm,#staticCircuit .nod,#loopArrows .mesh-label,#loopArrows .mesh-complete,#sixRefArrows .dirlabel,#sixRefArrows .dir-result,#sixRefArrows .direction')].filter(el=>el.getClientRects().length).map(el=>({text:el.textContent,cls:el.getAttribute('class'),box:box(el)}));
+ })));
+ assert(await page.locator('#sixCurrentArrow'+i).isVisible(),'Referencia visible después de cambiar el signo: '+i);await page.locator('#sixCurrentArrow'+i).press('Enter');assert.deepEqual(await page.locator('#advResults strong').allTextContents(),sixBefore);
+}
+assert.deepEqual(errors,[]);await context.close();console.log('OK: retroceso y reinicio en las cuatro fases, matriz y cancelación del recorrido');
 for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preference'],[false,'reduce'],[true,'reduce']]){
  const context=await browser.newContext({viewport:mobile?{width:430,height:932}:{width:1440,height:1100},hasTouch:mobile,isMobile:mobile,reducedMotion});
  const page=await context.newPage(),errors=[];page.on('console',m=>{if(m.type()==='warning')console.log(m.text())});page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR:',e.stack)});
@@ -431,90 +521,4 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await selectSymbol('iec');await assertNoCurrentOverlap();
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
-const context=await browser.newContext({viewport:{width:1440,height:1100}}),page=await context.newPage(),errors=[];
-page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR:',e.stack)});
-await page.addInitScript(()=>{
- const now=performance.now.bind(performance),raf=window.requestAnimationFrame.bind(window);
- performance.now=()=>now()*80;window.requestAnimationFrame=callback=>raf(time=>callback(time*80));
-});
-await page.goto('http://127.0.0.1:8767/wormhoff/');
-for(const [i,x] of [146,345,544].entries()){
- await page.locator(`[data-current-branch="${i}"]`).dispatchEvent('click');
- await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
-}
-await page.click('#confirmDirs');await page.click('#goLoops');await page.click('#confirmMeshDirections');
-for(let mesh=0;mesh<2;mesh++){
- await page.locator(`#meshTargets [data-mesh="${mesh}"]`).dispatchEvent('click');
- for(let turn=0;turn<250;turn++){
-  if(await page.locator('#advance').getAttribute('data-state')==='complete')break;
-  const state=await page.locator('#advance').getAttribute('data-state');
-  if(['ready','waiting'].includes(state))await page.click('#advance');
-  await page.waitForTimeout(35);
- }
- assert.equal(await page.locator('#advance').getAttribute('data-state'),'complete','Malla terminada');
-}
-assert(await page.locator('[data-mesh-summary]').evaluateAll(groups=>groups.every(group=>group.querySelector('[data-mesh-complete]').getBoundingClientRect().bottom<group.querySelector('.mesh-turn-hit').getBoundingClientRect().top)),'Check encima del símbolo de giro');
-await page.click('#goMatrix');await page.click('#fillMatrix');await page.click('#verifyMatrix');await page.click('#goSolve');
-await page.click('#nextStep');
-await page.locator('#currentArrow1').focus();await page.locator('#currentArrow1').press('F2');
-assert.equal(await page.locator('#currentNumber').inputValue(),'2');await page.locator('#currentNumber').fill('22');await page.click('#currentNameForm button[type="submit"]');
-assert.match(await page.locator('#matrixVariableOrder').textContent(),/I₂₂/);assert(!/I₂(?!₂)/.test(await page.locator('#solutionSteps').textContent()),'Resolución con la referencia nueva');
-await page.click('#nextStep');assert.match(await page.locator('#solutionSteps').textContent(),/I₂₂/,'Los siguientes pasos conservan el número nuevo');
-
-while(!await page.locator('#nextStep').isDisabled())await page.click('#nextStep');
-assert(await page.locator('#resultPanel').isVisible());
-const before={result:await page.locator('#results strong').allTextContents(),matrix:await page.locator('#matrixInputs input').evaluateAll(els=>els.map(el=>({col:Number(el.dataset.col),value:Number(el.value.replace('−','-').replace(',','.'))}))),working:await page.locator('#solutionSteps').textContent(),score:await page.locator('#score').textContent()};
-await page.locator('#currentArrow0').focus();await page.locator('#currentArrow0').press('Enter');
-const numeric=s=>Number(s.replace('−','-').replace(',','.').replace(' A',''));
-const after=await page.locator('#results strong').allTextContents();
-assert.deepEqual(after.map(numeric),before.result.map((v,i)=>i===0?-numeric(v):numeric(v)),'Solo cambia de signo la referencia invertida');
-assert.notEqual(await page.locator('#solutionSteps').textContent(),before.working,'Recalcula todos los pasos algebraicos');
-assert.deepEqual(await page.locator('#matrixInputs input').evaluateAll(els=>els.map(el=>Number(el.value.replace('−','-').replace(',','.')))),before.matrix.map(cell=>cell.col===0?(-cell.value||0):cell.value),'Invierte la columna correspondiente de la matriz');
-assert.equal(await page.locator('#resultPanel .message.good').count(),1,'El nuevo sistema sigue verificado');assert.equal(await page.locator('#score').textContent(),before.score,'No duplica puntos');
-await page.locator('#currentArrow0').press('Enter');assert.deepEqual(await page.locator('#results strong').allTextContents(),before.result,'Reversible');
-await page.click('[data-reset-phase="4"]');
-assert.equal(await page.locator('#resultPanel').isVisible(),false);
-await page.click('[data-phase="3"]');
-assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value!=='')),'Volver a matriz conserva sus valores');
-await page.click('[data-reset-phase="3"]');
-assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value==='')),'Reiniciar matriz vacía las casillas');
-assert.equal(await page.locator('#equationsCard [data-equation]:visible').count(),3,'Conserva las ecuaciones previas');
-await page.click('[data-phase="2"]');assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),2);
-await page.click('[data-reset-phase="2"]');assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),0);
-await page.click('#confirmMeshDirections');await page.click('#advance');await page.waitForFunction(()=>document.getElementById('advance').dataset.state==='running');
-await page.click('[data-phase="0"]');const position=await page.locator('#hero').getAttribute('transform');await page.waitForTimeout(100);
-assert.equal(await page.locator('#hero').getAttribute('transform'),position,'Retroceder cancela la animación');
-assert.equal(await page.locator('#dirGraphics .dirlabel').count(),3);
-await page.click('#confirmDirs');assert.equal(await page.locator('[data-phase="0"]').getAttribute('aria-current'),'step');
-assert(await page.locator('#phase0').isVisible()&&await page.locator('#phase1').isVisible(),'Corrientes y nudos comparten vista');
-await page.click('[data-reset-phase="0"]');assert.equal(await page.locator('#dirGraphics .dirlabel').count(),0);
-
-await page.route('**/wormhoff/',async route=>{
- const response=await route.fetch(),html=await response.text();
- await route.fulfill({response,body:html.replace('  newGame();syncBoardActions();','  globalThis.wormhoffTest={A6,S,sixStartSolve,sixRefArrow,sixRenderRows,sixKCLRows,NAMES6};\n  newGame();syncBoardActions();')});
-});
-await page.reload();await page.selectOption('#exerciseSelect','r76');
-await page.evaluate(()=>{
- const {A6,S,sixStartSolve,sixRefArrow,sixRenderRows,sixKCLRows,NAMES6}=wormhoffTest;
- A6.currentNumbers=[1,2,3,4,5,6];NAMES6.splice(0,6,'I₁','I₂','I₃','I₄','I₅','I₆');A6.signs=[1,1,1,1,1,1];
- // Canonical CW rows from the original six branches, R=[4,3,2,2,5,3].
- const rows=[[4,3,0,-2,0,0],[0,-3,2,0,-5,0],[0,0,0,2,5,-3]],b=[16,-16,8];
- A6.done=rows.map((row,i)=>({row,b:b[i],cw:true}));A6.rowsR=rows.map(row=>row.flatMap((v,i)=>v?[{i,v}]:[]));A6.rowsU=b.map(v=>[{i:0,v}]);A6.nodeCount=3;
- document.getElementById('advKCLtext').innerHTML=sixKCLRows();sixRenderRows();sixRefArrow();sixStartSolve();
- A6.step=A6.steps.length;A6.finalVerified=true;A6.completedScore=true;
-});
-// Complete verification using the existing renderer without awarding more points.
-await page.evaluate(()=>{wormhoffTest.sixStartSolve(true);});
-assert(await page.locator('#advResultPanel').isVisible());
-const sixBefore=await page.locator('#advResults strong').allTextContents();
-for(let i=0;i<6;i++){
- const working=await page.locator('#advSolveSteps').textContent();
- await page.locator('#sixCurrentArrow'+i).focus();await page.locator('#sixCurrentArrow'+i).press('Enter');
- const results=await page.locator('#advResults strong').allTextContents();
- assert.deepEqual(results.map(numeric),sixBefore.map((v,j)=>i===j?-numeric(v):numeric(v)),'Referencia avanzada '+i);
- assert.notEqual(await page.locator('#advSolveSteps').textContent(),working);
- assert.equal(await page.locator('#advResultCheck').getAttribute('class'),'message good');
- assert(await page.locator('#sixCurrentArrow'+i).isVisible(),'Referencia visible después de cambiar el signo: '+i);await page.locator('#sixCurrentArrow'+i).press('Enter');assert.deepEqual(await page.locator('#advResults strong').allTextContents(),sixBefore);
-}
-assert.deepEqual(errors,[]);await context.close();console.log('OK: retroceso y reinicio en las cuatro fases, matriz y cancelación del recorrido');
 }finally{await browser.close()}
