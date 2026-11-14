@@ -113,7 +113,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
     return {matching:[...group.querySelectorAll('.dirlabel,.dir-result')].every(text=>Math.abs(parseFloat(getComputedStyle(text).fontSize)-base)<.05&&!text.hasAttribute('textLength')),length:Math.max(box.width,box.height),stroke:parseFloat(getComputedStyle(path).strokeWidth)};
    });
   });
-  assert(sizes.every(s=>s.matching&&s.length>=23.9&&s.stroke>=3),JSON.stringify(sizes));
+  assert(sizes.every(s=>s.matching&&s.length>=13.9&&s.stroke>=2.5),JSON.stringify(sizes));
  };
  assert.equal(await page.locator('#stagebar .phase-reset svg').count(),4);
  assert.equal(await page.locator('[data-phase="1"]').count(),0);assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);assert.match(await page.locator('[data-phase="0"]').textContent(),/Corrientes y nudos/);

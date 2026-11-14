@@ -91,7 +91,7 @@
   #equationsCard .board-eq-equal{font-size:26px}
   .resistor-name{fill:#fff;font:700 12px ui-monospace,Consolas,monospace;text-anchor:middle;pointer-events:none}
   .direction-outline{fill:none;stroke:#13283d;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
-  .direction{stroke:var(--amber);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .direction{stroke:var(--amber);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
   .dirlabel{fill:var(--amber);font:750 16px ui-monospace,Consolas,monospace;pointer-events:none}
   .dir-result{fill:var(--amber);stroke:#0b1c2c;stroke-width:3;paint-order:stroke;stroke-linejoin:round;font:650 16px ui-monospace,Consolas,monospace;pointer-events:none}
   .dir-result.six-current-value{font-size:16px}
@@ -2390,10 +2390,10 @@
       group.querySelectorAll('.current-label-hit').forEach(el=>el.remove());
       const candidates=[];
       for(let i=1;i<points.length;i++){
-        const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(length<30)continue;
+        const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(length<18)continue;
         const dx=(b.x-a.x)/length,dy=(b.y-a.y)/length;
-        const projected=Math.max(15,Math.min(length-15,(wanted.x-a.x)*dx+(wanted.y-a.y)*dy));
-        const distances=[projected];for(let t=15;t<=length-15;t+=3)distances.push(t);
+        const projected=Math.max(9,Math.min(length-9,(wanted.x-a.x)*dx+(wanted.y-a.y)*dy));
+        const distances=[projected];for(let t=9;t<=length-9;t+=3)distances.push(t);
         for(const t of distances){const x=a.x+dx*t,y=a.y+dy*t;candidates.push({x,y,dx,dy,distance:(x-wanted.x)**2+(y-wanted.y)**2});}
       }
       candidates.sort((a,b)=>a.distance-b.distance);
@@ -2404,7 +2404,7 @@
         label.removeAttribute('textLength');label.removeAttribute('lengthAdjust');
         const l=metric(label),v=value?metric(value):null;
         for(const c of candidates){
-          const half=12,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
+          const half=6,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
           const arrow={x:c.x-Math.abs(vx)*half-Math.abs(vy)*7-3,y:c.y-Math.abs(vy)*half-Math.abs(vx)*7-3,w:Math.abs(vx)*2*half+Math.abs(vy)*14+6,h:Math.abs(vy)*2*half+Math.abs(vx)*14+6};
           if(!inside(arrow)||[...fixed,...occupied].some(b=>overlap(arrow,b)))continue;
           const horizontal=Math.abs(c.dx)>.5;
@@ -2417,7 +2417,7 @@
         }
         if(chosen)break;
       }
-      if(!chosen){console.warn('No placement',JSON.stringify({index,six,wanted,occupied,fixed,candidates:candidates.slice(0,2)}));group.dataset.placementUnavailable='true';group.style.display='none';continue;}
+      if(!chosen){group.dataset.placementUnavailable='true';group.style.display='none';continue;}
       const c=chosen;
       const stem=`M${c.x-c.vx*c.half} ${c.y-c.vy*c.half} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half}`;
       const tip=`M${c.x+c.vx*(c.half-9)-c.vy*7} ${c.y+c.vy*(c.half-9)+c.vx*7} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half} L${c.x+c.vx*(c.half-9)+c.vy*7} ${c.y+c.vy*(c.half-9)-c.vx*7}`;
