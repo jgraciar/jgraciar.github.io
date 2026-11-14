@@ -26,6 +26,7 @@ assert(isolationMarkup.includes('I₂ = 4 A'));assert(isolationMarkup.includes('
 const enterNodeEquation=async(page,id,equation)=>{
  assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);
  await page.locator('#nodeTargets [data-node="'+id+'"]').click();
+ if(!await page.locator('#nodeEquationDialog').isVisible()){assert.match(await page.locator('[data-node-selection-progress]:visible').textContent(),/1 de 1/);await page.locator('#startNodeEquations:visible,#advStartNodeEquations:visible').click();}
  assert(await page.locator('#nodeEquationDialog').isVisible(),'Ventana del nudo '+id);
  assert.match(await page.locator('#nodeEquationTitle').textContent(),new RegExp('Nudo '+id));
  await page.locator('#nodeEquationChallenge .kcl-answer').fill(equation);
@@ -425,7 +426,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const arrow=async s=>page.locator(s+' .direction').getAttribute('d');
  await page.selectOption('#exerciseSelect','c71');await assignNumbers([1,2,3]);
  await page.locator('[data-reduce="2"]').fill('12');await page.click('#checkReductions');await page.click('#confirmDirs');
- assert.equal(await page.locator('#hero').isVisible(),false);await page.locator('#nodeTargets [data-node="A"]').click();await page.locator('#nodeEquationChallenge .kcl-answer').fill('I1');
+ assert.equal(await page.locator('#hero').isVisible(),false);await page.locator('#nodeTargets [data-node="A"]').click();assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);await page.click('#startNodeEquations');await page.locator('#nodeEquationChallenge .kcl-answer').fill('I1');
  const term=page.locator('#nodeEquationChallenge .kcl-live-term').first();
  const blink=await term.evaluate(el=>{const s=getComputedStyle(el);return {name:s.animationName,duration:s.animationDuration,count:s.animationIterationCount}});
  assert.equal(blink.name,'kclTermBlink');assert.equal(blink.count,'3');
@@ -460,7 +461,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const sel='#currentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
  await checkAction('confirmDirs');await page.click('#confirmDirs');
- assert.equal(await page.locator('#hero').isVisible(),false);assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);await page.locator('#nodeTargets [data-node="A"]').click();await page.locator('#nodeEquationChallenge .kcl-answer').fill('I1=I2');await page.click('#nodeEquationChallenge .kcl-check');assert(await page.locator('#nodeEquationDialog').isVisible(),'Rechaza una ecuación incorrecta');await page.click('#closeNodeEquation');assert.equal(await page.locator('#goLoops').isVisible(),false,'Cancelar no completa el nudo');await enterNodeEquation(page,'A','I1=I2+I3');
+ assert.equal(await page.locator('#hero').isVisible(),false);assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);await page.locator('#nodeTargets [data-node="A"]').click();assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);await page.click('#startNodeEquations');await page.locator('#nodeEquationChallenge .kcl-answer').fill('I1=I2');await page.click('#nodeEquationChallenge .kcl-check');assert(await page.locator('#nodeEquationDialog').isVisible(),'Rechaza una ecuación incorrecta');await page.click('#closeNodeEquation');assert.equal(await page.locator('#goLoops').isVisible(),false,'Cancelar no completa el nudo');await enterNodeEquation(page,'A','I1=I2+I3');
  await page.locator('#nodeTargets [data-node="B"]').click();assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'No duplica una ecuación dependiente');
  const fixedEquation=await page.locator('#nodeEq').textContent();
  await dragCurrent('#currentArrow0',146,300,true);assert.equal(await page.locator('#nodeEq').textContent(),fixedEquation,'Mover la flecha conserva las ecuaciones');
@@ -502,10 +503,20 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await selectSymbol('iec');
  await checkAction('advStart');await page.click('#advStart');
  assert.equal(await page.locator('#hero').isVisible(),false);assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);assert.match(await page.locator('#advNodeEquationCount').textContent(),/4 − 1 = 3/);
+ await page.locator('#nodeTargets [data-node="D"]').click();assert.match(await page.locator('#advNodeEquationCount [data-node-selection-progress]').textContent(),/1 de 3/);assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);
+ await page.locator('#nodeTargets [data-node="D"]').click();assert.match(await page.locator('#advNodeEquationCount [data-node-selection-progress]').textContent(),/0 de 3/,'Permite corregir la selección');
+ for(const [index,node] of ['D','A','C'].entries()){
+  await page.locator('#nodeTargets [data-node="'+node+'"]').click();assert.match(await page.locator('#advNodeEquationCount [data-node-selection-progress]').textContent(),new RegExp((index+1)+' de 3'));assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'Selecciona todos los nudos antes de pedir ecuaciones');
+  assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0,'No crea ecuaciones al seleccionar');
+ }
+ await page.locator('#nodeTargets [data-node="B"]').click();assert.match(await page.locator('#advNodeEquationCount [data-node-selection-progress]').textContent(),/3 de 3/);assert.equal(await page.locator('#nodeTargets [data-node="B"]').getAttribute('aria-pressed'),'false','Deja un nudo sin considerar');
+ await checkAction('advStartNodeEquations');await page.click('#advStartNodeEquations');
  let verifiedNodes=0;
  for(const [node,eq] of [['D','I3+I5+I6=0'],['A','I1=I2+I3'],['C','I2+I4=I5']]){
-  await enterNodeEquation(page,node,eq);verifiedNodes++;assert.equal(await page.locator('#equationsCard #advKCL [data-equation]').count(),verifiedNodes);
+  await page.locator('#nodeEquationDialog').waitFor({state:'visible'});assert.match(await page.locator('#nodeEquationTitle').textContent(),new RegExp('Nudo '+node),'Pregunta las ecuaciones en el orden de selección');
+  await page.locator('#nodeEquationChallenge .kcl-answer').fill(eq);await page.click('#nodeEquationChallenge .kcl-check');verifiedNodes++;assert.equal(await page.locator('#equationsCard #advKCL [data-equation]').count(),verifiedNodes);
  }
+ assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);
  assert.deepEqual(await page.locator('#advKCLtext small').allTextContents(),['Nudo D','Nudo A','Nudo C'],'Conserva el orden de los nudos elegidos');
  await page.locator('#nodeTargets [data-node="B"]').click();assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'El cuarto nudo aporta una ecuación dependiente');
  await checkAction('advGoLoops');await page.click('#advGoLoops');assert(await page.locator('#hero').isVisible());
@@ -531,7 +542,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert(await page.locator('#advStart').isVisible(),'Volver a corrientes y nudos');
  assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),6,'Volver conserva la numeración');
- await page.click('#advStart');assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);await page.locator('#nodeTargets [data-node="D"]').click();assert(await page.locator('#nodeEquationChallenge .kcl-answer').isVisible());await page.click('#closeNodeEquation');
+ await page.click('#advStart');assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);await page.locator('#nodeTargets [data-node="D"]').click();assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);assert.match(await page.locator('#advNodeEquationCount [data-node-selection-progress]').textContent(),/1 de 3/);
  assert.equal(await page.locator('[data-phase="0"]').getAttribute('aria-current'),'step','Nudos en la misma fase que corrientes');
  await page.click('#advEditCurrentReferences');assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0);
  await page.click('[data-reset-phase="0"]');
