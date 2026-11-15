@@ -2413,9 +2413,9 @@
       const i2=(u-q*i3)/p;
       steps.push({title:'Sustitución regresiva: sustituir el valor conocido',detail:'Sustituimos '+names[2]+' = '+fmt(i3)+' A en la primera ecuación.',rows:[{label:'Malla 1',row:first,b:u}]});
       steps.push({title:'Sustitución regresiva: operar y transponer',detail:'Calculamos '+fmt(q)+' · ('+fmt(i3)+') = '+fmt(q*i3)+' y lo pasamos al segundo miembro: '+fmt(u)+' − ('+fmt(q*i3)+') = '+fmt(u-q*i3)+'.',rows:[{label:'Malla 1',row:[0,p,0],b:u-q*i3}]});
-      steps.push({title:'Sustitución regresiva',
-        detail:'De la ecuación reducida obtenemos '+names[2]+' = '+fmt(i3)+' A. Sustituimos ese valor en la primera malla para hallar '+names[1]+' = '+fmt(i2)+' A.',
-        rows:[{label:'Malla 1',row:[0,p,0],b:u-q*i3}]});
+      steps.push({title:'Despejar '+names[1],
+        detail:'Dividimos ambos miembros por '+fmt(p)+' y obtenemos '+names[1]+' = '+fmt(i2)+' A.',
+        rows:[{label:'Malla 1 · despeje',row:[0,1,0],b:i2,total:true}]});
     }else{
       // Una ecuación tiene ya coeficiente cero en I₂.
       const useFirst=Math.abs(p)<=eps;
@@ -2433,7 +2433,7 @@
         detail:'Sustituimos '+names[2]+' en la otra malla y hallamos '+names[1]+' = '+fmt(i2)+' A.',
         rows:[{label:useFirst?'Malla 2':'Malla 1',row:[0,other[1],0],b:otherB-other[2]*i3}]});
     }
-    steps.push({title:'Intensidad restante: sustituir',detail:'Partimos de la ecuación del nudo y sustituimos '+names[1]+' = '+fmt(last[1])+' A y '+names[2]+' = '+fmt(last[2])+' A.',rows:[{label:'Nudo '+(S.nodeSelected||'A'),row:A[0],b:b[0]}]});
+    steps.push({title:'Intensidad restante: ecuación del nudo',detail:'Operamos directamente sobre '+node+'. Sustituimos '+names[1]+' = '+fmt(last[1])+' A y '+names[2]+' = '+fmt(last[2])+' A.',rows:[{label:'Nudo '+(S.nodeSelected||'A')+' · '+node,row:[1,0,0],b:last[0],total:true}]});
     steps.push({title:'Intensidad restante: agrupar términos',detail:'Los términos conocidos son '+fmt(A[0][1]*last[1])+' y '+fmt(A[0][2]*last[2])+'. Su suma pasa al segundo miembro con signo contrario.',rows:[{label:'Nudo '+(S.nodeSelected||'A'),row:[A[0][0],0,0],b:-A[0][1]*last[1]-A[0][2]*last[2]}]});
     steps.push({title:'Cálculo de la intensidad restante',
       detail:'Volvemos a '+nodeSides()+' y calculamos '+names[0]+' mediante la ecuación del nudo.',
