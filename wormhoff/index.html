@@ -766,7 +766,7 @@
   .hero-moving .hero-face{animation:heroTravelFace .9s ease-in-out infinite}
   @keyframes heroTravelFace{0%,100%{transform:translateY(0)}50%{transform:translateY(-.4px)}}
   .hero-victory-pose{display:none;pointer-events:none}
-  #hero.hero-victory #heroShape{transform:scale(1.8)}
+  #hero.hero-victory #heroShape{transform:none}
   .hero-victory .hero-victory-pose{display:block}
   .hero-victory .hero-eyes,.hero-victory .hero-hand,.hero-victory .hero-open-smile,.hero-victory .hero-pain,.hero-victory .hero-eyebrow{opacity:0}
   .hero-victory #heroMouth{opacity:1}
@@ -3648,7 +3648,8 @@
     if(!done){hero.classList.remove('hero-victory');hero.removeAttribute('aria-label');return;}
     if(hero.classList.contains('hero-victory'))return;
     stopHeroGreeting();cancelHeroRest();clearHeroReaction();setHeroMood(false);
-    positionHero(active.kind==='multi'?350:455,active.kind==='multi'?290:250,0,true);setHeroGait(false);
+    // Mantener el personaje en el nudo donde termina, sin teletransportarlo ni agrandarlo.
+    setHeroGait(false);
     hero.classList.remove('hero-moving');hero.classList.add('hero-victory');hero.setAttribute('aria-label','Wormhoff ha completado el ejercicio: gafas de sol y brazos cruzados');
   }
   function simplificationData(six){
@@ -3745,9 +3746,15 @@
     #gameLayout{align-items:start}
     #circuitCard,#equationsCard{min-height:0;max-height:calc(100dvh - var(--stagebar-height,90px) - 28px);overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-gutter:stable}
     #stagebar:not(.single-stage){grid-template-columns:repeat(3,minmax(0,1fr))}
+    #stagebar .stage{min-width:0;width:100%;box-sizing:border-box}
+    #stagebar .phase-link{flex:1;min-width:0;white-space:nowrap}
+    #stagebar .phase-link>span{white-space:nowrap;overflow-wrap:normal}
+    #stagebar .phase-complete,#stagebar .phase-reset{flex-shrink:0}
    }
    @media(min-width:801px) and (max-width:1040px){
     #stagebar:not(.single-stage){grid-template-columns:repeat(2,minmax(0,1fr))}
+    #stagebar .phase-link{white-space:normal}
+    #stagebar .phase-link>span{white-space:normal}
    }
    #circuitCard,#equationsCard{scrollbar-width:thin}
    #solutionSteps .step:last-child{scroll-margin-block:35vh}
