@@ -426,7 +426,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   assert(await page.locator('#hero .hero-segment').evaluateAll(nodes=>nodes.every(el=>getComputedStyle(el).visibility==='hidden')));
   await page.locator('body').dispatchEvent('pointerup',{pointerId:71,isPrimary:true,pointerType:'touch',button:0});
   assert.equal(await page.locator('#heroBody').evaluate(el=>getComputedStyle(el).visibility),'visible');
-  assert.equal(await page.locator('#heroTail').evaluate(el=>getComputedStyle(el).visibility),'visible');assert(await page.locator('#heroFaceOrientation').getAttribute('transform'));
+  assert.equal(await page.locator('#heroTail').evaluate(el=>getComputedStyle(el).visibility),'visible');assert.match(await page.locator('#heroShape').getAttribute('transform'),/^rotate\(/,'La cabeza gira con el recorrido');assert.equal(await page.locator('#heroFaceOrientation').getAttribute('transform'),null,'La cara no contragira respecto a la cabeza');
   const dots=await page.locator('.fx-current-dot').evaluateAll(nodes=>nodes.map(n=>[n.getAttribute('cx'),n.getAttribute('cy')]));
   await page.waitForTimeout(220);
   assert.equal(await page.locator('#hero').getAttribute('transform'),position,'El gusano se detiene');
