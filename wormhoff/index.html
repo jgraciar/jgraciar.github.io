@@ -684,6 +684,7 @@
   #nodeEquationDialog .challenge{margin:0}
   #nodeEquationDialog .kcl-answer{width:100%;font-size:18px}
 
+  .node-selection-prompt{position:relative;display:block;clear:both;margin:12px 16px;padding:10px 14px;border:1px solid var(--amber);border-radius:9px;text-align:center;font-weight:750;font-size:18px;color:var(--txt);background:var(--card)}
   .node-equation-target[data-node-selected="true"] circle{stroke:var(--amber);stroke-dasharray:none;stroke-width:2.5}
   .node-equation-target[data-node-complete="true"] circle{stroke:var(--lime)}
   .node-equation-target[data-node-blinking="true"] circle{animation:nodeRingBlink .9s step-end infinite}
@@ -873,6 +874,7 @@
           <div class="control-actions"><button class="primary" id="advNext">Iniciar recorrido desde C →</button><button class="success hide" id="advToMatrix">Simplificar ecuaciones →</button></div>
         </div>
       </div>
+      <div id="nodeSelectionPrompt" class="node-selection-prompt hide" role="status" aria-live="polite">Seleccione nudos</div>
       <div id="boardActions" class="board-actions hide" aria-label="Acciones del circuito"></div>
       <div class="boardfoot"><span id="boardState">Selecciona las flechas: cualquier referencia es válida.</span><span id="boardSummary">Fuentes: 18 V, 6 V · R: 2 Ω</span></div>
     </section>
@@ -3373,13 +3375,14 @@
     $('circuit').dataset.nodePhase=String(early);show('hero',!early&&active.kind!=='network');if(early)stopHeroGreeting();
     const layer=$('nodeTargets');layer.replaceChildren();
     const required=requiredNodeEquations(six),choices=model.nodeChoices||[],verified=model.nodeIds||[],ready=choices.length===required,done=verified.length===required;
+    show('nodeSelectionPrompt',choosing&&!model.nodeSelectionConfirmed&&active.kind!=='network');
     show('boardNodeSelectionCounter',choosing&&active.kind!=='network');$('boardNodeSelectionCounter').textContent=choices.length+' de '+required;
     show('advGoLoops',six&&choosing&&done);show('startNodeEquations',!six&&choosing&&ready&&!done);show('advStartNodeEquations',six&&choosing&&ready&&!done);
     show('advNodeEquationCount',six&&choosing);if(!choosing||active.kind==='network')return;
     const definitions=nodeDefinitions(six);
     $(six?'advNodeEquationCount':'nodeEquationCount').innerHTML='<strong>N.º de ecuaciones independientes = n − 1 = '+definitions.length+' − 1 = '+required+'</strong><span data-node-selection-progress>'+choices.length+' de '+required+' nudos seleccionados</span>'+(model.nodeSelectionConfirmed?'<span>'+verified.length+' de '+required+' ecuaciones verificadas</span>':'');
     $(six?'advStartNodeEquations':'startNodeEquations').textContent=model.nodeSelectionConfirmed?'Continuar ecuaciones de los nudos':'Introducir ecuaciones de los nudos';
-    layer.innerHTML=(choosing&&!model.nodeSelectionConfirmed?'<g class="node-selection-instruction" pointer-events="none"><rect x="255" y="27" width="190" height="35" rx="9" fill="#142b42" stroke="#f5c542" stroke-width="1.5"/><text x="350" y="50" text-anchor="middle" fill="#fff" font-size="19" font-weight="750">Seleccione nudos</text></g>':'')+definitions.map(node=>'<g class="node-equation-target" data-node="'+node.id+'" data-node-selected="'+choices.includes(node.id)+'" data-node-complete="'+verified.includes(node.id)+'" data-node-excluded="'+(ready&&!choices.includes(node.id))+'" data-node-blinking="'+(choices.includes(node.id)&&(!model.nodeSelectionConfirmed||$('nodeEquationDialog').open&&$('nodeEquationDialog').dataset.node===node.id))+'" role="button" tabindex="0" aria-pressed="'+choices.includes(node.id)+'" aria-label="Seleccionar nudo '+node.id+'"><circle cx="'+node.x+'" cy="'+node.y+'" r="21"/></g>').join('');
+    layer.innerHTML=definitions.map(node=>'<g class="node-equation-target" data-node="'+node.id+'" data-node-selected="'+choices.includes(node.id)+'" data-node-complete="'+verified.includes(node.id)+'" data-node-excluded="'+(ready&&!choices.includes(node.id))+'" data-node-blinking="'+(choices.includes(node.id)&&(!model.nodeSelectionConfirmed||$('nodeEquationDialog').open&&$('nodeEquationDialog').dataset.node===node.id))+'" role="button" tabindex="0" aria-pressed="'+choices.includes(node.id)+'" aria-label="Seleccionar nudo '+node.id+'"><circle cx="'+node.x+'" cy="'+node.y+'" r="21"/></g>').join('');
     layer.querySelectorAll('[data-node]').forEach(el=>bindClickable(el,()=>selectEquationNode(el.dataset.node,six)));
   }
   function selectEquationNode(id,six){
