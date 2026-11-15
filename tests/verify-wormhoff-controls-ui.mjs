@@ -447,7 +447,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(await page.locator('meta[name=viewport]').getAttribute('content'),originalViewport,'Al cerrar se restaura el zoom habitual de la página');
  await tap(345,310);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
  assert.equal(await page.locator('#currentNumber').getAttribute('aria-invalid'),'true');assert(await page.locator('#currentNameDialog').isVisible());
- await page.locator('#currentNumber').fill('12');await page.locator('#currentNumber').dispatchEvent('beforeinput',{inputType:'insertLineBreak',bubbles:true,cancelable:true});assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
+ await page.locator('#currentNumber').fill('12');await page.locator('#currentNumber').evaluate(el=>el.dispatchEvent(new InputEvent('beforeinput',{inputType:'insertLineBreak',bubbles:true,cancelable:true})));assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
  await tap(544,310);await page.locator('#currentNumber').fill('3');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
  let editPose=await openNumberEditor('#currentArrow0');
  assert.equal(await page.locator('#currentNumber').inputValue(),'7');
