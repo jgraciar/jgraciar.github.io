@@ -86,8 +86,8 @@ await assertStageChecks(page,[0]);
 assert(await page.locator('[data-mesh-summary]').evaluateAll(groups=>groups.every(group=>group.querySelector('[data-mesh-complete]').getBoundingClientRect().bottom<group.querySelector('.mesh-turn-hit').getBoundingClientRect().top)),'Check encima del símbolo de giro');
 await page.click('#goMatrix');await completeSimplification(page);
 assert.equal(await page.locator('#phase3>.desc').count(),0);await page.click('#phaseSectionHelp');assert(await page.locator('#phaseHelpDialog').isVisible());assert.equal(await page.locator('#phaseHelpBody li').count(),5);assert.match(await page.locator('#phaseHelpBody').textContent(),/coeficientes|coeficiente/);await page.click('#closePhaseHelp');
-await page.click('#fillMatrix');await assertStageChecks(page,[0,2]);await page.click('#verifyMatrix');await assertStageChecks(page,[0,2,3]);
-const testedCoefficient=page.locator('#matrixInputs input').first(),correctCoefficient=await testedCoefficient.inputValue();await testedCoefficient.fill('999');await assertStageChecks(page,[0,2]);assert.equal(await page.locator('#goSolve').isVisible(),false,'No permite continuar con la matriz modificada');await testedCoefficient.fill(correctCoefficient);await page.click('#verifyMatrix');await assertStageChecks(page,[0,2,3]);await page.click('#goSolve');
+await page.click('#fillMatrix');await assertStageChecks(page,[0,2]);await page.click('#verifyMatrix');await assertStageChecks(page,[0,2]);
+const testedCoefficient=page.locator('#matrixInputs input').first(),correctCoefficient=await testedCoefficient.inputValue();await testedCoefficient.fill('999');await assertStageChecks(page,[0,2]);assert.equal(await page.locator('#goSolve').isVisible(),true,'La matriz es opcional y no bloquea la resolución');await testedCoefficient.fill(correctCoefficient);await page.click('#verifyMatrix');await assertStageChecks(page,[0,2,3]);await page.click('#goSolve');
 await page.click('#nextStep');
 assert.equal(await page.locator('#phase4>.desc,#solutionSteps .step-description').count(),0);await page.click('#phaseSectionHelp');assert.equal(await page.locator('#phaseHelpBody li').count(),5);await page.click('#closePhaseHelp');
 await page.locator('#solutionSteps [data-step-help]').first().click();assert.match(await page.locator('#phaseHelpBody').textContent(),/Partimos de/);await page.click('#closePhaseHelp');
@@ -97,7 +97,7 @@ assert.match(await page.locator('#matrixVariableOrder').textContent(),/I₂₂/)
 await page.click('#nextStep');assert.match(await page.locator('#solutionSteps').textContent(),/I₂₂/,'Los siguientes pasos conservan el número nuevo');
 
 while(!await page.locator('#nextStep').isDisabled())await page.click('#nextStep');
-assert(await page.locator('#resultPanel').isVisible());assert(await page.locator('#hero').evaluate(el=>el.classList.contains('hero-victory')),'Gafas y brazos cruzados al completar');assert.equal(await page.locator('#hero .hero-victory-pose').first().evaluate(el=>getComputedStyle(el).display),'block');await assertStageChecks(page,[0,2,3,4]);
+assert(await page.locator('#resultPanel').isVisible());assert(await page.locator('#hero').evaluate(el=>el.classList.contains('hero-victory')),'Gafas y brazos cruzados al completar');assert.equal(await page.locator('#hero .hero-victory-pose').first().evaluate(el=>getComputedStyle(el).display),'block');await assertStageChecks(page,[0,2,4]);
 const before={result:await page.locator('#results strong').allTextContents(),matrix:await page.locator('#matrixInputs input').evaluateAll(els=>els.map(el=>({col:Number(el.dataset.col),value:Number(el.value.replace('−','-').replace(',','.'))}))),working:await page.locator('#solutionSteps').textContent(),score:await page.locator('#score').textContent()};
 await page.locator('#currentArrow0').focus();await page.locator('#currentArrow0').press('Enter');
 const numeric=s=>Number(s.replace('−','-').replace(',','.').replace(' A',''));
@@ -107,12 +107,10 @@ assert.notEqual(await page.locator('#solutionSteps').textContent(),before.workin
 assert.deepEqual(await page.locator('#matrixInputs input').evaluateAll(els=>els.map(el=>Number(el.value.replace('−','-').replace(',','.')))),before.matrix.map(cell=>cell.col===0?(-cell.value||0):cell.value),'Invierte la columna correspondiente de la matriz');
 assert.equal(await page.locator('#resultPanel .message.good').count(),1,'El nuevo sistema sigue verificado');assert.equal(await page.locator('#score').textContent(),before.score,'No duplica puntos');
 await page.locator('#currentArrow0').press('Enter');assert.deepEqual(await page.locator('#results strong').allTextContents(),before.result,'Reversible');
-await page.click('[data-reset-phase="4"]');await assertStageChecks(page,[0,2,3]);
+await page.click('[data-reset-phase="4"]');await assertStageChecks(page,[0,2]);
 assert.equal(await page.locator('#resultPanel').isVisible(),false);assert.equal(await page.locator('#hero').evaluate(el=>el.classList.contains('hero-victory')),false,'Reiniciar retira la pose final');
-await page.click('[data-phase="3"]');
+await page.click('[data-phase="2"]');
 assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value!=='')),'Volver a matriz conserva sus valores');
-await page.click('[data-reset-phase="3"]');await assertStageChecks(page,[0,2]);
-assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value==='')),'Reiniciar matriz vacía las casillas');
 assert.equal(await page.locator('#equationsCard [data-equation]:visible').count(),3,'Conserva las ecuaciones previas');
 await page.click('[data-phase="2"]');assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),2);
 await page.click('[data-reset-phase="2"]');await assertStageChecks(page,[0]);assert.equal(await page.locator('#loopArrows [data-mesh-complete]').count(),0);
