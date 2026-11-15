@@ -676,6 +676,8 @@
   .node-equation-count strong{color:var(--cyan)}
   #nodeEquationDialog{position:fixed;inset:auto;margin:0;transform:translateX(-50%);color:var(--txt);background:var(--card);border:1px solid var(--border);border-radius:17px;width:min(560px,calc(100% - 24px));max-height:calc(100dvh - 24px);overflow:auto;padding:18px;box-shadow:0 20px 70px #0008}
   #nodeEquationDialog::backdrop{background:#020b18b8}
+  #nodeEquationDialog.node-equation-inline{position:relative;inset:auto;left:auto!important;top:auto!important;transform:none;margin:12px 0;width:100%;max-width:100%!important;max-height:none!important;box-shadow:none;border-radius:10px;padding:14px;overflow:visible}
+  #nodeEquationDialog.node-equation-inline::backdrop{display:none}
   #nodeEquationDialog .settings-heading h2{font-size:20px}
   #nodeEquationSummary{font-size:14px;color:var(--muted)}
   #nodeEquationDialog .challenge{margin:0}
@@ -3374,7 +3376,7 @@
     const definitions=nodeDefinitions(six);
     $(six?'advNodeEquationCount':'nodeEquationCount').innerHTML='<strong>N.º de ecuaciones independientes = n − 1 = '+definitions.length+' − 1 = '+required+'</strong><span data-node-selection-progress>'+choices.length+' de '+required+' nudos seleccionados</span>'+(model.nodeSelectionConfirmed?'<span>'+verified.length+' de '+required+' ecuaciones verificadas</span>':'');
     $(six?'advStartNodeEquations':'startNodeEquations').textContent=model.nodeSelectionConfirmed?'Continuar ecuaciones de los nudos':'Introducir ecuaciones de los nudos';
-    layer.innerHTML=definitions.map(node=>'<g class="node-equation-target" data-node="'+node.id+'" data-node-selected="'+choices.includes(node.id)+'" data-node-complete="'+verified.includes(node.id)+'" data-node-excluded="'+(ready&&!choices.includes(node.id))+'" data-node-blinking="'+(choices.includes(node.id)&&(!model.nodeSelectionConfirmed||$('nodeEquationDialog').open&&$('nodeEquationDialog').dataset.node===node.id))+'" role="button" tabindex="0" aria-pressed="'+choices.includes(node.id)+'" aria-label="Seleccionar nudo '+node.id+'"><circle cx="'+node.x+'" cy="'+node.y+'" r="21"/></g>').join('');
+    layer.innerHTML=(choosing&&!model.nodeSelectionConfirmed?'<g class="node-selection-instruction" pointer-events="none"><rect x="255" y="27" width="190" height="35" rx="9" fill="#142b42" stroke="#f5c542" stroke-width="1.5"/><text x="350" y="50" text-anchor="middle" fill="#fff" font-size="19" font-weight="750">Seleccione nudos</text></g>':'')+definitions.map(node=>'<g class="node-equation-target" data-node="'+node.id+'" data-node-selected="'+choices.includes(node.id)+'" data-node-complete="'+verified.includes(node.id)+'" data-node-excluded="'+(ready&&!choices.includes(node.id))+'" data-node-blinking="'+(choices.includes(node.id)&&(!model.nodeSelectionConfirmed||$('nodeEquationDialog').open&&$('nodeEquationDialog').dataset.node===node.id))+'" role="button" tabindex="0" aria-pressed="'+choices.includes(node.id)+'" aria-label="Seleccionar nudo '+node.id+'"><circle cx="'+node.x+'" cy="'+node.y+'" r="21"/></g>').join('');
     layer.querySelectorAll('[data-node]').forEach(el=>bindClickable(el,()=>selectEquationNode(el.dataset.node,six)));
   }
   function selectEquationNode(id,six){
@@ -3424,7 +3426,11 @@
       if(ids.length<required)requestAnimationFrame(()=>{if((six?A6.stage==='nodes':S.phase===1)&&model.nodeSelectionConfirmed)openNextNodeEquation(six);});
     },true);
     $('nodeEquationChallenge').querySelector('h3').textContent='Escribe la igualdad de corrientes que entran y salen';
-    $('nodeEquationDialog').showModal();syncNodeSelection();positionNodeEquationDialog();$('nodeEquationChallenge').querySelector('.kcl-answer').focus({preventScroll:true});
+    const desktop=window.matchMedia('(min-width: 900px)').matches;
+    const dialog=$('nodeEquationDialog');
+    if(desktop){$('phaseCard').append(dialog);dialog.classList.add('node-equation-inline');dialog.show();}
+    else{document.body.append(dialog);dialog.classList.remove('node-equation-inline');dialog.showModal();}
+    syncNodeSelection();if(!desktop)positionNodeEquationDialog();$('nodeEquationChallenge').querySelector('.kcl-answer').focus({preventScroll:true});
   }
   function positionNodeEquationDialog(){
     const dialog=$('nodeEquationDialog');if(!dialog.open)return;
