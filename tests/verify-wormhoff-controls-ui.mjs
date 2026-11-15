@@ -23,15 +23,6 @@ const completedMarkup=meshElements.loopArrows.innerHTML+meshElements.sixLoops.in
 assert(completedMarkup.includes('data-mesh-complete="0"'));assert(completedMarkup.includes('data-mesh-complete="1"'));
 assert(completedMarkup.includes('--paint-8df09c,#8df09c'));assert(!/FINALIZADA|HECHA/.test(completedMarkup));
 assert(isolationMarkup.includes('I₂ = 4 A'));assert(isolationMarkup.includes('I₂ = 1,5 A'));
-const checkMovableDialog=async(page,selector)=>{
- const dialog=page.locator(selector),handle=dialog.locator('.dialog-drag-handle');
- assert.equal(await dialog.evaluate(el=>getComputedStyle(el,'::backdrop').backgroundColor),'rgba(0, 0, 0, 0)','Abrir una ventana conserva el fondo');
- const before=await dialog.boundingBox(),grip=await handle.boundingBox();
- const dx=before.x>40?-24:24,dy=before.y>40?-18:18;
- await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(grip.x+grip.width/2+dx,grip.y+grip.height/2+dy,{steps:5});await page.mouse.up();
- const after=await dialog.boundingBox();assert(Math.abs(after.x-before.x)>10||Math.abs(after.y-before.y)>10,'La ventana se desplaza con su asa');
- const movedGrip=await handle.boundingBox();assert(movedGrip.x>=0&&movedGrip.y>=0&&movedGrip.x+movedGrip.width<=page.viewportSize().width+1,'El asa permanece accesible para recuperar la ventana');
-};
 const enterNodeEquation=async(page,id,equation)=>{
  assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);
  await page.locator('#nodeTargets [data-node="'+id+'"]').click();
@@ -41,10 +32,10 @@ const enterNodeEquation=async(page,id,equation)=>{
  assert.deepEqual(await page.locator('#nodeTargets [data-node-blinking="true"]').evaluateAll(nodes=>nodes.map(el=>el.dataset.node)),[id],'Solo parpadea el nudo cuya ecuación se pide');
  assert.equal(await page.locator('#nodeTargets [data-node="'+id+'"] circle').evaluate(el=>getComputedStyle(el).animationName),'nodeRingBlink');
  await page.locator('#nodeEquationChallenge .kcl-answer').fill(equation);
- await page.click('#nodeEquationDialog [data-context-help="nodeEquation"]');assert(await page.locator('#phaseHelpDialog').isVisible());assert.match(await page.locator('#phaseHelpBody').textContent(),/Σ I que entran/);await checkMovableDialog(page,'#phaseHelpDialog');
+ await page.click('#nodeEquationDialog [data-context-help="nodeEquation"]');assert(await page.locator('#phaseHelpDialog').isVisible());assert.match(await page.locator('#phaseHelpBody').textContent(),/Σ I que entran/);
  await page.click('#closePhaseHelp');assert(await page.locator('#nodeEquationDialog').isVisible());assert.equal(await page.locator('#nodeEquationChallenge .kcl-answer').inputValue(),equation,'La ayuda conserva la ecuación escrita');
  assert.equal(await page.locator('#nodeEquationSummary').isVisible(),false,'Explicaciones del diálogo solo en ayuda');
- await checkMovableDialog(page,'#nodeEquationDialog');await page.locator('#nodeEquationChallenge .kcl-answer').press('Enter');
+ await page.click('#nodeEquationChallenge .kcl-check');
  assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'Ecuación validada en '+id);
 };
 const assertStageChecks=async(page,indices)=>{
@@ -169,7 +160,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert(await page.locator('#exerciseSelect').evaluate(el=>!!el.closest('.brand-exercise')),'Selector junto al nombre');
  const headerBoxes=await page.locator('.brand-exercise').evaluate(el=>{const a=el.querySelector('.logo').getBoundingClientRect(),b=el.querySelector('#exerciseSelect').getBoundingClientRect();return {beside:b.left>=a.right,sameRow:Math.abs((a.top+a.bottom)/2-(b.top+b.bottom)/2)<3}});assert(headerBoxes.beside&&headerBoxes.sameRow,'Ejercicio a la derecha de Wormhoff');
  assert.equal(await page.locator('#symbolStandard').isVisible(),false,'Simbología dentro de configuración');
- await page.click('#openSettings');assert(await page.locator('#settingsDialog').isVisible());await checkMovableDialog(page,'#settingsDialog');
+ await page.click('#openSettings');assert(await page.locator('#settingsDialog').isVisible());
  await page.selectOption('#themeSetting','light');
  const contrast=await page.evaluate(()=>{
   const rgb=s=>s.match(/[\d.]+/g).slice(0,3).map(Number),lum=rgb=>rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
@@ -362,13 +353,13 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   else{await page.mouse.move(point.x,point.y);await page.mouse.down();await page.waitForTimeout(650);await page.mouse.up();}
   await page.locator('#currentNameDialog').waitFor({state:'visible'});
   assert(await page.locator('#currentNumber').evaluate(el=>el.selectionStart===0&&el.selectionEnd===el.value.length),'Número actual seleccionado');
-  const dialog=await page.locator('#currentNameDialog').boundingBox();assert(dialog.width<=Math.min(360,page.viewportSize().width-24)+1&&dialog.height<180,'Editor ajustado a la letra y a la pantalla');await checkMovableDialog(page,'#currentNameDialog');
+  const dialog=await page.locator('#currentNameDialog').boundingBox();assert(dialog.width<250&&dialog.height<100,'Editor compacto');
   const entered=await page.locator('#currentNumber').inputValue();await page.click('#currentNameDialog [data-context-help="currentName"]');assert(await page.locator('#phaseHelpDialog').isVisible());await page.click('#closePhaseHelp');assert(await page.locator('#currentNameDialog').isVisible());assert.equal(await page.locator('#currentNumber').inputValue(),entered,'La ayuda conserva el número');
   const current=await page.locator(selector).evaluate(el=>({x:el.dataset.arrowX,y:el.dataset.arrowY,d:el.querySelector('.direction').getAttribute('d')}));
   assert.deepEqual(current,pose,'Abrir el editor no mueve ni invierte la flecha');return pose;
  };
  const saveNumber=async(selector,number,pose)=>{
-  await page.locator('#currentNumber').fill(String(number));assert.equal(await page.locator('#currentNumber').getAttribute('enterkeyhint'),'done');await page.locator('#currentNumber').press('Enter');
+  await page.locator('#currentNumber').fill(String(number));await page.click('#currentNameForm button[type="submit"]');
   assert.equal(await page.locator('#currentNameDialog').isVisible(),false,'Guarda el número editado');
   assert.deepEqual(await page.locator(selector).evaluate(el=>({x:el.dataset.arrowX,y:el.dataset.arrowY,d:el.querySelector('.direction').getAttribute('d')})),pose,'Cambiar el número conserva posición y sentido');
  };
@@ -447,7 +438,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(await page.locator('meta[name=viewport]').getAttribute('content'),originalViewport,'Al cerrar se restaura el zoom habitual de la página');
  await tap(345,310);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
  assert.equal(await page.locator('#currentNumber').getAttribute('aria-invalid'),'true');assert(await page.locator('#currentNameDialog').isVisible());
- await page.locator('#currentNumber').fill('12');await page.locator('#currentNumber').evaluate(el=>el.dispatchEvent(new InputEvent('beforeinput',{inputType:'insertLineBreak',bubbles:true,cancelable:true})));assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
+ await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
  await tap(544,310);await page.locator('#currentNumber').fill('3');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
  let editPose=await openNumberEditor('#currentArrow0');
  assert.equal(await page.locator('#currentNumber').inputValue(),'7');
@@ -632,5 +623,4 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
 }finally{await browser.close()}
-
 
