@@ -3733,9 +3733,7 @@
     active=oldActive;R=oldR;E=oldE;
   }
   newGame();syncBoardActions();syncEquationPlaceholder();syncColumnText();initLanguage();
-})();
-</script>
-<script>
+
 // Wormhoff 3.9: matriz integrada en mallas y navegación independiente.
 (function(){
  const setup=()=>{
@@ -3772,8 +3770,11 @@
   document.querySelectorAll('[data-phase]').forEach(b=>b.addEventListener('click',()=>requestAnimationFrame(refresh)));
   refresh();
  };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
+ setup();
+})();
+
 })();
 </script>
+
 </body>
 </html>
