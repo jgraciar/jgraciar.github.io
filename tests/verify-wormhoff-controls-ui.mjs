@@ -235,7 +235,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  }
  else assert(equationsCard.x>=circuitCard.x+circuitCard.width-1,'Ecuaciones a la derecha en escritorio');
  const svgWidth=await page.locator('#circuit').boundingBox();
- assert(Math.abs(svgWidth.width-circuitCard.width+2)<2,'El circuito ocupa todo el ancho interior de su columna');
+ const circuitInterior=await page.locator('#circuitCard').evaluate(el=>el.clientWidth);assert(Math.abs(svgWidth.width-circuitInterior)<=3,'El circuito ocupa el ancho interior disponible, descontando la barra de desplazamiento');
  const divider=page.locator('#columnDivider');
  if(mobile)assert.equal(await divider.isVisible(),false);
  else{
