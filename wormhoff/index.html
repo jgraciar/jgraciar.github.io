@@ -2409,6 +2409,8 @@
               {label:'Resultado',row:[0,0,coef],b:rhs,total:true}]});
       const i3=rhs/coef;
       const i2=(u-q*i3)/p;
+      steps.push({title:'Sustitución regresiva: sustituir el valor conocido',detail:'Sustituimos '+names[2]+' = '+fmt(i3)+' A en la primera ecuación.',rows:[{label:'Malla 1',row:first,b:u}]});
+      steps.push({title:'Sustitución regresiva: operar y transponer',detail:'Calculamos '+fmt(q)+' · ('+fmt(i3)+') = '+fmt(q*i3)+' y lo pasamos al segundo miembro: '+fmt(u)+' − ('+fmt(q*i3)+') = '+fmt(u-q*i3)+'.',rows:[{label:'Malla 1',row:[0,p,0],b:u-q*i3}]});
       steps.push({title:'Sustitución regresiva',
         detail:'De la ecuación reducida obtenemos '+names[2]+' = '+fmt(i3)+' A. Sustituimos ese valor en la primera malla para hallar '+names[1]+' = '+fmt(i2)+' A.',
         rows:[{label:'Malla 1',row:[0,p,0],b:u-q*i3}]});
@@ -2423,10 +2425,14 @@
       steps.push({title:'Reducción directa',
         detail:'Una ecuación ya no tiene '+names[1]+': obtenemos '+names[2]+' = '+fmt(i3)+' A directamente, sin aplicar igualación.',
         rows:[{label:useFirst?'Malla 1':'Malla 2',row:one,b:oneB,total:true}]});
+      steps.push({title:'Sustitución regresiva: sustituir',detail:'Sustituimos '+names[2]+' = '+fmt(i3)+' A en la otra ecuación.',rows:[{label:useFirst?'Malla 2':'Malla 1',row:other,b:otherB}]});
+      steps.push({title:'Sustitución regresiva: transponer',detail:'Calculamos '+fmt(other[2])+' · ('+fmt(i3)+') = '+fmt(other[2]*i3)+' y restamos ese término de '+fmt(otherB)+'.',rows:[{label:useFirst?'Malla 2':'Malla 1',row:[0,other[1],0],b:otherB-other[2]*i3}]});
       steps.push({title:'Sustitución regresiva',
         detail:'Sustituimos '+names[2]+' en la otra malla y hallamos '+names[1]+' = '+fmt(i2)+' A.',
         rows:[{label:useFirst?'Malla 2':'Malla 1',row:[0,other[1],0],b:otherB-other[2]*i3}]});
     }
+    steps.push({title:'Intensidad restante: sustituir',detail:'Partimos de la ecuación del nudo y sustituimos '+names[1]+' = '+fmt(last[1])+' A y '+names[2]+' = '+fmt(last[2])+' A.',rows:[{label:'Nudo '+(S.nodeSelected||'A'),row:A[0],b:b[0]}]});
+    steps.push({title:'Intensidad restante: agrupar términos',detail:'Los términos conocidos son '+fmt(A[0][1]*last[1])+' y '+fmt(A[0][2]*last[2])+'. Su suma pasa al segundo miembro con signo contrario.',rows:[{label:'Nudo '+(S.nodeSelected||'A'),row:[A[0][0],0,0],b:-A[0][1]*last[1]-A[0][2]*last[2]}]});
     steps.push({title:'Cálculo de la intensidad restante',
       detail:'Volvemos a '+nodeSides()+' y calculamos '+names[0]+' mediante la ecuación del nudo.',
       rows:[{label:'Nudo '+(S.nodeSelected||'A'),row:[A[0][0],0,0],b:-A[0][1]*last[1]-A[0][2]*last[2]}]});
@@ -3655,7 +3661,8 @@
       const row=six?loop.row.map((v,i)=>v*A6.signs[i]):loop.row.slice(),b=six?loop.b:loop.source;
       const resistors=six?A6.rowsR[k]:loop.resistors,sources=six?A6.rowsU[k]:loop.sources;
       const original=six?(resistors.length?resistors.map((term,i)=>(term.v<0?(i?' − ':'−'):(i?' + ':''))+formatNumber(Math.abs(term.v))+'·'+labels[term.i]).join(''):sixEq(row,0,labels).split(' = ')[0])+' = '+(sources.length?sources.map((term,i)=>(term.v<0?(i?' − ':'−'):(i?' + ':''))+formatNumber(Math.abs(term.v))).join(''):formatNumber(b)):terms(resistors,'R')+' = '+terms(sources,'E');
-      return {row,b,original,simplified:sixEq(row,b,labels)};
+      const needsSimplification=resistors.some((term,i)=>resistors.slice(0,i).some(other=>other.i===term.i))||sources.length>1;
+      return {row,b,original,simplified:sixEq(row,b,labels),needsSimplification};
     });
   }
   // A simplified equation has one numeric coefficient per current and one
@@ -3684,8 +3691,9 @@
   function openSimplification(six){
     const model=six?A6:S;if(!(six?A6.done:S.loops).every(Boolean)||(six?A6.stage!=='loops':S.phase!==2))return;
     model.simplifying=true;show('circuitControls',false);clearFX();setHeroGait(false);
-    const demo=difficulty()===0,data=simplificationData(six);
-    $('simplificationRows').innerHTML=data.map((equation,i)=>'<section class="simplification-item'+(model.simplified?' verified':'')+'" data-simple-row="'+i+'"><h3>Malla '+(i+1)+'</h3><div class="mini">Ecuación original</div><div class="simplification-original">'+escapeHtml(equation.original)+'</div>'+(demo?'<div class="mini">Ecuación simplificada</div><div class="simplification-result">'+escapeHtml(equation.simplified)+'</div>':'<label>Ecuación simplificada<input class="simplification-answer" data-simple="'+i+'" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Ecuación simplificada de malla '+(i+1)+'" value="'+(model.simplified?escapeHtml(equation.simplified):'')+'" placeholder="…"></label><div class="simplification-result" data-simple-result="'+i+'"></div>')+'</section>').join('');
+    const demo=difficulty()===0,data=simplificationData(six).filter(e=>e.needsSimplification);
+    $('simplificationRows').innerHTML=data.length?data.map((equation,i)=>'<section class="simplification-item'+(model.simplified?' verified':'')+'" data-simple-row="'+i+'"><h3>Malla '+(i+1)+'</h3><div class="mini">Ecuación original</div><div class="simplification-original">'+escapeHtml(equation.original)+'</div>'+(demo?'<div class="mini">Ecuación simplificada</div><div class="simplification-result">'+escapeHtml(equation.simplified)+'</div>':'<label>Ecuación simplificada<input class="simplification-answer" data-simple="'+i+'" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Ecuación simplificada de malla '+(i+1)+'" value="'+(model.simplified?escapeHtml(equation.simplified):'')+'" placeholder="…"></label><div class="simplification-result" data-simple-result="'+i+'"></div>')+'</section>').join(''):'<p class="message good">Las ecuaciones ya están simplificadas. Puedes continuar.</p>';
+    if(!data.length){model.simplified=true;show('checkSimplification',false);show('continueSimplification',true);}else show('checkSimplification',true);
     $('checkSimplification').textContent=demo?'Confirmar simplificación':'Comprobar simplificación';
     $('checkSimplification').onclick=()=>{
       const labels=six?NAMES6:names;let valid=true;
