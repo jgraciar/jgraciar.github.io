@@ -3693,7 +3693,7 @@
       data.forEach((equation,i)=>{
         const input=$('simplificationRows').querySelector('[data-simple="'+i+'"]'),ok=demo||isSimplifiedEquation(input.value,equation.row,equation.b,labels);
         $('simplificationRows').querySelector('[data-simple-row="'+i+'"]').classList.toggle('verified',ok);
-        if(input){input.setAttribute('aria-invalid',String(!ok));$('simplificationRows').querySelector('[data-simple-result="'+i+'"]').textContent=ok?'Forma para la matriz: '+equation.simplified:'';}
+        if(input){input.setAttribute('aria-invalid',String(!ok));$('simplificationRows').querySelector('[data-simple-result="'+i+'"]').textContent=ok?'Forma para la matriz: '+sixEq(equation.row,equation.b,labels):'';}
         if(!ok)valid=false;
       });
       model.simplified=valid;show('continueSimplification',valid);show('simplificationFeedback',true);

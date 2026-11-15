@@ -145,9 +145,10 @@ await page.click('#phaseSectionHelp');assert.equal(await page.locator('#phaseHel
 await page.evaluate(()=>{const {A6,openSimplification}=wormhoffTest;A6.stage='loops';A6.simplified=false;A6.completedScore=false;openSimplification(true);});
 assert.equal(await page.locator('#continueSimplification').isVisible(),false);
 await page.locator('[data-simple="0"]').fill('0');await page.click('#checkSimplification');assert.equal(await page.locator('#continueSimplification').isVisible(),false,'Rechaza una simplificación incorrecta');
+await page.locator('#sixCurrentArrow0').focus();await page.locator('#sixCurrentArrow0').press('F2');await page.locator('#currentNumber').fill('17');await page.click('#currentNameForm button[type="submit"]');
 const simpleEquations=await page.evaluate(()=>wormhoffTest.A6.done.map(l=>wormhoffTest.sixEq(l.row.map((v,i)=>v*wormhoffTest.A6.signs[i]),l.b)));
 for(let i=0;i<simpleEquations.length;i++)await page.locator('[data-simple="'+i+'"]').fill(simpleEquations[i]);
-await page.click('#checkSimplification');assert(await page.locator('#continueSimplification').isVisible(),'Acepta las tres ecuaciones de malla');
+await page.click('#checkSimplification');assert(await page.locator('#continueSimplification').isVisible(),'Acepta las tres ecuaciones de malla');assert.match(await page.locator('[data-simple-result="0"]').textContent(),/I₁₇/,'La simplificación conserva una referencia renumerada');
 await page.locator('[data-simple="1"]').fill('I1=0');assert.equal(await page.locator('#continueSimplification').isVisible(),false,'Editar una ecuación invalida la comprobación');
 await page.locator('[data-simple="1"]').fill(simpleEquations[1]);await page.click('#checkSimplification');await page.click('#continueSimplification');
 await page.evaluate(()=>{const {A6,sixStartSolve}=wormhoffTest;sixStartSolve();A6.step=A6.steps.length;A6.finalVerified=true;A6.completedScore=true;sixStartSolve(true);});
