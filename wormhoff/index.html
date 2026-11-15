@@ -3564,10 +3564,13 @@
     media.addEventListener('change',sync);sync();
   }
   function initBoardActions(){
-    const ids=['confirmDirs','editCurrentReferences','confirmMeshDirections','advConfirmMeshDirections','advEditCurrentReferences','advStart','advGoLoops','startNodeEquations','advStartNodeEquations','goLoops','resetLoop','advance','advNext','goMatrix','advToMatrix','continueSimplification',
-      'verifyMatrix','advMatVerify','goSolve','advSolveBtn',
+    const ids=['confirmDirs','editCurrentReferences','confirmMeshDirections','advConfirmMeshDirections','advEditCurrentReferences','advStart','advGoLoops','startNodeEquations','advStartNodeEquations','goLoops','resetLoop','advance','advNext','goMatrix','advToMatrix',
+      'goSolve','advSolveBtn',
       'nextStep','restartSteps','advSolveNext','playAgain'];
     const actions=$('boardActions'),transport=$('circuitTransport'),entries=[];
+    $('continueSimplification').textContent='Construir matriz →';
+    $('advSolveBtn').textContent='Resolver algebraicamente →';
+    $('goSolve').textContent='Resolver algebraicamente →';
     // Los mandos de reproducción de mallas y las acciones se sitúan debajo del esquema.
     $('circuitCard').querySelector('.board').after(transport);
     transport.after(actions);
@@ -3703,7 +3706,7 @@
         if(input){input.setAttribute('aria-invalid',String(!ok));$('simplificationRows').querySelector('[data-simple-result="'+i+'"]').textContent=ok?'Forma para la matriz: '+sixEq(equation.row,equation.b,labels):'';}
         if(!ok)valid=false;
       });
-      model.simplified=valid;show('continueSimplification',valid);show('simplificationFeedback',true);
+      model.simplified=valid;show('continueSimplification',valid);show(six?'advSolveBtn':'goSolve',valid);show('simplificationFeedback',true);
       $('simplificationFeedback').className='message '+(valid?'good':'bad');
       $('simplificationFeedback').textContent=valid?'Simplificación correcta. Ya puedes construir la matriz.':'Revisa los signos, los coeficientes y la suma de tensiones. Cada intensidad debe aparecer una sola vez.';
       if(six)sixRenderRows();else renderBoardEquations();syncPhaseNavigation();
@@ -3712,9 +3715,10 @@
       input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();$('checkSimplification').click();}});
       input.addEventListener('input',()=>{model.simplified=false;input.removeAttribute('aria-invalid');input.closest('section').classList.remove('verified');$('simplificationRows').querySelector('[data-simple-result="'+input.dataset.simple+'"]').textContent='';show('continueSimplification',false);show('simplificationFeedback',false);if(six)sixRenderRows();else renderBoardEquations();syncPhaseNavigation();});
     }
-    show('continueSimplification',model.simplified);show('simplificationFeedback',false);
+    show('continueSimplification',model.simplified);show(six?'advSolveBtn':'goSolve',model.simplified);show('simplificationFeedback',false);
     $('backToMeshes').onclick=()=>{model.simplifying=false;if(!six)updateHeader();else syncPhaseNavigation();syncMeshDirectionSetup();};
     $('continueSimplification').onclick=()=>{if(!model.simplified)return;model.simplifying=false;if(six)sixMatrix();else phase(3);};
+    if(six)$('advSolveBtn').onclick=()=>{if(A6.simplified)sixStartSolve();};
     syncPhaseNavigation();
   }
 
