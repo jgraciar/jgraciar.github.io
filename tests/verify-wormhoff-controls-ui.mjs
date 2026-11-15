@@ -263,7 +263,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const transport=['resetLoop','advance','advNext'].includes(id),container=transport?'circuitTransport':'boardActions';
   assert(await page.locator('#'+id).evaluate((el,parent)=>!!el.closest('#'+parent),container),'Acción en su barra: '+id);
   const diagram=await page.locator('#circuit').boundingBox(),actions=await page.locator('#'+container).boundingBox();
-  if(transport)assert(actions.y+actions.height<=diagram.y+1,'Reproducción encima del circuito');
+  if(transport)assert(Math.abs(actions.y-diagram.y-diagram.height)<3,'Reproducción inmediatamente debajo del circuito');
   else assert(Math.abs(actions.y-diagram.y-diagram.height)<3,'Navegación inmediatamente debajo del esquema');
   assert(Math.abs(actions.x+actions.width/2-diagram.x-diagram.width/2)<2,'Acciones centradas');
  };
