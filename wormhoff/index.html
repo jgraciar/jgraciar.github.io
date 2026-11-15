@@ -2745,7 +2745,16 @@
         if(A6.manualPaused){A6.animReq=requestAnimationFrame(step);return;}
         elapsed+=delta*wormhoffSettings.speed/100;
         const walked=Math.min(total,elapsed/HERO_MS_PER_PX),pos=sixPointAt(pts,distances,walked);
+        // En la primera vuelta, especialmente en M2, un salto de fotogramas
+        // no debe reiniciar la cola ni ocultar la cabeza del personaje.
+        const distanceFromHero=Math.hypot(pos.x-heroMotion.x,pos.y-heroMotion.y);
+        if(distanceFromHero>60){
+          const parts=Math.ceil(distanceFromHero/30);
+          const startX=heroMotion.x,startY=heroMotion.y;
+          for(let n=1;n<parts;n++)positionHero(startX+(pos.x-startX)*n/parts,startY+(pos.y-startY)*n/parts,pos.angle);
+        }
         positionHero(pos.x,pos.y,pos.angle);setHeroGait(walked<total,walked);
+        $('hero').classList.remove('hero-user-hidden');
         setHeroMood(A6.pass==='R'&&opposite);
         if(walked<total)A6.animReq=requestAnimationFrame(step);
         else{A6.animReq=null;A6.motionActive=false;A6.manualPaused=false;setTransportState('advNext','blocked');resolve()}
