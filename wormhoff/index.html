@@ -767,6 +767,27 @@
     #currentNumber{width:calc(2ch + 14px);padding:6px}
     #currentNameForm{flex-wrap:wrap}
   }
+
+  /* Mantener el aspecto del circuito al abrir cualquier ventana. */
+  dialog::backdrop{background:transparent!important;backdrop-filter:none!important}
+  dialog{font-family:inherit;font-size:inherit;line-height:1.55}
+  .dialog-drag-handle{display:block;width:72px;height:24px;margin:-4px auto 8px;border:0;border-radius:9px;padding:0;background:transparent;cursor:grab;touch-action:none;user-select:none;color:var(--muted)}
+  .dialog-drag-handle::before{content:"";display:block;width:38px;height:5px;border-radius:4px;background:currentColor;margin:auto}
+  .dialog-drag-handle:active{cursor:grabbing}
+  dialog.dialog-positioned{position:fixed!important;inset:auto!important;left:var(--dialog-left)!important;top:var(--dialog-top)!important;transform:none!important;margin:0!important}
+  #currentNameDialog{padding:12px 16px}
+  #currentNameForm{gap:8px;flex-wrap:nowrap}
+  #currentNameForm button{width:44px;height:44px;min-width:44px}
+  #currentNameForm .help-button{width:36px;height:36px;min-width:36px}
+  @media(max-width:970px), (pointer:coarse) and (max-width:1200px){
+    #settingsDialog,#phaseHelpDialog,#nodeEquationDialog{width:calc(100% - 24px);max-width:700px;padding:18px}
+    #nodeEquationDialog .settings-heading{gap:8px;flex-wrap:wrap}
+    #currentNameDialog{padding:12px;max-width:calc(100% - 24px)}
+    #currentNameForm{gap:6px;flex-wrap:wrap}
+    #currentNumber{width:calc(2ch + 20px);padding:9px}
+    #currentNameForm button{width:44px;height:44px;min-width:44px}
+    #currentNameForm .help-button{width:36px;height:36px;min-width:36px}
+  }
 </style>
 </head>
 <body>
@@ -1143,8 +1164,14 @@
       feedback.classList.toggle('good',valid);
       if(valid){show(container,false);onSuccess()}
     };
-    host.querySelector('.kcl-check').onclick=check;
-    host.querySelector('.kcl-answer')?.addEventListener('keydown',e=>{if(e.key==='Enter')check()});
+    const answer=host.querySelector('.kcl-answer'),button=host.querySelector('.kcl-check');
+    if(answer){
+      const form=document.createElement('form');
+      while(host.firstChild)form.append(host.firstChild);
+      host.append(form);button.type='submit';
+      form.addEventListener('submit',event=>{event.preventDefault();check();});
+      bindInputConfirmation(answer,()=>form.requestSubmit());
+    }else button.onclick=check;
   }
   function finalChallenge(id,values,labelList,onSuccess){
     const host=$(id);
@@ -1204,7 +1231,7 @@
       else{
         const input=host.querySelector('.term-answer');
         host.querySelector('.term-check').onclick=()=>finish(checkTermValue(input.value,value,branch,isSource,six));
-        input.addEventListener('keydown',e=>{if(e.key==='Enter')host.querySelector('.term-check').click()});
+        bindInputConfirmation(input,()=>host.querySelector('.term-check').click());
       }
     });
   }
@@ -1316,7 +1343,7 @@
     $('boardState').textContent='Pulsa las ramas para numerar sus corrientes: '+count+' de '+labels.length+' asignadas.';
   }
   function positionCurrentNameDialog(){
-    const dialog=$('currentNameDialog');if(!dialog.open)return;
+    const dialog=$('currentNameDialog');if(!dialog.open)return;if(dialog.classList.contains('dialog-positioned')){clampDraggedDialog(dialog);return;}
     const viewport=window.visualViewport;
     const left=viewport?viewport.offsetLeft:0,top=viewport?viewport.offsetTop:0;
     const width=viewport?viewport.width:window.innerWidth,height=viewport?viewport.height:window.innerHeight;
@@ -1336,6 +1363,7 @@
     window.visualViewport?.addEventListener('scroll',positionCurrentNameDialog);
     window.addEventListener('resize',positionCurrentNameDialog);
     window.addEventListener('scroll',positionCurrentNameDialog,{capture:true,passive:true});
+    bindInputConfirmation($('currentNumber'),()=>$('currentNameForm').requestSubmit());
     $('currentNumber').addEventListener('input',()=>{
       $('currentNumber').value=$('currentNumber').value.replace(/[^0-9]/g,'').slice(0,2);
       $('currentNumber').removeAttribute('aria-invalid');
@@ -3384,7 +3412,7 @@
     $('nodeEquationDialog').showModal();syncNodeSelection();positionNodeEquationDialog();$('nodeEquationChallenge').querySelector('.kcl-answer').focus({preventScroll:true});
   }
   function positionNodeEquationDialog(){
-    const dialog=$('nodeEquationDialog');if(!dialog.open)return;
+    const dialog=$('nodeEquationDialog');if(!dialog.open)return;if(dialog.classList.contains('dialog-positioned')){clampDraggedDialog(dialog);return;}
     const viewport=window.visualViewport,left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,width=viewport?.width||innerWidth,height=viewport?.height||innerHeight;
     dialog.style.maxHeight=Math.max(100,height-24)+'px';dialog.style.maxWidth=Math.max(200,width-24)+'px';
     dialog.style.left=(left+width/2)+'px';dialog.style.top=(top+Math.max(12,(height-dialog.offsetHeight)/2))+'px';
@@ -3603,6 +3631,63 @@
     });
     new ResizeObserver(()=>apply(preferredRatio)).observe(layout);apply(preferredRatio);
   }
+
+  function bindInputConfirmation(input,confirm){
+    input.enterKeyHint='done';
+    const accept=event=>{
+      if(event.isComposing)return;
+      const enter=event.type==='beforeinput'?
+        ['insertLineBreak','insertParagraph'].includes(event.inputType):
+        event.key==='Enter'||event.code==='NumpadEnter'||event.keyCode===13;
+      if(!enter)return;
+      event.preventDefault();event.stopPropagation();confirm();
+    };
+    input.addEventListener('keydown',accept);
+    // Algunos teclados Android comunican «Hecho» como una operación de edición.
+    input.addEventListener('beforeinput',accept);
+  }
+  function clampDraggedDialog(dialog,x,y){
+    const viewport=window.visualViewport,left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,
+      width=viewport?.width||innerWidth,height=viewport?.height||innerHeight;
+    dialog.style.maxHeight=Math.max(60,height-24)+'px';
+    const r=dialog.getBoundingClientRect();
+    x=Math.max(left+12,Math.min(left+width-r.width-12,x??r.left));
+    y=Math.max(top+12,Math.min(top+height-r.height-12,y??r.top));
+    dialog.style.setProperty('--dialog-left',x+'px');
+    dialog.style.setProperty('--dialog-top',y+'px');
+  }
+  function initMovableDialogs(){
+    for(const dialog of document.querySelectorAll('dialog')){
+      const handle=document.createElement('button');handle.type='button';handle.className='dialog-drag-handle';
+      handle.setAttribute('aria-label','Desplazar ventana');handle.title='Desplazar ventana';dialog.prepend(handle);
+      let drag=null;
+      handle.addEventListener('pointerdown',event=>{
+        if(event.button!==0)return;
+        const r=dialog.getBoundingClientRect();
+        drag={id:event.pointerId,startX:event.clientX,startY:event.clientY,x:r.left,y:r.top};
+        dialog.style.setProperty('--dialog-left',r.left+'px');dialog.style.setProperty('--dialog-top',r.top+'px');
+        dialog.classList.add('dialog-positioned');
+        handle.setPointerCapture(event.pointerId);event.preventDefault();
+      });
+      handle.addEventListener('pointermove',event=>{
+        if(!drag||event.pointerId!==drag.id)return;
+        clampDraggedDialog(dialog,drag.x+event.clientX-drag.startX,drag.y+event.clientY-drag.startY);
+      });
+      const finish=()=>{drag=null;};
+      handle.addEventListener('pointerup',finish);handle.addEventListener('pointercancel',finish);handle.addEventListener('lostpointercapture',finish);
+      handle.addEventListener('keydown',event=>{
+        const delta={ArrowLeft:[-12,0],ArrowRight:[12,0],ArrowUp:[0,-12],ArrowDown:[0,12]}[event.key];if(!delta)return;
+        event.preventDefault();const r=dialog.getBoundingClientRect();dialog.classList.add('dialog-positioned');clampDraggedDialog(dialog,r.left+delta[0],r.top+delta[1]);
+      });
+      dialog.addEventListener('close',()=>{
+        drag=null;dialog.classList.remove('dialog-positioned');dialog.style.removeProperty('--dialog-left');dialog.style.removeProperty('--dialog-top');dialog.style.removeProperty('max-height');
+      });
+    }
+    const sync=()=>document.querySelectorAll('dialog[open].dialog-positioned').forEach(dialog=>clampDraggedDialog(dialog));
+    window.addEventListener('resize',sync);window.visualViewport?.addEventListener('resize',sync);window.visualViewport?.addEventListener('scroll',sync);
+  }
+
+  initMovableDialogs();
   initContextHelp();
   initNodeEquations();
   initPhaseHelp();
