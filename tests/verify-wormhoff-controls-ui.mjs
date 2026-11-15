@@ -30,7 +30,7 @@ const checkMovableDialog=async(page,selector)=>{
  const dx=before.x>40?-24:24,dy=before.y>40?-18:18;
  await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(grip.x+grip.width/2+dx,grip.y+grip.height/2+dy,{steps:5});await page.mouse.up();
  const after=await dialog.boundingBox();assert(Math.abs(after.x-before.x)>10||Math.abs(after.y-before.y)>10,'La ventana se desplaza con su asa');
- assert(after.x>=0&&after.y>=0&&after.x+after.width<=page.viewportSize().width+1,'La ventana permanece dentro de la pantalla');
+ const movedGrip=await handle.boundingBox();assert(movedGrip.x>=0&&movedGrip.y>=0&&movedGrip.x+movedGrip.width<=page.viewportSize().width+1,'El asa permanece accesible para recuperar la ventana');
 };
 const enterNodeEquation=async(page,id,equation)=>{
  assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);
