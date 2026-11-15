@@ -1557,7 +1557,7 @@
     drawDirs();updateLoopsArrows();
     if(n!==2)clearElementHighlight();
     renderBoardEquations();
-    if(n===1){syncNodeSelection();if(S.nodeDone)analyzeNode(S.nodeSelected!=='B');else{show('goLoops',false);msg('nodeFeedback','Selecciona primero n − 1 nudos del circuito; deja uno sin considerar.');}}
+    if(n===1){$('boardState').textContent='Seleccione nudos';syncNodeSelection();if(S.nodeDone)analyzeNode(S.nodeSelected!=='B');else{show('goLoops',false);msg('nodeFeedback','Selecciona primero n − 1 nudos del circuito; deja uno sin considerar.');}}
     if(n===2){S.loop=Math.max(0,S.loops.findIndex(x=>!x));loadLoop(S.loop);syncMeshDirectionSetup();}
     if(n===3){drawMatrix();show('fillMatrix',difficulty()===0);}
     if(n===4){
@@ -2687,6 +2687,7 @@
     if(!['dirs','nodes'].includes(A6.stage)||!currentNamesReady(true))return;
     rememberPhase(1);A6.stage='nodes';show('advStart',false);show('sixNodeChallenge',false);syncPhaseNavigation();
     sixText('advInfo','Selecciona primero '+requiredNodeEquations(true)+' nudos y deja uno sin considerar. Después se pedirán sus ecuaciones.');
+    $('boardState').textContent='Seleccione nudos';
     if(A6.nodeIds.length){$('advKCLtext').innerHTML=sixKCLRows(A6.nodeIds.length);show('advKCL',true);}
   }
   function sixNodeStartVerified(){
