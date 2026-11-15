@@ -3574,6 +3574,8 @@
     // Los mandos de reproducción de mallas y las acciones se sitúan debajo del esquema.
     $('circuitCard').querySelector('.board').after(transport);
     transport.after(actions);
+    const solveShortcut=document.createElement('button');solveShortcut.type='button';solveShortcut.id='solveAfterSimplification';solveShortcut.className='success hide';solveShortcut.textContent='Resolver algebraicamente →';actions.append(solveShortcut);
+    solveShortcut.onclick=()=>{if(A6.simplifying&&A6.simplified){A6.simplifying=false;sixStartSolve();}else if(S.simplifying&&S.simplified){S.simplifying=false;phase(4);}};
     for(const id of ids){
       const button=$(id);if(!button)continue;
       const marker=document.createElement('span');marker.hidden=true;marker.setAttribute('aria-hidden','true');
@@ -3588,7 +3590,9 @@
         slot.hidden=!!marker.closest('.hide')||button.classList.contains('hide');
         if(!slot.hidden){if(target===transport)transportVisible++;else visible++;}
       }
-      actions.classList.toggle('hide',visible===0);transport.classList.toggle('hide',transportVisible===0);
+      const shortcutVisible=(A6.simplifying&&A6.simplified)||(S.simplifying&&S.simplified);
+      solveShortcut.classList.toggle('hide',!shortcutVisible);
+      actions.classList.toggle('hide',visible===0&&!shortcutVisible);transport.classList.toggle('hide',transportVisible===0);
     }
     const observer=new MutationObserver(sync);
     for(const root of [$('phaseCard'),$('circuitControls')])observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
@@ -3706,19 +3710,19 @@
         if(input){input.setAttribute('aria-invalid',String(!ok));$('simplificationRows').querySelector('[data-simple-result="'+i+'"]').textContent=ok?'Forma para la matriz: '+sixEq(equation.row,equation.b,labels):'';}
         if(!ok)valid=false;
       });
-      model.simplified=valid;show('continueSimplification',valid);show(six?'advSolveBtn':'goSolve',valid);show('simplificationFeedback',true);
+      model.simplified=valid;show('continueSimplification',valid);syncBoardActions();show('simplificationFeedback',true);
       $('simplificationFeedback').className='message '+(valid?'good':'bad');
       $('simplificationFeedback').textContent=valid?'Simplificación correcta. Ya puedes construir la matriz.':'Revisa los signos, los coeficientes y la suma de tensiones. Cada intensidad debe aparecer una sola vez.';
       if(six)sixRenderRows();else renderBoardEquations();syncPhaseNavigation();
     };
     for(const input of $('simplificationRows').querySelectorAll('input')){
       input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();$('checkSimplification').click();}});
-      input.addEventListener('input',()=>{model.simplified=false;input.removeAttribute('aria-invalid');input.closest('section').classList.remove('verified');$('simplificationRows').querySelector('[data-simple-result="'+input.dataset.simple+'"]').textContent='';show('continueSimplification',false);show('simplificationFeedback',false);if(six)sixRenderRows();else renderBoardEquations();syncPhaseNavigation();});
+      input.addEventListener('input',()=>{model.simplified=false;syncBoardActions();input.removeAttribute('aria-invalid');input.closest('section').classList.remove('verified');$('simplificationRows').querySelector('[data-simple-result="'+input.dataset.simple+'"]').textContent='';show('continueSimplification',false);show('simplificationFeedback',false);if(six)sixRenderRows();else renderBoardEquations();syncPhaseNavigation();});
     }
-    show('continueSimplification',model.simplified);show(six?'advSolveBtn':'goSolve',model.simplified);show('simplificationFeedback',false);
+    show('continueSimplification',model.simplified);show('simplificationFeedback',false);syncBoardActions();
     $('backToMeshes').onclick=()=>{model.simplifying=false;if(!six)updateHeader();else syncPhaseNavigation();syncMeshDirectionSetup();};
     $('continueSimplification').onclick=()=>{if(!model.simplified)return;model.simplifying=false;if(six)sixMatrix();else phase(3);};
-    if(six)$('advSolveBtn').onclick=()=>{if(A6.simplified)sixStartSolve();};
+    syncBoardActions();
     syncPhaseNavigation();
   }
 
