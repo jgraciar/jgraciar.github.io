@@ -644,4 +644,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
 }finally{await browser.close()}
+ await page.evaluate(()=>{const {A6,openSimplification}=wormhoffTest;A6.stage='loops';A6.simplified=false;A6.completedScore=false;openSimplification(true);});
+ assert.equal(await page.locator('.simplification-answer').count(),0,'No se piden ecuaciones que ya están simplificadas');
+ assert(await page.locator('#continueSimplification').isVisible(),'Se puede continuar sin simplificación innecesaria');
+ await page.click('#continueSimplification');
 
