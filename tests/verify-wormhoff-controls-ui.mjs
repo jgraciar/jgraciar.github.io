@@ -23,6 +23,17 @@ const completedMarkup=meshElements.loopArrows.innerHTML+meshElements.sixLoops.in
 assert(completedMarkup.includes('data-mesh-complete="0"'));assert(completedMarkup.includes('data-mesh-complete="1"'));
 assert(completedMarkup.includes('--paint-8df09c,#8df09c'));assert(!/FINALIZADA|HECHA/.test(completedMarkup));
 assert(isolationMarkup.includes('I₂ = 4 A'));assert(isolationMarkup.includes('I₂ = 1,5 A'));
+const simplifyContext={normalizeCurrentToken:s=>String(s).replace(/[₀₁₂₃₄₅₆₇₈₉]/g,d=>String('₀₁₂₃₄₅₆₇₈₉'.indexOf(d))).toLowerCase()};
+vm.createContext(simplifyContext);
+vm.runInContext(gameSource.slice(gameSource.indexOf('  function simplifiedEquationVector('),gameSource.indexOf('  function openSimplification(')),simplifyContext);
+for(const eq of ['2I7-3I12=12','I7-1,5I12=6','-2I7+3I12=-12'])assert(simplifyContext.isSimplifiedEquation(eq,[2,-3,0],12,['I₇','I₁₂','I₃']),eq);
+for(const eq of ['I7+I7-3I12=12','2I7-3I12=18-6','2I7+3I12=12','0I7+0I12=0'])assert(!simplifyContext.isSimplifiedEquation(eq,[2,-3,0],12,['I₇','I₁₂','I₃']),eq);
+const completeSimplification=async page=>{
+ assert(await page.locator('#simplificationPhase').isVisible(),'Paso de simplificación entre mallas y matriz');
+ assert.equal(await page.locator('#continueSimplification').isVisible(),false,'La matriz espera a comprobar la simplificación');
+ await page.click('#checkSimplification');assert(await page.locator('#continueSimplification').isVisible());
+ await page.click('#continueSimplification');assert.equal(await page.locator('#simplificationPhase').isVisible(),false);
+};
 const enterNodeEquation=async(page,id,equation)=>{
  assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);
  await page.locator('#nodeTargets [data-node="'+id+'"]').click();
@@ -71,9 +82,9 @@ for(let mesh=0;mesh<2;mesh++){
  }
  assert.equal(await page.locator('#advance').getAttribute('data-state'),'complete','Malla terminada');
 }
-await assertStageChecks(page,[0,2]);
+await assertStageChecks(page,[0]);
 assert(await page.locator('[data-mesh-summary]').evaluateAll(groups=>groups.every(group=>group.querySelector('[data-mesh-complete]').getBoundingClientRect().bottom<group.querySelector('.mesh-turn-hit').getBoundingClientRect().top)),'Check encima del símbolo de giro');
-await page.click('#goMatrix');
+await page.click('#goMatrix');await completeSimplification(page);
 assert.equal(await page.locator('#phase3>.desc').count(),0);await page.click('#phaseSectionHelp');assert(await page.locator('#phaseHelpDialog').isVisible());assert.equal(await page.locator('#phaseHelpBody li').count(),5);assert.match(await page.locator('#phaseHelpBody').textContent(),/coeficientes|coeficiente/);await page.click('#closePhaseHelp');
 await page.click('#fillMatrix');await assertStageChecks(page,[0,2]);await page.click('#verifyMatrix');await assertStageChecks(page,[0,2,3]);
 const testedCoefficient=page.locator('#matrixInputs input').first(),correctCoefficient=await testedCoefficient.inputValue();await testedCoefficient.fill('999');await assertStageChecks(page,[0,2]);assert.equal(await page.locator('#goSolve').isVisible(),false,'No permite continuar con la matriz modificada');await testedCoefficient.fill(correctCoefficient);await page.click('#verifyMatrix');await assertStageChecks(page,[0,2,3]);await page.click('#goSolve');
@@ -86,7 +97,7 @@ assert.match(await page.locator('#matrixVariableOrder').textContent(),/I₂₂/)
 await page.click('#nextStep');assert.match(await page.locator('#solutionSteps').textContent(),/I₂₂/,'Los siguientes pasos conservan el número nuevo');
 
 while(!await page.locator('#nextStep').isDisabled())await page.click('#nextStep');
-assert(await page.locator('#resultPanel').isVisible());await assertStageChecks(page,[0,2,3,4]);
+assert(await page.locator('#resultPanel').isVisible());assert(await page.locator('#hero').evaluate(el=>el.classList.contains('hero-victory')),'Gafas y brazos cruzados al completar');assert.equal(await page.locator('#hero .hero-victory-pose').first().evaluate(el=>getComputedStyle(el).display),'block');await assertStageChecks(page,[0,2,3,4]);
 const before={result:await page.locator('#results strong').allTextContents(),matrix:await page.locator('#matrixInputs input').evaluateAll(els=>els.map(el=>({col:Number(el.dataset.col),value:Number(el.value.replace('−','-').replace(',','.'))}))),working:await page.locator('#solutionSteps').textContent(),score:await page.locator('#score').textContent()};
 await page.locator('#currentArrow0').focus();await page.locator('#currentArrow0').press('Enter');
 const numeric=s=>Number(s.replace('−','-').replace(',','.').replace(' A',''));
@@ -97,7 +108,7 @@ assert.deepEqual(await page.locator('#matrixInputs input').evaluateAll(els=>els.
 assert.equal(await page.locator('#resultPanel .message.good').count(),1,'El nuevo sistema sigue verificado');assert.equal(await page.locator('#score').textContent(),before.score,'No duplica puntos');
 await page.locator('#currentArrow0').press('Enter');assert.deepEqual(await page.locator('#results strong').allTextContents(),before.result,'Reversible');
 await page.click('[data-reset-phase="4"]');await assertStageChecks(page,[0,2,3]);
-assert.equal(await page.locator('#resultPanel').isVisible(),false);
+assert.equal(await page.locator('#resultPanel').isVisible(),false);assert.equal(await page.locator('#hero').evaluate(el=>el.classList.contains('hero-victory')),false,'Reiniciar retira la pose final');
 await page.click('[data-phase="3"]');
 assert(await page.locator('#matrixInputs input').evaluateAll(nodes=>nodes.every(el=>el.value!=='')),'Volver a matriz conserva sus valores');
 await page.click('[data-reset-phase="3"]');await assertStageChecks(page,[0,2]);
@@ -115,7 +126,7 @@ await page.click('[data-reset-phase="0"]');await assertStageChecks(page,[]);asse
 
 await page.route('**/wormhoff/',async route=>{
  const response=await route.fetch(),html=await response.text();
- await route.fulfill({response,body:html.replace('  newGame();syncBoardActions();','  globalThis.wormhoffTest={A6,S,sixStartSolve,sixRefArrow,sixRenderRows,sixKCLRows,NAMES6};\n  newGame();syncBoardActions();')});
+ await route.fulfill({response,body:html.replace('  newGame();syncBoardActions();','  globalThis.wormhoffTest={A6,S,sixStartSolve,sixRefArrow,sixRenderRows,sixKCLRows,NAMES6,openSimplification,sixEq};\n  newGame();syncBoardActions();')});
 });
 await page.reload();await page.selectOption('#exerciseSelect','r76');
 await page.evaluate(()=>{
@@ -129,8 +140,17 @@ await page.evaluate(()=>{
 });
 // Complete verification using the existing renderer without awarding more points.
 await page.evaluate(()=>{wormhoffTest.sixStartSolve(true);});
-assert(await page.locator('#advResultPanel').isVisible());
+assert(await page.locator('#advResultPanel').isVisible());assert(await page.locator('#hero').evaluate(el=>el.classList.contains('hero-victory')),'Pose final también con seis ramas');
 await page.click('#phaseSectionHelp');assert.equal(await page.locator('#phaseHelpBody li').count(),5);assert((await page.locator('#phaseHelpBody .help-step').count())>3);await page.click('#closePhaseHelp');
+await page.evaluate(()=>{const {A6,openSimplification}=wormhoffTest;A6.stage='loops';A6.simplified=false;A6.completedScore=false;openSimplification(true);});
+assert.equal(await page.locator('#continueSimplification').isVisible(),false);
+await page.locator('[data-simple="0"]').fill('0');await page.click('#checkSimplification');assert.equal(await page.locator('#continueSimplification').isVisible(),false,'Rechaza una simplificación incorrecta');
+const simpleEquations=await page.evaluate(()=>wormhoffTest.A6.done.map(l=>wormhoffTest.sixEq(l.row.map((v,i)=>v*wormhoffTest.A6.signs[i]),l.b)));
+for(let i=0;i<simpleEquations.length;i++)await page.locator('[data-simple="'+i+'"]').fill(simpleEquations[i]);
+await page.click('#checkSimplification');assert(await page.locator('#continueSimplification').isVisible(),'Acepta las tres ecuaciones de malla');
+await page.locator('[data-simple="1"]').fill('I1=0');assert.equal(await page.locator('#continueSimplification').isVisible(),false,'Editar una ecuación invalida la comprobación');
+await page.locator('[data-simple="1"]').fill(simpleEquations[1]);await page.click('#checkSimplification');await page.click('#continueSimplification');
+await page.evaluate(()=>{const {A6,sixStartSolve}=wormhoffTest;sixStartSolve();A6.step=A6.steps.length;A6.finalVerified=true;A6.completedScore=true;sixStartSolve(true);});
 const sixBefore=await page.locator('#advResults strong').allTextContents();
 for(let i=0;i<6;i++){
  const working=await page.locator('#advSolveSteps').textContent();
@@ -405,7 +425,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   assert(await page.locator('#hero .hero-segment').evaluateAll(nodes=>nodes.every(el=>getComputedStyle(el).visibility==='hidden')));
   await page.locator('body').dispatchEvent('pointerup',{pointerId:71,isPrimary:true,pointerType:'touch',button:0});
   assert.equal(await page.locator('#heroBody').evaluate(el=>getComputedStyle(el).visibility),'visible');
-  assert.equal(await page.locator('#heroTail').evaluate(el=>getComputedStyle(el).visibility),'visible');
+  assert.equal(await page.locator('#heroTail').evaluate(el=>getComputedStyle(el).visibility),'visible');assert(await page.locator('#heroFaceOrientation').getAttribute('transform'));
   const dots=await page.locator('.fx-current-dot').evaluateAll(nodes=>nodes.map(n=>[n.getAttribute('cx'),n.getAttribute('cy')]));
   await page.waitForTimeout(220);
   assert.equal(await page.locator('#hero').getAttribute('transform'),position,'El gusano se detiene');
