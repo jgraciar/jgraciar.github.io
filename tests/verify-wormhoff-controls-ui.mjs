@@ -172,8 +172,10 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const selectSymbol=async value=>{await page.click('#openSettings');await page.selectOption('#symbolStandard',value);await page.click('#closeSettings');};
  assert.equal(await page.locator('html').getAttribute('data-theme'),'dark','Tema oscuro por defecto');
  await assertStageChecks(page,[]);
- const phaseRects=await page.locator('#stagebar .stage').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};}));
- assert(Math.abs(phaseRects[0].y-phaseRects[1].y)<1&&Math.abs(phaseRects[2].y-phaseRects[3].y)<1,'Fases apiladas de dos en dos');assert(phaseRects[0].x<phaseRects[1].x&&phaseRects[2].x<phaseRects[3].x&&phaseRects[2].y>=phaseRects[0].y+phaseRects[0].h-1,'Orden 1, 2 arriba de 3, 4');
+ const phaseRects=await page.locator('#stagebar .stage:visible').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};}));
+ assert.equal(phaseRects.length,4,'Solo cuatro fases visibles: corrientes, nudos, mallas y resolución');
+ assert(Math.abs(phaseRects[0].y-phaseRects[1].y)<1&&Math.abs(phaseRects[2].y-phaseRects[3].y)<1,'Fases visibles apiladas de dos en dos');
+ assert(phaseRects[0].x<phaseRects[1].x&&phaseRects[2].x<phaseRects[3].x&&phaseRects[2].y>=phaseRects[0].y+phaseRects[0].h-1,'Orden de las cuatro fases visibles');
 
  assert.equal(await page.locator('#exerciseStatus,#exerciseHint,#difficultyInfo,.top .sub,.exercisebar').count(),0,'Cabecera sin estado, observaciones ni subtítulo');
  assert(await page.locator('#exerciseSelect').evaluate(el=>!!el.closest('.brand-exercise')),'Selector junto al nombre');
