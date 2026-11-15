@@ -3567,7 +3567,9 @@
       'verifyMatrix','advMatVerify','goSolve','advSolveBtn',
       'nextStep','restartSteps','advSolveNext','playAgain'];
     const actions=$('boardActions'),transport=$('circuitTransport'),entries=[];
-    $('circuitCard').querySelector('.board').after(actions);
+    // Los mandos de reproducción de mallas y las acciones se sitúan debajo del esquema.
+    $('circuitCard').querySelector('.board').after(transport);
+    transport.after(actions);
     for(const id of ids){
       const button=$(id);if(!button)continue;
       const marker=document.createElement('span');marker.hidden=true;marker.setAttribute('aria-hidden','true');
