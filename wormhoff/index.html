@@ -1718,14 +1718,14 @@
   function terms(parts,kind){
     if(!parts.length)return '0';
     return parts.map((p,j)=>{
-      const value=kind==='E'?formatNumber(Math.abs(p.v))+' V':formatNumber(R[p.i])+'·'+names[p.i];
+      const value=kind==='E'?formatNumber(Math.abs(p.v)):formatNumber(R[p.i])+'·'+names[p.i];
       return (p.v<0?(j?' − ':'−'):(j?' + ':''))+value;
     }).join('');
   }
   function termsHtml(parts,kind){
     if(!parts.length)return '—';
     return parts.map((p,j)=>{
-      const value=kind==='E'?formatNumber(Math.abs(p.v))+' V':formatNumber(R[p.i])+'·'+names[p.i];
+      const value=kind==='E'?formatNumber(Math.abs(p.v)):formatNumber(R[p.i])+'·'+names[p.i];
       const val=(p.v<0?(j?' − ':'−'):(j?' + ':''))+value;
       return j===parts.length-1?'<span class="flash-term">'+val+'</span>':val;
     }).join('');
@@ -2637,7 +2637,7 @@
         return `<span class="${k===A6.loop&&A6.stage==='loops'&&A6.pass==='R'&&j===A6.rowsR[k].length-1&&A6.waiting?'flash-term':''}">${t}</span>`;
       }).join('');
       const uu=A6.rowsU[k].map((o,j)=>{
-        const t=(o.v<0?(j?' − ':'−'):(j?' + ':''))+fmt6(Math.abs(o.v))+' V';
+        const t=(o.v<0?(j?' − ':'−'):(j?' + ':''))+fmt6(Math.abs(o.v));
         return `<span class="${k===A6.loop&&A6.stage==='loops'&&A6.pass==='U'&&j===A6.rowsU[k].length-1&&A6.waiting?'flash-term':''}">${t}</span>`;
       }).join('');
       if(!rr&&!uu&&!A6.done[k])continue;
@@ -3659,7 +3659,7 @@
     return (six?A6.done:S.loops).map((loop,k)=>{
       const row=six?loop.row.map((v,i)=>v*A6.signs[i]):loop.row.slice(),b=six?loop.b:loop.source;
       const resistors=six?A6.rowsR[k]:loop.resistors,sources=six?A6.rowsU[k]:loop.sources;
-      const original=six?(resistors.length?resistors.map((term,i)=>(term.v<0?(i?' − ':'−'):(i?' + ':''))+formatNumber(Math.abs(term.v))+'·'+labels[term.i]).join(''):sixEq(row,0,labels).split(' = ')[0])+' = '+(sources.length?sources.map((term,i)=>(term.v<0?(i?' − ':'−'):(i?' + ':''))+formatNumber(Math.abs(term.v))+' V').join(''):formatNumber(b)+' V'):terms(resistors,'R')+' = '+terms(sources,'E');
+      const original=six?(resistors.length?resistors.map((term,i)=>(term.v<0?(i?' − ':'−'):(i?' + ':''))+formatNumber(Math.abs(term.v))+'·'+labels[term.i]).join(''):sixEq(row,0,labels).split(' = ')[0])+' = '+(sources.length?sources.map((term,i)=>(term.v<0?(i?' − ':'−'):(i?' + ':''))+formatNumber(Math.abs(term.v))).join(''):formatNumber(b)):terms(resistors,'R')+' = '+terms(sources,'E');
       return {row,b,original,simplified:sixEq(row,b,labels)};
     });
   }
