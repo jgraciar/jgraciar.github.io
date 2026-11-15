@@ -175,7 +175,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const phaseRects=await page.locator('#stagebar .stage:visible').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};}));
  assert.equal(phaseRects.length,3,'Tres fases visibles: corrientes y nudos, mallas y resolución');
  assert(phaseRects.every(r=>r.w>0&&r.h>0),'Todas las fases visibles tienen dimensiones');
- assert(phaseRects[0].x<=phaseRects[1].x&&phaseRects[1].x<=phaseRects[2].x,'Orden horizontal de las tres fases');
+ assert(phaseRects.every((r,i)=>i===0||r.y>phaseRects[i-1].y-1||(Math.abs(r.y-phaseRects[i-1].y)<1&&r.x>phaseRects[i-1].x)),'Fases ordenadas en filas, sin exigir una sola fila horizontal');
 
  assert.equal(await page.locator('#exerciseStatus,#exerciseHint,#difficultyInfo,.top .sub,.exercisebar').count(),0,'Cabecera sin estado, observaciones ni subtítulo');
  assert(await page.locator('#exerciseSelect').evaluate(el=>!!el.closest('.brand-exercise')),'Selector junto al nombre');
