@@ -816,7 +816,7 @@
               <g id="heroSegments"></g>
             </g>
             <g id="heroShape">
-              <path id="heroTip" visibility="hidden" class="hero-tip" d="M-4 -14 Q-6 -19 -2 -17 Q0 -22 2 -17 Q6 -19 4 -14Z"/>
+              <path id="heroTip" visibility="hidden" class="hero-tip" d="M0 -28 L-9 -13 L-4 -14 L-4 -10 L4 -10 L4 -14 L9 -13 Z"/>
               <ellipse id="heroBody" class="hero-body" cx="0" cy="-3" rx="10.5" ry="12"/>
               <path class="hero-shine" d="M-7 -6 Q-7 -11 -3 -12"/>
               <g id="heroFaceOrientation"><g class="hero-face"><path class="hero-eyebrow" d="M-7 -10 Q-4 -12 -1.5 -10 M1.5 -10 Q4 -12 7 -10"/><g class="hero-eyes"><ellipse class="hero-eye-white" cx="-3.7" cy="-5" rx="3" ry="3.7"/><ellipse class="hero-eye-white" cx="3.7" cy="-5" rx="3" ry="3.7"/><ellipse class="hero-eye" cx="-3.7" cy="-5" rx="1.5" ry="2.4"/>
@@ -3743,9 +3743,14 @@
   const css=document.createElement('style');css.textContent=`
    @media(min-width:801px){
     #gameLayout{align-items:start}
-    #equationsCard{max-height:calc(100vh - var(--stagebar-height,90px) - 28px);overflow-y:auto;overscroll-behavior-y:contain;scrollbar-gutter:stable}
-    #equationsCard:hover{overflow-y:auto}
+    #circuitCard,#equationsCard{min-height:0;max-height:calc(100dvh - var(--stagebar-height,90px) - 28px);overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-gutter:stable}
+    #stagebar:not(.single-stage){grid-template-columns:repeat(3,minmax(0,1fr))}
    }
+   @media(min-width:801px) and (max-width:1040px){
+    #stagebar:not(.single-stage){grid-template-columns:repeat(2,minmax(0,1fr))}
+   }
+   #circuitCard,#equationsCard{scrollbar-width:thin}
+   #solutionSteps .step:last-child{scroll-margin-block:35vh}
    #stagebar [data-stage="3"]{display:none!important}
    #phase3{margin-top:18px}
    body.worm-mesh-waiting #hero{opacity:0;pointer-events:none}
@@ -3754,8 +3759,28 @@
    @media(prefers-reduced-motion:reduce){body.worm-mesh-reveal #hero{animation:none}}
   `;document.head.appendChild(css);
   const right=document.getElementById('equationsCard');
-  const focus=()=>{if(!right||window.matchMedia('(max-width:800px)').matches)return;const target=right.querySelector('.challenge:not(.hide),.board-eq-row:last-child,.eq:last-child');if(target&&target.getClientRects().length){const r=target.getBoundingClientRect(),c=right.getBoundingClientRect();right.scrollBy({top:r.top-c.top-c.height*.42,behavior:'smooth'});}};
-  if(right){let queued=false;new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;focus()})}).observe(right,{childList:true,subtree:true,characterData:true});}
+  if(right){
+   let queued=false,lastStep=null;
+   const focus=()=>{
+    if(window.matchMedia('(max-width:800px)').matches)return;
+    const steps=right.querySelectorAll('#solutionSteps .step');
+    if(steps.length){
+     const target=steps[steps.length-1],key=steps.length+':'+(target.textContent||'').slice(0,80);
+     if(key===lastStep)return;
+     lastStep=key;
+     const a=target.getBoundingClientRect(),b=right.getBoundingClientRect();
+     right.scrollBy({top:(a.top+a.bottom)/2-(b.top+b.bottom)/2,behavior:'smooth'});
+    }else{
+     lastStep=null;
+     const target=right.querySelector('.challenge:not(.hide),.board-eq-row:last-child');
+     if(target&&target.getClientRects().length){
+      const a=target.getBoundingClientRect(),b=right.getBoundingClientRect();
+      right.scrollBy({top:(a.top+a.bottom)/2-(b.top+b.bottom)/2,behavior:'smooth'});
+     }
+    }
+   };
+   new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;focus()})}).observe(right,{childList:true,subtree:true,characterData:true});
+  }
   let played=false,previous='';
   const refresh=()=>{
    const mesh=(typeof active!=='undefined'&&active.kind!=='network'&&((active.kind==='multi'&&A6.stage==='loops')||(active.kind!=='multi'&&S.phase===2)));
