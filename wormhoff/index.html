@@ -3640,7 +3640,8 @@
   }
 
   function syncHeroFaceOrientation(){
-    $('heroFaceOrientation').setAttribute('transform','rotate('+(-heroMotion.angle)+' 0 -3)');
+    // La expresión facial gira solidariamente con la cabeza y apunta hacia el avance.
+    $('heroFaceOrientation').removeAttribute('transform');
   }
   function setHeroVictory(done){
     const hero=$('hero');
