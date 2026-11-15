@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-visual">
 <meta name="color-scheme" content="dark">
-<title>Wormhoff · MVP 3.8</title>
+<title>Wormhoff · MVP 3.9</title>
 <style>
   :root { --bg:var(--paint-09101d,#09101d); --card:var(--paint-111c30,#111c30); --card2:var(--paint-0c182b,#0c182b); --border:var(--paint-2c415b,#2c415b); --txt:var(--paint-f0f6ff,#f0f6ff); --muted:var(--paint-a7bbd0,#a7bbd0); --cyan:var(--paint-5ce6f0,#5ce6f0); --lime:var(--paint-b7f75c,#b7f75c); --amber:var(--paint-ffc66b,#ffc66b); --red:var(--paint-ff7786,#ff7786); --purple:var(--paint-ac98ff,#ac98ff); }
   *{box-sizing:border-box}
@@ -785,8 +785,8 @@
   <nav class="stages" id="stagebar" aria-label="Fases">
     <div class="stage" data-stage="0"><button type="button" class="phase-link" data-phase="0"><b>01</b><span>Corrientes y nudos</span></button><span class="phase-complete" role="img" aria-label="Fase superada" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg></span></div>
     <div class="stage" data-stage="2"><button type="button" class="phase-link" data-phase="2"><b>02</b><span>Mallas</span></button><span class="phase-complete" role="img" aria-label="Fase superada" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg></span></div>
-    <div class="stage" data-stage="3"><button type="button" class="phase-link" data-phase="3"><b>03</b><span>Matriz</span></button><span class="phase-complete" role="img" aria-label="Fase superada" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg></span></div>
-    <div class="stage" data-stage="4"><button type="button" class="phase-link" data-phase="4"><b>04</b><span>Resolución</span></button><span class="phase-complete" role="img" aria-label="Fase superada" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg></span></div>
+    <div class="stage" data-stage="3" hidden><button type="button" class="phase-link" data-phase="3"><b>03</b><span>Matriz</span></button><span class="phase-complete" role="img" aria-label="Fase superada" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg></span></div>
+    <div class="stage" data-stage="4"><button type="button" class="phase-link" data-phase="4"><b>03</b><span>Resolución</span></button><span class="phase-complete" role="img" aria-label="Fase superada" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg></span></div>
   </nav>
   <main class="layout" id="gameLayout">
     <section class="card" id="circuitCard">
@@ -1544,7 +1544,7 @@
     const completed=(S.phase===0?0:S.phase===1?18:S.phase===2?35:S.phase===3?69:89)+(S.finished?11:0);
     $('percent').textContent=completed+'%';
 
-    const titles=['Fase 1 · Corrientes y nudos','Fase 1 · Corrientes y nudos','Fase 2 · Ley de las mallas','Fase 3 · Sistema matricial','Fase 4 · Sustitución y reducción'];
+    const titles=['Fase 1 · Corrientes y nudos','Fase 1 · Corrientes y nudos','Fase 2 · Ley de las mallas','Fase 2 · Forma matricial','Fase 3 · Sustitución y reducción'];
     $('phaseHead').textContent=titles[S.phase];
     $('phaseChip').textContent=S.finished?'SUPERADO':['CORRIENTES','NUDOS','MALLAS','A · I = b','RESUELVE'][S.phase];syncPhaseNavigation();
   }
@@ -2288,7 +2288,7 @@
     $('matrixInputs').innerHTML=html;
     $('matrixInputs').querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>{inp.classList.remove('correct','wrong')}));
     msg('matrixFeedback','');show('matrixFeedback',false);
-    show('goSolve',false);
+    show('goSolve',true);
   }
   $('fillMatrix').onclick=()=>{
     const {A,b}=system();document.querySelectorAll('#matrixInputs input').forEach(inp=>{
@@ -2305,7 +2305,7 @@
     if(ok){msg('matrixFeedback','Matriz correcta.','good');show('goSolve',true);if(!S.matrixScored){S.score+=180;S.matrixScored=true;updateHeader()}}
     else{msg('matrixFeedback','Revisa los coeficientes señalados.','bad');show('goSolve',false);}syncPhaseNavigation();
   };
-  $('goSolve').onclick=()=>{if(!matrixPhaseComplete())return;S.score+=20;phase(4)};
+  $('goSolve').onclick=()=>{if(!S.simplified)return;S.score+=20;phase(4)};
   function finalISummary(){const ii=jValues.map((x,i)=>x*S.signs[i]);return ii.map((v,i)=>names[i]+' = '+fmt(v)+' A').join('; ')+'.'}
   // Tabla de columnas fijas: los coeficientes I₁, I₂, I₃ y el término
   // independiente ocupan siempre la misma posición en las ecuaciones.
@@ -2857,7 +2857,7 @@
     A6.simplifying=false;show('simplificationPhase',false);
     rememberPhase(3);A6.stage='matrix';sixCancel();sixMeshArrows();show('advLoops',false);show('advMatrix',true);show('advFill',difficulty()===0);show('advToMatrix',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);show('advBoardEquations',A6.rowsR.some(row=>row.length)||A6.rowsU.some(row=>row.length));show('advKCL',true);
     sixRenderMatrix();
-    show('advSolveBtn',false);sixText('advMatFeedback','');show('advMatFeedback',false);
+    show('advSolveBtn',true);sixText('advMatFeedback','');show('advMatFeedback',false);
     $('percent').textContent='68%';$('phaseChip').textContent='MATRIZ 6 × 6';syncPhaseNavigation();
   }
   function sixRenderMatrix(){
@@ -2986,7 +2986,7 @@
   $('advStart').onclick=sixNodeStart;
   $('advNext').onclick=()=>toggleTransport('advNext');$('advToMatrix').onclick=()=>openSimplification(true);
   $('advFill').onclick=()=>{const {A,b}=sixSystem(),t=A.map((row,i)=>[...row,b[i]]);$('advMatInputs').querySelectorAll('input').forEach(x=>{x.value=fmt6(t[Number(x.dataset.ar)][Number(x.dataset.ac)])})};
-  $('advMatVerify').onclick=sixVerifyMatrix;$('advSolveBtn').onclick=()=>{if(matrixPhaseComplete())sixStartSolve()};
+  $('advMatVerify').onclick=sixVerifyMatrix;$('advSolveBtn').onclick=()=>{if(A6.simplified)sixStartSolve()};
   $('advSolveNext').onclick=()=>{if(A6.step<A6.steps.length){A6.step++;sixRenderSolve()}};
 
 
@@ -3160,26 +3160,26 @@
     const six=active.kind==='multi';
     if(index===0)return six?A6.nodeIds.length===requiredNodeEquations(true)&&currentNamesReady(true):S.nodeDone&&currentNamesReady(false);
     if(index===2)return (six?A6.done:S.loops).every(Boolean)&&(six?A6.simplified:S.simplified);
-    if(index===3)return matrixPhaseComplete();
+    if(index===3)return false;
     if(index===4)return solutionComplete(six);
     return false;
   }
   function syncPhaseNavigation(){
     const raw=phaseIndex(),current=raw===1?0:raw,network=active.kind==='network',simplifying=!network&&raw===2&&(active.kind==='multi'?A6.simplifying:S.simplifying);
-    show('simplificationPhase',simplifying);show('phase2',active.kind!=='multi'&&raw===2&&!simplifying);show('advLoops',active.kind==='multi'&&raw===2&&!simplifying);
+    show('simplificationPhase',simplifying);show('phase2',active.kind!=='multi'&&(raw===2&&!simplifying||raw===3));show('advLoops',active.kind==='multi'&&raw===2&&!simplifying);
     if(simplifying){show('circuitControls',false);$('phaseHead').textContent='Fase 2 · Simplificar ecuaciones';$('phaseChip').textContent='SIMPLIFICA';}
     syncNodeSelection();
     show('advIntroduction',!['matrix','solve'].includes(A6.stage)&&!simplifying);
-    const labels={0:'Corrientes y nudos',2:'Mallas',3:'Matriz',4:'Resolución'};
+    const labels={0:'Corrientes y nudos',2:'Mallas',3:'Mallas',4:'Resolución'};
     show('advEditCurrentReferences',active.kind==='multi'&&A6.stage==='nodes');
     $('stagebar').classList.toggle('single-stage',network);
     const reset=$('activePhaseReset');reset.dataset.resetPhase=String(current);reset.title='Reiniciar '+(network?'Reducción':labels[current]);reset.setAttribute('aria-label',reset.title);
     if(active.kind==='multi'&&!simplifying)$('phaseHead').textContent='Fase '+(raw<=1?1:raw)+' · '+labels[current];
     document.querySelectorAll('#stagebar .stage').forEach(el=>{
-      const i=Number(el.dataset.stage);el.hidden=network&&i!==0;
+      const i=Number(el.dataset.stage);el.hidden=i===3||(network&&i!==0);
       const completed=phaseComplete(i);el.classList.toggle('active',i===current);el.classList.toggle('done',completed);el.querySelector('.phase-complete').hidden=!completed;
       const link=el.querySelector('.phase-link');
-      link.disabled=i>current;link.setAttribute('aria-current',i===current?'step':'false');
+      link.disabled=i>current||(i===4&&current<4);link.setAttribute('aria-current',i===current?'step':'false');
       link.querySelector('span').textContent=network?'Reducción':labels[i];
       link.title=i<current?'Volver a '+link.textContent.trim():i===current?'Fase actual':'Completa las fases anteriores';
     });
@@ -3217,7 +3217,7 @@
       document.querySelectorAll('[data-reduce]').forEach(el=>{el.value='';el.style.borderColor='';});$('reduceMsg').textContent='';
     }
     phase(n);
-    if(n===3&&!restart){$('matrixInputs').querySelectorAll('input').forEach((el,i)=>el.value=matrixValues[i]??'');show('goSolve',S.matrixScored);}
+    if(n===3&&!restart){$('matrixInputs').querySelectorAll('input').forEach((el,i)=>el.value=matrixValues[i]??'');show('goSolve',true);}
     if(n!==2)positionHero(345,BOT,0,true);
     $('boardState').textContent=(restart?'Fase reiniciada: ':'Fase actual: ')+['corrientes','ley de los nudos','ley de las mallas','matriz','resolución'][n]+'.';
   }
@@ -3237,19 +3237,19 @@
     if(n===2){show('advLoops',true);sixSelectLoop(Math.max(0,A6.done.findIndex(x=>!x)));syncMeshDirectionSetup();}
     if(n===3){
       A6.stage='loops';sixMatrix();
-      if(!restart){$('advMatInputs').querySelectorAll('input').forEach((el,i)=>el.value=matrixValues[i]??'');show('advSolveBtn',A6.matrixScore);}
+      if(!restart){$('advMatInputs').querySelectorAll('input').forEach((el,i)=>el.value=matrixValues[i]??'');show('advSolveBtn',true);}
     }
     if(n===4)sixStartSolve();
     sixRenderRows();sixRefArrow();sixMeshArrows();syncPhaseNavigation();
     $('score').textContent=String(S.score).padStart(4,'0');$('percent').textContent=[0,10,18,68,85][n]+'%';
-    $('phaseHead').textContent='Fase '+(n<=1?1:n)+' · '+['Corrientes y nudos','Corrientes y nudos','Ley de las mallas','Matriz','Resolución'][n];
+    $('phaseHead').textContent='Fase '+(n<=1?1:n===4?3:2)+' · '+['Corrientes y nudos','Corrientes y nudos','Ley de las mallas','Forma matricial','Resolución'][n];
     $('phaseChip').textContent=['CORRIENTES','NUDOS','MALLAS','MATRIZ 6 × 6','REDUCCIÓN'][n];
   }
   function initPhaseNavigation(){
     document.querySelectorAll('[data-phase]').forEach(el=>el.onclick=()=>{const n=Number(el.dataset.phase);if(n===0&&phaseIndex()===1)return;visitPhase(n);});
     document.querySelectorAll('[data-reset-phase]').forEach(el=>el.onclick=()=>{const model=active.kind==='multi'?A6:S;if(model.simplifying){model.simplified=false;openSimplification(active.kind==='multi');}else visitPhase(Number(el.dataset.resetPhase),true);});
     $('networkR').addEventListener('input',syncPhaseNavigation);
-    for(const id of ['matrixInputs','advMatInputs'])$(id).addEventListener('input',event=>{event.target.classList.remove('correct','wrong');syncPhaseNavigation();if(phaseIndex()===3)show(active.kind==='multi'?'advSolveBtn':'goSolve',matrixPhaseComplete());});
+    for(const id of ['matrixInputs','advMatInputs'])$(id).addEventListener('input',event=>{event.target.classList.remove('correct','wrong');syncPhaseNavigation();if(phaseIndex()===3)show(active.kind==='multi'?'advSolveBtn':'goSolve',true);});
     const resize=()=>document.documentElement.style.setProperty('--stagebar-height',Math.ceil($('stagebar').getBoundingClientRect().height)+'px');
     new ResizeObserver(resize).observe($('stagebar'));resize();
   }
@@ -3733,6 +3733,46 @@
     active=oldActive;R=oldR;E=oldE;
   }
   newGame();syncBoardActions();syncEquationPlaceholder();syncColumnText();initLanguage();
+})();
+</script>
+<script>
+// Wormhoff 3.9: matriz integrada en mallas y navegación independiente.
+(function(){
+ const setup=()=>{
+  const phase2=document.getElementById('phase2'),matrix=document.getElementById('phase3');
+  if(phase2&&matrix&&!phase2.contains(matrix))phase2.appendChild(matrix);
+  const css=document.createElement('style');css.textContent=`
+   @media(min-width:801px){
+    #gameLayout{align-items:start}
+    #equationsCard{max-height:calc(100vh - var(--stagebar-height,90px) - 28px);overflow-y:auto;overscroll-behavior-y:contain;scrollbar-gutter:stable}
+    #equationsCard:hover{overflow-y:auto}
+   }
+   #stagebar [data-stage="3"]{display:none!important}
+   #phase3{margin-top:18px}
+   body.worm-mesh-waiting #hero{opacity:0;pointer-events:none}
+   body.worm-mesh-reveal #hero{animation:wormReveal .65s ease-out both}
+   @keyframes wormReveal{from{opacity:0;transform:translate(345px,360px) scale(.35)}to{opacity:1}}
+   @media(prefers-reduced-motion:reduce){body.worm-mesh-reveal #hero{animation:none}}
+  `;document.head.appendChild(css);
+  const right=document.getElementById('equationsCard');
+  const focus=()=>{if(!right||window.matchMedia('(max-width:800px)').matches)return;const target=right.querySelector('.challenge:not(.hide),.board-eq-row:last-child,.eq:last-child');if(target&&target.getClientRects().length){const r=target.getBoundingClientRect(),c=right.getBoundingClientRect();right.scrollBy({top:r.top-c.top-c.height*.42,behavior:'smooth'});}};
+  if(right){let queued=false;new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;focus()})}).observe(right,{childList:true,subtree:true,characterData:true});}
+  let played=false,previous='';
+  const refresh=()=>{
+   const mesh=(typeof active!=='undefined'&&active.kind!=='network'&&((active.kind==='multi'&&A6.stage==='loops')||(active.kind!=='multi'&&S.phase===2)));
+   const signature=mesh?(active.kind==='multi'?'six'+A6.selected:'std'+S.loop):'other';
+   if(signature!==previous){played=false;previous=signature;}
+   document.body.classList.toggle('worm-mesh-waiting',mesh&&!played);
+   if(!mesh)document.body.classList.remove('worm-mesh-reveal');
+  };
+  ['advance','advNext'].forEach(id=>document.getElementById(id)?.addEventListener('click',()=>{
+   if(!played){played=true;document.body.classList.remove('worm-mesh-waiting');document.body.classList.add('worm-mesh-reveal');}
+  },true));
+  const root=document.getElementById('phaseCard');if(root)new MutationObserver(refresh).observe(root,{attributes:true,subtree:true,attributeFilter:['class']});
+  document.querySelectorAll('[data-phase]').forEach(b=>b.addEventListener('click',()=>requestAnimationFrame(refresh)));
+  refresh();
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
 })();
 </script>
 </body>
