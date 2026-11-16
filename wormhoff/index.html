@@ -234,6 +234,18 @@
   #boardActions.hide{display:none}
   #circuitTransport .board-action-item{flex-shrink:0}
   #boardActions .board-action-item{flex-shrink:0}
+  /* En corrientes y nudos, la selección de nudos y la edición de referencias comparten fila. */
+  #boardActions .board-action-item[data-board-action="editCurrentReferences"],
+  #boardActions .board-action-item[data-board-action="advEditCurrentReferences"],
+  #boardActions .board-action-item[data-board-action="startNodeEquations"],
+  #boardActions .board-action-item[data-board-action="advStartNodeEquations"]{flex:0 1 auto;min-width:0}
+  #boardActions [data-board-action="editCurrentReferences"] button,
+  #boardActions [data-board-action="advEditCurrentReferences"] button,
+  #boardActions [data-board-action="startNodeEquations"] button,
+  #boardActions [data-board-action="advStartNodeEquations"] button{min-width:0;max-width:100%;white-space:nowrap;font-size:clamp(9px,2.5vw,14px);padding-inline:clamp(5px,1.5vw,14px)}
+  @media(max-width:600px){#boardActions:has([data-board-action="startNodeEquations"]:not([hidden])):has([data-board-action="editCurrentReferences"]:not([hidden])),
+  #boardActions:has([data-board-action="advStartNodeEquations"]:not([hidden])):has([data-board-action="advEditCurrentReferences"]:not([hidden])){gap:4px;padding-inline:5px}}
+
   .matrix-result-options{margin:10px 0;font-size:14px}
   .matrix-result-options label{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
   /* Vuelta y reproducción siempre en la misma fila; el texto se adapta al ancho. */
