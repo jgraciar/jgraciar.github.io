@@ -1000,13 +1000,13 @@
           <div class="eqpanel"><div class="eqtitle">A · I = b</div><div class="matrix" id="matrixInputs"></div></div>
           <div class="btnrow matrix-actions"><button class="primary" id="verifyMatrix">Comprobar matriz</button><button class="ghost small" id="fillMatrix">Rellenar para probar</button></div>
           <div class="message" id="matrixFeedback">Utiliza números con signo. Los huecos de coeficientes nulos son 0.</div>
-          <button class="success hide" id="goSolve">Resolver algebraicamente →</button>
+          <div class="matrix-result-options" id="basicMatrixOptions"><label><input type="checkbox" id="showBasicCramer"> Mostrar resolución por Cramer</label></div><button class="success" id="basicMatrixResults" type="button">Obtener resultados de la matriz →</button><button class="success hide" id="goSolve">Resolver algebraicamente →</button>
         </div>
         <div id="phase4" class="hide">
           <div class="phase-heading"><h1 class="phase-title">Resolución algebraica</h1><button type="button" class="help-button" data-phase-help="solve" aria-label="Ayuda de resolución" title="Ayuda">?</button></div>
           
           <div class="hide" aria-hidden="true"><div id="solveNodal"></div><div id="solveMesh1"></div><div id="solveMesh2"></div></div>
-          <div class="steps" id="solutionSteps"></div>
+          <div id="basicCramerDetails"></div><div class="steps" id="solutionSteps"></div>
           <div class="btnrow"><button class="primary" id="nextStep">Siguiente paso →</button><button class="ghost small" id="restartSteps">Repetir resolución</button></div>
           <div id="finalChallenge" class="challenge hide" aria-live="polite"></div>
           <div id="resultPanel" class="hide">
@@ -1721,6 +1721,7 @@
     if(n===2){S.loop=Math.max(0,S.loops.findIndex(x=>!x));loadLoop(S.loop);syncMeshDirectionSetup();}
     if(n===3){drawMatrix();show('fillMatrix',difficulty()===0);}
     if(n===4){
+      if(S.solveMethod==='matrix')$('basicMatrixResults').before($('showBasicCramer').closest('.matrix-result-options'));
       const {A,b}=system();
       $('solveNodal').textContent='Nudo '+(S.nodeSelected||'A')+' (Σ I entran = Σ I salen): '+nodeSides();
       $('solveMesh1').textContent='Malla 1: '+coefEq(A[1],b[1]);
@@ -2449,7 +2450,7 @@
     $('matrixInputs').innerHTML=html;
     $('matrixInputs').querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>{inp.classList.remove('correct','wrong')}));
     msg('matrixFeedback','');show('matrixFeedback',false);
-    show('goSolve',true);
+    show('goSolve',true);$('showBasicCramer').checked=false;
   }
   $('fillMatrix').onclick=()=>{
     const {A,b}=system();document.querySelectorAll('#matrixInputs input').forEach(inp=>{
@@ -2466,7 +2467,15 @@
     if(ok){msg('matrixFeedback','Matriz correcta.','good');show('goSolve',true);if(!S.matrixScored){S.score+=180;S.matrixScored=true;updateHeader()}}
     else{msg('matrixFeedback','revisa los coeficientes señalados','bad');show('goSolve',false);}syncPhaseNavigation();
   };
-  $('goSolve').onclick=()=>{if(!S.simplified)return;S.score+=20;phase(4)};
+  $('goSolve').onclick=()=>{if(!S.simplified)return;S.solveMethod='algebra';S.score+=20;phase(4)};
+  $('basicMatrixResults').onclick=()=>{
+    if(!S.simplified)return;
+    const {A,b}=system(),det=determinant6(A);
+    if(Math.abs(det)<1e-10){msg('matrixFeedback','La matriz es singular; no tiene solución única.','bad');return;}
+    S.solveMethod='matrix';S.finalVerified=true;S.step=buildSteps().length;phase(4);
+    S.step=buildSteps().length;renderSteps();
+  };
+  $('showBasicCramer').onchange=()=>{if(S.phase===4&&S.solveMethod==='matrix')renderSteps()};
   function finalISummary(){const ii=jValues.map((x,i)=>x*S.signs[i]);return ii.map((v,i)=>names[i]+' = '+fmt(v)+' A').join('; ')+'.'}
   // Tabla de columnas fijas: los coeficientes I₁, I₂, I₃ y el término
   // independiente ocupan siempre la misma posición en las ecuaciones.
@@ -2599,7 +2608,9 @@
   }
   function renderSteps(){
     const steps=buildSteps(),n=Math.min(S.step,steps.length);
-    $('solutionSteps').innerHTML=algebraStepsHTML(steps,n);
+    $('solutionSteps').innerHTML=S.solveMethod==='matrix'?'':algebraStepsHTML(steps,n);
+    $('basicCramerDetails').innerHTML=S.solveMethod==='matrix'&&$('showBasicCramer').checked?renderBasicCramerResolution():'';
+    show('nextStep',S.solveMethod!=='matrix');show('restartSteps',S.solveMethod!=='matrix');
     $('nextStep').disabled=S.step>=steps.length;
     $('nextStep').textContent=S.step>=steps.length?'Resolución completa ✓':'Siguiente paso →';
     const solved=S.step>=steps.length&&(difficulty()===0||S.finalVerified);
@@ -3150,6 +3161,15 @@
       for(let i=k+1;i<n;i++){const factor=a[i][k]/d;for(let j=k+1;j<n;j++)a[i][j]-=factor*a[k][j];a[i][k]=0;}
     }
     return sign*product;
+  }
+  function renderBasicCramerResolution(){
+    const {A,b}=system(),det=determinant6(A);
+    if(Math.abs(det)<1e-10)return '<p>Matriz singular: Cramer no es aplicable.</p>';
+    const rows=names.map((name,j)=>{
+      const replaced=A.map((row,i)=>row.map((v,k)=>k===j?b[i]:v)),d=determinant6(replaced);
+      return '<tr><td>'+escapeHtml(name)+'</td><td>'+escapeHtml(fmt(d))+'</td><td>'+escapeHtml(fmt(det))+'</td><td>'+escapeHtml(fmt(d/det))+' A</td></tr>';
+    }).join('');
+    return '<div class="algebra-step-detail"><strong>Regla de Cramer</strong><p>Δ = '+escapeHtml(fmt(det))+'. Sustituimos cada columna por los términos independientes y dividimos Δᵢ entre Δ.</p><table class="algebra-table"><thead><tr><th>Intensidad</th><th>Δᵢ</th><th>Δ</th><th>Resultado</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
   function renderCramerResolution(){
     const {A,b}=sixSystem(),det=determinant6(A);
