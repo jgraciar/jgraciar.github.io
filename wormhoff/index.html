@@ -928,7 +928,7 @@
             <div class="eqlist"><div class="eqtitle">Tres nudos + tres mallas</div><div id="advMatEqs"></div></div>
             <div class="adv-mat-overflow"><div id="advMatInputs"></div></div>
             <div class="btnrow matrix-actions"><button class="primary" id="advMatVerify">Comprobar matriz</button><button class="ghost small" id="advFill">Rellenar para probar</button></div>
-            <div class="message" id="advMatFeedback"></div><button class="success hide" id="advMatrixSolveBtn" type="button">Resolver matriz paso a paso →</button>
+            <div class="message" id="advMatFeedback"></div><div class="matrix-result-options"><label><input type="checkbox" id="advShowCramer"> Mostrar resolución por Cramer</label></div><button class="success hide" id="advMatrixSolveBtn" type="button">Obtener resultados de la matriz →</button>
             <button class="success hide" id="advSolveBtn">Resolver mediante sustitución y reducción →</button>
           </div>
           <div id="advSolve" class="hide">
@@ -2805,6 +2805,7 @@
     S.phase=6;S.score=0;
     // Cada nuevo ejercicio de tres mallas parte de intensidades enteras que satisfacen KCL.
     if(active.kind==='multi')generateIntegerValues();
+    $('advShowCramer').checked=false;A6.solveMethod='algebra';
     A6.currentNumbers=Array(6).fill(null);A6.currentPositions=Array(6).fill(null);NAMES6.splice(0,NAMES6.length,...Array(6).fill('I'));
     A6.meshDirections=[true,true,true];A6.meshDirectionsConfirmed=false;A6.stage='dirs';A6.nodeCount=0;A6.nodeIds=[];A6.nodeChoices=[];A6.nodeSelectionConfirmed=false;A6.nodesScored=false;$('advKCLtext').innerHTML='';A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
     $('stagebar').classList.remove('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
@@ -3132,11 +3133,32 @@
       vars:NAMES6,rows:A.map((row,i)=>({label:i<3?'Nudo '+sixChosenNodeIds()[i]:'Malla '+(i-2),row,b:origB[i]}))});
     A6.finalCurrents=ii;A6.finalGood=good;A6.step=0;A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.completedScore=previous?.scored||false;if(previous){A6.step=Math.min(previous.step,A6.steps.length);A6.finalVerified=previous.verified;}sixRenderSolve();if(!previous)$('percent').textContent='85%';
   }
+  function determinant6(matrix){
+    const a=matrix.map(row=>row.slice()),n=a.length;let sign=1,product=1;
+    for(let k=0;k<n;k++){
+      let pivot=k;for(let i=k+1;i<n;i++)if(Math.abs(a[i][k])>Math.abs(a[pivot][k]))pivot=i;
+      if(Math.abs(a[pivot][k])<1e-11)return 0;
+      if(pivot!==k){[a[k],a[pivot]]=[a[pivot],a[k]];sign=-sign;}
+      const d=a[k][k];product*=d;
+      for(let i=k+1;i<n;i++){const factor=a[i][k]/d;for(let j=k+1;j<n;j++)a[i][j]-=factor*a[k][j];a[i][k]=0;}
+    }
+    return sign*product;
+  }
+  function renderCramerResolution(){
+    const {A,b}=sixSystem(),det=determinant6(A);
+    if(Math.abs(det)<1e-10)return '<p>La matriz es singular; no se puede aplicar Cramer.</p>';
+    const rows=NAMES6.map((name,j)=>{
+      const replaced=A.map((row,i)=>row.map((v,k)=>k===j?b[i]:v));
+      const dj=determinant6(replaced);
+      return '<tr><td>'+escapeHtml(name)+'</td><td>'+escapeHtml(fmt6(dj))+'</td><td>'+escapeHtml(fmt6(det))+'</td><td>'+escapeHtml(fmt6(dj/det))+' A</td></tr>';
+    }).join('');
+    return '<div class="algebra-step-detail"><strong>Regla de Cramer</strong><p>Determinante de la matriz de coeficientes: Δ = '+escapeHtml(fmt6(det))+'. Para cada incógnita, sustituimos su columna por el vector de términos independientes y calculamos Δᵢ / Δ.</p><div class="adv-mat-overflow"><table class="algebra-table"><thead><tr><th>Intensidad</th><th>Δᵢ</th><th>Δ</th><th>Resultado</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  }
   function sixStartMatrixSolve(preserve=false){
     const previous=preserve?{step:A6.step,verified:A6.finalVerified,scored:A6.completedScore}:null;
     A6.solveMethod='matrix';rememberPhase(4);A6.stage='solve';sixMeshArrows();syncPhaseNavigation();
     show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='MÉTODO MATRICIAL';
-    const {A,b}=sixSystem(),solved=matSolve6(A,b,true),values=solved.x;
+    const {A,b}=sixSystem(),solved=matSolve6(A,b),values=solved.x;
     // Gauss: operaciones elementales sobre la matriz ampliada, seguidas de sustitución regresiva.
     const steps=[{title:'Matriz ampliada del sistema',
       detail:'Escribimos las tres ecuaciones de nudo y las tres de malla como una matriz ampliada de 6 × 7.',
@@ -3153,12 +3175,12 @@
     steps.push({title:'Comprobación del sistema',
       detail:valid?'Las seis intensidades satisfacen las tres ecuaciones de nudo y las tres de malla.':'Los resultados no satisfacen todas las ecuaciones.',
       vars:NAMES6,rows:A.map((row,i)=>({label:i<3?'Nudo '+sixChosenNodeIds()[i]:'Malla '+(i-2),row,b:b[i]}))});
-    A6.steps=steps;A6.finalCurrents=values;A6.finalGood=valid;A6.step=previous?Math.min(previous.step,steps.length):0;
-    A6.finalVerified=previous?.verified||false;A6.completedScore=previous?.scored||false;
+    A6.steps=steps;A6.finalCurrents=values;A6.finalGood=valid;A6.step=steps.length;
+    A6.finalVerified=true;A6.completedScore=previous?.scored||false;
     $('sixFinalChallenge').replaceChildren();sixRenderSolve();
   }
   function sixRenderSolve(){
-    $('advSolveSteps').innerHTML=algebraStepsHTML(A6.steps,A6.step);
+    $('advSolveSteps').innerHTML=A6.solveMethod==='matrix'?($('advShowCramer').checked?renderCramerResolution():'' ):algebraStepsHTML(A6.steps,A6.step);
     const done=A6.step===A6.steps.length;
     const solved=done&&(difficulty()===0||A6.finalVerified);
     if(done&&difficulty()!==0&&!A6.finalVerified){
@@ -3171,7 +3193,7 @@
       $('advResultCheck').className='message '+(A6.finalGood?'good':'bad');
       $('advResultCheck').textContent=A6.finalGood?'Verificado: A · I = b.':'Los resultados no satisfacen todas las ecuaciones.';
     }
-    $('advSolveNext').disabled=done;$('advSolveNext').textContent=done?'Ejercicio completado ✓':'Siguiente paso →';
+    $('advSolveNext').disabled=done;show('advSolveNext',A6.solveMethod!=='matrix');$('advSolveNext').textContent=done?'Ejercicio completado ✓':'Siguiente paso →';
     if(solved){$('percent').textContent='100%';if(!A6.completedScore){A6.completedScore=true;S.score+=250;$('score').textContent=String(S.score).padStart(4,'0')}}
     setHeroVictory(solved&&A6.finalGood);syncPhaseNavigation();
   }
@@ -3179,6 +3201,7 @@
   $('advNext').onclick=()=>toggleTransport('advNext');$('advToMatrix').onclick=()=>openSimplification(true);
   $('advFill').onclick=()=>{const {A,b}=sixSystem(),t=A.map((row,i)=>[...row,b[i]]);$('advMatInputs').querySelectorAll('input').forEach(x=>{x.value=fmt6(t[Number(x.dataset.ar)][Number(x.dataset.ac)])})};
   $('advMatrixSolveBtn').onclick=()=>sixStartMatrixSolve();
+  $('advShowCramer').onchange=()=>{if(A6.solveMethod==='matrix'&&A6.stage==='solve')sixRenderSolve()};
   $('advMatVerify').onclick=sixVerifyMatrix;$('advSolveBtn').onclick=()=>{if(A6.simplified)sixStartSolve()};
   $('advSolveNext').onclick=()=>{if(A6.step<A6.steps.length){A6.step++;sixRenderSolve()}};
 
