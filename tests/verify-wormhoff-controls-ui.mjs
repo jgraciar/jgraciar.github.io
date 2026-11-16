@@ -64,7 +64,8 @@ const assertStageChecks=async(page,indices)=>{
  assert.equal(await page.locator('#stagebar [data-reset-phase]').count(),0,'Los títulos no incluyen reinicio');
  const reset=page.locator('#activePhaseReset');assert(await reset.isVisible(),'Reinicio dentro de la fase activa');
  const current=Number(await page.locator('#stagebar [aria-current="step"]').getAttribute('data-phase'));assert.equal(await reset.getAttribute('data-reset-phase'),String(current));
- assert.equal(await page.locator('#stagebar .stage.active').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 224, 102)','La fase activa tiene fondo amarillo');
+ const activeBackground=await page.locator('#stagebar .stage.active').evaluate(el=>({color:getComputedStyle(el).backgroundColor,theme:document.documentElement.dataset.theme}));
+ assert.equal(activeBackground.color,activeBackground.theme==='light'?'rgb(216, 240, 244)':'rgb(255, 224, 102)','La fase activa respeta el color de su tema');
 };
 const browser=await chromium.launch({headless:true});
 let animationReference=null,meshShadeReference=null;
