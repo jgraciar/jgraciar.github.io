@@ -495,7 +495,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert(!/\bKCL\b|\bKVL\b/.test(await page.locator('body').innerText()));
  assert(parseFloat(await page.locator('#nodeEq').evaluate(el=>getComputedStyle(el).fontSize))>=18);
  const arrow=async s=>page.locator(s+' .direction').getAttribute('d');
- await page.selectOption('#exerciseSelect','r71');await assignNumbers([1,2,3]);
+ await page.selectOption('#exerciseSelect','base');await page.click('#toggleDemo');assert.equal(await page.locator('#toggleDemo').getAttribute('aria-pressed'),'false','Modo interactivo para la topología introductoria');await assignNumbers([1,2,3]);
  assert.equal(await page.locator('#reductions').isVisible(),false,'No se deben pedir resistencias equivalentes');await page.click('#confirmDirs');
  assert.equal(await page.locator('#hero').isVisible(),false);await page.locator('#nodeTargets [data-node="A"]').click();assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false);await page.click('#startNodeEquations');await page.locator('#nodeEquationChallenge .kcl-answer').fill('I1');
  const term=page.locator('#nodeEquationChallenge .kcl-live-term').first();
