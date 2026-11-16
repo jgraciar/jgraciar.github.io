@@ -86,6 +86,10 @@ for(const [i,x] of [146,345,544].entries()){
  await page.locator(`[data-current-branch="${i}"]`).dispatchEvent('click');
  await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
 }
+// La prueba del recorrido de mallas usa el modo demo, que no exige retos jugables.
+await page.click('#toggleDemo');
+assert.equal(await page.locator('#toggleDemo').getAttribute('aria-pressed'),'true');
+for(let i=0;i<3;i++)await page.locator(`[data-current-branch="${i}"]`).dispatchEvent('click');
 await page.click('#confirmDirs');assert.equal(await page.locator('#hero').isVisible(),false);assert.equal(await page.locator('#goLoops').isVisible(),false);assert.match(await page.locator('#nodeEquationCount').textContent(),/2 − 1 = 1/);await enterNodeEquation(page,'B','I1=I2+I3');assert.equal(await page.locator('#selectedNodeLabel').textContent(),'Nudo B');await assertStageChecks(page,[0]);await page.click('#goLoops');assert(await page.locator('#hero').isVisible());await page.click('#confirmMeshDirections');
 for(let mesh=0;mesh<2;mesh++){
  await page.locator(`#meshTargets [data-mesh="${mesh}"]`).dispatchEvent('click');
