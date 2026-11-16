@@ -3869,11 +3869,13 @@
     if($('gameLayout').classList.contains('mobile-layout'))actions.after($('equationsCard'));
     const methodChoices=document.createElement('div');methodChoices.id='resolutionMethodChoices';methodChoices.className='resolution-method-choices hide';
     methodChoices.innerHTML='<button id="resolveAlgebraChoice" class="success" type="button">Resolver algebraicamente</button><button id="resolveMatrixChoice" class="success" type="button">Resolver matricialmente</button>';
-    actions.append(methodChoices);
-    $('resolveAlgebraChoice').onclick=()=>{if(active.kind==='multi')sixStartSolve();else{S.solveMethod='algebra';phase(4)}};
-    $('resolveMatrixChoice').onclick=()=>{if(active.kind==='multi')sixMatrix();else phase(3)};
-    const solveShortcut=document.createElement('button');solveShortcut.type='button';solveShortcut.id='solveAfterSimplification';solveShortcut.className='success hide';solveShortcut.textContent='Resolver algebraicamente →';actions.append(solveShortcut);
-    solveShortcut.onclick=()=>{if(A6.simplifying&&A6.simplified){A6.simplifying=false;sixStartSolve();}else if(S.simplifying&&S.simplified){S.simplifying=false;phase(4);}};
+    $('phaseCard').prepend(methodChoices);
+    let choosingResolution=false;
+    const enterResolution=()=>{if(active.kind==='multi'){if(!A6.simplified)return;A6.simplifying=false;sixMatrix();show('advMatrix',false);}else{if(!S.simplified)return;S.simplifying=false;phase(3);show('phase3',false);}choosingResolution=true;methodChoices.classList.remove('hide');$('phaseHead').textContent='Fase 3 · Resolución';$('phaseChip').textContent='RESUELVE';sync();};
+    $('resolveAlgebraChoice').onclick=()=>{choosingResolution=false;methodChoices.classList.add('hide');if(active.kind==='multi')sixStartSolve();else{S.solveMethod='algebra';phase(4)};sync();};
+    $('resolveMatrixChoice').onclick=()=>{choosingResolution=false;methodChoices.classList.add('hide');if(active.kind==='multi'){show('advMatrix',true);sixRenderMatrix();}else{show('phase3',true);drawMatrix();}sync();};
+    const solveShortcut=document.createElement('button');solveShortcut.type='button';solveShortcut.id='solveAfterSimplification';solveShortcut.className='success hide';solveShortcut.textContent='Resolver';actions.append(solveShortcut);
+    solveShortcut.onclick=enterResolution;
     for(const id of ids){
       const button=$(id);if(!button)continue;
       const marker=document.createElement('span');marker.hidden=true;marker.setAttribute('aria-hidden','true');
@@ -3888,14 +3890,14 @@
         slot.hidden=!!marker.closest('.hide')||button.classList.contains('hide');
         if(!slot.hidden){if(target===transport)transportVisible++;else visible++;}
       }
-      const shortcutVisible=(A6.simplifying&&A6.simplified)||(S.simplifying&&S.simplified);
-      // Una sola acción de avance por fase: ocultar accesos duplicados.
-      if(shortcutVisible){for(const entry of entries)if(['goSolve','advSolveBtn'].includes(entry.button.id)){if(!entry.slot.hidden){entry.slot.hidden=true;visible--;}}}
+      const shortcutVisible=active.kind!=='network'&&(active.kind==='multi'?A6.simplified&&A6.stage==='loops':S.simplified&&S.phase===2)&&!(active.kind==='multi'?A6.simplifying:S.simplifying);
+      // Los accesos antiguos no deben duplicar el botón Resolver ni los métodos de la fase 3.
+      for(const entry of entries)if(['goMatrix','advToMatrix'].includes(entry.button.id)&&(active.kind==='multi'?A6.simplified:S.simplified)||['goSolve','advSolveBtn'].includes(entry.button.id)){if(!entry.slot.hidden){entry.slot.hidden=true;visible--;}}
       solveShortcut.classList.toggle('hide',!shortcutVisible);
       const standardActive=!$('standardCircuitControls').classList.contains('hide')&&!$('circuitControls').classList.contains('hide');
       const advancedActive=!$('advancedCircuitControls').classList.contains('hide')&&!$('circuitControls').classList.contains('hide');
       lapChips[0].classList.toggle('hide',!standardActive);lapChips[1].classList.toggle('hide',!advancedActive);
-      const ready=active.kind!=='network'&&(active.kind==='multi'?A6.simplified:S.simplified)&&!(active.kind==='multi'?A6.simplifying:S.simplifying)&&(active.kind==='multi'?['loops','matrix','solve'].includes(A6.stage):S.phase>=2);methodChoices.classList.toggle('hide',!ready);actions.classList.toggle('hide',visible===0&&!shortcutVisible&&!ready);transport.classList.toggle('hide',transportVisible===0&&!standardActive&&!advancedActive);
+      const ready=choosingResolution&&(active.kind==='multi'?A6.stage==='matrix':S.phase===3);methodChoices.classList.toggle('hide',!ready);if(!ready&&choosingResolution)choosingResolution=false;actions.classList.toggle('hide',visible===0&&!shortcutVisible);transport.classList.toggle('hide',transportVisible===0&&!standardActive&&!advancedActive);
     }
     const observer=new MutationObserver(sync);
     for(const root of [$('phaseCard'),$('circuitControls')])observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
