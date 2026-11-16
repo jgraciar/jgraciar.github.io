@@ -284,7 +284,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  }
  const checkAction=async id=>{
   await page.locator('#'+id).waitFor({state:'visible'});
-  const transport=['resetLoop'].includes(id),container=transport?'circuitTransport':'boardActions';
+  const transport=['resetLoop','advance','advNext'].includes(id),container=transport?'circuitTransport':'boardActions';
   assert(await page.locator('#'+id).evaluate((el,parent)=>!!el.closest('#'+parent),container),'Acción en su barra: '+id);
   const diagram=await page.locator('#circuit').boundingBox(),actions=await page.locator('#'+container).boundingBox();
   if(transport)assert(Math.abs(actions.y-diagram.y-diagram.height)<3,'Reproducción inmediatamente debajo del circuito');
