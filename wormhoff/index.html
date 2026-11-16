@@ -1230,6 +1230,28 @@
     if(difficulty()===0)return Promise.resolve(true);
     if(six)placeSixTermChallenge();
     show(container,true);const host=$(container),guided=difficulty()===1;
+    // Mostrar el término pendiente y hacerlo parpadear durante la introducción,
+    // antes de que el alumno confirme su signo o valor.
+    if(six&&A6.stage==='loops'){
+      const rows=$('advBoardRows'),k=A6.loop;
+      sixRenderRows();
+      let row=rows.querySelector('[data-equation="E'+(k+4)+'"]');
+      if(!row){
+        row=document.createElement('div');
+        row.className='board-eq-row';row.dataset.equation='E'+(k+4);
+        row.innerHTML='<div class="board-eq-label">E'+(k+4)+':<small>Malla '+(k+1)+'</small></div><div class="board-eq-formula"><span class="pending-equation"></span></div>';
+        rows.append(row);show('advBoardEquations',true);
+      }
+      const formula=row.querySelector('.board-eq-formula');
+      if(formula){
+        formula.querySelectorAll('.pending-equation').forEach(x=>x.remove());
+        const pending=document.createElement('span');
+        pending.className='pending-equation flash-term';
+        pending.textContent=(value<0?'−':'+')+' '+(isSource?fmt6(Math.abs(value)):fmt6(Math.abs(value))+'·'+NAMES6[branch]);
+        formula.append(pending);
+      }
+      pulseEquationArrow(branch,isSource);
+    }
     const name=(six?NAMES6:names)[branch];
     const display=isSource?formatNumber(Math.abs(value))+' V':formatNumber(six?R6[branch]:R[branch])+' Ω';
     host.innerHTML=`<div class="challenge-heading"><h3>${isSource?'Fuente de tensión':'Resistencia'} · ${display}</h3><button type="button" class="help-button" data-context-help="${isSource?'voltageTerm':'resistanceTerm'}" aria-label="Ayuda del término">?</button></div>`+
@@ -1242,7 +1264,7 @@
         const fb=host.querySelector('.feedback');
         fb.textContent=valid?'Término correcto.':'Término incorrecto.';
         fb.classList.toggle('good',valid);
-        if(valid){activeChallenge=null;show(container,false);resolve(true)}
+        if(valid){activeChallenge=null;show(container,false);if(six){document.querySelectorAll('.pending-equation').forEach(e=>e.remove());clearEquationArrowPulse();}resolve(true)}
       };
       activeChallenge=resolve;
       if(guided)host.querySelectorAll('[data-sign]').forEach(b=>b.onclick=()=>finish(Number(b.dataset.sign)===(value<0?-1:1)));
