@@ -779,7 +779,9 @@
   .hero-glass-shine{stroke:#fff;stroke-width:.85;stroke-linecap:round;opacity:.85}
   :root[data-theme="light"] .hero-eye-white{fill:#fff;stroke:#071a05}
 </style>
-<style>.algebra-working-line.alg-solution{background:rgba(255,211,64,.18);border-left:3px solid #ffd340;color:inherit;padding:6px 10px;font-weight:700}</style></head>
+<style>.algebra-working-line.alg-solution{background:rgba(255,211,64,.18);border-left:3px solid #ffd340;color:inherit;padding:6px 10px;font-weight:700}</style><style>
+.kcl-drag-bank{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;padding:12px;border:1px solid var(--border);border-radius:10px;margin:10px 0}.kcl-drag-token{cursor:grab;touch-action:manipulation;font-weight:750}.kcl-drag-token.selected{outline:2px solid var(--cyan)}.kcl-drag-token.placed{opacity:.5}.kcl-live-expression{display:flex;align-items:stretch;justify-content:center;gap:10px;width:100%}.kcl-live-side.kcl-drop-side{min-width:110px;min-height:52px;display:flex;align-items:center;justify-content:center;gap:5px;border:1px dashed var(--border);border-radius:9px;padding:8px;flex-wrap:wrap;cursor:pointer}.kcl-live-equals{align-self:center;font-weight:800}.grid-setting{display:flex!important;align-items:center;gap:9px}.grid-setting input{width:18px;height:18px}
+</style></head>
 <body>
 <div class="shell">
   <header class="top">
@@ -799,7 +801,7 @@
       <div class="board"><div id="currentPlacementNotice" class="current-placement-notice hide" role="status" aria-live="polite"></div>
         <svg id="circuit" viewBox="0 0 700 430" role="group" aria-label="Circuito de corriente continua con símbolos seleccionables y flechas seleccionables">
           <defs><pattern id="dots" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="var(--paint-34516e,#34516e)" opacity=".8"/></pattern><marker id="meshContourArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="mesh-contour-arrowhead" d="M1 1 L9 5 L1 9 Z"/></marker></defs>
-          <rect x="0" y="0" width="700" height="430" fill="url(#dots)"/>
+          <rect id="circuitGrid" x="0" y="0" width="700" height="430" fill="url(#dots)" style="display:none;pointer-events:none"/>
           <g id="meshSelection" aria-hidden="true"></g>
           <g id="meshTargets"></g>
           <g id="staticCircuit"></g>
@@ -1022,7 +1024,7 @@
   <div class="settings-fields">
     <label for="symbolStandard">Simbología<select id="symbolStandard"><option value="iec">IEC · rectangular</option><option value="ansi">ANSI · zigzag</option></select></label>
     <label for="languageSetting">Idioma<select id="languageSetting"><option value="es">Español</option><option value="en">English</option></select></label>
-    <label for="themeSetting">Apariencia<select id="themeSetting"><option value="dark">Modo oscuro</option><option value="light">Modo claro</option><option value="system">El del sistema</option></select></label>
+    <label for="themeSetting">Apariencia<select id="themeSetting"><option value="system">El del sistema</option><option value="dark">Modo oscuro</option><option value="light">Modo claro</option></select></label><label class="grid-setting"><input id="gridSetting" type="checkbox"> Mostrar rejilla de fondo del circuito</label>
     <label for="speedSetting"><span>Velocidad de Wormhoff</span><div class="speed-row"><input type="range" id="speedSetting" min="25" max="200" step="5" value="100"><output id="speedValue" for="speedSetting">100%</output></div></label>
   </div>
 </dialog>
@@ -1054,7 +1056,7 @@
   document.addEventListener('pointercancel',endHeroPress);
   window.addEventListener('blur',()=>endHeroPress());
   $('hero').addEventListener('contextmenu',e=>e.preventDefault());
-  const wormhoffSettings={theme:'dark',language:'es',speed:100};
+  const wormhoffSettings={theme:'system',language:'es',speed:100,grid:false};
   const S={phase:0,simplifying:false,simplified:false,currentNumbers:[null,null,null],currentPositions:[null,null,null],meshDirections:[true,true],meshDirectionsConfirmed:false,signs:[1,-1,-1],score:0,nodeDone:false,nodeSelected:null,nodeIds:[],nodeChoices:[],nodeSelectionConfirmed:false,loops:[null,null],scoredLoops:[false,false],loopBonusAwarded:false,loop:0,cw:true,pass:"resistors",route:null,waypoint:-1,legIndex:0,flowBranch:null,flowReq:null,es:[],rs:[],animating:false,motionActive:false,manualPaused:false,finished:false,step:0};
   const X=[146,345,544],TOP=74,BOT=360,SY=136,RY=235;
   const names=['I₁','I₂','I₃'];
@@ -1111,10 +1113,11 @@
     return !!v&&(v.every((x,i)=>x===row[i])||v.every((x,i)=>x===-row[i]));
   }
   function kclChoices(container,row,namesList,onSuccess,forceEquation=false){
+    const demoDrag=forceEquation&&difficulty()===0;
     const guided=difficulty()===1&&!forceEquation;
     show(container,true);const host=$(container);
     host.innerHTML='<h3 class="sr-only">Ecuación</h3>'+
-      (guided?'<div class="challenge-row">'+namesList.map((n,i)=>`<label>${n}<select data-kcl="${i}"><option value="">Seleccionar…</option><option value="1">Entra</option><option value="-1">Sale</option><option value="0">No pasa por el nudo</option></select></label>`).join('')+'</div>':
+      (demoDrag?'<div class="kcl-drag-bank" aria-label="Intensidades disponibles">'+namesList.map((n,i)=>`<button type="button" class="kcl-drag-token" draggable="true" data-kcl-drag="${i}">${escapeHtml(n)}</button>`).join('')+'</div>':guided?'<div class="challenge-row">'+namesList.map((n,i)=>`<label>${n}<select data-kcl="${i}"><option value="">Seleccionar…</option><option value="1">Entra</option><option value="-1">Sale</option><option value="0">No pasa por el nudo</option></select></label>`).join('')+'</div>':
       '<label>Igualdad de intensidades<input class="kcl-answer" autocomplete="off" spellcheck="false" placeholder="…" aria-label="Ecuación de nudo"></label>')+
       '<div class="kcl-live"><div class="kcl-live-title">Ecuación del nudo en construcción</div><div class="kcl-live-expression" aria-label="Ecuación parcial"><span class="kcl-live-side" data-side="0"></span><span class="kcl-live-equals">=</span><span class="kcl-live-side" data-side="1"></span></div></div>'+
       '<div class="choices"><button type="button" class="primary kcl-check">Comprobar ecuación</button></div><div class="feedback" role="status"></div>';
@@ -1147,7 +1150,32 @@
       }
       for(const [key,node] of termNodes){if(!entries.some(e=>e.key===key)){node.remove();termNodes.delete(key)}}
     }
-    if(guided){
+    if(demoDrag){
+      const assignments=Array(namesList.length).fill(null);
+      let picked=null;
+      const tokens=[...host.querySelectorAll('[data-kcl-drag]')];
+      const sides=[...host.querySelectorAll('.kcl-live-side')];
+      const render=()=>{
+        showPartial(assignments.flatMap((side,i)=>side===null?[]:[{side,key:i+':'+side,name:namesList[i]}]));
+        tokens.forEach((token,i)=>{token.classList.toggle('placed',assignments[i]!==null);token.setAttribute('aria-pressed',String(assignments[i]!==null));});
+        host.querySelector('.feedback').textContent='';
+      };
+      const place=(i,side)=>{if(i===null||i<0||i>=assignments.length)return;assignments[i]=side;picked=null;render()};
+      tokens.forEach((token,i)=>{
+        token.addEventListener('dragstart',event=>{picked=i;event.dataTransfer.setData('text/plain',String(i));event.dataTransfer.effectAllowed='move'});
+        token.addEventListener('click',()=>{picked=i;tokens.forEach((el,k)=>el.classList.toggle('selected',k===i))});
+      });
+      sides.forEach((slot,side)=>{
+        slot.classList.add('kcl-drop-side');slot.setAttribute('role','button');slot.tabIndex=0;
+        slot.setAttribute('aria-label',side===0?'Miembro izquierdo':'Miembro derecho');
+        slot.addEventListener('dragover',event=>event.preventDefault());
+        slot.addEventListener('drop',event=>{event.preventDefault();place(Number(event.dataTransfer.getData('text/plain')),side)});
+        slot.addEventListener('click',()=>place(picked,side));
+        slot.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();place(picked,side)}});
+      });
+      host._kclDemoAssignments=assignments;
+      render();
+    }else if(guided){
       const selections=[...host.querySelectorAll('[data-kcl]')];
       const render=()=>{
         showPartial(selections.flatMap((el,i)=>el.value==='0'||!el.value?[]:[{side:el.value==='1'?0:1,key:i+':'+el.value,name:namesList[i]}]));
@@ -1179,7 +1207,7 @@
       showPartial([]);
     }
     const check=()=>{
-      const valid=guided?[...host.querySelectorAll('[data-kcl]')].every((e,i)=>e.value!==''&&Number(e.value)===row[i]):equalKCL(host.querySelector('.kcl-answer').value,row,namesList);
+      const valid=demoDrag?host._kclDemoAssignments.every((side,i)=>row[i]===0?side===null:side===(row[i]>0?0:1)):guided?[...host.querySelectorAll('[data-kcl]')].every((e,i)=>e.value!==''&&Number(e.value)===row[i]):equalKCL(host.querySelector('.kcl-answer').value,row,namesList);
       const feedback=host.querySelector('.feedback');
       feedback.textContent=valid?'Ecuación correcta. Puedes continuar.':'Ecuación incorrecta.';
       feedback.classList.toggle('good',valid);
@@ -3525,7 +3553,7 @@
       syncPhaseNavigation();
       if(ids.length<required)requestAnimationFrame(()=>{if((six?A6.stage==='nodes':S.phase===1)&&model.nodeSelectionConfirmed)openNextNodeEquation(six);});
     },true);
-    $('nodeEquationChallenge').querySelector('h3').textContent='Escribe la igualdad de corrientes que entran y salen';
+    $('nodeEquationChallenge').querySelector('h3').textContent='Forma la igualdad de corrientes que entran y salen';
     const desktop=window.matchMedia('(min-width: 900px)').matches;
     const dialog=$('nodeEquationDialog');
     if(desktop){$('phaseCard').append(dialog);dialog.classList.add('node-equation-inline');dialog.show();}
@@ -3656,12 +3684,16 @@
   function initSettings(){
     try{const saved=JSON.parse(localStorage.getItem('wormhoff-settings')||'{}');
       if(['dark','light','system'].includes(saved.theme))wormhoffSettings.theme=saved.theme;
+      if(typeof saved.grid==='boolean')wormhoffSettings.grid=saved.grid;
       if(['es','en'].includes(saved.language))wormhoffSettings.language=saved.language;
       if(Number.isFinite(saved.speed)&&saved.speed>=25&&saved.speed<=200)wormhoffSettings.speed=saved.speed;
     }catch{}
     const scheme=matchMedia('(prefers-color-scheme: light)');
     const apply=()=>{document.documentElement.dataset.theme=wormhoffSettings.theme==='system'?(scheme.matches?'light':'dark'):wormhoffSettings.theme;document.querySelector('meta[name="color-scheme"]').content=document.documentElement.dataset.theme;};
     const save=()=>{try{localStorage.setItem('wormhoff-settings',JSON.stringify(wormhoffSettings));}catch{}};
+    $('gridSetting').checked=wormhoffSettings.grid;
+    $('circuitGrid').style.display=wormhoffSettings.grid?'':'none';
+    $('gridSetting').onchange=()=>{wormhoffSettings.grid=$('gridSetting').checked;$('circuitGrid').style.display=wormhoffSettings.grid?'':'none';save();};
     $('themeSetting').value=wormhoffSettings.theme;$('languageSetting').value=wormhoffSettings.language;$('speedSetting').value=wormhoffSettings.speed;$('speedValue').textContent=wormhoffSettings.speed+'%';
     $('themeSetting').onchange=()=>{wormhoffSettings.theme=$('themeSetting').value;apply();save();};
     scheme.addEventListener('change',apply);apply();
