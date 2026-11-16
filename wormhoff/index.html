@@ -1076,8 +1076,13 @@
   // quedan en el catálogo histórico, pero no duplican el selector.
   const topologyIds=['base','r73','r76'];
   let active=exercises[0];
-  let demoMode=true;
-  const difficulty=()=>demoMode?0:2;
+  const demoModes={base:true,r73:false,r76:false};
+  const difficulty=()=>demoModes[active.id]?0:2;
+  function updateDemoButton(){
+    const enabled=!!demoModes[active.id];
+    $('toggleDemo').textContent='Modo demo: '+(enabled?'activado':'desactivado');
+    $('toggleDemo').setAttribute('aria-pressed',String(enabled));
+  }
   let activeChallenge=null;
   function clearChallenge(){
     if(activeChallenge){const old=activeChallenge;activeChallenge=null;old(false)}
@@ -1555,12 +1560,11 @@
       flowToken++;if(S.pausedResume){S.pausedResume();S.pausedResume=null}
       stopFlow();S.animating=false;
       active=ex;if(ex.kind!=='network'&&ex.kind!=='multi'){R=ex.R.slice();E=ex.E.slice();jValues=calcCurrents();}
-      renderExerciseInfo();newGame();
+      renderExerciseInfo();updateDemoButton();newGame();
     };
     $('toggleDemo').addEventListener('click',()=>{
-      demoMode=!demoMode;
-      $('toggleDemo').textContent='Modo demo: '+(demoMode?'activado':'desactivado');
-      $('toggleDemo').setAttribute('aria-pressed',String(demoMode));
+      demoModes[active.id]=!demoModes[active.id];
+      updateDemoButton();
       if(active.kind==='multi')sixCancel();
       newGame();
     });
@@ -1570,7 +1574,7 @@
       stopFlow();S.animating=false;
       try{generateIntegerValues();newGame();}catch(error){currentPlacementNotice(error.message)}
     });
-    renderExerciseInfo();
+    renderExerciseInfo();updateDemoButton();
   }
   function renderExerciseInfo(){
     const ex=active;
