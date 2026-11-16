@@ -1213,8 +1213,22 @@
     const normalized=v=>normalizeCurrentToken(v.replace(/^\+/,''));
     return normalized(value)===normalized(correct)||normalized(value)===normalized(correct.replace('·',''));
   }
+  // En escritorio, la introducción de términos de las mallas se sitúa en la
+  // columna derecha. En móvil vuelve junto a los controles del circuito.
+  function placeSixTermChallenge(){
+    const challenge=$('sixTermChallenge'),right=$('advLoops'),left=$('advancedCircuitControls');
+    if(!challenge||!right||!left)return;
+    const desktop=window.matchMedia('(min-width: 851px)').matches;
+    const destination=desktop?right:left;
+    if(challenge.parentElement!==destination){
+      if(desktop)right.insertBefore(challenge,right.querySelector('.phase-title'));
+      else left.insertBefore(challenge,left.querySelector('.control-actions'));
+    }
+  }
+  window.addEventListener('resize',placeSixTermChallenge);
   function challengeTerm(container,value,branch,isSource,six=false){
     if(difficulty()===0)return Promise.resolve(true);
+    if(six)placeSixTermChallenge();
     show(container,true);const host=$(container),guided=difficulty()===1;
     const name=(six?NAMES6:names)[branch];
     const display=isSource?formatNumber(Math.abs(value))+' V':formatNumber(six?R6[branch]:R[branch])+' Ω';
@@ -3184,6 +3198,7 @@
     return false;
   }
   function syncPhaseNavigation(){
+    placeSixTermChallenge();
     const raw=phaseIndex(),current=raw===1?0:raw,network=active.kind==='network',simplifying=!network&&raw===2&&(active.kind==='multi'?A6.simplifying:S.simplifying);
     show('simplificationPhase',simplifying);show('phase2',active.kind!=='multi'&&(raw===2&&!simplifying||raw===3));show('advLoops',active.kind==='multi'&&raw===2&&!simplifying);
     if(simplifying){show('circuitControls',false);$('phaseHead').textContent='Fase 2 · Simplificar ecuaciones';$('phaseChip').textContent='SIMPLIFICA';}
