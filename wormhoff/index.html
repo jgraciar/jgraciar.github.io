@@ -3829,6 +3829,9 @@
     // Los mandos de reproducción de mallas y las acciones se sitúan debajo del esquema.
     $('circuitCard').querySelector('.board').after(transport);
     transport.after(actions);
+    // initMobileEquations se ejecuta antes: al recolocar los controles,
+    // mantener el panel de ecuaciones inmediatamente después en móvil.
+    if($('gameLayout').classList.contains('mobile-layout'))actions.after($('equationsCard'));
     const solveShortcut=document.createElement('button');solveShortcut.type='button';solveShortcut.id='solveAfterSimplification';solveShortcut.className='success hide';solveShortcut.textContent='Resolver algebraicamente →';actions.append(solveShortcut);
     solveShortcut.onclick=()=>{if(A6.simplifying&&A6.simplified){A6.simplifying=false;sixStartSolve();}else if(S.simplifying&&S.simplified){S.simplifying=false;phase(4);}};
     for(const id of ids){
