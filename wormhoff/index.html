@@ -1603,7 +1603,7 @@
     $('staticCircuit').innerHTML=parts.join('');
     $('boardTitle').textContent=topologyLabel(active);
     $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
-    $('boardSummary').textContent='R: '+R.map(r=>r===0?'fuente ideal':formatNumber(r)+' Ω').join(' / ')+' · E: '+E.map(formatNumber).join(' / ')+' V';
+    $('boardSummary').textContent='R: '+(active.id==='f451'?active.components:R).map(r=>r===0?'fuente ideal':formatNumber(r)+' Ω').join(' / ')+' · E: '+E.map(formatNumber).join(' / ')+' V';
     $('circuit').setAttribute('aria-label',active.label+'; tres ramas con resistencias '+R.join(', ')+' ohmios y fuentes '+E.join(', ')+' voltios');
   }
   function updateLoopsArrows(){
@@ -1643,13 +1643,14 @@
     const original=active.E;
     const zeros=original.map((v,i)=>v===0?i:-1).filter(i=>i>=0);
     for(let attempt=0;attempt<500;attempt++){
-      const resistances=active.id==='f451'?[randomInt(1,9)+randomInt(1,9),randomInt(1,9),randomInt(1,9)]:Array.from({length:3},()=>randomInt(1,9));
+      const f451Parts=active.id==='f451'?[randomInt(1,9),randomInt(1,9),randomInt(1,9),randomInt(1,9)]:null;
+      const resistances=f451Parts?[f451Parts[0]+f451Parts[1],f451Parts[2],f451Parts[3]]:Array.from({length:3},()=>randomInt(1,9));
       const a=randomInt(-6,6),b=randomInt(-6,6),currents=[a,b,-a-b];
       if(currents.some(v=>Math.abs(v)>9)||currents.every(v=>v===0))continue;
       const v=zeros.length? -resistances[zeros[0]]*currents[zeros[0]]:randomInt(-15,15);
       const sources=currents.map((current,k)=>resistances[k]*current+v);
       if(zeros.some(k=>sources[k]!==0)||sources.some((value,k)=>original[k]!==0&&(value===0||Math.abs(value)>150)))continue;
-      if(active.id==='f451'){const leftA=randomInt(1,resistances[0]-1),leftB=resistances[0]-leftA;active.components=[leftA,leftB,resistances[1],resistances[2]];R=resistances;E=sources;jValues=calcCurrents();return;}
+      if(f451Parts){active.components=f451Parts;R=resistances;E=sources;jValues=calcCurrents();if(jValues.every((current,k)=>Math.abs(current-currents[k])<1e-8))return;continue;}
       R=resistances;E=sources;jValues=calcCurrents();
       if(jValues.every((current,k)=>Math.abs(current-currents[k])<1e-8))return;
     }
