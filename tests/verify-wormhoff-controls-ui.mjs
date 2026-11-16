@@ -528,7 +528,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(blink.name,'kclTermBlink');assert.equal(blink.count,'3');
  await page.waitForFunction(()=>!document.querySelector('#nodeEquationChallenge .blink-three'));
  assert.equal(await term.evaluate(el=>getComputedStyle(el).opacity),'1');await page.click('#closeNodeEquation');
- await page.click('#toggleDemo');assert.equal(await page.locator('#toggleDemo').getAttribute('aria-pressed'),'true','Restaurar modo demo para probar recorrido guiado');await assignNumbers([1,2,3]);
+ await page.click('#toggleDemo');assert.equal(await page.locator('#toggleDemo').getAttribute('aria-pressed'),'true','Restaurar modo demo para probar recorrido guiado');for(const [i,coords] of [[146,235],[345,235],[544,235]].entries()){await tap(...coords);assert.equal(await page.locator(`#currentArrow${i} .dirlabel`).textContent(),['I₁','I₂','I₃'][i],'Numeración automática en demo');}
  const expandedHit=await page.locator('#currentArrow0').evaluate(group=>{
   const x=Number(group.dataset.arrowX),y=Number(group.dataset.arrowY),dx=Number(group.dataset.arrowDx),dy=Number(group.dataset.arrowDy),label=group.querySelector('.dirlabel').getBBox();
   const side=Math.abs(dx)>.5?(label.y+label.height/2<y?1:-1):(label.x+label.width/2<x?1:-1);
