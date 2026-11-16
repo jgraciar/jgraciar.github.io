@@ -161,7 +161,9 @@
   #phase4.cramer-results-first #resultPanel,#advSolve.cramer-results-first #advResultPanel{order:-1;margin-top:0!important;margin-bottom:14px}
   .lap-chip{color:var(--amber);font-weight:700;margin:6px 0 0}
   .eq-equals{display:flex;align-items:center;justify-content:center;font:900 30px ui-monospace,monospace;color:var(--cyan)}
-  #hero{filter:drop-shadow(0 0 6px var(--worm-glow));cursor:pointer;pointer-events:all;touch-action:none;user-select:none}
+  #hero{cursor:pointer;pointer-events:all;touch-action:none;user-select:none}
+  /* Evitar que el filtro CSS del grupo SVG recorte u oculte el personaje al reanudar una trayectoria. */
+  #heroBody{filter:none}
   #hero.hero-user-hidden,#hero.hero-user-hidden *{visibility:hidden!important;pointer-events:none!important}
   #heroHit{fill:none;stroke:transparent;stroke-width:28;pointer-events:stroke;cursor:pointer}
   .boardfoot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 15px;background:var(--paint-0d1b2e,#0d1b2e);border-top:1px solid var(--border);color:var(--muted);font-size:12px}
