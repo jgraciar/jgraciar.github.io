@@ -4056,7 +4056,7 @@
 (function(){
  const setup=()=>{
   const phase2=document.getElementById('phase2'),matrix=document.getElementById('phase3');
-  const phase4=document.getElementById('phase4');if(phase4&&matrix&&!phase4.contains(matrix))phase4.prepend(matrix);
+  const phase4=document.getElementById('phase4');if(phase4&&matrix&&matrix.nextElementSibling!==phase4)phase4.before(matrix);
   const css=document.createElement('style');css.textContent=`
    @media(min-width:801px){
     #gameLayout{align-items:start}
