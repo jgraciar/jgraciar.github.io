@@ -156,6 +156,9 @@
   @keyframes heroWince{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-2deg)}75%{transform:rotate(2deg)}}
   @keyframes heroTear{0%{opacity:0;transform:translateY(-1px)}25%{opacity:.9}100%{opacity:0;transform:translateY(5px)}}
   .hero-tip{fill:var(--worm-edge);stroke:var(--worm-dark);stroke-width:1.5;stroke-linejoin:round}
+  /* Mostrar las intensidades antes del desarrollo de Cramer, sin cambiar el orden algebraico. */
+  #phase4.cramer-results-first,#advSolve.cramer-results-first{display:flex;flex-direction:column}
+  #phase4.cramer-results-first #resultPanel,#advSolve.cramer-results-first #advResultPanel{order:-1;margin-top:0!important;margin-bottom:14px}
   .lap-chip{color:var(--amber);font-weight:700;margin:6px 0 0}
   .eq-equals{display:flex;align-items:center;justify-content:center;font:900 30px ui-monospace,monospace;color:var(--cyan)}
   #hero{filter:drop-shadow(0 0 6px var(--worm-glow));cursor:pointer;pointer-events:all;touch-action:none;user-select:none}
@@ -2629,6 +2632,7 @@
     return steps;
   }
   function renderSteps(){
+    $('phase4').classList.toggle('cramer-results-first',S.solveMethod==='matrix'&&$('showBasicCramer').checked);
     const steps=buildSteps(),n=Math.min(S.step,steps.length);
     $('solutionSteps').innerHTML=S.solveMethod==='matrix'?'':algebraStepsHTML(steps,n);
     $('basicCramerDetails').innerHTML=S.solveMethod==='matrix'&&$('showBasicCramer').checked?renderBasicCramerResolution():'';
@@ -3184,25 +3188,21 @@
     }
     return sign*product;
   }
-  function renderBasicCramerResolution(){
-    const {A,b}=system(),det=determinant6(A);
-    if(Math.abs(det)<1e-10)return '<p>Matriz singular: Cramer no es aplicable.</p>';
-    const rows=names.map((name,j)=>{
-      const replaced=A.map((row,i)=>row.map((v,k)=>k===j?b[i]:v)),d=determinant6(replaced);
-      return '<tr><td>'+escapeHtml(name)+'</td><td>'+escapeHtml(fmt(d))+'</td><td>'+escapeHtml(fmt(det))+'</td><td>'+escapeHtml(fmt(d/det))+' A</td></tr>';
-    }).join('');
-    return '<div class="algebra-step-detail"><strong>Regla de Cramer</strong><p>Δ = '+escapeHtml(fmt(det))+'. Sustituimos cada columna por los términos independientes y dividimos Δᵢ entre Δ.</p><table class="algebra-table"><thead><tr><th>Intensidad</th><th>Δᵢ</th><th>Δ</th><th>Resultado</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  function cramerWalkthrough(A,b,labels,format){
+    const det=determinant6(A),esc=v=>escapeHtml(format(v));
+    if(Math.abs(det)<1e-10)return '<p>Δ = 0. La regla de Cramer no permite obtener una solución única.</p>';
+    const matrix=rows=>'<div class="adv-mat-overflow"><table class="algebra-table"><tbody>'+rows.map(row=>'<tr>'+row.map(value=>'<td>'+esc(value)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+    const sections=['<div class="algebra-step-detail"><strong>Resolución por la regla de Cramer, paso a paso</strong>',
+      '<p><strong>Paso 1.</strong> Identificamos la matriz de coeficientes A y el vector de términos independientes b.</p>'+matrix(A)+ '<p>b = ('+b.map(esc).join('; ')+')ᵀ</p>',
+      '<p><strong>Paso 2.</strong> Calculamos el determinante de la matriz de coeficientes.</p>'+matrix(A)+'<p>Δ = det(A) = <strong>'+esc(det)+'</strong></p>'];
+    labels.forEach((name,j)=>{
+      const replaced=A.map((row,i)=>row.map((v,k)=>k===j?b[i]:v)),dj=determinant6(replaced);
+      sections.push('<p><strong>Paso '+(j+3)+'.</strong> Sustituimos la columna '+(j+1)+' de A por b para calcular '+escapeHtml(name)+'.</p>'+matrix(replaced)+'<p>Δ'+(j+1)+' = '+esc(dj)+'; '+escapeHtml(name)+' = Δ'+(j+1)+'/Δ = '+esc(dj)+' / '+esc(det)+' = <strong>'+esc(dj/det)+' A</strong></p>');
+    });
+    return sections.join('')+'</div>';
   }
-  function renderCramerResolution(){
-    const {A,b}=sixSystem(),det=determinant6(A);
-    if(Math.abs(det)<1e-10)return '<p>La matriz es singular; no se puede aplicar Cramer.</p>';
-    const rows=NAMES6.map((name,j)=>{
-      const replaced=A.map((row,i)=>row.map((v,k)=>k===j?b[i]:v));
-      const dj=determinant6(replaced);
-      return '<tr><td>'+escapeHtml(name)+'</td><td>'+escapeHtml(fmt6(dj))+'</td><td>'+escapeHtml(fmt6(det))+'</td><td>'+escapeHtml(fmt6(dj/det))+' A</td></tr>';
-    }).join('');
-    return '<div class="algebra-step-detail"><strong>Regla de Cramer</strong><p>Determinante de la matriz de coeficientes: Δ = '+escapeHtml(fmt6(det))+'. Para cada incógnita, sustituimos su columna por el vector de términos independientes y calculamos Δᵢ / Δ.</p><div class="adv-mat-overflow"><table class="algebra-table"><thead><tr><th>Intensidad</th><th>Δᵢ</th><th>Δ</th><th>Resultado</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
-  }
+  function renderBasicCramerResolution(){const {A,b}=system();return cramerWalkthrough(A,b,names,fmt)}
+  function renderCramerResolution(){const {A,b}=sixSystem();return cramerWalkthrough(A,b,NAMES6,fmt6)}
   function sixStartMatrixSolve(preserve=false){
     const previous=preserve?{step:A6.step,verified:A6.finalVerified,scored:A6.completedScore}:null;
     A6.solveMethod='matrix';rememberPhase(4);A6.stage='solve';sixMeshArrows();syncPhaseNavigation();
@@ -3230,6 +3230,7 @@
     $('sixFinalChallenge').replaceChildren();sixRenderSolve();
   }
   function sixRenderSolve(){
+    $('advSolve').classList.toggle('cramer-results-first',A6.solveMethod==='matrix'&&$('advShowCramer').checked);
     $('advSolveSteps').innerHTML=A6.solveMethod==='matrix'?($('advShowCramer').checked?renderCramerResolution():'' ):algebraStepsHTML(A6.steps,A6.step);
     const done=A6.step===A6.steps.length;
     const solved=done&&(difficulty()===0||A6.finalVerified);
