@@ -77,6 +77,11 @@ await page.addInitScript(()=>{
  performance.now=()=>now()*80;window.requestAnimationFrame=callback=>raf(time=>callback(time*80));
 });
 await page.goto('http://127.0.0.1:8767/wormhoff/');
+await page.locator('[data-current-branch="0"]').dispatchEvent('click');
+assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₁','Numeración automática en demo');
+assert.equal(await page.locator('#currentNameDialog').isVisible(),false,'Sin diálogo en demo');
+await page.click('#toggleDemo');
+await page.reload();
 for(const [i,x] of [146,345,544].entries()){
  await page.locator(`[data-current-branch="${i}"]`).dispatchEvent('click');
  await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
