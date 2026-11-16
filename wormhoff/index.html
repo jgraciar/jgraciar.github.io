@@ -226,7 +226,9 @@
   .board-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;padding:15px 16px;background:var(--paint-102139,#102139);border-top:1px solid var(--paint-3d5772,#3d5772)}
   .circuit-transport{border-top:0;border-bottom:1px solid var(--paint-3d5772,#3d5772);padding:10px 16px}
   /* Reproducción centrada; acciones de avance independientes a la derecha. */
-  #circuitTransport{justify-content:center}
+  #circuitTransport{justify-content:center;position:relative;min-height:66px}
+  #circuitTransport .lap-chip{position:absolute;left:16px;top:50%;transform:translateY(-50%);max-width:calc(50% - 50px);white-space:normal;text-align:left}
+  @media(max-width:640px){#circuitTransport .lap-chip{left:8px;max-width:calc(50% - 28px);font-size:11px}#circuitTransport{padding-inline:8px}}
   #boardActions{justify-content:flex-end}
   @media(max-width:600px){#boardActions{justify-content:flex-end;padding:10px 12px}#boardActions .board-action-item{min-width:0}}
   .board-action-item{display:flex;justify-content:center;max-width:100%}
@@ -261,7 +263,8 @@
   .matrix input{width:100%;height:42px;text-align:center;background:var(--paint-071426,#071426);border:1px solid var(--paint-46637a,#46637a);border-radius:7px;color:var(--txt);font:700 16px ui-monospace,monospace;outline:0}
   .matrix input:focus{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan)}
   .matrix input.correct{border-color:var(--paint-80b957,#80b957);background:var(--paint-18352c,#18352c)}
-  .matrix input.wrong{border-color:var(--paint-fc8595,#fc8595);background:var(--paint-3b2030,#3b2030)}
+  .matrix input.wrong{border:2px solid #f04444;background:#5c1722;color:#fff;box-shadow:0 0 0 1px #f04444}
+  .adv-mat-row input.wrong{border:2px solid #f04444;background:#5c1722;color:#fff;box-shadow:0 0 0 1px #f04444}
   .muted{color:var(--muted)}
   .steps{margin:14px 0;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-width:0;width:100%}
   .step{display:flex;align-items:start;gap:10px;min-width:0;width:100%;padding:10px;border:1px solid var(--paint-36516b,#36516b);background:var(--paint-132740,#132740);border-radius:10px;font-size:14px}
@@ -2453,7 +2456,7 @@
       inp.classList.toggle('correct',equal);inp.classList.toggle('wrong',!equal);if(!equal)ok=false;
     });
     if(ok){msg('matrixFeedback','Matriz correcta.','good');show('goSolve',true);if(!S.matrixScored){S.score+=180;S.matrixScored=true;updateHeader()}}
-    else{msg('matrixFeedback','Revisa los coeficientes señalados.','bad');show('goSolve',false);}syncPhaseNavigation();
+    else{msg('matrixFeedback','revisa los coeficientes señalados','bad');show('goSolve',false);}syncPhaseNavigation();
   };
   $('goSolve').onclick=()=>{if(!S.simplified)return;S.score+=20;phase(4)};
   function finalISummary(){const ii=jValues.map((x,i)=>x*S.signs[i]);return ii.map((v,i)=>names[i]+' = '+fmt(v)+' A').join('; ')+'.'}
@@ -3038,7 +3041,7 @@
       const yes=inp.value.trim()!==''&&Number.isFinite(v)&&Math.abs(v-all[i][j])<1e-6;
       inp.classList.toggle('correct',yes);inp.classList.toggle('wrong',!yes);if(!yes)ok=false;
     });
-    sixText('advMatFeedback',ok?'Matriz correcta.':'Revisa los coeficientes señalados.');
+    sixText('advMatFeedback',ok?'Matriz correcta.':'revisa los coeficientes señalados');
     show('advSolveBtn',ok);if(ok&&!A6.matrixScore){A6.matrixScore=true;S.score+=200;$('score').textContent=String(S.score).padStart(4,'0')}syncPhaseNavigation();
   }
   function sixNodeSubstitution(){
@@ -3741,6 +3744,8 @@
       'goSolve','advSolveBtn',
       'nextStep','restartSteps','advSolveNext','playAgain'];
     const actions=$('boardActions'),transport=$('circuitTransport'),entries=[];
+    const lapChips=['lapLabel','advLap'].map(id=>$(id));
+    lapChips.forEach(chip=>transport.prepend(chip));
     $('continueSimplification').textContent='Construir matriz →';
     $('advSolveBtn').textContent='Resolver algebraicamente →';
     $('goSolve').textContent='Resolver algebraicamente →';
@@ -3765,7 +3770,10 @@
       }
       const shortcutVisible=(A6.simplifying&&A6.simplified)||(S.simplifying&&S.simplified);
       solveShortcut.classList.toggle('hide',!shortcutVisible);
-      actions.classList.toggle('hide',visible===0&&!shortcutVisible);transport.classList.toggle('hide',transportVisible===0);
+      const standardActive=!$('standardCircuitControls').classList.contains('hide')&&!$('circuitControls').classList.contains('hide');
+      const advancedActive=!$('advancedCircuitControls').classList.contains('hide')&&!$('circuitControls').classList.contains('hide');
+      lapChips[0].classList.toggle('hide',!standardActive);lapChips[1].classList.toggle('hide',!advancedActive);
+      actions.classList.toggle('hide',visible===0&&!shortcutVisible);transport.classList.toggle('hide',transportVisible===0&&!standardActive&&!advancedActive);
     }
     const observer=new MutationObserver(sync);
     for(const root of [$('phaseCard'),$('circuitControls')])observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
