@@ -969,9 +969,9 @@
         <div id="simplificationPhase" class="hide">
           <p class="simplify-intro">Agrupa los términos de la misma intensidad y suma las tensiones con su signo.</p>
           <div id="simplificationRows" class="simplification-list"></div>
-          <div class="btnrow"><button type="button" class="primary" id="checkSimplification">Comprobar simplificación</button><button type="button" class="help-button" data-context-help="simplification" aria-label="Ayuda de simplificación">?</button></div>
+          <div class="btnrow"><button type="button" class="primary" id="checkSimplification">Comprobar simplificación</button></div>
           <p id="simplificationFeedback" class="message hide" role="status"></p>
-          <div class="btnrow"><button type="button" class="ghost" id="backToMeshes">Volver a las mallas</button><button type="button" class="success hide" id="continueSimplification">Construir matriz →</button></div>
+          <div class="btnrow"><button type="button" class="ghost" id="backToMeshes">Volver a las mallas</button></div>
         </div>
         <div id="phase0">
           <h1 class="phase-title">Corrientes y nudos</h1>
@@ -1756,7 +1756,7 @@
     renderBoardEquations();
     if(n===1){$('boardState').textContent='Seleccione nudos';syncNodeSelection();if(S.nodeDone)analyzeNode(S.nodeSelected!=='B');else{show('goLoops',false);msg('nodeFeedback','Selecciona primero n − 1 nudos del circuito; deja uno sin considerar.');}}
     if(n===2){S.loop=Math.max(0,S.loops.findIndex(x=>!x));loadLoop(S.loop);syncMeshDirectionSetup();}
-    if(n===3){drawMatrix();show('fillMatrix',difficulty()===0);}
+    if(n===3){drawMatrix();show('fillMatrix',difficulty()===0);$('phaseHead').textContent='Fase 3 · Resolución';}
     if(n===4){
       if(S.solveMethod==='matrix')$('basicCramerDetails').before($('showBasicCramer').parentElement?.parentElement||$('advShowCramer'));
       const {A,b}=system();
@@ -3080,7 +3080,7 @@
     rememberPhase(3);A6.stage='matrix';sixCancel();sixMeshArrows();show('advLoops',false);show('advMatrix',true);show('advFill',difficulty()===0);show('advToMatrix',false);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);show('advBoardEquations',A6.rowsR.some(row=>row.length)||A6.rowsU.some(row=>row.length));show('advKCL',true);
     sixRenderMatrix();
     show('advSolveBtn',true);sixText('advMatFeedback','');show('advMatFeedback',false);
-    $('percent').textContent='68%';$('phaseChip').textContent='MATRIZ 6 × 6';syncPhaseNavigation();
+    $('percent').textContent='68%';$('phaseChip').textContent='MATRIZ 6 × 6';$('phaseHead').textContent='Fase 3 · Resolución';syncPhaseNavigation();
   }
   function sixRenderMatrix(){
     const {A,b}=sixSystem();
@@ -3522,7 +3522,7 @@
     if(n===4)sixStartSolve();
     sixRenderRows();sixRefArrow();sixMeshArrows();syncPhaseNavigation();
     $('score').textContent=String(S.score).padStart(4,'0');$('percent').textContent=[0,10,18,68,85][n]+'%';
-    $('phaseHead').textContent='Fase '+(n<=1?1:n===4?3:2)+' · '+['Corrientes y nudos','Corrientes y nudos','Ley de las mallas','Forma matricial','Resolución'][n];
+    $('phaseHead').textContent='Fase '+(n<=1?1:n===2?2:3)+' · '+['Corrientes y nudos','Corrientes y nudos','Ley de las mallas','Resolución','Resolución'][n];
     $('phaseChip').textContent=['CORRIENTES','NUDOS','MALLAS','MATRIZ 6 × 6','REDUCCIÓN'][n];
   }
   function initPhaseNavigation(){
@@ -3858,7 +3858,7 @@
     const actions=$('boardActions'),transport=$('circuitTransport'),entries=[];
     const lapChips=['lapLabel','advLap'].map(id=>$(id));
     lapChips.forEach(chip=>transport.prepend(chip));
-    $('continueSimplification').textContent='Construir matriz →';
+    $('continueSimplification').textContent='';
     $('advSolveBtn').textContent='Resolver algebraicamente →';
     $('goSolve').textContent='Resolver algebraicamente →';
     // Los mandos de reproducción de mallas y las acciones se sitúan debajo del esquema.
@@ -3867,6 +3867,11 @@
     // initMobileEquations se ejecuta antes: al recolocar los controles,
     // mantener el panel de ecuaciones inmediatamente después en móvil.
     if($('gameLayout').classList.contains('mobile-layout'))actions.after($('equationsCard'));
+    const methodChoices=document.createElement('div');methodChoices.id='resolutionMethodChoices';methodChoices.className='resolution-method-choices hide';
+    methodChoices.innerHTML='<button id="resolveAlgebraChoice" class="success" type="button">Resolver algebraicamente</button><button id="resolveMatrixChoice" class="success" type="button">Resolver matricialmente</button>';
+    actions.append(methodChoices);
+    $('resolveAlgebraChoice').onclick=()=>{if(active.kind==='multi')sixStartSolve();else{S.solveMethod='algebra';phase(4)}};
+    $('resolveMatrixChoice').onclick=()=>{if(active.kind==='multi')sixMatrix();else phase(3)};
     const solveShortcut=document.createElement('button');solveShortcut.type='button';solveShortcut.id='solveAfterSimplification';solveShortcut.className='success hide';solveShortcut.textContent='Resolver algebraicamente →';actions.append(solveShortcut);
     solveShortcut.onclick=()=>{if(A6.simplifying&&A6.simplified){A6.simplifying=false;sixStartSolve();}else if(S.simplifying&&S.simplified){S.simplifying=false;phase(4);}};
     for(const id of ids){
@@ -3890,7 +3895,7 @@
       const standardActive=!$('standardCircuitControls').classList.contains('hide')&&!$('circuitControls').classList.contains('hide');
       const advancedActive=!$('advancedCircuitControls').classList.contains('hide')&&!$('circuitControls').classList.contains('hide');
       lapChips[0].classList.toggle('hide',!standardActive);lapChips[1].classList.toggle('hide',!advancedActive);
-      actions.classList.toggle('hide',visible===0&&!shortcutVisible);transport.classList.toggle('hide',transportVisible===0&&!standardActive&&!advancedActive);
+      const ready=active.kind!=='network'&&(active.kind==='multi'?A6.simplified:S.simplified)&&!(active.kind==='multi'?A6.simplifying:S.simplifying)&&(active.kind==='multi'?['loops','matrix','solve'].includes(A6.stage):S.phase>=2);methodChoices.classList.toggle('hide',!ready);actions.classList.toggle('hide',visible===0&&!shortcutVisible&&!ready);transport.classList.toggle('hide',transportVisible===0&&!standardActive&&!advancedActive);
     }
     const observer=new MutationObserver(sync);
     for(const root of [$('phaseCard'),$('circuitControls')])observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
@@ -3998,7 +4003,7 @@
     model.simplifying=true;show('circuitControls',false);clearFX();setHeroGait(false);
     const demo=difficulty()===0,data=simplificationData(six).filter(e=>e.needsSimplification);
     $('simplificationRows').innerHTML=data.length?data.map((equation,i)=>'<section class="simplification-item'+(model.simplified?' verified':'')+'" data-simple-row="'+i+'"><h3>Malla '+(i+1)+'</h3><div class="mini">Ecuación original</div><div class="simplification-original">'+escapeHtml(equation.original)+'</div>'+(demo?'<div class="mini">Ecuación simplificada</div><div class="simplification-result">'+escapeHtml(equation.simplified)+'</div>':'<label>Ecuación simplificada<input class="simplification-answer" data-simple="'+i+'" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Ecuación simplificada de malla '+(i+1)+'" value="'+(model.simplified?escapeHtml(equation.simplified):'')+'" placeholder="…"></label><div class="simplification-result" data-simple-result="'+i+'"></div>')+'</section>').join(''):'<p class="message good">Las ecuaciones ya están simplificadas. Puedes continuar.</p>';
-    if(!data.length){model.simplified=true;show('checkSimplification',false);show('continueSimplification',true);}else show('checkSimplification',true);
+    if(!data.length){model.simplified=true;show('checkSimplification',false);}else show('checkSimplification',true);
     $('checkSimplification').textContent=demo?'Confirmar simplificación':'Comprobar simplificación';
     $('checkSimplification').onclick=()=>{
       const labels=six?NAMES6:names;let valid=true;
@@ -4008,18 +4013,18 @@
         if(input){input.setAttribute('aria-invalid',String(!ok));$('simplificationRows').querySelector('[data-simple-result="'+i+'"]').textContent=ok?'Forma para la matriz: '+sixEq(equation.row,equation.b,labels):'';}
         if(!ok)valid=false;
       });
-      model.simplified=valid;show('continueSimplification',valid);syncBoardActions();show('simplificationFeedback',true);
+      model.simplified=valid;syncBoardActions();show('simplificationFeedback',true);
       $('simplificationFeedback').className='message '+(valid?'good':'bad');
-      $('simplificationFeedback').textContent=valid?'Simplificación correcta. Ya puedes construir la matriz.':'Revisa los signos, los coeficientes y la suma de tensiones. Cada intensidad debe aparecer una sola vez.';
+      $('simplificationFeedback').textContent=valid?'Simplificación correcta. Elige resolver algebraica o matricialmente en la fase 3.':'Revisa los signos, los coeficientes y la suma de tensiones. Cada intensidad debe aparecer una sola vez.';
       if(six)sixRenderRows();else renderBoardEquations();syncPhaseNavigation();
     };
     for(const input of $('simplificationRows').querySelectorAll('input')){
       input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();$('checkSimplification').click();}});
-      input.addEventListener('input',()=>{model.simplified=false;syncBoardActions();input.removeAttribute('aria-invalid');input.closest('section').classList.remove('verified');$('simplificationRows').querySelector('[data-simple-result="'+input.dataset.simple+'"]').textContent='';show('continueSimplification',false);show('simplificationFeedback',false);if(six)sixRenderRows();else renderBoardEquations();syncPhaseNavigation();});
+      input.addEventListener('input',()=>{model.simplified=false;syncBoardActions();input.removeAttribute('aria-invalid');input.closest('section').classList.remove('verified');$('simplificationRows').querySelector('[data-simple-result="'+input.dataset.simple+'"]').textContent='';show('simplificationFeedback',false);if(six)sixRenderRows();else renderBoardEquations();syncPhaseNavigation();});
     }
-    show('continueSimplification',model.simplified);show('simplificationFeedback',false);syncBoardActions();
+    show('simplificationFeedback',false);syncBoardActions();
     $('backToMeshes').onclick=()=>{model.simplifying=false;if(!six)updateHeader();else syncPhaseNavigation();syncMeshDirectionSetup();};
-    $('continueSimplification').onclick=()=>{if(!model.simplified)return;model.simplifying=false;if(six)sixMatrix();else phase(3);};
+    $('continueSimplification').onclick=()=>{};
     syncBoardActions();
     syncPhaseNavigation();
   }
@@ -4051,7 +4056,7 @@
 (function(){
  const setup=()=>{
   const phase2=document.getElementById('phase2'),matrix=document.getElementById('phase3');
-  if(phase2&&matrix&&!phase2.contains(matrix))phase2.appendChild(matrix);
+  const phase4=document.getElementById('phase4');if(phase4&&matrix&&!phase4.contains(matrix))phase4.prepend(matrix);
   const css=document.createElement('style');css.textContent=`
    @media(min-width:801px){
     #gameLayout{align-items:start}
@@ -4090,6 +4095,9 @@
    #solutionSteps .step:last-child{scroll-margin-block:35vh}
    #stagebar [data-stage="3"]{display:none!important}
    #phase3{margin-top:18px}
+   .resolution-method-choices{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:nowrap;min-width:0}
+   .resolution-method-choices.hide{display:none}
+   .resolution-method-choices button{white-space:nowrap;min-width:0;font-size:clamp(10px,2.3vw,14px);padding:8px clamp(5px,1vw,12px)}
    body.worm-mesh-waiting #hero{opacity:0;pointer-events:none}
    body.worm-mesh-reveal #hero{animation:wormReveal .65s ease-out both}
    @keyframes wormReveal{from{opacity:0;transform:translate(345px,360px) scale(.35)}to{opacity:1}}
