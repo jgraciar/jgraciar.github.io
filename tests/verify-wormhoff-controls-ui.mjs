@@ -81,7 +81,7 @@ await page.locator('[data-current-branch="0"]').dispatchEvent('click');
 assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₁','Numeración automática en demo');
 assert.equal(await page.locator('#currentNameDialog').isVisible(),false,'Sin diálogo en demo');
 await page.click('#toggleDemo');
-await page.reload();
+assert.equal(await page.locator('#toggleDemo').getAttribute('aria-pressed'),'false','Modo jugable activado para pruebas manuales');
 for(const [i,x] of [146,345,544].entries()){
  await page.locator(`[data-current-branch="${i}"]`).dispatchEvent('click');
  await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
