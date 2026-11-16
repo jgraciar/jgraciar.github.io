@@ -3104,7 +3104,7 @@
   function sixStartSolve(preserve=false){
     const previous=preserve===true?{step:A6.step,verified:A6.finalVerified,scored:A6.completedScore}:null;
     A6.solveMethod='algebra';rememberPhase(4);A6.stage='solve';
-    $('advMatrixSolveBtn').before($('advShowCramer').parentElement?.parentElement||$('advShowCramer'));sixMeshArrows();syncPhaseNavigation();show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='REDUCCIÓN';
+    $('advMatrixSolveBtn').before?.($('advShowCramer').parentElement?.parentElement||$('advShowCramer'));sixMeshArrows();syncPhaseNavigation();show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='REDUCCIÓN';
     const {a,b,cols}=sixReduced(),vars=cols.map(ix=>NAMES6[ix]);
     const reduced=matSolve6(a,b),values=reduced.x;
     const recovered=sixRecoverNodes(values,cols),ii=recovered.ii;
@@ -3185,7 +3185,7 @@
     const previous=preserve?{step:A6.step,verified:A6.finalVerified,scored:A6.completedScore}:null;
     A6.solveMethod='matrix';rememberPhase(4);A6.stage='solve';sixMeshArrows();syncPhaseNavigation();
     show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='MÉTODO MATRICIAL';
-    $('advSolveSteps').before($('advShowCramer').parentElement?.parentElement||$('advShowCramer'));
+    $('advSolveSteps').before?.($('advShowCramer').parentElement?.parentElement||$('advShowCramer'));
     const {A,b}=sixSystem(),solved=matSolve6(A,b),values=solved.x;
     // Gauss: operaciones elementales sobre la matriz ampliada, seguidas de sustitución regresiva.
     const steps=[{title:'Matriz ampliada del sistema',
