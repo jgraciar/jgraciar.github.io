@@ -1721,7 +1721,7 @@
     if(n===2){S.loop=Math.max(0,S.loops.findIndex(x=>!x));loadLoop(S.loop);syncMeshDirectionSetup();}
     if(n===3){drawMatrix();show('fillMatrix',difficulty()===0);}
     if(n===4){
-      if(S.solveMethod==='matrix')$('basicMatrixResults').before($('showBasicCramer').closest('.matrix-result-options'));
+      if(S.solveMethod==='matrix')$('basicCramerDetails').before($('showBasicCramer').closest('.matrix-result-options'));
       const {A,b}=system();
       $('solveNodal').textContent='Nudo '+(S.nodeSelected||'A')+' (Σ I entran = Σ I salen): '+nodeSides();
       $('solveMesh1').textContent='Malla 1: '+coefEq(A[1],b[1]);
