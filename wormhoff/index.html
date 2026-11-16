@@ -225,6 +225,10 @@
   .mesh-complete{pointer-events:none}
   .board-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;padding:15px 16px;background:var(--paint-102139,#102139);border-top:1px solid var(--paint-3d5772,#3d5772)}
   .circuit-transport{border-top:0;border-bottom:1px solid var(--paint-3d5772,#3d5772);padding:10px 16px}
+  /* Reproducción centrada; acciones de avance independientes a la derecha. */
+  #circuitTransport{justify-content:center}
+  #boardActions{justify-content:flex-end}
+  @media(max-width:600px){#boardActions{justify-content:flex-end;padding:10px 12px}#boardActions .board-action-item{min-width:0}}
   .board-action-item{display:flex;justify-content:center;max-width:100%}
   .board-action-item[hidden]{display:none}
   .board-actions button{max-width:100%;white-space:normal}
@@ -3750,7 +3754,7 @@
       const marker=document.createElement('span');marker.hidden=true;marker.setAttribute('aria-hidden','true');
       button.before(marker);
       const slot=document.createElement('div');slot.className='board-action-item';slot.dataset.boardAction=id;
-      const target=['resetLoop','advance','advNext'].includes(id)?transport:actions;
+      const target=['resetLoop'].includes(id)?transport:actions;
       slot.append(button);target.append(slot);entries.push({button,marker,slot,target});
     }
     function sync(){
