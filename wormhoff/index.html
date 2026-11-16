@@ -4013,7 +4013,7 @@
         if(input){input.setAttribute('aria-invalid',String(!ok));$('simplificationRows').querySelector('[data-simple-result="'+i+'"]').textContent=ok?'Forma para la matriz: '+sixEq(equation.row,equation.b,labels):'';}
         if(!ok)valid=false;
       });
-      model.simplified=valid;syncBoardActions();show('simplificationFeedback',true);
+      model.simplified=valid;if(valid)model.simplifying=false;syncBoardActions();show('simplificationFeedback',true);
       $('simplificationFeedback').className='message '+(valid?'good':'bad');
       $('simplificationFeedback').textContent=valid?'Simplificación correcta. Elige resolver algebraica o matricialmente en la fase 3.':'Revisa los signos, los coeficientes y la suma de tensiones. Cada intensidad debe aparecer una sola vez.';
       if(six)sixRenderRows();else renderBoardEquations();syncPhaseNavigation();
