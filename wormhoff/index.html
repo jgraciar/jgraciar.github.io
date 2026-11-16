@@ -865,15 +865,16 @@
           <div class="lap-chip" id="lapLabel">Vuelta 1/2 · resistencias (R·I)</div>
           <div class="message" id="loopFeedback">Comienza el recorrido de la malla 1.</div>
           <div id="termChallenge" class="challenge hide" aria-live="polite"></div>
-          <div class="control-actions"><button class="primary" id="advance">Avanzar al siguiente elemento →</button><button class="success hide" id="goMatrix">Simplificar ecuaciones →</button></div>
+          <div class="control-actions"><button class="primary" id="advance">Avanzar al siguiente elemento →</button></div>
         </div>
         <div id="advancedCircuitControls" class="circuit-controls-inner hide">
           <div class="lap-chip" id="advLap">Vuelta 1/2 · Σ R·I</div>
           <p class="message" id="advLoopMsg">Cada malla parte de su nudo indicado: C, C o D.</p>
           <div id="sixTermChallenge" class="challenge hide" aria-live="polite"></div>
-          <div class="control-actions"><button class="primary" id="advNext">Iniciar recorrido desde C →</button><button class="success hide" id="advToMatrix">Simplificar ecuaciones →</button></div>
+          <div class="control-actions"><button class="primary" id="advNext">Iniciar recorrido desde C →</button></div>
         </div>
       </div>
+      <div id="meshContinueActions" class="control-actions" style="padding:8px 12px;justify-content:center"><button class="success hide" id="goMatrix">Continuar: simplificar ecuaciones →</button><button class="success hide" id="advToMatrix">Continuar: simplificar ecuaciones →</button></div>
       <div id="nodeSelectionPrompt" class="node-selection-prompt hide" role="status" aria-live="polite">Seleccione nudos</div>
       <div id="boardActions" class="board-actions hide" aria-label="Acciones del circuito"></div>
       <div class="boardfoot"><span id="boardState">Selecciona las flechas: cualquier referencia es válida.</span><span id="boardSummary">Fuentes: 18 V, 6 V · R: 2 Ω</span></div>
