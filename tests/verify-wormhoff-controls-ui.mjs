@@ -272,8 +272,9 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   assert(await page.locator('#'+id).evaluate((el,parent)=>!!el.closest('#'+parent),container),'Acción en su barra: '+id);
   const diagram=await page.locator('#circuit').boundingBox(),actions=await page.locator('#'+container).boundingBox();
   if(transport)assert(Math.abs(actions.y-diagram.y-diagram.height)<3,'Reproducción inmediatamente debajo del circuito');
-  else assert(Math.abs(actions.y-diagram.y-diagram.height)<3,'Navegación inmediatamente debajo del esquema');
-  assert(Math.abs(actions.x+actions.width/2-diagram.x-diagram.width/2)<2,'Acciones centradas');
+  else assert(await page.locator('#'+container).evaluate(el=>el.previousElementSibling?.id==='circuitTransport'),'Navegación en su fila independiente');
+  if(transport)assert(Math.abs(actions.x+actions.width/2-diagram.x-diagram.width/2)<2,'Reproducción centrada');
+  else assert(await page.locator('#'+container).evaluate(el=>getComputedStyle(el).justifyContent==='flex-end'),'Navegación a la derecha');
  };
  await page.evaluate(markup=>{const probe=document.createElement('div');probe.id='algebraProbe';probe.innerHTML=markup;document.body.append(probe)},isolationMarkup);
  const values=await page.locator('#algebraProbe .algebra-isolated-value:visible').allTextContents();
