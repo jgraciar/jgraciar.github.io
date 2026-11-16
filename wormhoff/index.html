@@ -1057,20 +1057,19 @@
   const S={phase:0,simplifying:false,simplified:false,currentNumbers:[null,null,null],currentPositions:[null,null,null],meshDirections:[true,true],meshDirectionsConfirmed:false,signs:[1,-1,-1],score:0,nodeDone:false,nodeSelected:null,nodeIds:[],nodeChoices:[],nodeSelectionConfirmed:false,loops:[null,null],scoredLoops:[false,false],loopBonusAwarded:false,loop:0,cw:true,pass:"resistors",route:null,waypoint:-1,legIndex:0,flowBranch:null,flowReq:null,es:[],rs:[],animating:false,motionActive:false,manualPaused:false,finished:false,step:0};
   const X=[146,345,544],TOP=74,BOT=360,SY=136,RY=235;
   const names=['I₁','I₂','I₃'];
+  // Selección contrastada con los ficheros del tema 7 de Circuit JGR.
+  // Solo circuitos resolubles por KCL/KVL; no hay actividades de reducción
+  // serie/paralelo ni ramas sustituidas por resistencias equivalentes.
   const exercises=[
-    {id:'base',label:'Demo · 3 ramas',R:[2,2,2],E:[18,6,0],status:'Demostración',hint:'Circuito de aprendizaje con dos fuentes y tres ramas.'},
-    {id:'c71',label:'Nivel 1 · Comprobación 7.1 · 12 V / 5 V',R:[5,1,12],E:[12,5,0],parts:[[5],[1],[2,10]],status:'Jugable',hint:'Adaptación de las tres ramas de la actividad. R3 reúne 2 Ω y 10 Ω en serie.',source:'act.-comprobacion-7.1.txt'},
-    {id:'c72',label:'Comprobación 7.2 · fuentes en retorno',R:[4,8,7],E:[0,-10,-30],parts:[[4],[8],[6,1]],status:'Jugable (equivalente)',hint:'Esquema equivalente: las fuentes horizontales de 10 V y 20 V se trasladan a las ramas; R3 = 6 + 1 Ω.',source:'act.-comprobacion-7.2.txt'},
-    {id:'c75',label:'Comprobación 7.5 · 140 V / 90 V',R:[20,100,5],E:[140,0,90],status:'Jugable',hint:'Se usa la primera configuración con dos fuentes de 140 V y 90 V, carga de 100 Ω, y resistencias de 20 Ω y 5 Ω.',source:'act.-comprobacion-7.5.txt'},
-    {id:'r75',label:'Resuelta 7.5 · tres generadores de 24 V',R:[1/15,0.3,10],E:[24,24,0],parts:[[0.1,0.2],[0.3],[10]],partsMode:['parallel','series','series'],status:'Jugable (equivalente)',hint:'Las ramas de 24 V con resistencias internas de 0,1 Ω y 0,2 Ω se agrupan en una rama equivalente de 0,066667 Ω. Al terminar se recuperan las cuatro intensidades originales (0,1 Ω; 0,2 Ω; 0,3 Ω; 10 Ω).',source:'act.-resuelta-7.5.txt'},
-    {id:'r76',kind:'multi',label:'Resuelta 7.6 · seis ramas y tres mallas',status:'Jugable · 6 corrientes',hint:'Se conservan 6 corrientes, 4 nudos y 3 mallas. Fuentes originales de 10, 6, 12, 2 y 4 V; resistencias de 4, 3, 2, 2, 5 y 3 Ω. Solución mediante las leyes de nudos y mallas y reducción algebraica.',source:'act.-resuelta-7.6.txt'},
-    {id:'r71',label:'Resuelta 7.1 · fuentes 12 V / 11 V',R:[.2,.1,10],E:[12,11,0],status:'Jugable',hint:'Valores de la actividad resuelta 7.1 (tres ramas en paralelo).',source:'act.-resuelta-7.1.txt'},
-    {id:'r79',label:'Resuelta 7.9 · 12 V / 10 V',R:[1,10,1],E:[12,0,10],status:'Jugable (equivalente)',hint:'Se representa la configuración final de tres ramas incluida en la actividad 7.9.',source:'act.-resuelta-7.9.txt'},
-    {id:'e713',label:'Evaluación resuelta 7.13 · 4 V / 2 V',R:[1,0,1],E:[4,2,0],parts:[[1],[],[2,2]],partsMode:['series','ideal','parallel'],status:'Jugable (equivalente)',hint:'Circuito original de cuatro ramas: las dos resistencias de 2 Ω en paralelo se reducen a R₃ = 1 Ω. La rama central contiene una fuente ideal de 2 V sin resistencia en serie. Al terminar se calculan las corrientes individuales.',source:'act.-evaluacion-resuelta-7.13.txt'},
-
+    {id:'base',label:'Demo · 3 ramas',R:[2,2,2],E:[18,6,0],status:'Demostración',hint:'Circuito introductorio de dos mallas y tres intensidades.'},
+    {id:'r71',label:'Nivel 1 · Resuelta 7.1 · 12 V / 11 V',R:[0.2,0.1,10],E:[12,11,0],status:'Jugable',hint:'Tres ramas originales en paralelo, con dos generadores y una carga. Resolución por nudos y mallas, sin reducción de resistencias.',source:'act.-resuelta-7.1.txt'},
+    {id:'r73',label:'Nivel 2 · Resuelta 7.3 · tres generadores',R:[6,4,2],E:[10,6,4],status:'Jugable · fuentes en serie',hint:'Adaptación de las tres ramas de la actividad 7.3. En la rama central las fuentes de 12 V y 6 V tienen polaridades opuestas: su tensión algebraica es 6 V. No se combinan resistencias.',source:'act.-resuelta-7.3.txt'},
+    {id:'c75',label:'Nivel 2 · Comprobación 7.5 · 140 V / 90 V',R:[20,100,5],E:[140,0,90],status:'Jugable',hint:'Tres ramas, dos generadores y una carga. Conserva las resistencias originales de 20 Ω, 100 Ω y 5 Ω.',source:'act.-comprobacion-7.5.txt'},
+    {id:'r79',label:'Nivel 2 · Resuelta 7.9 · 12 V / 10 V',R:[1,10,1],E:[12,0,10],status:'Jugable',hint:'Configuración de tres ramas representada en la actividad 7.9; se resuelven sus corrientes mediante KCL y KVL.',source:'act.-resuelta-7.9.txt'},
+    {id:'r76',kind:'multi',label:'Nivel 2 · Resuelta 7.6 · seis ramas y tres mallas',status:'Jugable · 6 corrientes',hint:'Se conservan seis corrientes, cuatro nudos y tres mallas. Resistencias originales de 4, 3, 2, 2, 5 y 3 Ω, sin simplificaciones de serie/paralelo.',source:'act.-resuelta-7.6.txt'}
   ];
   let active=exercises[0];
-  const difficulty=()=>active.id==='base'?0:active.id==='c71'?1:2;
+  const difficulty=()=>active.id==='base'?0:active.id==='r71'?1:2;
   let activeChallenge=null;
   function clearChallenge(){
     if(activeChallenge){const old=activeChallenge;activeChallenge=null;old(false)}
