@@ -1575,6 +1575,29 @@
   }
   function drawBoard(){
     const parts=[];
+    if(active.id==='f451'){
+      // Figura 4.51: rama izquierda E1–R1–R2; rama central E2–R3; rama derecha E3–R4.
+      // Los nudos A y B son los extremos comunes de las tres ramas.
+      const f=active.components;
+      const wire=(d)=>'<path class="wire" d="'+d+'"/>';
+      const resistor=(id,cx,cy,vertical,value,label)=>'<g class="component-resistor" id="'+id+'">'+resistorSymbol(cx,cy,vertical,value,label)+'</g>';
+      const source=(id,cx,cy,v,label)=>'<g class="component-source" id="'+id+'"><circle class="symbol" cx="'+cx+'" cy="'+cy+'" r="18"/><text class="txtsm" x="'+(cx-5)+'" y="'+(cy-23)+'">+</text><text class="component-value" x="'+(cx+24)+'" y="'+(cy+5)+'">'+label+' '+formatNumber(Math.abs(v))+' V</text></g>';
+      parts.push(wire('M146 74 H218 M272 74 H544 M146 74 V118 M146 154 V360 M146 360 H218 M272 360 H544 M345 74 V118 M345 154 V208 M345 262 V360 M544 74 V118 M544 154 V360'));
+      parts.push(resistor('resistorElement0',245,74,false,f[0],'R1'));
+      parts.push(resistor('resistorElementExtra',245,360,false,f[1],'R2'));
+      parts.push(resistor('resistorElement1',345,235,true,f[2],'R3'));
+      parts.push(resistor('resistorElement2',544,235,true,f[3],'R4'));
+      parts.push(source('sourceElement0',146,136,E[0],'E1'));
+      parts.push(source('sourceElement1',345,136,E[1],'E2'));
+      parts.push(source('sourceElement2',544,136,E[2],'E3'));
+      parts.push('<circle class="nod" cx="345" cy="74" r="5"/><circle class="nod" cx="345" cy="360" r="5"/><text class="txt" x="358" y="58">A</text><text class="txt" x="358" y="390">B</text>');
+      $('staticCircuit').innerHTML=parts.join('');
+      $('boardTitle').textContent=topologyLabel(active);
+      $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
+      $('boardSummary').textContent='R1 '+formatNumber(f[0])+' Ω · R2 '+formatNumber(f[1])+' Ω · R3 '+formatNumber(f[2])+' Ω · R4 '+formatNumber(f[3])+' Ω · E1 '+formatNumber(E[0])+' V · E2 '+formatNumber(E[1])+' V · E3 '+formatNumber(E[2])+' V';
+      $('circuit').setAttribute('aria-label','Figura 4.51: dos mallas, tres fuentes y cuatro resistencias independientes');
+      return;
+    }
     parts.push('<path class="wire" d="M146 74 H544 M146 360 H544"/>');
     for(let i=0;i<3;i++){
       const x=X[i],e=E[i];
