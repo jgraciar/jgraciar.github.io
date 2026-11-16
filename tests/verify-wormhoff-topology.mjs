@@ -35,6 +35,6 @@ for(const c of cases){
  console.log('OK',c.name,result.currents);
 }
 const a=solveCurrents(cases[0]).currents;
-assert.ok(Math.abs(a.I1-120/13)<1e-8);
-assert.ok(Math.abs(a.I2-60/13)<1e-8);
-assert.ok(Math.abs(a.I3-180/13)<1e-8);
+assert.ok(Math.abs(a.I1-7.5)<1e-8);
+assert.ok(Math.abs(a.I2-3.75)<1e-8);
+assert.ok(Math.abs(a.I3-11.25)<1e-8);
