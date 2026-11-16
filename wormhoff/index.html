@@ -226,7 +226,13 @@
   .board-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;padding:15px 16px;background:var(--paint-102139,#102139);border-top:1px solid var(--paint-3d5772,#3d5772)}
   .circuit-transport{border-top:0;border-bottom:1px solid var(--paint-3d5772,#3d5772);padding:10px 16px}
   /* Reproducción centrada; acciones de avance independientes a la derecha. */
-  #circuitTransport{justify-content:center;position:relative;min-height:66px}
+  #circuitTransport{justify-content:center;position:relative;min-height:66px;flex-wrap:nowrap}
+  #boardActions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:nowrap;overflow-x:auto;gap:8px}
+  #boardActions.hide{display:none}
+  #circuitTransport .board-action-item{flex-shrink:0}
+  #boardActions .board-action-item{flex-shrink:0}
+  .matrix-result-options{margin:10px 0;font-size:14px}
+  .matrix-result-options label{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
   #circuitTransport .lap-chip{position:absolute;left:16px;top:50%;transform:translateY(-50%);max-width:calc(50% - 50px);white-space:normal;text-align:left}
   @media(max-width:640px){#circuitTransport .lap-chip{left:8px;max-width:calc(50% - 28px);font-size:11px}#circuitTransport{padding-inline:8px}}
   #boardActions{justify-content:flex-end}
@@ -3086,7 +3092,8 @@
   }
   function sixStartSolve(preserve=false){
     const previous=preserve===true?{step:A6.step,verified:A6.finalVerified,scored:A6.completedScore}:null;
-    A6.solveMethod='algebra';rememberPhase(4);A6.stage='solve';sixMeshArrows();syncPhaseNavigation();show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='REDUCCIÓN';
+    A6.solveMethod='algebra';rememberPhase(4);A6.stage='solve';
+    $('advMatrixSolveBtn').before($('advShowCramer').closest('.matrix-result-options'));sixMeshArrows();syncPhaseNavigation();show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='REDUCCIÓN';
     const {a,b,cols}=sixReduced(),vars=cols.map(ix=>NAMES6[ix]);
     const reduced=matSolve6(a,b),values=reduced.x;
     const recovered=sixRecoverNodes(values,cols),ii=recovered.ii;
@@ -3158,6 +3165,7 @@
     const previous=preserve?{step:A6.step,verified:A6.finalVerified,scored:A6.completedScore}:null;
     A6.solveMethod='matrix';rememberPhase(4);A6.stage='solve';sixMeshArrows();syncPhaseNavigation();
     show('advMatrix',false);show('advSolve',true);$('phaseChip').textContent='MÉTODO MATRICIAL';
+    $('advSolveSteps').before($('advShowCramer').closest('.matrix-result-options'));
     const {A,b}=sixSystem(),solved=matSolve6(A,b),values=solved.x;
     // Gauss: operaciones elementales sobre la matriz ampliada, seguidas de sustitución regresiva.
     const steps=[{title:'Matriz ampliada del sistema',
@@ -3784,7 +3792,7 @@
     const media=matchMedia('(max-width:970px), (pointer:coarse) and (max-width:1200px)');
     const sync=()=>{
       layout.classList.toggle('mobile-layout',media.matches);
-      if(media.matches){const actions=$('boardActions');$('circuitCard').querySelector('.board').after(actions);actions.after(card);}else marker.after(card);
+      if(media.matches){const actions=$('boardActions');$('circuitTransport').after(actions);actions.after(card);}else marker.after(card);
     };
     media.addEventListener('change',sync);sync();
   }
@@ -3818,6 +3826,8 @@
         if(!slot.hidden){if(target===transport)transportVisible++;else visible++;}
       }
       const shortcutVisible=(A6.simplifying&&A6.simplified)||(S.simplifying&&S.simplified);
+      // Una sola acción de avance por fase: ocultar accesos duplicados.
+      if(shortcutVisible){for(const entry of entries)if(['goSolve','advSolveBtn'].includes(entry.button.id)){if(!entry.slot.hidden){entry.slot.hidden=true;visible--;}}}
       solveShortcut.classList.toggle('hide',!shortcutVisible);
       const standardActive=!$('standardCircuitControls').classList.contains('hide')&&!$('circuitControls').classList.contains('hide');
       const advancedActive=!$('advancedCircuitControls').classList.contains('hide')&&!$('circuitControls').classList.contains('hide');
