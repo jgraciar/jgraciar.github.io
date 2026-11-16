@@ -157,7 +157,7 @@
   @keyframes heroTear{0%{opacity:0;transform:translateY(-1px)}25%{opacity:.9}100%{opacity:0;transform:translateY(5px)}}
   .hero-tip{fill:var(--worm-edge);stroke:var(--worm-dark);stroke-width:1.5;stroke-linejoin:round}
   /* Mostrar las intensidades antes del desarrollo de Cramer, sin cambiar el orden algebraico. */
-  #phase4.cramer-results-first,#advSolve.cramer-results-first{display:flex;flex-direction:column}
+  #phase4.cramer-results-first:not(.hide),#advSolve.cramer-results-first:not(.hide){display:flex;flex-direction:column}
   #phase4.cramer-results-first #resultPanel,#advSolve.cramer-results-first #advResultPanel{order:-1;margin-top:0!important;margin-bottom:14px}
   .lap-chip{color:var(--amber);font-weight:700;margin:6px 0 0}
   .eq-equals{display:flex;align-items:center;justify-content:center;font:900 30px ui-monospace,monospace;color:var(--cyan)}
