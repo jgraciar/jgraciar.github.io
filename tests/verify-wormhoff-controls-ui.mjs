@@ -175,7 +175,10 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const page=await context.newPage(),errors=[];page.on('console',m=>{if(m.type()==='warning')console.log(m.text())});page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR:',e.stack)});
  await page.goto('http://127.0.0.1:8767/wormhoff/');
  const selectSymbol=async value=>{await page.click('#openSettings');await page.selectOption('#symbolStandard',value);await page.click('#closeSettings');};
- assert.equal(await page.locator('html').getAttribute('data-theme'),'dark','Tema oscuro por defecto');
+ assert.equal(await page.locator('#themeSetting').inputValue(),'system','Tema del sistema por defecto');
+ await page.emulateMedia({colorScheme:'light'});
+ await page.waitForFunction(()=>document.documentElement.dataset.theme==='light');
+ assert.equal(await page.locator('html').getAttribute('data-theme'),'light','El tema inicial sigue el sistema en modo claro');
  await assertStageChecks(page,[]);
  const phaseRects=await page.locator('#stagebar .stage:visible').evaluateAll(nodes=>nodes.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};}));
  assert.equal(phaseRects.length,3,'Tres fases visibles: corrientes y nudos, mallas y resolución');
