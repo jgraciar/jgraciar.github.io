@@ -1743,7 +1743,7 @@
     const completed=(S.phase===0?0:S.phase===1?18:S.phase===2?35:S.phase===3?69:89)+(S.finished?11:0);
     $('percent').textContent=completed+'%';
 
-    const titles=['Fase 1 · Corrientes y nudos','Fase 1 · Corrientes y nudos','Fase 2 · Ley de las mallas','Fase 2 · Forma matricial','Fase 3 · Sustitución y reducción'];
+    const titles=['Fase 1 · Corrientes y nudos','Fase 1 · Corrientes y nudos','Fase 2 · Ley de las mallas','Fase 3 · Resolución','Fase 3 · Resolución'];
     $('phaseHead').textContent=titles[S.phase];
     $('phaseChip').textContent=S.finished?'SUPERADO':['CORRIENTES','NUDOS','MALLAS','A · I = b','RESUELVE'][S.phase];syncPhaseNavigation();
   }
@@ -2681,7 +2681,7 @@
     setHeroVictory(solved&&S.finished);syncPhaseNavigation();
   }
   $('nextStep').onclick=()=>{const steps=buildSteps();if(S.step<steps.length){S.step++;renderSteps()}};
-  $('restartSteps').onclick=()=>{S.step=0;S.finalVerified=false;$('finalChallenge').replaceChildren();renderSteps()};
+  // La repetición se configura en initBoardActions para regresar a la elección del método.
   function newGame(){
     S.simplifying=false;S.simplified=false;A6.simplifying=false;A6.simplified=false;show('simplificationPhase',false);setHeroVictory(false);
     if($('nodeEquationDialog').open)$('nodeEquationDialog').close();
@@ -3879,6 +3879,10 @@
     methodChoices.innerHTML='<button id="resolveAlgebraChoice" class="success" type="button">Resolver algebraicamente</button><button id="resolveMatrixChoice" class="success" type="button">Resolver matricialmente</button>';
     $('phaseCard').prepend(methodChoices);
     let choosingResolution=false;
+    const returnToMethodChoice=()=>{if(active.kind==='multi'){A6.stage='matrix';show('advSolve',false);show('advMatrix',false);$('phaseHead').textContent='Fase 3 · Resolución';}else{S.step=0;S.finalVerified=false;S.phase=3;show('phase4',false);show('phase3',false);updateHeader();}choosingResolution=true;methodChoices.classList.remove('hide');sync();};
+    $('restartSteps').onclick=returnToMethodChoice;
+    const advancedRestart=$('advSolve').querySelector('#advSolveRestart, [data-action="restart-solve"]');
+    if(advancedRestart)advancedRestart.onclick=returnToMethodChoice;
     const enterResolution=()=>{if(active.kind==='multi'){if(!A6.simplified)return;A6.simplifying=false;sixMatrix();show('advMatrix',false);}else{if(!S.simplified)return;S.simplifying=false;phase(3);show('phase3',false);}choosingResolution=true;methodChoices.classList.remove('hide');$('phaseHead').textContent='Fase 3 · Resolución';$('phaseChip').textContent='RESUELVE';sync();};
     $('resolveAlgebraChoice').onclick=()=>{choosingResolution=false;methodChoices.classList.add('hide');if(active.kind==='multi')sixStartSolve();else{S.solveMethod='algebra';phase(4)};sync();};
     $('resolveMatrixChoice').onclick=()=>{choosingResolution=true;if(active.kind==='multi'){show('advMatrix',true);sixRenderMatrix();}else{show('phase3',true);drawMatrix();}sync();};
@@ -3889,7 +3893,7 @@
       const marker=document.createElement('span');marker.hidden=true;marker.setAttribute('aria-hidden','true');
       button.before(marker);
       const slot=document.createElement('div');slot.className='board-action-item';slot.dataset.boardAction=id;
-      const target=['resetLoop'].includes(id)?transport:actions;
+      const target=['resetLoop','advance','advNext'].includes(id)?transport:actions;
       slot.append(button);target.append(slot);entries.push({button,marker,slot,target});
     }
     function sync(){
