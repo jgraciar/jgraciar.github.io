@@ -1924,14 +1924,14 @@
   function terms(parts,kind){
     if(!parts.length)return '0';
     return parts.map((p,j)=>{
-      const value=kind==='E'?formatNumber(Math.abs(p.v)):formatNumber(R[p.i])+'·'+names[p.i];
+      const value=kind==='E'?formatNumber(Math.abs(p.v)):formatNumber(p.resistance??R[p.i])+'·'+names[p.i];
       return (p.v<0?(j?' − ':'−'):(j?' + ':''))+value;
     }).join('');
   }
   function termsHtml(parts,kind){
     if(!parts.length)return '—';
     return parts.map((p,j)=>{
-      const value=kind==='E'?formatNumber(Math.abs(p.v)):formatNumber(R[p.i])+'·'+names[p.i];
+      const value=kind==='E'?formatNumber(Math.abs(p.v)):formatNumber(p.resistance??R[p.i])+'·'+names[p.i];
       const val=(p.v<0?(j?' − ':'−'):(j?' + ':''))+value;
       return j===parts.length-1?'<span class="flash-term">'+val+'</span>':val;
     }).join('');
@@ -2113,7 +2113,8 @@
     BRANCHES=X.map((x,i)=>{
       const points=[{x:345,y:BOT}];
       if(x!==345)points.push({x,y:BOT});
-      points.push({x,y:RY,component:R[i]===0?null:'resistor'});
+      if(active.id==='f451'&&i===0)points.push({x,y:312,component:'resistor',resistance:active.components[1],resistorId:'resistorElementExtra'});
+      points.push({x,y:RY,component:R[i]===0?null:'resistor',resistance:active.id==='f451'?active.components[i===0?0:i===1?2:3]:R[i]});
       if(E[i])points.push({x,y:SY,component:'source'});
       points.push({x,y:TOP});
       if(x!==345)points.push({x:345,y:TOP});
@@ -2420,15 +2421,15 @@
         msg('loopFeedback',`Fuente ${formatNumber(Math.abs(E[leg.branch]))} V: recorrido ${v>0?'a favor (+)':'en contra (−)'} de esa polaridad.`);
         await waitForPlayer();if(token!==flowToken)return;
       }else if(S.pass==='resistors'&&p.component==='resistor'){
-        const v=R[leg.branch]*S.signs[leg.branch]*leg.d;
+        const v=(p.resistance??R[leg.branch])*S.signs[leg.branch]*leg.d;
         renderComponentFX(p,v);
         setHeroReaction(v);
         if(!await challengeTerm('termChallenge',v,leg.branch,false))return;
         if(token!==flowToken)return;
-        S.rs.push({v,i:leg.branch});
+        S.rs.push({v,i:leg.branch,resistance:p.resistance});
         $('resBuild').innerHTML=termsHtml(S.rs,'R');
         renderBoardEquations('R');pulseEquationArrow(leg.branch,false);
-        msg('loopFeedback',`Resistencia R${leg.branch+1}: el recorrido ${v>=0?'coincide con':'se opone a'} la corriente supuesta. Signo ${v>=0?'+':'−'} en R·I.`);
+        msg('loopFeedback',`Resistencia ${p.resistorId?'R2':'R'+(active.id==='f451'?(leg.branch===0?1:leg.branch===1?3:4):leg.branch+1)}: el recorrido ${v>=0?'coincide con':'se opone a'} la corriente supuesta. Signo ${v>=0?'+':'−'} en R·I.`);
         await waitForPlayer();if(token!==flowToken)return;
       }
     }
