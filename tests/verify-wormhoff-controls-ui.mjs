@@ -42,9 +42,18 @@ const enterNodeEquation=async(page,id,equation)=>{
  assert.match(await page.locator('#nodeEquationTitle').textContent(),new RegExp('Nudo '+id));
  assert.deepEqual(await page.locator('#nodeTargets [data-node-blinking="true"]').evaluateAll(nodes=>nodes.map(el=>el.dataset.node)),[id],'Solo parpadea el nudo cuya ecuación se pide');
  assert.equal(await page.locator('#nodeTargets [data-node="'+id+'"] circle').evaluate(el=>getComputedStyle(el).animationName),'nodeRingBlink');
- await page.locator('#nodeEquationChallenge .kcl-answer').fill(equation);
+ if(await page.locator('#nodeEquationChallenge .kcl-drag-token').count()){
+  const [left='',right='']=equation.replace(/\\s/g,'').split('=');
+  const tokens=page.locator('#nodeEquationChallenge .kcl-drag-token');
+  for(let i=0;i<await tokens.count();i++){
+   const label=await tokens.nth(i).textContent();
+   const plain=v=>v.replace(/[₀₁₂₃₄₅₆₇₈₉]/g,d=>String('₀₁₂₃₄₅₆₇₈₉'.indexOf(d))).toUpperCase();
+   const side=[left,right].findIndex(part=>plain(part).includes(plain(label)));
+   if(side>=0){await tokens.nth(i).click();await page.locator('#nodeEquationChallenge .kcl-drop-side').nth(side).click();}
+  }
+ }else await page.locator('#nodeEquationChallenge .kcl-answer').fill(equation);
  await page.click('#nodeEquationDialog [data-context-help="nodeEquation"]');assert(await page.locator('#phaseHelpDialog').isVisible());assert.match(await page.locator('#phaseHelpBody').textContent(),/Σ I que entran/);
- await page.click('#closePhaseHelp');assert(await page.locator('#nodeEquationDialog').isVisible());assert.equal(await page.locator('#nodeEquationChallenge .kcl-answer').inputValue(),equation,'La ayuda conserva la ecuación escrita');
+ await page.click('#closePhaseHelp');assert(await page.locator('#nodeEquationDialog').isVisible());if(await page.locator('#nodeEquationChallenge .kcl-answer').count())assert.equal(await page.locator('#nodeEquationChallenge .kcl-answer').inputValue(),equation,'La ayuda conserva la ecuación escrita');else assert(await page.locator('#nodeEquationChallenge .kcl-live-term').count()>0,'La ayuda conserva las intensidades colocadas');
  assert.equal(await page.locator('#nodeEquationSummary').isVisible(),false,'Explicaciones del diálogo solo en ayuda');
  await page.click('#nodeEquationChallenge .kcl-check');
  assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'Ecuación validada en '+id);
