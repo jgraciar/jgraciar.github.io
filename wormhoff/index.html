@@ -779,7 +779,7 @@
   .hero-glass-shine{stroke:#fff;stroke-width:.85;stroke-linecap:round;opacity:.85}
   :root[data-theme="light"] .hero-eye-white{fill:#fff;stroke:#071a05}
 </style>
-</head>
+<style>.algebra-working-line.alg-solution{background:rgba(255,211,64,.18);border-left:3px solid #ffd340;color:inherit;padding:6px 10px;font-weight:700}</style></head>
 <body>
 <div class="shell">
   <header class="top">
@@ -2449,7 +2449,7 @@
       '<div class="step"><div class="stepnum">'+(i+1)+'</div><div class="step-main">'+
       '<div class="step-heading"><span>'+escapeHtml(step.title)+'</span><button type="button" class="help-button" data-step-help="'+i+'" aria-label="Ayuda de este paso" title="Ayuda">?</button></div>'+
       (step.detail?'<p class="algebra-step-detail">'+escapeHtml(step.detail)+'</p>':'')+
-      (step.lines?'<div class="algebra-working">'+step.lines.map(line=>'<div class="algebra-working-line">'+escapeHtml(line)+'</div>').join('')+'</div>':'')+
+      (step.lines?'<div class="algebra-working">'+step.lines.map(line=>'<div class="algebra-working-line'+(step.solution?' alg-solution':'')+'">'+escapeHtml(line)+'</div>').join('')+'</div>':'')+
       (step.nodeEquations?sixKCLRows():'')+
       (step.rows?algebraTable(step.rows,step.vars||vars):'')+
       '</div></div>'
@@ -2516,9 +2516,10 @@
     }
     steps.push({title:'Intensidad restante: ecuación del nudo',detail:'Operamos directamente sobre '+node+'. Sustituimos '+names[1]+' = '+fmt(last[1])+' A y '+names[2]+' = '+fmt(last[2])+' A.',lines:[node,names[0]+' = ('+fmt(-s[1]/s[0])+')·('+fmt(last[1])+') + ('+fmt(-s[2]/s[0])+')·('+fmt(last[2])+')']});
     steps.push({title:'Intensidad restante: agrupar términos',detail:'Los términos conocidos son '+fmt(A[0][1]*last[1])+' y '+fmt(A[0][2]*last[2])+'. Su suma pasa al segundo miembro con signo contrario.',lines:[names[0]+' = '+fmt(-s[1]/s[0]*last[1])+' + ('+fmt(-s[2]/s[0]*last[2])+')',names[0]+' = '+fmt(last[0])+' A']});
-    steps.push({title:'Cálculo de la intensidad restante',
-      detail:'Volvemos a '+nodeSides()+' y calculamos '+names[0]+' mediante la ecuación del nudo.',
-      lines:[names[0]+' = '+fmt(last[0])+' A']});
+    // El último paso reúne las tres soluciones, sin repetir el despeje anterior.
+    steps.push({title:'Resultado del sistema',
+      detail:'Intensidades obtenidas mediante las ecuaciones de nudos y mallas, con los sentidos de referencia elegidos.',
+      lines:last.map((value,i)=>names[i]+' = '+fmt(value)+' A'),solution:true});
     return steps;
   }
   function renderSteps(){
