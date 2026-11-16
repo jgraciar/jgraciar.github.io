@@ -4003,7 +4003,7 @@
     model.simplifying=true;show('circuitControls',false);clearFX();setHeroGait(false);
     const demo=difficulty()===0,data=simplificationData(six).filter(e=>e.needsSimplification);
     $('simplificationRows').innerHTML=data.length?data.map((equation,i)=>'<section class="simplification-item'+(model.simplified?' verified':'')+'" data-simple-row="'+i+'"><h3>Malla '+(i+1)+'</h3><div class="mini">Ecuación original</div><div class="simplification-original">'+escapeHtml(equation.original)+'</div>'+(demo?'<div class="mini">Ecuación simplificada</div><div class="simplification-result">'+escapeHtml(equation.simplified)+'</div>':'<label>Ecuación simplificada<input class="simplification-answer" data-simple="'+i+'" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Ecuación simplificada de malla '+(i+1)+'" value="'+(model.simplified?escapeHtml(equation.simplified):'')+'" placeholder="…"></label><div class="simplification-result" data-simple-result="'+i+'"></div>')+'</section>').join(''):'<p class="message good">Las ecuaciones ya están simplificadas. Puedes continuar.</p>';
-    if(!data.length){model.simplified=true;show('checkSimplification',false);}else show('checkSimplification',true);
+    if(!data.length){model.simplified=true;model.simplifying=false;show('checkSimplification',false);}else show('checkSimplification',true);
     $('checkSimplification').textContent=demo?'Confirmar simplificación':'Comprobar simplificación';
     $('checkSimplification').onclick=()=>{
       const labels=six?NAMES6:names;let valid=true;
