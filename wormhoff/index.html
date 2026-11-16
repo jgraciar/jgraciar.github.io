@@ -3873,7 +3873,7 @@
     let choosingResolution=false;
     const enterResolution=()=>{if(active.kind==='multi'){if(!A6.simplified)return;A6.simplifying=false;sixMatrix();show('advMatrix',false);}else{if(!S.simplified)return;S.simplifying=false;phase(3);show('phase3',false);}choosingResolution=true;methodChoices.classList.remove('hide');$('phaseHead').textContent='Fase 3 · Resolución';$('phaseChip').textContent='RESUELVE';sync();};
     $('resolveAlgebraChoice').onclick=()=>{choosingResolution=false;methodChoices.classList.add('hide');if(active.kind==='multi')sixStartSolve();else{S.solveMethod='algebra';phase(4)};sync();};
-    $('resolveMatrixChoice').onclick=()=>{choosingResolution=false;methodChoices.classList.add('hide');if(active.kind==='multi'){show('advMatrix',true);sixRenderMatrix();}else{show('phase3',true);drawMatrix();}sync();};
+    $('resolveMatrixChoice').onclick=()=>{choosingResolution=true;if(active.kind==='multi'){show('advMatrix',true);sixRenderMatrix();}else{show('phase3',true);drawMatrix();}sync();};
     const solveShortcut=document.createElement('button');solveShortcut.type='button';solveShortcut.id='solveAfterSimplification';solveShortcut.className='success hide';solveShortcut.textContent='Resolver';actions.append(solveShortcut);
     solveShortcut.onclick=enterResolution;
     for(const id of ids){
