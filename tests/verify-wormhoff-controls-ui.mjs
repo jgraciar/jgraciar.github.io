@@ -458,6 +458,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   for(let i=0;i<numbers.length;i++){await tap(...coords[i]);await page.locator('#currentNumber').fill(String(numbers[i]));await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,'Rama '+(i+1)+': '+await page.locator('#currentNumber').getAttribute('aria-invalid'));}
  };
  await page.selectOption('#exerciseSelect','base');
+  if(await page.locator('#toggleDemo').getAttribute('aria-pressed')==='true')await page.click('#toggleDemo');
+  assert.equal(await page.locator('#toggleDemo').getAttribute('aria-pressed'),'false','Editor manual en modo jugable');
  assert.equal(await page.locator('#confirmDirs').isDisabled(),true);
  const circuitScale=()=>page.locator('#circuit').evaluate(el=>({width:el.getBoundingClientRect().width,scale:el.getScreenCTM().a,zoom:el.style.getPropertyValue('--circuit-zoom'),viewport:visualViewport?.scale||1}));
  const beforeNumbering=await circuitScale(),originalViewport=await page.locator('meta[name=viewport]').getAttribute('content');
