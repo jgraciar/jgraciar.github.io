@@ -238,7 +238,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await equationControls.locator('[data-text-change="-1"]').click();
  const circuitCard=await page.locator('#circuitCard').boundingBox(),equationsCard=await page.locator('#equationsCard').boundingBox();
  if(mobile){
-  const diagram=await page.locator('#circuit').boundingBox(),actions=await page.locator('#boardActions').boundingBox(),bottom=actions?actions.y+actions.height:diagram.y+diagram.height;assert(equationsCard.y>=bottom-1&&equationsCard.y<bottom+3,'Ecuaciones bajo el circuito y su botón de avance');
+  const diagram=await page.locator('#circuit').boundingBox(),actions=await page.locator('#boardActions').boundingBox(),transport=await page.locator('#circuitTransport').boundingBox(),bottom=Math.max(diagram.y+diagram.height,actions?actions.y+actions.height:0,transport?transport.y+transport.height:0);assert(equationsCard.y>=bottom-1,'Ecuaciones bajo el circuito y las dos filas de controles');
   assert(await page.locator('#equationsCard').evaluate(el=>el.parentElement.id==='circuitCard'));
  }
  else assert(equationsCard.x>=circuitCard.x+circuitCard.width-1,'Ecuaciones a la derecha en escritorio');
