@@ -2372,8 +2372,11 @@
         const fraction=span?(travelled-distances[segment])/span:1;
         const x=a.x+(b.x-a.x)*fraction, y=a.y+(b.y-a.y)*fraction;
         positionHero(x,y,heroTravelAngle(b.x-a.x,b.y-a.y));
-        // El ocultamiento por pulsación del personaje nunca debe persistir durante el recorrido automático.
-        if($('hero').classList.contains('hero-user-hidden')){heroPressPointer=null;setHeroUserHidden(false);}
+        // El gusano se mantiene por encima de las capas dinámicas y visible durante todo el desplazamiento.
+        const hero=$('hero');
+        if(hero.parentNode.lastElementChild!==hero)hero.parentNode.appendChild(hero);
+        if(hero.classList.contains('hero-user-hidden')){heroPressPointer=null;setHeroUserHidden(false);}
+        hero.removeAttribute('visibility');hero.removeAttribute('opacity');
         setHeroGait(travelled<total,travelled);
         // Durante la vuelta de tensiones solo se evalúa la polaridad al atravesar la fuente.
         setHeroMood(S.pass==='resistors'&&oppositeCurrent);
