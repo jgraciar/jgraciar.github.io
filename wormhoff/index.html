@@ -268,6 +268,7 @@
   .muted{color:var(--muted)}
   .steps{margin:14px 0;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-width:0;width:100%}
   .step{display:flex;align-items:start;gap:10px;min-width:0;width:100%;padding:10px;border:1px solid var(--paint-36516b,#36516b);background:var(--paint-132740,#132740);border-radius:10px;font-size:14px}
+  :root[data-theme="light"] .stepnum{color:#fff!important;background:#12384c!important}
   .stepnum{flex:0 0 26px;background:var(--paint-27627e,#27627e);border-radius:7px;color:var(--paint-e9fdff,#e9fdff);font:800 13px ui-monospace,monospace;text-align:center;padding:4px 0}
   .step-main{flex:1;min-width:0}
   .step-heading{font-weight:800;color:var(--paint-c2f3fb,#c2f3fb);font-size:14px;margin-bottom:5px}
@@ -2521,7 +2522,7 @@
       '<div class="step"><div class="stepnum">'+(i+1)+'</div><div class="step-main">'+
       '<div class="step-heading"><span>'+escapeHtml(step.title)+'</span><button type="button" class="help-button" data-step-help="'+i+'" aria-label="Ayuda de este paso" title="Ayuda">?</button></div>'+
       (step.detail?'<p class="algebra-step-detail">'+escapeHtml(step.detail)+'</p>':'')+
-      (step.lines?'<div class="algebra-working">'+step.lines.map(line=>'<div class="algebra-working-line'+(step.solution?' alg-solution':'')+'">'+escapeHtml(line)+'</div>').join('')+'</div>':'')+
+      (step.lines?'<div class="algebra-working">'+step.lines.map((line,j)=>'<div class="algebra-working-line'+((step.solution||(step.highlightLast&&j===step.lines.length-1))?' alg-solution':'')+'">'+escapeHtml(line)+'</div>').join('')+'</div>':'')+
       (step.nodeEquations?sixKCLRows():'')+
       (step.rows?algebraTable(step.rows,step.vars||vars):'')+
       '</div></div>'
@@ -2539,7 +2540,7 @@
     const steps=[
       {title:'Sustitución en las dos mallas',
        detail:'Partimos de '+nodeSides()+'. Sustituimos '+names[0]+' mediante '+node+' en las dos mallas y obtenemos:',
-       rows:[{label:'Malla 1',row:first,b:u},{label:'Malla 2',row:second,b:v}],lines:[node,coefEq(a,u).split(' = ')[0]+' = '+fmt(u),coefEq(c,v).split(' = ')[0]+' = '+fmt(v)]}
+       rows:[{label:'Malla 1',row:first,b:u},{label:'Malla 2',row:second,b:v}],lines:[node,coefEq(a,u).split(' = ')[0]+' = '+fmt(u),coefEq(c,v).split(' = ')[0]+' = '+fmt(v),coefEq(a,u).replaceAll(names[0],'('+node.split(' = ').slice(1).join(' = ')+')'),coefEq(c,v).replaceAll(names[0],'('+node.split(' = ').slice(1).join(' = ')+')')]}
     ];
     const eps=1e-9;
     if(Math.abs(p)>eps && Math.abs(r)>eps){
@@ -2564,11 +2565,7 @@
               {label:'Resultado',row:[0,0,coef],b:rhs,total:true}]});
       const i3=rhs/coef;
       const i2=(u-q*i3)/p;
-      steps.push({title:'Sustitución regresiva: sustituir el valor conocido',detail:'Sustituimos '+names[2]+' = '+fmt(i3)+' A en la primera ecuación.',rows:[{label:'Malla 1',row:first,b:u}],lines:[fmt(p)+'·'+names[1]+' + '+fmt(q)+'·'+names[2]+' = '+fmt(u),fmt(p)+'·'+names[1]+' + '+fmt(q)+'·('+fmt(i3)+') = '+fmt(u)]});
-      steps.push({title:'Sustitución regresiva: operar y transponer',detail:'Calculamos '+fmt(q)+' · ('+fmt(i3)+') = '+fmt(q*i3)+' y lo pasamos al segundo miembro: '+fmt(u)+' − ('+fmt(q*i3)+') = '+fmt(u-q*i3)+'.',rows:[{label:'Malla 1',row:[0,p,0],b:u-q*i3}],lines:[fmt(p)+'·'+names[1]+' + ('+fmt(q*i3)+') = '+fmt(u),fmt(p)+'·'+names[1]+' = '+fmt(u)+' − ('+fmt(q*i3)+')',fmt(p)+'·'+names[1]+' = '+fmt(u-q*i3)]});
-      steps.push({title:'Despejar '+names[1],
-        detail:'Dividimos ambos miembros por '+fmt(p)+' y obtenemos '+names[1]+' = '+fmt(i2)+' A.',
-        rows:[{label:'Malla 1 · despeje',row:[0,1,0],b:i2,total:true}],lines:[names[1]+' = ('+fmt(u-q*i3)+') / ('+fmt(p)+')',names[1]+' = '+fmt(i2)+' A']});
+      steps.push({title:'Sustitución regresiva: obtener '+names[1],detail:'Sustituimos '+names[2]+' = '+fmt(i3)+' A, operamos y despejamos '+names[1]+'.',rows:[{label:'Malla 1',row:[0,p,0],b:u-q*i3}],lines:[fmt(p)+'·'+names[1]+' + '+fmt(q)+'·'+names[2]+' = '+fmt(u),fmt(p)+'·'+names[1]+' + '+fmt(q)+'·('+fmt(i3)+') = '+fmt(u),fmt(p)+'·'+names[1]+' = '+fmt(u)+' − ('+fmt(q*i3)+')',fmt(p)+'·'+names[1]+' = '+fmt(u-q*i3),names[1]+' = ('+fmt(u-q*i3)+') / ('+fmt(p)+')',names[1]+' = '+fmt(i2)+' A'],highlightLast:true});
     }else{
       // Una ecuación tiene ya coeficiente cero en I₂.
       const useFirst=Math.abs(p)<=eps;
@@ -2586,8 +2583,7 @@
         detail:'Sustituimos '+names[2]+' en la otra malla y hallamos '+names[1]+' = '+fmt(i2)+' A.',
         rows:[{label:useFirst?'Malla 2':'Malla 1',row:[0,1,0],b:i2,total:true}],lines:[names[1]+' = ('+fmt(otherB-other[2]*i3)+') / ('+fmt(other[1])+')',names[1]+' = '+fmt(i2)+' A']});
     }
-    steps.push({title:'Intensidad restante: ecuación del nudo',detail:'Operamos directamente sobre '+node+'. Sustituimos '+names[1]+' = '+fmt(last[1])+' A y '+names[2]+' = '+fmt(last[2])+' A.',lines:[node,names[0]+' = ('+fmt(-s[1]/s[0])+')·('+fmt(last[1])+') + ('+fmt(-s[2]/s[0])+')·('+fmt(last[2])+')']});
-    steps.push({title:'Intensidad restante: agrupar términos',detail:'Los términos conocidos son '+fmt(A[0][1]*last[1])+' y '+fmt(A[0][2]*last[2])+'. Su suma pasa al segundo miembro con signo contrario.',lines:[names[0]+' = '+fmt(-s[1]/s[0]*last[1])+' + ('+fmt(-s[2]/s[0]*last[2])+')',names[0]+' = '+fmt(last[0])+' A']});
+    steps.push({title:'Intensidad restante: ecuación del nudo',detail:'Sustituimos las dos intensidades conocidas en '+node+' y calculamos directamente la restante.',lines:[node,names[0]+' = ('+fmt(-s[1]/s[0])+')·('+fmt(last[1])+') + ('+fmt(-s[2]/s[0])+')·('+fmt(last[2])+')',names[0]+' = '+fmt(-s[1]/s[0]*last[1])+' + ('+fmt(-s[2]/s[0]*last[2])+')',names[0]+' = '+fmt(last[0])+' A'],highlightLast:true});
     // El último paso reúne las tres soluciones, sin repetir el despeje anterior.
     steps.push({title:'Resultado del sistema',
       detail:'Intensidades obtenidas mediante las ecuaciones de nudos y mallas, con los sentidos de referencia elegidos.',
