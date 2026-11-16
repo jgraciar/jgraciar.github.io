@@ -3858,7 +3858,7 @@
     const actions=$('boardActions'),transport=$('circuitTransport'),entries=[];
     const lapChips=['lapLabel','advLap'].map(id=>$(id));
     lapChips.forEach(chip=>transport.prepend(chip));
-    $('continueSimplification').textContent='';
+
     $('advSolveBtn').textContent='Resolver algebraicamente →';
     $('goSolve').textContent='Resolver algebraicamente →';
     // Los mandos de reproducción de mallas y las acciones se sitúan debajo del esquema.
@@ -4024,7 +4024,7 @@
     }
     show('simplificationFeedback',false);syncBoardActions();
     $('backToMeshes').onclick=()=>{model.simplifying=false;if(!six)updateHeader();else syncPhaseNavigation();syncMeshDirectionSetup();};
-    $('continueSimplification').onclick=()=>{};
+
     syncBoardActions();
     syncPhaseNavigation();
   }
