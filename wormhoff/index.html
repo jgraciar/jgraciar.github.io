@@ -1207,7 +1207,7 @@
       showPartial([]);
     }
     const check=()=>{
-      const valid=demoDrag?host._kclDemoAssignments.every((side,i)=>row[i]===0?side===null:side===(row[i]>0?0:1)):guided?[...host.querySelectorAll('[data-kcl]')].every((e,i)=>e.value!==''&&Number(e.value)===row[i]):equalKCL(host.querySelector('.kcl-answer').value,row,namesList);
+      const valid=demoDrag?([false,true].some(invert=>host._kclDemoAssignments.every((side,i)=>row[i]===0?side===null:side===((row[i]>0?0:1)^(invert?1:0))))):guided?[...host.querySelectorAll('[data-kcl]')].every((e,i)=>e.value!==''&&Number(e.value)===row[i]):equalKCL(host.querySelector('.kcl-answer').value,row,namesList);
       const feedback=host.querySelector('.feedback');
       feedback.textContent=valid?'Ecuación correcta. Puedes continuar.':'Ecuación incorrecta.';
       feedback.classList.toggle('good',valid);
