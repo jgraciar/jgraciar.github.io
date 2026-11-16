@@ -2092,6 +2092,7 @@
   function resetCurrentLoop(removeCompleted=true){
     if(S.animating)return;
     if(removeCompleted&&S.loops[S.loop]){S.loops[S.loop]=null;S.simplified=false;}
+    heroPressPointer=null;setHeroUserHidden(false);
     S.pass='resistors';S.route=createRoute(S.loop,S.cw);S.waypoint=-1;S.legIndex=0;S.es=[];S.rs=[];
     $('sourceBuild').textContent='—';$('resBuild').textContent='—';
     clearFX();clearElementHighlight();
@@ -2371,6 +2372,8 @@
         const fraction=span?(travelled-distances[segment])/span:1;
         const x=a.x+(b.x-a.x)*fraction, y=a.y+(b.y-a.y)*fraction;
         positionHero(x,y,heroTravelAngle(b.x-a.x,b.y-a.y));
+        // El ocultamiento por pulsación del personaje nunca debe persistir durante el recorrido automático.
+        if($('hero').classList.contains('hero-user-hidden')){heroPressPointer=null;setHeroUserHidden(false);}
         setHeroGait(travelled<total,travelled);
         // Durante la vuelta de tensiones solo se evalúa la polaridad al atravesar la fuente.
         setHeroMood(S.pass==='resistors'&&oppositeCurrent);
