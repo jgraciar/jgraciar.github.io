@@ -233,8 +233,9 @@
   #boardActions .board-action-item{flex-shrink:0}
   .matrix-result-options{margin:10px 0;font-size:14px}
   .matrix-result-options label{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
-  #circuitTransport .lap-chip{position:absolute;left:16px;top:50%;transform:translateY(-50%);max-width:calc(50% - 50px);white-space:normal;text-align:left}
-  @media(max-width:640px){#circuitTransport .lap-chip{left:8px;max-width:calc(50% - 28px);font-size:11px}#circuitTransport{padding-inline:8px}}
+  /* Vuelta y reproducción siempre en la misma fila; el texto se adapta al ancho. */
+  #circuitTransport .lap-chip{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:calc(50% - 34px);max-width:none;min-width:0;margin:0;white-space:nowrap;text-align:left;font-size:clamp(9px,1.35vw,14px);letter-spacing:-.02em}
+  @media(max-width:640px){#circuitTransport .lap-chip{left:6px;width:calc(50% - 26px);font-size:clamp(8px,2.4vw,12px);letter-spacing:-.035em}#circuitTransport{padding-inline:6px}}
   #boardActions{justify-content:flex-end}
   @media(max-width:600px){#boardActions{justify-content:flex-end;padding:10px 12px}#boardActions .board-action-item{min-width:0}}
   .board-action-item{display:flex;justify-content:center;max-width:100%}
