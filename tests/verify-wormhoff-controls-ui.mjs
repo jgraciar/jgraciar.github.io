@@ -164,7 +164,7 @@ await page.click('#phaseSectionHelp');assert.equal(await page.locator('#phaseHel
  await page.evaluate(()=>{const {A6,openSimplification}=wormhoffTest;A6.stage='loops';A6.simplified=false;A6.completedScore=false;openSimplification(true);});
  assert.equal(await page.locator('.simplification-answer').count(),0,'No se piden ecuaciones que ya están simplificadas');
  assert.equal(await page.locator('#continueSimplification').count(),0,'El botón anterior está retirado');
- await page.click('#resolveMatrixChoice');
+ await page.locator('#resolveMatrixChoice').evaluate(button=>button.click()); // La prueba prepara un estado artificial con el botón fuera del viewport.
 await page.evaluate(()=>{const {A6,sixStartSolve}=wormhoffTest;sixStartSolve();A6.step=A6.steps.length;A6.finalVerified=true;A6.completedScore=true;sixStartSolve(true);});
 const sixBefore=await page.locator('#advResults strong').allTextContents();
 for(let i=0;i<6;i++){
