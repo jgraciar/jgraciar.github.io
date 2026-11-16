@@ -1143,6 +1143,7 @@
             termNodes.set(key,node);
             node.addEventListener('animationend',()=>node.classList.remove('blink-three'),{once:true});
           }
+          node.draggable=Boolean(demoDrag);node.tabIndex=demoDrag?0:-1;
           if(j)slot.append(document.createTextNode(e.negative?' − ':' + '));
           else if(e.negative)slot.append(document.createTextNode('−'));
           slot.append(node);
@@ -1152,15 +1153,35 @@
     }
     if(demoDrag){
       const assignments=Array(namesList.length).fill(null);
+      const order=[];
       let picked=null;
       const tokens=[...host.querySelectorAll('[data-kcl-drag]')];
       const sides=[...host.querySelectorAll('.kcl-live-side')];
       const render=()=>{
-        showPartial(assignments.flatMap((side,i)=>side===null?[]:[{side,key:i+':'+side,name:namesList[i]}]));
+        showPartial(order.filter(i=>assignments[i]!==null).map(i=>({side:assignments[i],key:i+':'+assignments[i],name:namesList[i]})));
         tokens.forEach((token,i)=>{token.classList.toggle('placed',assignments[i]!==null);token.setAttribute('aria-pressed',String(assignments[i]!==null));});
         host.querySelector('.feedback').textContent='';
       };
-      const place=(i,side)=>{if(i===null||i<0||i>=assignments.length)return;assignments[i]=side;picked=null;render()};
+      const place=(i,side,before=null)=>{if(i===null||!Number.isInteger(i)||i<0||i>=assignments.length)return;
+        assignments[i]=side;const previous=order.indexOf(i);if(previous!==-1)order.splice(previous,1);
+        const target=before===null?-1:order.indexOf(before);if(target<0)order.push(i);else order.splice(target,0,i);
+        picked=null;render()};
+      // Las intensidades ya colocadas se pueden reordenar arrastrándolas
+      // sobre otra intensidad o seleccionándolas y pulsando su destino.
+      const termIndex=element=>{const key=element?.closest('[data-kcl-term]')?.dataset.kclTerm;return key===undefined?null:Number(key.split(':')[0])};
+      host.querySelector('.kcl-live-expression').addEventListener('dragstart',event=>{
+        const i=termIndex(event.target);if(i===null)return;picked=i;event.dataTransfer.setData('text/plain',String(i));event.dataTransfer.effectAllowed='move';
+      });
+      host.querySelector('.kcl-live-expression').addEventListener('dragover',event=>{if(termIndex(event.target)!==null)event.preventDefault()});
+      host.querySelector('.kcl-live-expression').addEventListener('drop',event=>{
+        const before=termIndex(event.target);if(before===null)return;event.preventDefault();
+        const i=Number(event.dataTransfer.getData('text/plain'));place(i,assignments[before],before);
+      });
+      host.querySelector('.kcl-live-expression').addEventListener('click',event=>{
+        const before=termIndex(event.target);if(before===null)return;
+        if(picked!==null&&picked!==before)place(picked,assignments[before],before);
+        else{picked=before;tokens.forEach((el,k)=>el.classList.toggle('selected',k===before))}
+      });
       tokens.forEach((token,i)=>{
         token.addEventListener('dragstart',event=>{picked=i;event.dataTransfer.setData('text/plain',String(i));event.dataTransfer.effectAllowed='move'});
         token.addEventListener('click',()=>{picked=i;tokens.forEach((el,k)=>el.classList.toggle('selected',k===i))});
