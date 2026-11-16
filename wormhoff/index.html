@@ -1643,13 +1643,13 @@
     const original=active.E;
     const zeros=original.map((v,i)=>v===0?i:-1).filter(i=>i>=0);
     for(let attempt=0;attempt<500;attempt++){
-      const resistances=Array.from({length:3},()=>randomInt(1,9));
+      const resistances=active.id==='f451'?[(randomInt(1,9)+randomInt(1,9))*1000,randomInt(1,9)*1000,randomInt(1,9)*1000]:Array.from({length:3},()=>randomInt(1,9));
       const a=randomInt(-6,6),b=randomInt(-6,6),currents=[a,b,-a-b];
       if(currents.some(v=>Math.abs(v)>9)||currents.every(v=>v===0))continue;
       const v=zeros.length? -resistances[zeros[0]]*currents[zeros[0]]:randomInt(-15,15);
       const sources=currents.map((current,k)=>resistances[k]*current+v);
       if(zeros.some(k=>sources[k]!==0)||sources.some((value,k)=>original[k]!==0&&(value===0||Math.abs(value)>150)))continue;
-      if(active.id==='f451'){const leftA=randomInt(1,9)*1000,leftB=randomInt(1,9)*1000;active.components=[leftA,leftB,resistances[1]*1000,resistances[2]*1000];R=[leftA+leftB,active.components[2],active.components[3]];E=sources;jValues=calcCurrents();return;}
+      if(active.id==='f451'){const leftA=randomInt(1,resistances[0]/1000-1)*1000,leftB=resistances[0]-leftA;active.components=[leftA,leftB,resistances[1],resistances[2]];R=resistances;E=sources;jValues=calcCurrents();return;}
       R=resistances;E=sources;jValues=calcCurrents();
       if(jValues.every((current,k)=>Math.abs(current-currents[k])<1e-8))return;
     }
