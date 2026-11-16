@@ -1407,6 +1407,27 @@
     const model=six?A6:S;
     if(editing&&model.currentNumbers[index]===null)return;
     if(!editing&&model.currentNumbers[index]!==null){currentPlacementNotice('Esta rama ya tiene la corriente '+(six?NAMES6:names)[index]+'. Pulsa su flecha para invertir el sentido.');return;}
+    // En demo, cada pulsación numera automáticamente la rama elegida.
+    // El modo jugable conserva el cuadro para introducir el número.
+    if(!editing&&difficulty()===0){
+      const used=new Set(model.currentNumbers.filter(Number.isInteger));
+      let number=1;while(used.has(number))number++;
+      const labels=six?NAMES6:names,point=branchClickPoint(event,six,index);
+      model.currentNumbers[index]=number;model.currentPositions[index]=point;labels[index]=currentLabel(number);
+      if(six)sixRefArrow();else drawDirs();
+      const arrow=$((six?'sixCurrentArrow':'currentArrow')+index);
+      if(arrow?.dataset.placementUnavailable==='true'){
+        model.currentNumbers[index]=null;model.currentPositions[index]=null;labels[index]='I';
+        if(six)sixRefArrow();else drawDirs();
+        currentPlacementNotice('No se ha podido colocar la intensidad en esa posición. Pulsa otro punto de la rama.');
+        return;
+      }
+      if(currentNamesReady(six)){
+        const message='Corrientes numeradas. Pulsa las flechas para invertir sus sentidos y confirma las referencias.';
+        $(six?'advInfo':'currentNamingStatus').textContent=message;$('boardState').textContent=message;
+      }
+      return;
+    }
     const existing=$((six?'sixCurrentArrow':'currentArrow')+index);
     namingBranch={index,six,editing,point:editing?{x:Number(existing.dataset.arrowX),y:Number(existing.dataset.arrowY)}:branchClickPoint(event,six,index)};show('currentPlacementNotice',false);
     const points=branchPoints(six,index),p=namingBranch.point;let nearest=null;
