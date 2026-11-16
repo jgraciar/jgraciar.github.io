@@ -2539,8 +2539,8 @@
     const node=names[0]+' = '+coefEq([0,-s[1]/s[0],-s[2]/s[0]],0).split(' = ')[0];
     const steps=[
       {title:'Sustitución en las dos mallas',
-       detail:'Partimos de '+nodeSides()+'. Sustituimos '+names[0]+' mediante '+node+' en las dos mallas y obtenemos:',
-       rows:[{label:'Malla 1',row:first,b:u},{label:'Malla 2',row:second,b:v}],lines:[node,coefEq(a,u).split(' = ')[0]+' = '+fmt(u),coefEq(c,v).split(' = ')[0]+' = '+fmt(v),coefEq(a,u).replaceAll(names[0],'('+node.split(' = ').slice(1).join(' = ')+')'),coefEq(c,v).replaceAll(names[0],'('+node.split(' = ').slice(1).join(' = ')+')')]}
+       detail:'Partimos de '+nodeSides()+'. Ecuación 1 (malla 1) y ecuación 2 (malla 2): sustituimos '+names[0]+' mediante '+node+' en ambas ecuaciones.',
+       rows:[{label:'Ecuación 1 · Malla 1',row:first,b:u},{label:'Ecuación 2 · Malla 2',row:second,b:v}],lines:[node,coefEq(a,u).split(' = ')[0]+' = '+fmt(u),coefEq(c,v).split(' = ')[0]+' = '+fmt(v),coefEq(a,u).replaceAll(names[0],'('+node.split(' = ').slice(1).join(' = ')+')'),coefEq(c,v).replaceAll(names[0],'('+node.split(' = ').slice(1).join(' = ')+')')]}
     ];
     const eps=1e-9;
     if(Math.abs(p)>eps && Math.abs(r)>eps){
@@ -2555,14 +2555,14 @@
       const coef=q*k1+op*t*k2,rhs=rhs1+op*rhs2;
       if(Math.abs(coef)<eps)throw new Error('Sistema sin solución única al reducir: '+active.id);
       steps.push({title:'Reducción: preparación de los coeficientes',
-        detail:'Multiplicamos la malla 1 por '+formatNumber(k1)+' y la malla 2 por '+formatNumber(k2)+' para obtener coeficientes opuestos o iguales de '+names[1]+'.',
+        detail:'Coeficientes de '+names[1]+': '+fmt(p)+' y '+fmt(r)+'. Calculamos el mínimo común múltiplo de sus valores absolutos: m.c.m.('+fmt(Math.abs(p))+', '+fmt(Math.abs(r))+') = '+fmt(Math.abs(p*k1))+'. Dividimos ese múltiplo entre cada coeficiente: ecuación 1 × '+fmt(k1)+' y ecuación 2 × '+fmt(k2)+'. Así los coeficientes resultan iguales en valor absoluto y se pueden '+(op===-1?'restar':'sumar')+' las ecuaciones.',
         rows:[{label:'Malla 1 · ×'+formatNumber(k1),row:eq1,b:rhs1},
               {label:'Malla 2 · ×'+formatNumber(k2),row:eq2,b:rhs2}]});
       steps.push({title:'Reducción: eliminación de '+names[1],
         detail:(op===-1?'Restamos':'Sumamos')+' ambas ecuaciones, miembro a miembro, y desaparece '+names[1]+'.',
         rows:[{label:'Malla 1',row:eq1,b:rhs1},
               {label:'Malla 2',row:eq2.map(x=>op*x),b:op*rhs2},
-              {label:'Resultado',row:[0,0,coef],b:rhs,total:true}]});
+              {label:'Resultado',row:[0,0,coef],b:rhs,total:true}],lines:[fmt(coef)+'·'+names[2]+' = '+fmt(rhs),names[2]+' = ('+fmt(rhs)+') / ('+fmt(coef)+')',names[2]+' = '+fmt(rhs/coef)+' A'],highlightLast:true});
       const i3=rhs/coef;
       const i2=(u-q*i3)/p;
       steps.push({title:'Sustitución regresiva: obtener '+names[1],detail:'Sustituimos '+names[2]+' = '+fmt(i3)+' A, operamos y despejamos '+names[1]+'.',rows:[{label:'Malla 1',row:[0,p,0],b:u-q*i3}],lines:[fmt(p)+'·'+names[1]+' + '+fmt(q)+'·'+names[2]+' = '+fmt(u),fmt(p)+'·'+names[1]+' + '+fmt(q)+'·('+fmt(i3)+') = '+fmt(u),fmt(p)+'·'+names[1]+' = '+fmt(u)+' − ('+fmt(q*i3)+')',fmt(p)+'·'+names[1]+' = '+fmt(u-q*i3),names[1]+' = ('+fmt(u-q*i3)+') / ('+fmt(p)+')',names[1]+' = '+fmt(i2)+' A'],highlightLast:true});
