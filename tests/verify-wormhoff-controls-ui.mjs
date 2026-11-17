@@ -753,14 +753,22 @@ for(const mobile of [false,true]){
  assert.equal(await page.locator('#staticCircuit .component-source').count(),2,'La figura 2.37 tiene exactamente dos fuentes laterales');
  assert.equal(await page.locator('#staticCircuit .component-resistor').count(),3,'La figura 2.37 tiene tres resistencias');
  // Comprobar la posición del símbolo, no el getBBox del grupo con textos.
- const geometry=await page.evaluate(()=>({
-  resistors:[0,1,2].map(i=>{const {x,y,width,height}=document.querySelector('#resistorElement'+i+' .symbol').getBBox();return {x,y,width,height};}),
-  sources:[0,2].map(i=>{const {x,y,width,height}=document.querySelector('#sourceElement'+i+' .source-plate').getBBox();return {x,y,width,height};})
- }));
- const centerY=r=>r.y+r.height/2;
- assert(Math.max(...geometry.resistors.map(centerY))-Math.min(...geometry.resistors.map(centerY))<1,'Resistencias de las tres ramas alineadas como en tipos 1 y 2: '+JSON.stringify(geometry));
- assert(geometry.resistors[0].x<geometry.resistors[1].x&&geometry.resistors[1].x<geometry.resistors[2].x,'Resistencias en ramas izquierda, central y derecha');
- assert(Math.abs(centerY(geometry.sources[0])-centerY(geometry.sources[1]))<1,'Fuentes alineadas como en tipos 1 y 2');
+ // Los símbolos están dentro de grupos transformados: medir en coordenadas del SVG raíz.
+ const geometry=await page.evaluate(()=>{
+  const root=document.getElementById('circuit');
+  const center=el=>{
+   const b=el.getBBox(),p=root.createSVGPoint();p.x=b.x+b.width/2;p.y=b.y+b.height/2;
+   const matrix=root.getScreenCTM().inverse().multiply(el.getScreenCTM());
+   const c=p.matrixTransform(matrix);return {x:c.x,y:c.y};
+  };
+  return {
+   resistors:[0,1,2].map(i=>center(document.querySelector('#resistorElement'+i+' .symbol'))),
+   sources:[0,2].map(i=>center(document.querySelector('#sourceElement'+i+' .source-plate')))
+  };
+ });
+ assert(Math.max(...geometry.resistors.map(r=>r.y))-Math.min(...geometry.resistors.map(r=>r.y))<1,'Resistencias de las tres ramas alineadas como en tipos 1 y 2: '+JSON.stringify(geometry));
+ assert(geometry.resistors[0].x<geometry.resistors[1].x&&geometry.resistors[1].x<geometry.resistors[2].x,'Resistencias en ramas izquierda, central y derecha: '+JSON.stringify(geometry));
+ assert(Math.abs(geometry.sources[0].y-geometry.sources[1].y)<1,'Fuentes alineadas como en tipos 1 y 2: '+JSON.stringify(geometry));
  const routeCheck=await page.evaluate(()=>{
   const {getBranches,getRoute}=wormhoffRouteTest,branches=getBranches();
   return {resistors:branches.map(b=>b.filter(p=>p.component==='resistor').length),sources:branches.map(b=>b.filter(p=>p.component==='source').length),loops:[0,1].flatMap(i=>[true,false].map(cw=>getRoute(i,cw)))};
