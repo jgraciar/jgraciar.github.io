@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-visual">
 <meta name="color-scheme" content="dark">
-<title>Wormhoff · 3.15</title>
+<title>Wormhoff · 3.16</title>
 <style>
   :root { --bg:var(--paint-09101d,#09101d); --card:var(--paint-111c30,#111c30); --card2:var(--paint-0c182b,#0c182b); --border:var(--paint-2c415b,#2c415b); --txt:var(--paint-f0f6ff,#f0f6ff); --muted:var(--paint-a7bbd0,#a7bbd0); --cyan:var(--paint-5ce6f0,#5ce6f0); --lime:var(--paint-b7f75c,#b7f75c); --amber:var(--paint-ffc66b,#ffc66b); --red:var(--paint-ff7786,#ff7786); --purple:var(--paint-ac98ff,#ac98ff); }
   *{box-sizing:border-box}
@@ -1063,7 +1063,7 @@
 </dialog>
 <dialog id="settingsDialog" aria-labelledby="settingsTitle">
   <div class="settings-heading"><h2 id="settingsTitle">Configuración</h2><button type="button" class="help-button" data-context-help="settings" aria-label="Ayuda de configuración" title="Ayuda">?</button><button type="button" id="closeSettings" class="ghost" aria-label="Cerrar configuración">×</button></div>
-  <div class="mini" id="appVersion">Wormhoff 3.15</div>
+  <div class="mini" id="appVersion">Wormhoff 3.16</div>
   <div class="settings-fields">
     <label for="symbolStandard">Simbología<select id="symbolStandard"><option value="iec">IEC · rectangular</option><option value="ansi">ANSI · zigzag</option></select></label>
     <label for="languageSetting">Idioma<select id="languageSetting"><option value="es">Español</option><option value="en">English</option></select></label>
@@ -1393,6 +1393,8 @@
     return E.map((e,i)=>(e-va)/R[i]);
   }
   function formatNumber(n){if(Math.abs(n)<1e-8)return '0';return Number(n.toFixed(5)).toLocaleString('es-ES',{maximumFractionDigits:5});}
+  function formatComponentValue(n){const a=Math.abs(n);const scale=a>=1e6?1e6:a>=1e3?1e3:1;return formatNumber(n/scale)+(scale===1e6?' M':scale===1e3?' k':'');}
+
   function hasReduction(){return !!(active.parts&&active.parts.some(p=>p.length>1));}
   function isParallel(i){return !!(active.partsMode&&active.partsMode[i]==='parallel');}
   function equivalentLabel(i,parts){
@@ -1582,7 +1584,7 @@
     const zigzag=points.map(([a,b],i)=>`${i?'L':'M'}${(a*half).toFixed(2)} ${b}`).join(' ');
     return `<g class="resistor-iec"><g transform="${transform}"><rect class="symbol" x="${-half}" y="-13" width="${2*half}" height="26"/></g><text class="resistor-name" x="${x}" y="${y}" dominant-baseline="middle">${label}</text></g>`+
       `<g class="resistor-ansi"><g transform="${transform}"><rect x="${-half}" y="-13" width="${2*half}" height="26" fill="var(--paint-15233a,#15233a)"/><path class="symbol" d="${zigzag}"/></g><text class="resistor-name" x="${x-(vertical?27:half+12)}" y="${y-(vertical?0:20)}" dominant-baseline="middle" style="text-anchor:end">${label}</text></g>`+
-      `<text class="component-value resistor-value" x="${vertical?x+30:x}" y="${vertical?y:y+35}" text-anchor="${vertical?'start':'middle'}" dominant-baseline="middle">${formatNumber(value)}Ω</text>`;
+      `<text class="component-value resistor-value" x="${vertical?x+30:x}" y="${vertical?y:y+35}" text-anchor="${vertical?'start':'middle'}" dominant-baseline="middle">${formatComponentValue(value)}Ω</text>`;
   }
   function drawBoard(){
     const parts=[];
@@ -1592,8 +1594,8 @@
       const f=active.components;
       const wire=(d)=>'<path class="wire" d="'+d+'"/>';
       const resistor=(id,cx,cy,vertical,value,label)=>'<g class="component-resistor" id="'+id+'">'+resistorSymbol(cx,cy,vertical,value,label)+'</g>';
-      const source=(id,cx,cy,v,label)=>'<g class="component-source" id="'+id+'"><circle class="symbol" cx="'+cx+'" cy="'+cy+'" r="18"/><text class="txtsm" x="'+(cx-5)+'" y="'+(cy-23)+'">+</text><text class="component-value" x="'+(cx+24)+'" y="'+(cy+5)+'">'+label+' '+formatNumber(Math.abs(v))+' V</text></g>';
-      parts.push(wire('M146 74 H218 M272 74 H544 M146 74 V118 M146 154 V360 M146 360 H218 M272 360 H544 M345 74 V118 M345 154 V208 M345 262 V360 M544 74 V118 M544 154 V208 M544 262 V360'));
+      const source=(id,cx,cy,v,label)=>{const pos=v>=0,big=pos?132:141,small=pos?141:132;return '<g class="component-source" id="'+id+'"><rect class="source-halo" x="'+(cx-26)+'" y="126" width="52" height="22" rx="4" fill="transparent" stroke="transparent"/><path class="source-plate" d="M'+(cx-22)+' '+big+' H'+(cx+22)+' M'+(cx-10)+' '+small+' H'+(cx+10)+'"/><text class="txtsm" x="'+(cx-34)+'" y="'+(pos?135:144)+'">+</text><text class="txtsm" x="'+(cx-34)+'" y="'+(pos?146:135)+'">−</text><text class="component-value" x="'+(cx+39)+'" y="141">'+label+' '+formatComponentValue(Math.abs(v))+'V</text></g>';};
+      parts.push(wire('M146 74 H218 M272 74 H544 M146 74 V132 M146 141 V360 M146 360 H218 M272 360 H544 M345 74 V132 M345 141 V208 M345 262 V360 M544 74 V132 M544 141 V208 M544 262 V360'));
       parts.push(resistor('resistorElement0',245,74,false,f[0],'R1'));
       parts.push(resistor('resistorElementExtra',245,360,false,f[1],'R2'));
       parts.push(resistor('resistorElement1',345,235,true,f[2],'R3'));
@@ -1605,7 +1607,7 @@
       $('staticCircuit').innerHTML=parts.join('');
       $('boardTitle').textContent=topologyLabel(active);
       $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
-      $('boardSummary').textContent='R1 '+formatNumber(f[0])+' Ω · R2 '+formatNumber(f[1])+' Ω · R3 '+formatNumber(f[2])+' Ω · R4 '+formatNumber(f[3])+' Ω · E1 '+formatNumber(E[0])+' V · E2 '+formatNumber(E[1])+' V · E3 '+formatNumber(E[2])+' V';
+      $('boardSummary').textContent='R1 '+formatComponentValue(f[0])+' Ω · R2 '+formatComponentValue(f[1])+' Ω · R3 '+formatComponentValue(f[2])+' Ω · R4 '+formatComponentValue(f[3])+' Ω · E1 '+formatComponentValue(E[0])+' V · E2 '+formatComponentValue(E[1])+' V · E3 '+formatComponentValue(E[2])+' V';
       $('circuit').setAttribute('aria-label','Figura 4.51: dos mallas, tres fuentes y cuatro resistencias independientes');
       return;
     }
