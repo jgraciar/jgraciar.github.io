@@ -674,6 +674,11 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
 for(const mobile of [false,true]){
  const context=await browser.newContext({viewport:mobile?{width:430,height:932}:{width:1440,height:1100},isMobile:mobile,hasTouch:mobile});
  const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.route('**/wormhoff/',async route=>{
+  const response=await route.fetch(),html=await response.text(),marker='  newGame();syncBoardActions();';
+  assert(html.includes(marker),'Inicialización del circuito accesible');
+  await route.fulfill({response,body:html.replace(marker,'  globalThis.wormhoffRouteTest={getBranches:()=>BRANCHES.map(b=>b.map(p=>({...p}))),getRoute:(loop,cw)=>createRoute(loop,cw)};\\n'+marker)});
+ });
  await page.goto('http://127.0.0.1:8767/wormhoff/');
  // DEMO conserva el estado y su comportamiento al cargar cualquier otro tipo.
  for(const enabled of [true,false]){
@@ -739,6 +744,21 @@ for(const mobile of [false,true]){
  }));
  assert(geometry.r0.y<geometry.r1.y&&geometry.r2.y<geometry.r1.y,'Resistencias superiores y central en sus posiciones correctas');
  assert(geometry.s0.x<geometry.r1.x&&geometry.s2.x>geometry.r1.x,'Fuentes a izquierda y derecha');
+ const routeCheck=await page.evaluate(()=>{
+  const {getBranches,getRoute}=wormhoffRouteTest;
+  const branches=getBranches();
+  return {resistors:branches.map(b=>b.filter(p=>p.component==='resistor').map(p=>p.resistorId)),sources:branches.map(b=>b.filter(p=>p.component==='source').length),loops:[0,1].flatMap(i=>[true,false].map(cw=>getRoute(i,cw)))};
+ });
+ assert.deepEqual(routeCheck.resistors,[['resistorElement0'],['resistorElement1'],['resistorElement2']],'El gusano pasa por cada resistencia real');
+ assert.deepEqual(routeCheck.sources,[1,0,1],'El gusano encuentra las fuentes únicamente en las ramas exteriores');
+ for(const route of routeCheck.loops){
+  assert.equal(route.legs.length,2);
+  const a=route.legs[0].points.at(-1),b=route.legs[1].points[0];
+  assert.equal(a.x,b.x,'Sin saltos entre las ramas de la malla');
+  assert.equal(a.y,b.y,'Sin saltos entre las ramas de la malla');
+  assert.equal(route.legs[1].points.at(-1).y,360,'Recorrido cerrado en el nudo inferior');
+ }
+
 
  await page.click('#solveDirect');await assertResults([5,0,-5]);
  assert.equal(await page.locator('#componentValueDialog').isVisible(),false);
