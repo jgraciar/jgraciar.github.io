@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-visual">
 <meta name="color-scheme" content="dark">
-<title>Wormhoff · 3.19</title>
+<title>Wormhoff · 3.20</title>
 <style>
   :root { --bg:var(--paint-09101d,#09101d); --card:var(--paint-111c30,#111c30); --card2:var(--paint-0c182b,#0c182b); --border:var(--paint-2c415b,#2c415b); --txt:var(--paint-f0f6ff,#f0f6ff); --muted:var(--paint-a7bbd0,#a7bbd0); --cyan:var(--paint-5ce6f0,#5ce6f0); --lime:var(--paint-b7f75c,#b7f75c); --amber:var(--paint-ffc66b,#ffc66b); --red:var(--paint-ff7786,#ff7786); --purple:var(--paint-ac98ff,#ac98ff); }
   *{box-sizing:border-box}
@@ -1066,7 +1066,7 @@
 </dialog>
 <dialog id="settingsDialog" aria-labelledby="settingsTitle">
   <div class="settings-heading"><h2 id="settingsTitle">Configuración</h2><button type="button" class="help-button" data-context-help="settings" aria-label="Ayuda de configuración" title="Ayuda">?</button><button type="button" id="closeSettings" class="ghost" aria-label="Cerrar configuración">×</button></div>
-  <div class="mini" id="appVersion">Wormhoff 3.19</div>
+  <div class="mini" id="appVersion">Wormhoff 3.20</div>
   <div class="settings-fields">
     <label for="symbolStandard">Simbología<select id="symbolStandard"><option value="iec">IEC · rectangular</option><option value="ansi">ANSI · zigzag</option></select></label>
     <label for="languageSetting">Idioma<select id="languageSetting"><option value="es">Español</option><option value="en">English</option></select></label>
@@ -2220,6 +2220,18 @@
     $('hero').setAttribute('transform',`translate(${x} ${y})`);
     $('heroShape').setAttribute('transform',`rotate(${h.angle})`);syncHeroFaceOrientation();
   }
+  // La animación solo puede mostrar el personaje durante la fase de mallas.
+  // Restablece su visibilidad aunque una fase anterior o una pulsación lo ocultara.
+  function ensureHeroVisibleDuringRoute(){
+    const hero=$('hero');
+    $('circuit').dataset.nodePhase='false';
+    hero.classList.remove('hide','hero-user-hidden');
+    hero.removeAttribute('hidden');
+    hero.removeAttribute('visibility');
+    hero.removeAttribute('opacity');
+    if(hero.parentNode.lastElementChild!==hero)hero.parentNode.appendChild(hero);
+    heroPressPointer=null;
+  }
   function heroTrailPoint(behind){
     const h=heroMotion;let a={x:h.x,y:h.y};
     for(const b of h.trail){
@@ -2425,10 +2437,7 @@
         const x=a.x+(b.x-a.x)*fraction, y=a.y+(b.y-a.y)*fraction;
         positionHero(x,y,heroTravelAngle(b.x-a.x,b.y-a.y));
         // El gusano se mantiene por encima de las capas dinámicas y visible durante todo el desplazamiento.
-        const hero=$('hero');
-        if(hero.parentNode.lastElementChild!==hero)hero.parentNode.appendChild(hero);
-        if(hero.classList.contains('hero-user-hidden')){heroPressPointer=null;setHeroUserHidden(false);}
-        hero.removeAttribute('visibility');hero.removeAttribute('opacity');
+        ensureHeroVisibleDuringRoute();
         setHeroGait(travelled<total,travelled);
         // Durante la vuelta de tensiones solo se evalúa la polaridad al atravesar la fuente.
         setHeroMood(S.pass==='resistors'&&oppositeCurrent);
@@ -3023,8 +3032,7 @@
           const startX=heroMotion.x,startY=heroMotion.y;
           for(let n=1;n<parts;n++)positionHero(startX+(pos.x-startX)*n/parts,startY+(pos.y-startY)*n/parts,pos.angle);
         }
-        positionHero(pos.x,pos.y,pos.angle);setHeroGait(walked<total,walked);
-        $('hero').classList.remove('hero-user-hidden');
+        positionHero(pos.x,pos.y,pos.angle);ensureHeroVisibleDuringRoute();setHeroGait(walked<total,walked);
         setHeroMood(A6.pass==='R'&&opposite);
         if(walked<total)A6.animReq=requestAnimationFrame(step);
         else{A6.animReq=null;A6.motionActive=false;A6.manualPaused=false;setTransportState('advNext','blocked');resolve()}
