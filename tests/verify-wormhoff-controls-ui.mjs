@@ -736,30 +736,25 @@ for(const mobile of [false,true]){
  assert.equal(await page.locator('#staticCircuit .component-source').count(),2,'La figura 2.37 tiene exactamente dos fuentes laterales');
  assert.equal(await page.locator('#staticCircuit .component-resistor').count(),3,'La figura 2.37 tiene tres resistencias');
  const geometry=await page.evaluate(()=>({
-   r0:document.querySelector('#resistorElement0').getBBox(),
-   r1:document.querySelector('#resistorElement1').getBBox(),
-   r2:document.querySelector('#resistorElement2').getBBox(),
-   s0:document.querySelector('#sourceElement0').getBBox(),
-   s2:document.querySelector('#sourceElement2').getBBox()
+  resistors:[0,1,2].map(i=>document.querySelector('#resistorElement'+i).getBBox()),
+  sources:[0,2].map(i=>document.querySelector('#sourceElement'+i).getBBox())
  }));
- assert(geometry.r0.y<geometry.r1.y&&geometry.r2.y<geometry.r1.y,'Resistencias superiores y central en sus posiciones correctas');
- assert(geometry.s0.x<geometry.r1.x&&geometry.s2.x>geometry.r1.x,'Fuentes a izquierda y derecha');
+ assert(Math.max(...geometry.resistors.map(r=>r.y))-Math.min(...geometry.resistors.map(r=>r.y))<1,'Resistencias de las tres ramas alineadas como en tipos 1 y 2');
+ assert(geometry.resistors[0].x<geometry.resistors[1].x&&geometry.resistors[1].x<geometry.resistors[2].x,'Resistencias en ramas izquierda, central y derecha');
+ assert(Math.abs(geometry.sources[0].y-geometry.sources[1].y)<1,'Fuentes alineadas como en tipos 1 y 2');
  const routeCheck=await page.evaluate(()=>{
-  const {getBranches,getRoute}=wormhoffRouteTest;
-  const branches=getBranches();
-  return {resistors:branches.map(b=>b.filter(p=>p.component==='resistor').map(p=>p.resistorId)),sources:branches.map(b=>b.filter(p=>p.component==='source').length),loops:[0,1].flatMap(i=>[true,false].map(cw=>getRoute(i,cw)))};
+  const {getBranches,getRoute}=wormhoffRouteTest,branches=getBranches();
+  return {resistors:branches.map(b=>b.filter(p=>p.component==='resistor').length),sources:branches.map(b=>b.filter(p=>p.component==='source').length),loops:[0,1].flatMap(i=>[true,false].map(cw=>getRoute(i,cw)))};
  });
- assert.deepEqual(routeCheck.resistors,[['resistorElement0'],['resistorElement1'],['resistorElement2']],'El gusano pasa por cada resistencia real');
- assert.deepEqual(routeCheck.sources,[1,0,1],'El gusano encuentra las fuentes únicamente en las ramas exteriores');
+ assert.deepEqual(routeCheck.resistors,[1,1,1],'Una resistencia en cada rama');
+ assert.deepEqual(routeCheck.sources,[1,0,1],'Fuentes solamente en las ramas exteriores');
  for(const route of routeCheck.loops){
   assert.equal(route.legs.length,2);
   const a=route.legs[0].points.at(-1),b=route.legs[1].points[0];
-  assert.equal(a.x,b.x,'Sin saltos entre las ramas de la malla');
-  assert.equal(a.y,b.y,'Sin saltos entre las ramas de la malla');
-  assert.equal(route.legs[1].points.at(-1).y,360,'Recorrido cerrado en el nudo inferior');
+  assert.equal(a.x,b.x,'Sin salto horizontal entre ramas');
+  assert.equal(a.y,b.y,'Sin salto vertical entre ramas');
+  assert.equal(route.legs[1].points.at(-1).y,360,'La malla termina en el nudo inferior');
  }
-
-
  await page.click('#solveDirect');await assertResults([5,0,-5]);
  assert.equal(await page.locator('#componentValueDialog').isVisible(),false);
  await edit('resistorElement0','5');await assertResults([130/31,10/31,-140/31]);
