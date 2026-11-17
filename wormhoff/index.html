@@ -299,6 +299,13 @@
   .step-description{color:var(--paint-d3e3f4,#d3e3f4);font-size:13px;line-height:1.5;margin:5px 0 8px}
   .algebra-scroll{width:100%;min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:1px solid var(--paint-34506a,#34506a);border-radius:8px;margin:9px 0}
   .algebra-table{border-collapse:collapse;width:max-content;min-width:100%;table-layout:auto;font:600 13px/1.4 ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums;background:var(--paint-0b1b2d,#0b1b2d)}
+  /* Resolución: anchura natural por contenido, sin repartir el ancho del panel. */
+  .algebra-scroll.algebra-desktop{width:max-content;max-width:100%;margin-left:0;margin-right:auto;overflow-x:auto}
+  .algebra-scroll.algebra-desktop .algebra-table{width:max-content;min-width:0;max-width:none;table-layout:auto;margin:0}
+  .algebra-scroll.algebra-desktop .algebra-table th,
+  .algebra-scroll.algebra-desktop .algebra-table td{width:auto;min-width:0;padding-inline:8px}
+  .adv-mat-overflow:has(> .algebra-table){width:max-content;max-width:100%;margin-left:0;margin-right:auto;overflow-x:auto}
+  .adv-mat-overflow > .algebra-table{width:max-content;min-width:0;table-layout:auto}
   .algebra-table col.alg-label-col{width:19%}
   .algebra-table col.alg-term-col{width:20%}
   .algebra-table col.alg-eq-col{width:6%}
@@ -2631,10 +2638,7 @@
   }
   function algebraTable(lines, vars=names){
     const cols=vars.length;
-    const head='<colgroup><col style="width:23%">'+
-      vars.map(()=>'<col style="width:'+Math.max(10,Math.floor(62/cols))+'%">').join('')+
-      '<col style="width:5%"><col style="width:12%"></colgroup>'+
-      '<thead><tr><th>Operación</th>'+vars.map(x=>'<th>'+escapeHtml(x)+'</th>').join('')+
+    const head='<thead><tr><th>Operación</th>'+vars.map(x=>'<th>'+escapeHtml(x)+'</th>').join('')+
       '<th>=</th><th>Indep.</th></tr></thead>';
     const body=lines.map(line=>{
       let seen=false;
