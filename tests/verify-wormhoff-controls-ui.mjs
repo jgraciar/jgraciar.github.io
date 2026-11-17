@@ -727,9 +727,20 @@ for(const mobile of [false,true]){
  await page.selectOption('#exerciseSelect','r73');await page.click('#solveDirect');await assertResults([8/11,-1/11,9/11]);
  await page.selectOption('#exerciseSelect','f451');
  assert(!/\bE[123]\b/.test(await page.locator('#staticCircuit').textContent()),'Sin nombres E1, E2, E3 sobre las fuentes del tipo 3');
- await edit('resistorElementExtra','4000');await page.click('#solveDirect');await assertResults([-19/13000,-35/13000,16/13000]);
- assert.match(await page.locator('#resistorElementExtra .component-value').textContent(),/4\s*kΩ/);
+ await page.click('#solveDirect');await assertResults([-1,-2,1]);
+ assert.deepEqual(await page.locator('#staticCircuit .resistor-value').allTextContents(),['1Ω','1Ω','4Ω','7Ω'],'Datos iniciales enteros del tipo 3');
+ await edit('resistorElementExtra','3');await assertResults([-25/36,-65/36,10/9]);
+ assert.match(await page.locator('#resistorElementExtra .component-value').textContent(),/3Ω/);
+ await page.selectOption('#exerciseSelect','r73');await page.selectOption('#exerciseSelect','f451');await page.click('#solveDirect');await assertResults([-1,-2,1]);
+ assert.deepEqual(await page.locator('#staticCircuit .resistor-value').allTextContents(),['1Ω','1Ω','4Ω','7Ω'],'Al volver a cargar el tipo 3 se recuperan sus datos iniciales');
  await page.selectOption('#exerciseSelect','r76');
+ const sourceBackgrounds=await page.locator('#sixSymbols .source-halo').evaluateAll(nodes=>nodes.map(rect=>{
+  const x=Number(rect.getAttribute('x'))+Number(rect.getAttribute('width'))/2,y=Number(rect.getAttribute('y'))+Number(rect.getAttribute('height'))/2;
+  const branch=rect.parentElement.id.match(/^sixCmp(\d)U$/)[1],wire=document.querySelector('[data-wire-branch="'+branch+'"]');
+  return {fill:getComputedStyle(rect).fill,wireAcrossSource:wire.isPointInStroke(new DOMPoint(x,y))};
+ }));
+ assert.equal(sourceBackgrounds.length,5);
+ assert(sourceBackgrounds.every(s=>s.fill==='rgba(0, 0, 0, 0)'&&!s.wireAcrossSource),'Fuentes sin fondo ni conductor que cruce entre sus placas');
  const originalResistors=await page.locator('#componentValueTargets [data-component-edit$="R"]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')));
  for(const i of [0,2,3,4,5])await edit('sixCmp'+i+'U','0');
  await page.click('#solveDirect');await assertResults(Array(6).fill(0),true);
