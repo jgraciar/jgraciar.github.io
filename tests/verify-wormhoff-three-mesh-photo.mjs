@@ -3,6 +3,7 @@
 // The source image does not specify numeric values: these are test values.
 // Clockwise mesh currents M1, M2, M3. U1/U2 positive at top; U3 positive at right.
 import assert from 'node:assert/strict';
+import {photoSystem,photoSolve} from '../wormhoff/photo-three-mesh.mjs';
 const R={R1:2,R2:3,R3:4,R4:5,R5:6};
 const U={U1:12,U2:6,U3:9};
 const A=[
@@ -23,6 +24,13 @@ function solve(matrix,values){
  return m.map(row=>row[n]);
 }
 const currents=solve(A,b);
+const reusable=photoSolve(R,U);
+assert.deepEqual(photoSystem(R,U),{A,b},'El motor reutilizable reproduce las ecuaciones de la fotografía');
+reusable.mesh.forEach((value,i)=>assert(Math.abs(value-currents[i])<1e-10,'Malla '+(i+1)+' coincide con la referencia independiente'));
+for(const [id,value] of Object.entries(reusable.branches))assert(Number.isFinite(value),'Corriente de rama '+id);
+assert(reusable.residual.every(v=>Math.abs(v)<1e-10),'Ecuaciones verificadas');
+assert(Math.abs(reusable.resistorPower-reusable.sourcePower)<1e-10,'Balance de potencia del motor');
+
 for(let i=0;i<3;i++){
  const residual=A[i].reduce((sum,value,j)=>sum+value*currents[j],0)-b[i];
  assert(Math.abs(residual)<1e-10,'Mesh '+(i+1)+' violates KVL');
