@@ -740,8 +740,9 @@ for(const mobile of [false,true]){
  assert(geometry.r0.y<geometry.r1.y&&geometry.r2.y<geometry.r1.y,'Resistencias superiores y central en sus posiciones correctas');
  assert(geometry.s0.x<geometry.r1.x&&geometry.s2.x>geometry.r1.x,'Fuentes a izquierda y derecha');
 
- await page.click('#solveDirect');
+ await page.click('#solveDirect');await assertResults([5,0,-5]);
  assert.equal(await page.locator('#componentValueDialog').isVisible(),false);
+ await edit('resistorElement0','5');await assertResults([130/31,10/31,-140/31]);
  await page.selectOption('#exerciseSelect','r73');await page.selectOption('#exerciseSelect','fig237');
  assert.deepEqual(await page.locator('#staticCircuit .resistor-value').allTextContents(),['4Ω','3Ω','2Ω'],'Se restauran los valores originales al volver al tipo 3');
  await page.selectOption('#exerciseSelect','r76');
