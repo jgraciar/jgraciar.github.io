@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-visual">
 <meta name="color-scheme" content="dark">
-<title>Wormhoff · 3.21</title>
+<title>Wormhoff · 3.22</title>
 <style>
   :root { --bg:var(--paint-09101d,#09101d); --card:var(--paint-111c30,#111c30); --card2:var(--paint-0c182b,#0c182b); --border:var(--paint-2c415b,#2c415b); --txt:var(--paint-f0f6ff,#f0f6ff); --muted:var(--paint-a7bbd0,#a7bbd0); --cyan:var(--paint-5ce6f0,#5ce6f0); --lime:var(--paint-b7f75c,#b7f75c); --amber:var(--paint-ffc66b,#ffc66b); --red:var(--paint-ff7786,#ff7786); --purple:var(--paint-ac98ff,#ac98ff); }
   *{box-sizing:border-box}
@@ -861,6 +861,31 @@
   .hero-sunglasses{fill:#10202e;stroke:#02060d;stroke-width:1;stroke-linejoin:round}
   .hero-glass-shine{stroke:#fff;stroke-width:.85;stroke-linecap:round;opacity:.85}
   :root[data-theme="light"] .hero-eye-white{fill:#fff;stroke:#071a05}
+
+  /* Volumen suave de animación 3D, dentro de la silueta y escala originales.
+     Las expresiones están dentro de heroShape: giran con cabeza y flecha. */
+  .hero-body,.hero-segment{stroke-width:.8}
+  .hero-skin-depth{fill:url(#heroSkinDepth);stroke:none;pointer-events:none}
+  .hero-shine{stroke:#fffbe0;stroke-width:1;opacity:.7}
+  .hero-eye-white{fill:url(#heroEyePearl);stroke:#29482a;stroke-width:.4}
+  .hero-iris{fill:url(#heroIris);stroke:#143d45;stroke-width:.3}
+  .hero-eye{fill:#102330}
+  .hero-eye-light{fill:#fff;opacity:1}
+  .hero-eyebrow{stroke:#385325;stroke-width:1.1}
+  .hero-cheek{fill:#f7aa87;opacity:.55}
+  .hero-muzzle{fill:url(#heroMuzzle);pointer-events:none}
+  .hero-nose{fill:var(--worm-fill);stroke:#43652b;stroke-width:.35}
+  .hero-nose-light{fill:#fffbd4;opacity:.6}
+  .hero-mouth{stroke:#243b25;stroke-width:1.25}
+  .hero-hand-outline{fill:var(--worm-fill);stroke:var(--worm-dark);stroke-width:.7}
+  .hero-sunglasses{fill:url(#heroGlass);stroke:#0a1925;stroke-width:.9}
+  .hero-glass-shine{stroke:#c5f4ff;stroke-width:.85;opacity:.95}
+  .hero-tip{fill:url(#heroArrow);stroke:#244b22;stroke-width:1;stroke-linejoin:round}
+  .hero-arrow-ridge{fill:none;stroke:#fbffd9;stroke-width:.8;stroke-linecap:round;pointer-events:none}
+  .hero-suffering .hero-eyebrow{opacity:0}
+  .hero-suffering .hero-cheek{fill:#f08064}
+  .hero-suffering .hero-nose{stroke:#8b471e}
+  .hero-pain .hero-tear{fill:url(#heroTear);stroke:#5ebed6;stroke-width:.3}
 </style>
 <style>.algebra-working-line.alg-solution{background:rgba(255,211,64,.18);border-left:3px solid #ffd340;color:inherit;padding:6px 10px;font-weight:700}</style><style>
 .kcl-drag-bank{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;padding:12px;border:1px solid var(--border);border-radius:10px;margin:10px 0}.kcl-drag-token{cursor:grab;touch-action:manipulation;font-weight:750}.kcl-drag-token.selected{outline:2px solid var(--cyan)}.kcl-drag-token.placed{opacity:.5}.kcl-live-expression{display:flex;align-items:stretch;justify-content:center;gap:10px;width:100%}.kcl-live-side.kcl-drop-side{min-width:110px;min-height:52px;display:flex;align-items:center;justify-content:center;gap:5px;border:1px dashed var(--border);border-radius:9px;padding:8px;flex-wrap:wrap;cursor:pointer}.kcl-live-equals{align-self:center;font-weight:800}.grid-setting{display:flex!important;align-items:center;gap:9px}.grid-setting input{width:18px;height:18px}
@@ -883,7 +908,32 @@
       <div id="circuitTransport" class="board-actions circuit-transport hide" aria-label="Controles de reproducción del circuito"></div>
       <div class="board"><div id="currentPlacementNotice" class="current-placement-notice hide" role="status" aria-live="polite"></div>
         <svg id="circuit" viewBox="0 0 700 430" role="group" aria-label="Circuito de corriente continua con símbolos seleccionables y flechas seleccionables">
-          <defs><pattern id="dots" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="var(--paint-34516e,#34516e)" opacity=".8"/></pattern><marker id="meshContourArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="mesh-contour-arrowhead" d="M1 1 L9 5 L1 9 Z"/></marker></defs>
+          <defs>
+            <radialGradient id="heroSkinDepth" cx=".3" cy=".22" r=".78" fx=".27" fy=".17">
+              <stop offset="0" stop-color="#fffbd7" stop-opacity=".8"/>
+              <stop offset=".34" stop-color="#f0ffbb" stop-opacity=".18"/>
+              <stop offset=".62" stop-color="#244e12" stop-opacity="0"/>
+              <stop offset="1" stop-color="#193b20" stop-opacity=".72"/>
+            </radialGradient>
+            <radialGradient id="heroEyePearl" cx=".32" cy=".24" r=".85">
+              <stop stop-color="#fff"/><stop offset=".6" stop-color="#fffef5"/><stop offset="1" stop-color="#a5bab0"/>
+            </radialGradient>
+            <radialGradient id="heroIris" cx=".4" cy=".32" r=".7">
+              <stop stop-color="#92eff0"/><stop offset=".5" stop-color="#329ca8"/><stop offset="1" stop-color="#183c59"/>
+            </radialGradient>
+            <radialGradient id="heroMuzzle" cx=".4" cy=".35" r=".7">
+              <stop stop-color="#fffbd1" stop-opacity=".6"/><stop offset="1" stop-color="#e8ff9f" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="heroGlass" x2=".4" y2="1">
+              <stop stop-color="#43849a"/><stop offset=".38" stop-color="#162b45"/><stop offset="1" stop-color="#040c19"/>
+            </linearGradient>
+            <linearGradient id="heroArrow" x2="1" y2=".7">
+              <stop stop-color="#f9ffd8"/><stop offset=".45" stop-color="#c5f36d"/><stop offset="1" stop-color="#538b32"/>
+            </linearGradient>
+            <linearGradient id="heroTear" x2=".7" y2="1">
+              <stop stop-color="#e5fbff"/><stop offset="1" stop-color="#52c5ed"/>
+            </linearGradient>
+<pattern id="dots" width="23" height="23" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="var(--paint-34516e,#34516e)" opacity=".8"/></pattern><marker id="meshContourArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path class="mesh-contour-arrowhead" d="M1 1 L9 5 L1 9 Z"/></marker></defs>
           <rect id="circuitGrid" x="0" y="0" width="700" height="430" fill="url(#dots)" style="display:none;pointer-events:none"/>
           <g id="meshSelection" aria-hidden="true"></g>
           <g id="meshTargets"></g>
@@ -905,16 +955,31 @@
               <g id="heroSegments"></g>
             </g>
             <g id="heroShape">
-              <path id="heroTip" visibility="hidden" class="hero-tip" d="M0 -28 L-9 -13 L-4 -14 L-4 -10 L4 -10 L4 -14 L9 -13 Z"/>
+              <g id="heroTip" visibility="hidden" aria-hidden="true">
+                <path class="hero-tip" d="M0 -28 Q-1 -27 -9 -14 L-4 -15 L-4 -10 L4 -10 L4 -15 L9 -14 Q1 -27 0 -28Z"/>
+                <path class="hero-arrow-ridge" d="M0 -25 L0 -14 M-1 -24 L-5 -17"/>
+              </g>
               <ellipse id="heroBody" class="hero-body" cx="0" cy="-3" rx="10.5" ry="12"/>
+              <ellipse class="hero-skin-depth" cx="0" cy="-3" rx="10.5" ry="12"/>
               <path class="hero-shine" d="M-7 -6 Q-7 -11 -3 -12"/>
-              <g id="heroFaceOrientation"><g class="hero-face"><path class="hero-eyebrow" d="M-7 -10 Q-4 -12 -1.5 -10 M1.5 -10 Q4 -12 7 -10"/><g class="hero-eyes"><ellipse class="hero-eye-white" cx="-3.7" cy="-5" rx="3" ry="3.7"/><ellipse class="hero-eye-white" cx="3.7" cy="-5" rx="3" ry="3.7"/><ellipse class="hero-eye" cx="-3.7" cy="-5" rx="1.5" ry="2.4"/>
-              <ellipse class="hero-eye" cx="3.7" cy="-5" rx="1.5" ry="2.4"/>
-              <circle class="hero-eye-light" cx="-4.1" cy="-6" r=".7"/>
-              <circle class="hero-eye-light" cx="3.3" cy="-6" r=".7"/></g>
+              <g id="heroFaceOrientation"><g class="hero-face"><ellipse class="hero-muzzle" cx="0" cy="2" rx="8" ry="6"/><path class="hero-eyebrow" d="M-7 -10 Q-4 -12 -1.5 -10 M1.5 -10 Q4 -12 7 -10"/><g class="hero-eyes">
+                <ellipse class="hero-eye-white" cx="-3.8" cy="-5.2" rx="3.55" ry="4.3"/>
+                <ellipse class="hero-eye-white" cx="3.8" cy="-5.2" rx="3.55" ry="4.3"/>
+                <ellipse class="hero-iris" cx="-3.45" cy="-5" rx="2.25" ry="2.8"/>
+                <ellipse class="hero-iris" cx="3.45" cy="-5" rx="2.25" ry="2.8"/>
+                <ellipse class="hero-eye" cx="-3.35" cy="-5" rx="1.2" ry="1.85"/>
+                <ellipse class="hero-eye" cx="3.35" cy="-5" rx="1.2" ry="1.85"/>
+                <ellipse class="hero-eye-light" cx="-4" cy="-6.15" rx=".8" ry=".95"/>
+                <ellipse class="hero-eye-light" cx="2.7" cy="-6.15" rx=".8" ry=".95"/>
+                <circle class="hero-eye-light" cx="-2.8" cy="-4" r=".32"/>
+                <circle class="hero-eye-light" cx="3.9" cy="-4" r=".32"/>
+              </g>
+              <ellipse class="hero-nose" cx="0" cy="-.6" rx="2.15" ry="1.45"/>
+              <ellipse class="hero-nose-light" cx="-.6" cy="-1" rx=".85" ry=".35"/>
               <circle class="hero-cheek" cx="-7" cy=".4" r="1.4"/><circle class="hero-cheek" cx="7" cy=".4" r="1.4"/><path id="heroMouth" class="hero-mouth" d="M-4 1 Q0 5 4 1"/>
               <g class="hero-open-smile" aria-hidden="true">
                 <path d="M-5 1 Q0 3 5 1 Q4 8 0 8 Q-4 8 -5 1Z" fill="var(--paint-122236,#122236)"/>
+                <path d="M-4 1.7 Q0 3 4 1.7 L3.1 3.3 Q0 4 -3.1 3.3Z" fill="#fffbea"/>
                 <path d="M-2.8 6 Q0 4.5 2.8 6 Q0 8.5 -2.8 6Z" fill="var(--paint-f49b98,#f49b98)"/>
               </g>
               <g class="hero-pain" aria-hidden="true">
@@ -929,6 +994,8 @@
               </g></g>
               <g class="hero-victory-pose" aria-hidden="true">
                 <path class="hero-body" d="M-7 6 Q-11 15 -7 21 Q0 25 7 21 Q11 15 7 6Z"/>
+                <path class="hero-skin-depth" d="M-7 6 Q-11 15 -7 21 Q0 25 7 21 Q11 15 7 6Z"/>
+                <path d="M-6 18 Q0 21 6 18 M-5 21 Q0 23 5 21" fill="none" stroke="var(--worm-dark)" stroke-width=".6" opacity=".5"/>
                 <path d="M-8 8 Q-15 14 -8 15 L6 12 M8 8 Q15 15 8 17 L-6 13" fill="none" stroke="var(--worm-dark)" stroke-width="6.3" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M-8 8 Q-15 14 -8 15 L6 12 M8 8 Q15 15 8 17 L-6 13" fill="none" stroke="var(--worm-fill)" stroke-width="3.7" stroke-linecap="round" stroke-linejoin="round"/>
                 <path class="hero-hand-outline" d="M3 11 Q8 9 8 12 Q8 14 4 14Z M-3 12 Q-8 10 -8 13 Q-8 15 -4 15Z"/>
@@ -1103,7 +1170,7 @@
 </dialog>
 <dialog id="settingsDialog" aria-labelledby="settingsTitle">
   <div class="settings-heading"><h2 id="settingsTitle">Configuración</h2><button type="button" class="help-button" data-context-help="settings" aria-label="Ayuda de configuración" title="Ayuda">?</button><button type="button" id="closeSettings" class="ghost" aria-label="Cerrar configuración">×</button></div>
-  <div class="mini" id="appVersion">Wormhoff 3.21</div>
+  <div class="mini" id="appVersion">Wormhoff 3.22</div>
   <div class="settings-fields">
     <label for="symbolStandard">Simbología<select id="symbolStandard"><option value="iec">IEC · rectangular</option><option value="ansi">ANSI · zigzag</option></select></label>
     <label for="languageSetting">Idioma<select id="languageSetting"><option value="es">Español</option><option value="en">English</option></select></label>
@@ -2223,8 +2290,9 @@
   const heroSegments=Array.from({length:8},()=>{
     const g=document.createElementNS(heroNS,'g');
     const body=document.createElementNS(heroNS,'ellipse');body.setAttribute('class','hero-segment');
+    const shade=document.createElementNS(heroNS,'ellipse');shade.setAttribute('class','hero-skin-depth');
     const shine=document.createElementNS(heroNS,'path');shine.setAttribute('class','hero-shine');
-    g.append(body,shine);$('heroSegments').append(g);return {g,body,shine};
+    g.append(body,shade,shine);$('heroSegments').append(g);return {g,body,shade,shine};
   });
   function positionHero(x,y,angle=null,reset=false){
     const h=heroMotion,delta=Math.hypot(x-h.x,y-h.y);
@@ -2309,7 +2377,7 @@
     const spine=pts.map((p,i)=>`${i?'L':'M'}${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ');
     $('heroSpine').setAttribute('d',spine);$('heroSpine').setAttribute('stroke-width',(10*soften).toFixed(2));$('heroHit').setAttribute('d',spine);
     // Se dibuja desde la cola: las uniones quedan ocultas bajo el anillo siguiente.
-    heroSegments.forEach(({g,body,shine},index)=>{
+    heroSegments.forEach(({g,body,shade,shine},index)=>{
       const i=8-index,p=pts[i],front=pts[Math.max(0,i-1)],back=pts[Math.min(8,i+1)];
       // En los extremos no existe un punto anterior/posterior: usar el tramo adyacente.
       const dx=front.x!==p.x||front.y!==p.y?front.x-p.x:p.x-back.x;
@@ -2319,6 +2387,7 @@
       const width=(7.7-3.4*u)*(1+.15*squeeze+.06*wave)*soften;
       g.setAttribute('transform',`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${angle.toFixed(2)})`);
       body.setAttribute('rx',width.toFixed(2));body.setAttribute('ry',((length/8*.78+1.1)*soften).toFixed(2));
+      shade.setAttribute('rx',body.getAttribute('rx'));shade.setAttribute('ry',body.getAttribute('ry'));
       shine.setAttribute('d',`M${(-width*.58).toFixed(2)} -1 Q${(-width*.5).toFixed(2)} -3 -1 -3`);
     });
   }
