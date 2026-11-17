@@ -752,13 +752,15 @@ for(const mobile of [false,true]){
  assert.deepEqual(await page.locator('#staticCircuit .resistor-value').allTextContents(),['4Ω','3Ω','2Ω'],'Valores originales de la figura 2.37');
  assert.equal(await page.locator('#staticCircuit .component-source').count(),2,'La figura 2.37 tiene exactamente dos fuentes laterales');
  assert.equal(await page.locator('#staticCircuit .component-resistor').count(),3,'La figura 2.37 tiene tres resistencias');
+ // Comprobar la posición del símbolo, no el getBBox del grupo con textos.
  const geometry=await page.evaluate(()=>({
-  resistors:[0,1,2].map(i=>document.querySelector('#resistorElement'+i).getBBox()),
-  sources:[0,2].map(i=>document.querySelector('#sourceElement'+i).getBBox())
+  resistors:[0,1,2].map(i=>document.querySelector('#resistorElement'+i+' .symbol').getBBox()),
+  sources:[0,2].map(i=>document.querySelector('#sourceElement'+i+' .source-plate').getBBox())
  }));
- assert(Math.max(...geometry.resistors.map(r=>r.y))-Math.min(...geometry.resistors.map(r=>r.y))<1,'Resistencias de las tres ramas alineadas como en tipos 1 y 2');
+ const centerY=r=>r.y+r.height/2;
+ assert(Math.max(...geometry.resistors.map(centerY))-Math.min(...geometry.resistors.map(centerY))<1,'Resistencias de las tres ramas alineadas como en tipos 1 y 2');
  assert(geometry.resistors[0].x<geometry.resistors[1].x&&geometry.resistors[1].x<geometry.resistors[2].x,'Resistencias en ramas izquierda, central y derecha');
- assert(Math.abs(geometry.sources[0].y-geometry.sources[1].y)<1,'Fuentes alineadas como en tipos 1 y 2');
+ assert(Math.abs(centerY(geometry.sources[0])-centerY(geometry.sources[1]))<1,'Fuentes alineadas como en tipos 1 y 2');
  const routeCheck=await page.evaluate(()=>{
   const {getBranches,getRoute}=wormhoffRouteTest,branches=getBranches();
   return {resistors:branches.map(b=>b.filter(p=>p.component==='resistor').length),sources:branches.map(b=>b.filter(p=>p.component==='source').length),loops:[0,1].flatMap(i=>[true,false].map(cw=>getRoute(i,cw)))};
