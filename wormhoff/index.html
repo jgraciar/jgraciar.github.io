@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-visual">
 <meta name="color-scheme" content="dark">
-<title>Wormhoff · 3.13</title>
+<title>Wormhoff · 3.14</title>
 <style>
   :root { --bg:var(--paint-09101d,#09101d); --card:var(--paint-111c30,#111c30); --card2:var(--paint-0c182b,#0c182b); --border:var(--paint-2c415b,#2c415b); --txt:var(--paint-f0f6ff,#f0f6ff); --muted:var(--paint-a7bbd0,#a7bbd0); --cyan:var(--paint-5ce6f0,#5ce6f0); --lime:var(--paint-b7f75c,#b7f75c); --amber:var(--paint-ffc66b,#ffc66b); --red:var(--paint-ff7786,#ff7786); --purple:var(--paint-ac98ff,#ac98ff); }
   *{box-sizing:border-box}
@@ -676,7 +676,9 @@
   .brand-exercise{display:flex;align-items:center;gap:clamp(12px,2vw,28px);flex:1;min-width:0}
   .action-with-icon{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
   .action-icon{width:19px;height:19px;flex:none}
-  #toggleDemo[aria-pressed="true"] .demo-off-icon,#toggleDemo[aria-pressed="false"] .demo-on-icon{display:none}
+  .demo-toggle{display:inline-flex;align-items:center;justify-content:center;min-width:76px;min-height:40px;padding:8px 14px;border:1px solid #387d58;border-radius:10px;background:#17663e;color:#fff;font:inherit;font-weight:800;letter-spacing:.055em;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
+  .demo-toggle[aria-pressed="false"]{background:#3d4654;border-color:#707988;color:#e3e7ed}
+  .demo-toggle:focus-visible{outline:3px solid #80caff;outline-offset:3px}
 
   .logo{flex:none}
   .header-exercise{display:block;min-width:0;flex:0 1 520px}
@@ -821,7 +823,7 @@
 <body>
 <div class="shell">
   <header class="top">
-    <div class="brand-exercise"><div class="logo">WORM<span>HOFF</span></div><label class="header-exercise"><span class="sr-only">Ejercicio</span><select id="exerciseSelect" aria-label="Ejercicio"></select></label><button type="button" id="randomizeValues" class="ghost action-with-icon" title="Generar nuevos valores de resistencias y fuentes"><svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></svg><span>Generar valores</span></button><button type="button" id="toggleDemo" class="ghost action-with-icon" aria-pressed="true" title="Activar o desactivar la resolución guiada"><svg class="action-icon demo-on-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/></svg><svg class="action-icon demo-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 8v8M15 8v8"/></svg><span id="demoButtonLabel">Modo demo: activado</span></button></div>
+    <div class="brand-exercise"><div class="logo">WORM<span>HOFF</span></div><label class="header-exercise"><span class="sr-only">Ejercicio</span><select id="exerciseSelect" aria-label="Ejercicio"></select></label><button type="button" id="randomizeValues" class="ghost action-with-icon" title="Generar nuevos valores de resistencias y fuentes"><svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></svg><span>Generar valores</span></button><button type="button" id="toggleDemo" class="demo-toggle" aria-pressed="true" aria-label="Modo demo activado" title="Activar o desactivar el modo demo"><span>DEMO</span></button></div>
     <div class="score"><button type="button" id="openSettings" class="settings-button" aria-label="Configuración" title="Configuración"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4l.5 3 1.5.9 2.9-1 2 3.4-2.3 2v1.7l2.3 2-2 3.4-2.9-1-1.5.9-.5 3h-4l-.5-3-1.5-.9-2.9 1-2-3.4 2.3-2v-1.7l-2.3-2 2-3.4 2.9 1 1.5-.9Z"/><circle cx="12" cy="11.8" r="3.2"/></svg></button><span id="score" hidden>0000</span><span id="percent" hidden>0%</span></div>
   </header>
   <nav class="stages" id="stagebar" aria-label="Fases">
@@ -1056,7 +1058,7 @@
 </dialog>
 <dialog id="settingsDialog" aria-labelledby="settingsTitle">
   <div class="settings-heading"><h2 id="settingsTitle">Configuración</h2><button type="button" class="help-button" data-context-help="settings" aria-label="Ayuda de configuración" title="Ayuda">?</button><button type="button" id="closeSettings" class="ghost" aria-label="Cerrar configuración">×</button></div>
-  <div class="mini" id="appVersion">Wormhoff 3.13</div>
+  <div class="mini" id="appVersion">Wormhoff 3.14</div>
   <div class="settings-fields">
     <label for="symbolStandard">Simbología<select id="symbolStandard"><option value="iec">IEC · rectangular</option><option value="ansi">ANSI · zigzag</option></select></label>
     <label for="languageSetting">Idioma<select id="languageSetting"><option value="es">Español</option><option value="en">English</option></select></label>
@@ -1115,7 +1117,7 @@
   const difficulty=()=>demoModes[active.id]?0:2;
   function updateDemoButton(){
     const enabled=!!demoModes[active.id];
-    $('demoButtonLabel').textContent='Modo demo: '+(enabled?'activado':'desactivado');
+    $('toggleDemo').setAttribute('aria-label','Modo demo '+(enabled?'activado':'desactivado'));
     $('toggleDemo').setAttribute('aria-pressed',String(enabled));
   }
   let activeChallenge=null;
