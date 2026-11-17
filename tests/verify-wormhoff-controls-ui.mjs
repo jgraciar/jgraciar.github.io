@@ -670,5 +670,49 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await selectSymbol('iec');await assertNoCurrentOverlap();
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
+// Edición y resolución inmediata: comprobar resultados físicos y conservación de valores.
+for(const mobile of [false,true]){
+ const context=await browser.newContext({viewport:mobile?{width:430,height:932}:{width:1440,height:1100},isMobile:mobile,hasTouch:mobile});
+ const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.goto('http://127.0.0.1:8767/wormhoff/');
+ const number=text=>Number(text.replace(/[−]/g,'-').replace(/\s*A$/,'').replace(',','.'));
+ const assertResults=async(expected,six=false)=>{
+  assert(await page.locator(six?'#advResultPanel':'#resultPanel').isVisible());
+  const panel=(await page.locator(six?'#advResults strong':'#results strong').allTextContents()).map(number);
+  const circuit=(await page.locator(six?'#sixRefArrows .dir-result':'#dirGraphics .dir-result').allTextContents()).map(number);
+  assert.equal(panel.length,expected.length);assert.deepEqual(circuit,panel);
+  panel.forEach((value,i)=>assert(Math.abs(value-expected[i])<=.000011,'Corriente '+i+': '+value+' frente a '+expected[i]));
+  assert.match(await page.locator('#phaseHead').textContent(),/Fase 3 · Resolución/);
+  assert.equal(await page.locator('#directMeshDirections text').count(),six?3:2);
+ };
+ const edit=async(id,value)=>{
+  await page.locator('[data-component-edit="'+id+'"]').click();assert(await page.locator('#componentValueDialog').isVisible());
+  await page.locator('#componentValueInput').fill(value);await page.locator('#componentValueForm button[type="submit"]').click();
+  assert.equal(await page.locator('#componentValueDialog').isVisible(),false);
+ };
+ await page.click('#solveDirect');await assertResults([5,1,4]);
+ await page.locator('[data-component-edit="resistorElement0"]').click();await page.locator('#componentValueInput').fill('0');await page.locator('#componentValueForm button[type="submit"]').click();
+ assert(await page.locator('#componentValueDialog').isVisible());assert.equal(await page.locator('#componentValueInput').getAttribute('aria-invalid'),'true');
+ await page.click('#cancelComponentValue');await assertResults([5,1,4]);
+ await edit('resistorElement0','4');await assertResults([3,0,3]);
+ await edit('sourceElement0','0');await assertResults([-.6,-1.8,1.2]);
+ assert.equal(await page.locator('[data-component-edit="sourceElement0"]').count(),1,'La fuente de cero voltios sigue siendo editable');
+ await edit('sourceElement0','-6');await assertResults([-1.8,-2.4,.6]);
+ await page.selectOption('#exerciseSelect','r73');await page.click('#solveDirect');await assertResults([8/11,-1/11,9/11]);
+ await page.selectOption('#exerciseSelect','f451');
+ assert(!/\bE[123]\b/.test(await page.locator('#staticCircuit').textContent()),'Sin nombres E1, E2, E3 sobre las fuentes del tipo 3');
+ await edit('resistorElementExtra','4000');await page.click('#solveDirect');await assertResults([-19/13000,-35/13000,16/13000]);
+ assert.match(await page.locator('#resistorElementExtra .component-value').textContent(),/4\s*kΩ/);
+ await page.selectOption('#exerciseSelect','r76');
+ const originalResistors=await page.locator('#componentValueTargets [data-component-edit$="R"]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')));
+ for(const i of [0,2,3,4,5])await edit('sixCmp'+i+'U','0');
+ await page.click('#solveDirect');await assertResults(Array(6).fill(0),true);
+ assert.deepEqual(await page.locator('#componentValueTargets [data-component-edit$="R"]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label'))),originalResistors,'Resolver y editar no regeneran las resistencias');
+ await edit('sixCmp0R','2,5');await assertResults(Array(6).fill(0),true);
+ assert.match(await page.locator('#sixCmp0R .component-value').textContent(),/2,5Ω/);
+ assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'La cabecera con Resolver cabe en la pantalla');
+ assert.deepEqual(errors,[]);await context.close();
+ console.log('OK: edición de valores, cero y polaridad negativa, cuatro tipos, recálculo y resultados directos en circuito y resolución; '+(mobile?'móvil':'escritorio'));
+}
 }finally{await browser.close()}
 
