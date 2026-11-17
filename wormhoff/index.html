@@ -4173,9 +4173,9 @@
    .resolution-method-choices{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:nowrap;min-width:0}
    .resolution-method-choices.hide{display:none}
    .resolution-method-choices button{white-space:nowrap;min-width:0;font-size:clamp(10px,2.3vw,14px);padding:8px clamp(5px,1vw,12px)}
-   body.worm-mesh-waiting #hero{opacity:0;pointer-events:none}
-   body.worm-mesh-reveal #hero{animation:wormReveal .65s ease-out both}
-   @keyframes wormReveal{from{opacity:0;transform:translate(345px,360px) scale(.35)}to{opacity:1}}
+   body.worm-mesh-waiting #hero:not(.hero-moving){opacity:0;pointer-events:none}
+   body.worm-mesh-reveal #hero{animation:wormReveal .65s ease-out}
+   @keyframes wormReveal{from{opacity:0}to{opacity:1}}
    @media(prefers-reduced-motion:reduce){body.worm-mesh-reveal #hero{animation:none}}
   `;document.head.appendChild(css);
   const right=document.getElementById('equationsCard');
@@ -4206,7 +4206,7 @@
    const mesh=(typeof active!=='undefined'&&active.kind!=='network'&&((active.kind==='multi'&&A6.stage==='loops')||(active.kind!=='multi'&&S.phase===2)));
    const signature=mesh?(active.kind==='multi'?'six'+A6.selected:'std'+S.loop):'other';
    if(signature!==previous){played=false;previous=signature;}
-   document.body.classList.toggle('worm-mesh-waiting',mesh&&!played);
+   document.body.classList.toggle('worm-mesh-waiting',mesh&&!played&&!heroMotion.started);
    if(!mesh)document.body.classList.remove('worm-mesh-reveal');
   };
   ['advance','advNext'].forEach(id=>document.getElementById(id)?.addEventListener('click',()=>{
