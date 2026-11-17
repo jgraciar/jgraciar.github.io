@@ -154,7 +154,10 @@ await page.reload();await page.selectOption('#exerciseSelect','r76');
 // El tipo 4 debe admitir flechas en los tramos R2–C y R5–D.
 for(const [branch,x,y] of [[1,350,190],[4,548,225]]){
  const target=page.locator('[data-current-branch="'+branch+'"]');
- await target.dispatchEvent('click',{clientX:x,clientY:y});
+ await target.evaluate((el,{x,y})=>{
+  const svg=document.getElementById('circuit'),p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());
+  el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,clientX:p.x,clientY:p.y}));
+ },{x,y});
  const arrow=page.locator('#sixCurrentArrow'+branch);
  assert.equal(await arrow.getAttribute('data-current-index'),String(branch),'Se crea la referencia de corriente '+branch);
  assert.notEqual(await arrow.getAttribute('data-placement-unavailable'),'true','Flecha disponible entre resistencia y nudo');
