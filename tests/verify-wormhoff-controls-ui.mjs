@@ -678,7 +678,7 @@ for(const mobile of [false,true]){
  // DEMO conserva el estado y su comportamiento al cargar cualquier otro tipo.
  for(const enabled of [true,false]){
   if((await page.locator('#toggleDemo').getAttribute('aria-pressed')==='true')!==enabled)await page.click('#toggleDemo');
-  for(const type of ['base','r73','f451','r76']){
+  for(const type of ['base','r73','fig237','r76']){
    await page.selectOption('#exerciseSelect',type);
    assert.equal(await page.locator('#toggleDemo').getAttribute('aria-pressed'),String(enabled),'Estado global al cargar '+type);
    assert.equal(await page.locator('#toggleDemo .demo-state').textContent(),enabled?'ON':'OFF');
@@ -725,14 +725,13 @@ for(const mobile of [false,true]){
  assert.equal(await page.locator('[data-component-edit="sourceElement0"]').count(),1,'La fuente de cero voltios sigue siendo editable');
  await edit('sourceElement0','-6');await assertResults([-1.8,-2.4,.6]);
  await page.selectOption('#exerciseSelect','r73');await page.click('#solveDirect');await assertResults([8/11,-1/11,9/11]);
- await page.selectOption('#exerciseSelect','f451');
- assert(!/\bE[123]\b/.test(await page.locator('#staticCircuit').textContent()),'Sin nombres E1, E2, E3 sobre las fuentes del tipo 3');
- await page.click('#solveDirect');await assertResults([-1,-2,1]);
- assert.deepEqual(await page.locator('#staticCircuit .resistor-value').allTextContents(),['1Ω','1Ω','4Ω','7Ω'],'Datos iniciales enteros del tipo 3');
- await edit('resistorElementExtra','3');await assertResults([-25/36,-65/36,10/9]);
- assert.match(await page.locator('#resistorElementExtra .component-value').textContent(),/3Ω/);
- await page.selectOption('#exerciseSelect','r73');await page.selectOption('#exerciseSelect','f451');await page.click('#solveDirect');await assertResults([-1,-2,1]);
- assert.deepEqual(await page.locator('#staticCircuit .resistor-value').allTextContents(),['1Ω','1Ω','4Ω','7Ω'],'Al volver a cargar el tipo 3 se recuperan sus datos iniciales');
+ await page.selectOption('#exerciseSelect','fig237');
+ assert.equal(await page.locator('#exerciseSelect option:checked').textContent(),'Tipo 3','La figura 2.37 sustituye a la figura 4.51');
+ assert.deepEqual(await page.locator('#staticCircuit .resistor-value').allTextContents(),['4Ω','3Ω','2Ω'],'Valores originales de la figura 2.37');
+ await page.click('#solveDirect');
+ assert.equal(await page.locator('#componentValueDialog').isVisible(),false);
+ await page.selectOption('#exerciseSelect','r73');await page.selectOption('#exerciseSelect','fig237');
+ assert.deepEqual(await page.locator('#staticCircuit .resistor-value').allTextContents(),['4Ω','3Ω','2Ω'],'Se restauran los valores originales al volver al tipo 3');
  await page.selectOption('#exerciseSelect','r76');
  const sourceBackgrounds=await page.locator('#sixSymbols .source-halo').evaluateAll(nodes=>nodes.map(rect=>{
   const x=Number(rect.getAttribute('x'))+Number(rect.getAttribute('width'))/2,y=Number(rect.getAttribute('y'))+Number(rect.getAttribute('height'))/2;
