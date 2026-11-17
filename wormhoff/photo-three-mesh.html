@@ -2,7 +2,7 @@
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Wormhoff · Topología de tres mallas (prueba)</title>
 <style>
-:root{font:16px system-ui,sans-serif;color:#172235;background:#f5f7fa}body{max-width:1150px;margin:24px auto;padding:0 16px}h1{font-size:1.45rem}p{line-height:1.5}main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:18px}section{background:white;border:1px solid #d6dce5;border-radius:12px;padding:16px;min-width:0}svg{width:100%;height:auto}.wire{fill:none;stroke:#233b57;stroke-width:3}.res{fill:white;stroke:#233b57;stroke-width:2.5}.source{stroke:#233b57;stroke-width:3}.node{fill:#233b57}.node.pickable{cursor:pointer;stroke:transparent;stroke-width:16}.node.pickable.selected{fill:#d58c12;stroke:#f9d47b;stroke-width:9}.node.pickable:focus-visible{stroke:#d58c12;stroke-width:12}.name{font-size:16px;fill:#172235}.mesh{font-size:20px;fill:#2563a8}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}label{display:flex;justify-content:space-between;align-items:center;gap:8px}input{width:74px;padding:7px;border:1px solid #8798ac;border-radius:6px;font:inherit}button{padding:9px 14px;background:#215c9a;color:white;border:0;border-radius:6px;cursor:pointer}output{display:block;white-space:pre-wrap;font-family:ui-monospace,monospace;line-height:1.8}small{color:#536479}#error{color:#a32222}.branch-arrow{cursor:pointer;outline:none}.branch-arrow line,.branch-arrow path{stroke:#136e87;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}.branch-arrow text{fill:#136e87;font-size:14px;font-weight:700}.branch-arrow:focus-visible{filter:drop-shadow(0 0 4px #e9a01b)}.branch-arrow[aria-pressed="true"] line,.branch-arrow[aria-pressed="true"] path{stroke:#b45309}.branch-arrow[aria-pressed="true"] text{fill:#b45309}.branch-legend{margin:12px 0;font-size:.9rem}.mesh [data-mesh].active{fill:#b45309;font-weight:800}.mesh [data-mesh]:not(.active){opacity:.45}.guide{margin-top:16px;border-top:1px solid #d6dce5;padding-top:12px}.guide p{line-height:1.5}.guide button:disabled{opacity:.4;cursor:default}.guide output{background:#f3f6fa;padding:10px;border-radius:7px;min-height:75px}.guide .actions{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:800px){main{grid-template-columns:1fr}.controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+:root{font:16px system-ui,sans-serif;color:#172235;background:#f5f7fa}body{max-width:1150px;margin:24px auto;padding:0 16px}h1{font-size:1.45rem}p{line-height:1.5}main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:18px}section{background:white;border:1px solid #d6dce5;border-radius:12px;padding:16px;min-width:0}svg{width:100%;height:auto}.wire{fill:none;stroke:#233b57;stroke-width:3}.res{fill:white;stroke:#233b57;stroke-width:2.5}.source{stroke:#233b57;stroke-width:3}.node{fill:#233b57}.node.pickable{cursor:pointer;stroke:transparent;stroke-width:16}.node.pickable.selected{fill:#d58c12;stroke:#f9d47b;stroke-width:9}.node.pickable:focus-visible{stroke:#d58c12;stroke-width:12}.name{font-size:16px;fill:#172235}.mesh{font-size:20px;fill:#2563a8}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}label{display:flex;justify-content:space-between;align-items:center;gap:8px}input{width:74px;padding:7px;border:1px solid #8798ac;border-radius:6px;font:inherit}button{padding:9px 14px;background:#215c9a;color:white;border:0;border-radius:6px;cursor:pointer}output{display:block;white-space:pre-wrap;font-family:ui-monospace,monospace;line-height:1.8}small{color:#536479}#error{color:#a32222}.branch-arrow{cursor:pointer;outline:none}.branch-arrow line,.branch-arrow path{stroke:#136e87;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}.branch-arrow text{fill:#136e87;font-size:14px;font-weight:700}.branch-arrow:focus-visible{filter:drop-shadow(0 0 4px #e9a01b)}.branch-arrow[aria-pressed="true"] line,.branch-arrow[aria-pressed="true"] path{stroke:#b45309}.branch-arrow[aria-pressed="true"] text{fill:#b45309}.branch-legend{margin:12px 0;font-size:.9rem}#wormLayer{pointer-events:none}#wormLayer .worm-body{fill:#80bd47;stroke:#315c27;stroke-width:2}#wormLayer .worm-head{fill:#a5d65b;stroke:#315c27;stroke-width:2}#wormLayer .worm-eye{fill:#1d3024}#wormLayer .worm-arrow{fill:#315c27}.mesh [data-mesh].active{fill:#b45309;font-weight:800}.mesh [data-mesh]:not(.active){opacity:.45}.guide{margin-top:16px;border-top:1px solid #d6dce5;padding-top:12px}.guide p{line-height:1.5}.guide button:disabled{opacity:.4;cursor:default}.guide output{background:#f3f6fa;padding:10px;border-radius:7px;min-height:75px}.guide .actions{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:800px){main{grid-template-columns:1fr}.controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head><body>
 <p><a href="./">Volver a Wormhoff</a></p><h1>Wormhoff · Topología de tres mallas</h1>
 <p>Vista de prueba del circuito de la fotografía: 5 resistencias, 3 fuentes, 3 mallas. Símbolos de resistencia rectangulares IEC. Los valores pueden modificarse y resolverse directamente.</p>
@@ -13,7 +13,7 @@
 <g class="name" text-anchor="middle"><text x="203" y="109">R1</text><text x="437" y="109">R4</text><text x="366" y="224">R3</text><text x="437" y="304">R5</text><text x="203" y="394">R2</text><text x="58" y="219">U1</text><text x="291" y="281">U2</text><text x="440" y="458">U3</text><text x="125" y="222">+</text><text x="125" y="247">−</text><text x="360" y="284">+</text><text x="360" y="312">−</text><text x="470" y="395">+</text><text x="393" y="395">−</text></g>
 <g class="node"><circle cx="330" cy="135" r="5" class="pickable" data-node="A" tabindex="0" role="button" aria-label="Seleccionar nudo superior A"/><circle cx="330" cy="330" r="5" class="pickable" data-node="B" tabindex="0" role="button" aria-label="Seleccionar nudo central B"/><circle cx="95" cy="330" r="5" class="pickable" data-node="B" tabindex="0" role="button" aria-label="Seleccionar nudo central B"/><circle cx="555" cy="330" r="5" class="pickable" data-node="C" tabindex="0" role="button" aria-label="Seleccionar nudo derecho C"/></g>
 <g class="mesh" text-anchor="middle"><text data-mesh="0" x="210" y="245">M1 ↻</text><text data-mesh="1" x="448" y="245">M2 ↻</text><text data-mesh="2" x="330" y="390">M3 ↻</text></g>
-<g id="branchArrows"></g></svg><p class="branch-legend">Pulsa una flecha para invertir el sentido de referencia de la intensidad. Los valores se expresan con el signo correspondiente.</p><div class="guide"><h2>Recorrido guiado</h2><p id="guideTitle"></p><output id="guideText" aria-live="polite"></output><div id="nodeTask" hidden><p>Selecciona en el circuito los dos nudos donde se plantearán las ecuaciones de corrientes (A y C).</p><p id="nodeFeedback" aria-live="polite"></p><div id="kclBuilder" hidden><p id="kclPrompt"></p><div id="kclTerms"></div><p><strong id="kclPreview"></strong></p><button type="button" id="kclCheck">Comprobar nudo</button><p id="kclFeedback" aria-live="polite"></p></div></div><div id="equationTask" hidden><p>Completa los coeficientes de M1, M2, M3 y el término independiente:</p><div class="controls" id="equationInputs"></div><p><button type="button" id="checkEquation">Comprobar ecuación</button></p><p id="equationFeedback" aria-live="polite"></p></div><p class="actions"><button type="button" id="guideBack">Anterior</button><button type="button" id="guideNext">Siguiente</button><button type="button" id="guideRestart">Reiniciar recorrido</button></p></div><small>Esquema de prueba. Las fuentes se representan mediante placas de distinta longitud; la polaridad indicada prevalece para el cálculo.</small></section>
+<g id="branchArrows"></g><g id="wormLayer" aria-hidden="true"></g></svg><p class="branch-legend">Pulsa una flecha para invertir el sentido de referencia de la intensidad. Los valores se expresan con el signo correspondiente.</p><p class="actions"><button type="button" id="wormPlay">Reproducir recorrido</button><button type="button" id="wormReset">Reiniciar gusano</button></p><div class="guide"><h2>Recorrido guiado</h2><p id="guideTitle"></p><output id="guideText" aria-live="polite"></output><div id="nodeTask" hidden><p>Selecciona en el circuito los dos nudos donde se plantearán las ecuaciones de corrientes (A y C).</p><p id="nodeFeedback" aria-live="polite"></p><div id="kclBuilder" hidden><p id="kclPrompt"></p><div id="kclTerms"></div><p><strong id="kclPreview"></strong></p><button type="button" id="kclCheck">Comprobar nudo</button><p id="kclFeedback" aria-live="polite"></p></div></div><div id="equationTask" hidden><p>Completa los coeficientes de M1, M2, M3 y el término independiente:</p><div class="controls" id="equationInputs"></div><p><button type="button" id="checkEquation">Comprobar ecuación</button></p><p id="equationFeedback" aria-live="polite"></p></div><p class="actions"><button type="button" id="guideBack">Anterior</button><button type="button" id="guideNext">Siguiente</button><button type="button" id="guideRestart">Reiniciar recorrido</button></p></div><small>Esquema de prueba. Las fuentes se representan mediante placas de distinta longitud; la polaridad indicada prevalece para el cálculo.</small></section>
 <section><h2>Valores de los elementos</h2><div class="controls" id="controls"></div><p><button type="button" id="toggleDemo" aria-pressed="false">Modo demo: desactivado</button></p><p><button id="solve">Resolver circuito</button> <button id="reset" type="button">Restaurar valores</button></p><p id="error" role="alert"></p><h2>Resolución</h2><output id="result" aria-live="polite"></output></section></main>
 <script type="module">
 import {photoTopology,photoSolve} from './photo-three-mesh.mjs';
@@ -40,11 +40,47 @@ function drawBranchArrows(){
   root.append(group);
  }
 }
+// Animación propia del prototipo: recorre las tres mallas en sentido horario.
+const wormRoutes=[
+ [[95,135],[330,135],[330,330],[95,330],[95,135]],
+ [[330,135],[555,135],[555,330],[330,330],[330,135]],
+ [[95,330],[555,330],[555,420],[95,420],[95,330]]
+];
+let wormToken=0,wormFrame=null;
+const wormLayer=document.getElementById('wormLayer');
+function wormDraw(x,y,angle,victory=false){
+ const ux=Math.cos(angle),uy=Math.sin(angle);
+ const arrow=[[x+ux*20,y+uy*20],[x+ux*9-uy*7,y+uy*9+ux*7],[x+ux*9+uy*7,y+uy*9-ux*7]];
+ wormLayer.innerHTML='<circle class="worm-body" cx="'+(x-ux*20)+'" cy="'+(y-uy*20)+'" r="11"/><circle class="worm-body" cx="'+(x-ux*10)+'" cy="'+(y-uy*10)+'" r="13"/><circle class="worm-head" cx="'+x+'" cy="'+y+'" r="16"/><circle class="worm-eye" cx="'+(x-uy*6+ux*5)+'" cy="'+(y+ux*6+uy*5)+'" r="2.6"/><circle class="worm-eye" cx="'+(x+uy*6+ux*5)+'" cy="'+(y-ux*6+uy*5)+'" r="2.6"/><polygon class="worm-arrow" points="'+arrow.map(p=>p.join(',')).join(' ')+'"/>'+(victory?'<path d="M'+(x-11)+' '+(y-4)+' h22" stroke="#1b293a" stroke-width="6"/><path d="M'+(x-15)+' '+(y+19)+' l30 -10 M'+(x+15)+' '+(y+19)+' l-30 -10" stroke="#315c27" stroke-width="4"/>':'');
+}
+function wormStop(){wormToken++;if(wormFrame!==null)cancelAnimationFrame(wormFrame);wormFrame=null;document.getElementById('wormPlay').disabled=false;}
+function wormPlay(){
+ wormStop();const token=wormToken,button=document.getElementById('wormPlay');button.disabled=true;
+ const routes=wormRoutes.map(route=>route.map(([x,y])=>({x,y})));
+ let index=0,start=null;const duration=4200;
+ function tick(now){
+  if(token!==wormToken)return;
+  if(start===null)start=now;
+  const route=routes[index],lengths=route.slice(1).map((p,i)=>Math.hypot(p.x-route[i].x,p.y-route[i].y)),total=lengths.reduce((a,b)=>a+b,0);
+  let distance=Math.min(1,(now-start)/duration)*total,segment=0;
+  while(segment<lengths.length-1&&distance>lengths[segment]){distance-=lengths[segment];segment++;}
+  const a=route[segment],b=route[segment+1],t=distance/lengths[segment];
+  wormDraw(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,Math.atan2(b.y-a.y,b.x-a.x));
+  if(now-start>=duration){
+   index++;start=now;
+   if(index===routes.length){wormDraw(325,390,0,true);button.disabled=false;wormFrame=null;return;}
+  }
+  wormFrame=requestAnimationFrame(tick);
+ }
+ wormFrame=requestAnimationFrame(tick);
+}
+document.getElementById('wormPlay').addEventListener('click',wormPlay);
+document.getElementById('wormReset').addEventListener('click',()=>{wormStop();wormLayer.replaceChildren();});
 const fmt=n=>Number(n.toFixed(3)).toLocaleString('es-ES',{maximumFractionDigits:3});
 function solve(){try{const R={},U={};for(const [id] of fields){const raw=document.getElementById(id).value;if(!raw.trim())throw Error('Introduce un valor para '+id);const value=Number(raw);if(!Number.isFinite(value))throw Error('Valor no válido: '+id);(id[0]==='R'?R:U)[id]=value;}const x=photoSolve(R,U);err.textContent='';const lines=['Ecuaciones de malla (A · M = b):',...x.A.map((row,i)=>row.map(fmt).join(' · ')+' | '+fmt(x.b[i])),'','Corrientes de malla:',...x.mesh.map((v,i)=>'M'+(i+1)+' = '+fmt(v)+' A'),'','Corrientes de rama:',...Object.entries(x.branches).map(([id,v])=>'I('+id+') = '+fmt(v*branchSigns[id])+' A'),'','Potencia disipada = '+fmt(x.resistorPower)+' W','Potencia suministrada neta = '+fmt(x.sourcePower)+' W'];out.textContent=lines.join('\n');}catch(e){err.textContent=e.message;out.textContent='';}}
 // Secuencia explicativa: no sustituye todavía la interacción jugable del motor principal.
 let guideStep=0;
-let demoEnabled=false;
+let demoEnabled=(()=>{try{return localStorage.getItem('wormhoff.demo')!=='false';}catch{return true;}})();
 const verifiedEquations=new Set();
 const selectedNodes=new Set();
 const kclVerified=new Set();
@@ -154,10 +190,11 @@ document.getElementById('guideRestart').addEventListener('click',()=>{guideStep=
 controls.addEventListener('input',()=>{verifiedEquations.clear();guide();});
 document.getElementById('toggleDemo').addEventListener('click',()=>{
  demoEnabled=!demoEnabled;
+ try{localStorage.setItem('wormhoff.demo',String(demoEnabled));}catch{}
  const btn=document.getElementById('toggleDemo');
  btn.textContent='Modo demo: '+(demoEnabled?'activado':'desactivado');
  btn.setAttribute('aria-pressed',String(demoEnabled));
  guide();
 });
-document.getElementById('solve').addEventListener('click',()=>{out.hidden=false;solve();});document.getElementById('reset').addEventListener('click',()=>{for(const [id,,v] of fields)document.getElementById(id).value=v;verifiedEquations.clear();out.hidden=true;guide();});drawBranchArrows();out.hidden=true;guide();
+document.getElementById('solve').addEventListener('click',()=>{out.hidden=false;solve();});document.getElementById('reset').addEventListener('click',()=>{for(const [id,,v] of fields)document.getElementById(id).value=v;verifiedEquations.clear();out.hidden=true;guide();});drawBranchArrows();out.hidden=true;const demoButton=document.getElementById('toggleDemo');demoButton.textContent='Modo demo: '+(demoEnabled?'activado':'desactivado');demoButton.setAttribute('aria-pressed',String(demoEnabled));guide();
 </script></body></html>
