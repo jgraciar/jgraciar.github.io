@@ -3523,10 +3523,10 @@
       group.querySelectorAll('.current-label-hit').forEach(el=>el.remove());
       let candidates=[];
       for(let i=1;i<points.length;i++){
-        const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(length<30)continue;
+        const a=points[i-1],b=points[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(length<(six?22:30))continue;
         const dx=(b.x-a.x)/length,dy=(b.y-a.y)/length;
-        const projected=Math.max(15,Math.min(length-15,(wanted.x-a.x)*dx+(wanted.y-a.y)*dy));
-        const distances=[projected];for(let t=15;t<=length-15;t+=3)distances.push(t);
+        const margin=six?10:15,projected=Math.max(margin,Math.min(length-margin,(wanted.x-a.x)*dx+(wanted.y-a.y)*dy));
+        const distances=[projected];for(let t=margin;t<=length-margin;t+=3)distances.push(t);
         for(const t of distances){const x=a.x+dx*t,y=a.y+dy*t;candidates.push({x,y,dx,dy,distance:(x-wanted.x)**2+(y-wanted.y)**2});}
       }
       if(currentRenamingPlacement&&currentRenamingPlacement.index===index&&currentRenamingPlacement.six===six)candidates=[{...currentRenamingPlacement,distance:0}];
@@ -3538,7 +3538,7 @@
         label.removeAttribute('textLength');label.removeAttribute('lengthAdjust');
         const l=metric(label),v=value?metric(value):null;
         for(const c of candidates){
-          const half=12,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
+          const half=six?9:12,vx=c.dx*model.signs[index],vy=c.dy*model.signs[index];
           const arrow={x:c.x-Math.abs(vx)*half-Math.abs(vy)*7-3,y:c.y-Math.abs(vy)*half-Math.abs(vx)*7-3,w:Math.abs(vx)*2*half+Math.abs(vy)*14+6,h:Math.abs(vy)*2*half+Math.abs(vx)*14+6};
           const tail={x:c.x-vx*half,y:c.y-vy*half},tipPoint={x:c.x+vx*half,y:c.y+vy*half};
           const segments=[[tail,tipPoint],...[-1,1].map(side=>[{x:c.x+vx*(half-9)+side*vy*7,y:c.y+vy*(half-9)-side*vx*7},tipPoint])];
