@@ -151,6 +151,19 @@ await page.route('**/wormhoff/',async route=>{
  await route.fulfill({response,body:html.replace('  newGame();syncBoardActions();','  globalThis.wormhoffTest={A6,S,sixStartSolve,sixRefArrow,sixRenderRows,sixKCLRows,NAMES6,openSimplification,sixEq};\n  newGame();syncBoardActions();')});
 });
 await page.reload();await page.selectOption('#exerciseSelect','r76');
+// El tipo 4 debe admitir flechas en los tramos R2–C y R5–D.
+for(const [branch,x,y] of [[1,350,190],[4,548,225]]){
+ const target=page.locator('[data-current-branch="'+branch+'"]');
+ await target.dispatchEvent('click',{clientX:x,clientY:y});
+ const arrow=page.locator('#sixCurrentArrow'+branch);
+ assert.equal(await arrow.getAttribute('data-current-index'),String(branch),'Se crea la referencia de corriente '+branch);
+ assert.notEqual(await arrow.getAttribute('data-placement-unavailable'),'true','Flecha disponible entre resistencia y nudo');
+ assert.equal(await arrow.isVisible(),true,'Flecha visible en el tramo solicitado');
+ const point=await arrow.evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
+ if(branch===1)assert(point.x>=338&&point.x<=362&&point.y>166&&point.y<225,'Flecha entre R2 y C');
+ else assert(point.x>535&&point.x<570&&point.y>=212&&point.y<=238,'Flecha entre R5 y D');
+}
+await page.reload();await page.selectOption('#exerciseSelect','r76');
 await page.evaluate(()=>{
  const {A6,S,sixStartSolve,sixRefArrow,sixRenderRows,sixKCLRows,NAMES6}=wormhoffTest;
  A6.currentNumbers=[1,2,3,4,5,6];NAMES6.splice(0,6,'I₁','I₂','I₃','I₄','I₅','I₆');A6.signs=[1,1,1,1,1,1];
