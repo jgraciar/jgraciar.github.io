@@ -58,9 +58,9 @@ function guide(){
   const steps=[
    'Hay tres mallas independientes: M1 (superior izquierda), M2 (superior derecha) y M3 (inferior). Se elige sentido horario para las tres. Las intensidades negativas tendrán sentido real contrario.',
    'Corrientes de rama con las referencias de las mallas:\nI(R1)=M1; I(R3)=M1−M2; I(R4)=M2; I(R5)=M2−M3; I(R2)=M3.\nKCL superior: I(R1)=I(R3)+I(R4).\nKCL derecho: I(R4)=I(R5)+I(R2).',
-   'M1: R1·M1 + R3·(M1−M2) = U1−U2\n'+row(0),
-   'M2: R4·M2 + R5·(M2−M3) − R3·(M1−M2) = U2\n'+row(1),
-   'M3: R2·M3 − R5·(M2−M3) = −U3\n'+row(2),
+   'M1: R1·M1 + R3·(M1−M2) = U1−U2\n'+(verifiedEquations.has(0)?row(0):'Completa los coeficientes para comprobar la ecuación.'),
+   'M2: R4·M2 + R5·(M2−M3) − R3·(M1−M2) = U2\n'+(verifiedEquations.has(1)?row(1):'Completa los coeficientes para comprobar la ecuación.'),
+   'M3: R2·M3 − R5·(M2−M3) = −U3\n'+(verifiedEquations.has(2)?row(2):'Completa los coeficientes para comprobar la ecuación.'),
    'A · M = b\n'+x.A.map((a,i)=>'['+a.map(fmt).join(', ')+']  ['+fmt(x.b[i])+']').join('\n'),
    'M1 = '+fmt(x.mesh[0])+' A; M2 = '+fmt(x.mesh[1])+' A; M3 = '+fmt(x.mesh[2])+' A.\n'+Object.entries(x.branches).map(([id,v])=>'I('+id+') = '+fmt(v)+' A').join('\n')+'\nPotencias: '+fmt(x.resistorPower)+' W = '+fmt(x.sourcePower)+' W'
   ];
