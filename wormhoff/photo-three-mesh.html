@@ -47,11 +47,27 @@ const wormRoutes=[
  [[95,330],[555,330],[555,420],[95,420],[95,330]]
 ];
 let wormToken=0,wormFrame=null;
+// Eventos calculados por distancia recorrida sobre los tramos reales del SVG.
 const wormEvents=[
- [{t:.14,name:'R1',kind:'resistor'},{t:.47,name:'R3',kind:'resistor'},{t:.63,name:'U2',kind:'source',sign:-1},{t:.90,name:'U1',kind:'source',sign:1}],
- [{t:.18,name:'R4',kind:'resistor'},{t:.65,name:'R5',kind:'resistor'},{t:.86,name:'R3',kind:'resistor'},{t:.95,name:'U2',kind:'source',sign:1}],
- [{t:.38,name:'R5',kind:'resistor'},{t:.66,name:'U3',kind:'source',sign:-1},{t:.85,name:'R2',kind:'resistor'}]
+ [{name:'R1',kind:'resistor',x:203,y:135},{name:'R3',kind:'resistor',x:330,y:217},{name:'U2',kind:'source',sign:-1,x:330,y:292},{name:'U1',kind:'source',sign:1,x:95,y:229}],
+ [{name:'R4',kind:'resistor',x:437,y:135},{name:'R5',kind:'resistor',x:437,y:330},{name:'U2',kind:'source',sign:1,x:330,y:292},{name:'R3',kind:'resistor',x:330,y:217}],
+ [{name:'R5',kind:'resistor',x:437,y:330},{name:'U3',kind:'source',sign:-1,x:430,y:420},{name:'R2',kind:'resistor',x:203,y:420}]
 ];
+function routeFraction(route,point){
+ let traversed=0,total=0,found=null;
+ for(let i=0;i<route.length-1;i++){
+  const [ax,ay]=route[i],[bx,by]=route[i+1],dx=bx-ax,dy=by-ay,length=Math.hypot(dx,dy);
+  if(found===null){
+   const projection=((point.x-ax)*dx+(point.y-ay)*dy)/(length*length);
+   const t=Math.max(0,Math.min(1,projection));
+   if(projection>=0&&projection<=1&&Math.hypot(ax+dx*t-point.x,ay+dy*t-point.y)<2)found=traversed+length*t;
+  }
+  traversed+=length;total+=length;
+ }
+ if(found===null)throw Error('Elemento fuera de la trayectoria: '+point.name);
+ return found/total;
+}
+wormEvents.forEach((events,i)=>{for(const event of events)event.t=routeFraction(wormRoutes[i],event);events.sort((a,b)=>a.t-b.t);});
 let wormEventIndex=0,wormPauseUntil=0;
 const wormLayer=document.getElementById('wormLayer');
 function wormDraw(x,y,angle,victory=false,reaction=''){
@@ -83,9 +99,10 @@ function wormPlay(){
   const event=wormEvents[index][wormEventIndex];
   if(event&&fraction>=event.t){
    wormEventIndex++;wormPauseUntil=850;
+   elapsed=event.t*duration;
    const message=event.kind==='resistor'?'Resistencia '+event.name+': caída de tensión.':'Fuente '+event.name+': '+(event.sign>0?'subida':'bajada')+' de potencial según el recorrido.';
    status.textContent='Malla '+(index+1)+' · '+message;
-   wormDraw(x,y,angle,false,event.kind==='source'?(event.sign>0?'+':'−'):'');
+   wormDraw(event.x,event.y,angle,false,event.kind==='source'?(event.sign>0?'+':'−'):'');
    wormFrame=requestAnimationFrame(tick);return;
   }
   wormDraw(x,y,angle);
