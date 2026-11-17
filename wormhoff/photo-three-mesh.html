@@ -13,7 +13,7 @@
 <g class="name" text-anchor="middle"><text x="203" y="109">R1</text><text x="437" y="109">R4</text><text x="366" y="224">R3</text><text x="437" y="304">R5</text><text x="203" y="394">R2</text><text x="58" y="219">U1</text><text x="291" y="281">U2</text><text x="440" y="458">U3</text><text x="125" y="222">+</text><text x="125" y="247">−</text><text x="360" y="284">+</text><text x="360" y="312">−</text><text x="470" y="395">+</text><text x="393" y="395">−</text></g>
 <g class="node"><circle cx="330" cy="135" r="5"/><circle cx="330" cy="330" r="5"/><circle cx="95" cy="330" r="5"/><circle cx="555" cy="330" r="5"/></g>
 <g class="mesh" text-anchor="middle"><text data-mesh="0" x="210" y="245">M1 ↻</text><text data-mesh="1" x="448" y="245">M2 ↻</text><text data-mesh="2" x="330" y="390">M3 ↻</text></g>
-<g id="branchArrows"></g></svg><p class="branch-legend">Pulsa una flecha para invertir el sentido de referencia de la intensidad. Los valores se expresan con el signo correspondiente.</p><div class="guide"><h2>Recorrido guiado</h2><p id="guideTitle"></p><output id="guideText" aria-live="polite"></output><p class="actions"><button type="button" id="guideBack">Anterior</button><button type="button" id="guideNext">Siguiente</button><button type="button" id="guideRestart">Reiniciar recorrido</button></p></div><small>Esquema de prueba. Las fuentes se representan mediante placas de distinta longitud; la polaridad indicada prevalece para el cálculo.</small></section>
+<g id="branchArrows"></g></svg><p class="branch-legend">Pulsa una flecha para invertir el sentido de referencia de la intensidad. Los valores se expresan con el signo correspondiente.</p><div class="guide"><h2>Recorrido guiado</h2><p id="guideTitle"></p><output id="guideText" aria-live="polite"></output><div id="equationTask" hidden><p>Completa los coeficientes de M1, M2, M3 y el término independiente:</p><div class="controls" id="equationInputs"></div><p><button type="button" id="checkEquation">Comprobar ecuación</button></p><p id="equationFeedback" aria-live="polite"></p></div><p class="actions"><button type="button" id="guideBack">Anterior</button><button type="button" id="guideNext">Siguiente</button><button type="button" id="guideRestart">Reiniciar recorrido</button></p></div><small>Esquema de prueba. Las fuentes se representan mediante placas de distinta longitud; la polaridad indicada prevalece para el cálculo.</small></section>
 <section><h2>Valores de los elementos</h2><div class="controls" id="controls"></div><p><button id="solve">Resolver circuito</button> <button id="reset" type="button">Restaurar valores</button></p><p id="error" role="alert"></p><h2>Resolución</h2><output id="result" aria-live="polite"></output></section></main>
 <script type="module">
 import {photoTopology,photoSolve} from './photo-three-mesh.mjs';
@@ -44,6 +44,7 @@ const fmt=n=>Number(n.toFixed(3)).toLocaleString('es-ES',{maximumFractionDigits:
 function solve(){try{const R={},U={};for(const [id] of fields){const raw=document.getElementById(id).value;if(!raw.trim())throw Error('Introduce un valor para '+id);const value=Number(raw);if(!Number.isFinite(value))throw Error('Valor no válido: '+id);(id[0]==='R'?R:U)[id]=value;}const x=photoSolve(R,U);err.textContent='';const lines=['Ecuaciones de malla (A · M = b):',...x.A.map((row,i)=>row.map(fmt).join(' · ')+' | '+fmt(x.b[i])),'','Corrientes de malla:',...x.mesh.map((v,i)=>'M'+(i+1)+' = '+fmt(v)+' A'),'','Corrientes de rama:',...Object.entries(x.branches).map(([id,v])=>'I('+id+') = '+fmt(v*branchSigns[id])+' A'),'','Potencia disipada = '+fmt(x.resistorPower)+' W','Potencia suministrada neta = '+fmt(x.sourcePower)+' W'];out.textContent=lines.join('\n');}catch(e){err.textContent=e.message;out.textContent='';}}
 // Secuencia explicativa: no sustituye todavía la interacción jugable del motor principal.
 let guideStep=0;
+const verifiedEquations=new Set();
 const guideTitles=['Identificar las mallas','Ley de los nudos','Primera malla','Segunda malla','Tercera malla','Sistema matricial','Resultado y comprobación'];
 function values(){const R={},U={};for(const [id] of fields){const raw=document.getElementById(id).value;if(!raw.trim())throw Error('Introduce un valor para '+id);const value=Number(raw);if(!Number.isFinite(value))throw Error('Valor no válido: '+id);(id[0]==='R'?R:U)[id]=value;}return {R,U};}
 function guide(){
@@ -51,7 +52,7 @@ function guide(){
  title.textContent='Paso '+(guideStep+1)+' de '+guideTitles.length+' · '+guideTitles[guideStep];
  document.querySelectorAll('[data-mesh]').forEach(el=>el.classList.toggle('active',Number(el.dataset.mesh)===guideStep-2&&guideStep>=2&&guideStep<=4));
  document.getElementById('guideBack').disabled=guideStep===0;
- document.getElementById('guideNext').disabled=guideStep===guideTitles.length-1;
+ document.getElementById('guideNext').disabled=guideStep===guideTitles.length-1||(guideStep>=2&&guideStep<=4&&!verifiedEquations.has(guideStep-2));
  try{
   const {R,U}=values(),x=photoSolve(R,U),row=i=>x.A[i].map((v,j)=>fmt(v)+'·M'+(j+1)).join(' + ')+' = '+fmt(x.b[i]);
   const steps=[
@@ -64,11 +65,32 @@ function guide(){
    'M1 = '+fmt(x.mesh[0])+' A; M2 = '+fmt(x.mesh[1])+' A; M3 = '+fmt(x.mesh[2])+' A.\n'+Object.entries(x.branches).map(([id,v])=>'I('+id+') = '+fmt(v)+' A').join('\n')+'\nPotencias: '+fmt(x.resistorPower)+' W = '+fmt(x.sourcePower)+' W'
   ];
   body.textContent=steps[guideStep];err.textContent='';
+  const task=document.getElementById('equationTask'),inputs=document.getElementById('equationInputs');
+  task.hidden=guideStep<2||guideStep>4;
+  inputs.replaceChildren();
+  document.getElementById('equationFeedback').textContent=verifiedEquations.has(guideStep-2)?'Ecuación comprobada.':'';
+  if(!task.hidden)for(let j=0;j<4;j++){
+   const label=document.createElement('label');label.textContent=j<3?'M'+(j+1):'b';
+   const input=document.createElement('input');input.type='number';input.step='any';input.setAttribute('aria-label',j<3?'Coeficiente de M'+(j+1):'Término independiente');label.append(input);inputs.append(label);
+  }
  }catch(e){body.textContent='Corrige los valores de los elementos para continuar.';err.textContent=e.message;}
 }
+document.getElementById('checkEquation').addEventListener('click',()=>{
+ if(guideStep<2||guideStep>4)return;
+ const feedback=document.getElementById('equationFeedback');
+ try{
+  const {R,U}=values(),{A,b}=photoSolve(R,U),i=guideStep-2,expected=[...A[i],b[i]];
+  const inputs=[...document.querySelectorAll('#equationInputs input')];
+  if(inputs.some(el=>el.value.trim()===''))throw Error('Introduce los cuatro valores.');
+  const actual=inputs.map(el=>Number(el.value));
+  const correct=actual.every((v,j)=>Number.isFinite(v)&&Math.abs(v-expected[j])<1e-7*Math.max(1,Math.abs(expected[j])));
+  if(correct){verifiedEquations.add(i);feedback.textContent='Ecuación correcta. Puedes continuar.';document.getElementById('guideNext').disabled=false;}
+  else{verifiedEquations.delete(i);feedback.textContent='Revisa los signos y los coeficientes de las resistencias compartidas.';document.getElementById('guideNext').disabled=true;}
+ }catch(e){feedback.textContent=e.message;}
+});
 document.getElementById('guideBack').addEventListener('click',()=>{guideStep=Math.max(0,guideStep-1);guide();});
 document.getElementById('guideNext').addEventListener('click',()=>{guideStep=Math.min(guideTitles.length-1,guideStep+1);guide();});
-document.getElementById('guideRestart').addEventListener('click',()=>{guideStep=0;guide();});
-controls.addEventListener('input',guide);
-document.getElementById('solve').addEventListener('click',solve);document.getElementById('reset').addEventListener('click',()=>{for(const [id,,v] of fields)document.getElementById(id).value=v;solve();});drawBranchArrows();solve();guide();
+document.getElementById('guideRestart').addEventListener('click',()=>{guideStep=0;verifiedEquations.clear();guide();});
+controls.addEventListener('input',()=>{verifiedEquations.clear();guide();});
+document.getElementById('solve').addEventListener('click',solve);document.getElementById('reset').addEventListener('click',()=>{for(const [id,,v] of fields)document.getElementById(id).value=v;verifiedEquations.clear();solve();guide();});drawBranchArrows();solve();guide();
 </script></body></html>
