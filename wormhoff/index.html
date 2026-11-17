@@ -1815,7 +1815,10 @@
   function initExercises(){
     const sel=$('exerciseSelect');
     sel.innerHTML=topologyIds.map((id,index)=>{const ex=exercises.find(e=>e.id===id);if(!ex)throw new Error('Topología no encontrada: '+id);return `<option value="${id}">Tipo ${index+1}</option>`}).join('');
+    // Acceso provisional al prototipo; no se anuncia como nivel jugable.
+    sel.insertAdjacentHTML('beforeend','<option value="photo-5r3u-preview">Tipo 5 · Vista de prueba (3 mallas)</option>');
     sel.onchange=()=>{
+      if(sel.value==='photo-5r3u-preview'){window.location.assign('./photo-three-mesh.html');return;}
       const ex=exercises.find(e=>e.id===sel.value);
       if(!ex)return;
       // Invalidar cualquier animación anterior; reinicio inmediato.
