@@ -1,4 +1,5 @@
 import './verify-wormhoff-nodes-math.mjs';
+import './verify-wormhoff-three-mesh-photo.mjs';
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {readFileSync} from 'node:fs';
