@@ -728,6 +728,18 @@ for(const mobile of [false,true]){
  await page.selectOption('#exerciseSelect','fig237');
  assert.equal(await page.locator('#exerciseSelect option:checked').textContent(),'Tipo 3','La figura 2.37 sustituye a la figura 4.51');
  assert.deepEqual(await page.locator('#staticCircuit .resistor-value').allTextContents(),['4Ω','3Ω','2Ω'],'Valores originales de la figura 2.37');
+ assert.equal(await page.locator('#staticCircuit .component-source').count(),2,'La figura 2.37 tiene exactamente dos fuentes laterales');
+ assert.equal(await page.locator('#staticCircuit .component-resistor').count(),3,'La figura 2.37 tiene tres resistencias');
+ const geometry=await page.evaluate(()=>({
+   r0:document.querySelector('#resistorElement0').getBBox(),
+   r1:document.querySelector('#resistorElement1').getBBox(),
+   r2:document.querySelector('#resistorElement2').getBBox(),
+   s0:document.querySelector('#sourceElement0').getBBox(),
+   s2:document.querySelector('#sourceElement2').getBBox()
+ }));
+ assert(geometry.r0.y<geometry.r1.y&&geometry.r2.y<geometry.r1.y,'Resistencias superiores y central en sus posiciones correctas');
+ assert(geometry.s0.x<geometry.r1.x&&geometry.s2.x>geometry.r1.x,'Fuentes a izquierda y derecha');
+
  await page.click('#solveDirect');
  assert.equal(await page.locator('#componentValueDialog').isVisible(),false);
  await page.selectOption('#exerciseSelect','r73');await page.selectOption('#exerciseSelect','fig237');
