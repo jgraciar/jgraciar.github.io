@@ -754,8 +754,8 @@ for(const mobile of [false,true]){
  assert.equal(await page.locator('#staticCircuit .component-resistor').count(),3,'La figura 2.37 tiene tres resistencias');
  // Comprobar la posición del símbolo, no el getBBox del grupo con textos.
  const geometry=await page.evaluate(()=>({
-  resistors:[0,1,2].map(i=>document.querySelector('#resistorElement'+i+' .symbol').getBBox()),
-  sources:[0,2].map(i=>document.querySelector('#sourceElement'+i+' .source-plate').getBBox())
+  resistors:[0,1,2].map(i=>{const {x,y,width,height}=document.querySelector('#resistorElement'+i+' .symbol').getBBox();return {x,y,width,height};}),
+  sources:[0,2].map(i=>{const {x,y,width,height}=document.querySelector('#sourceElement'+i+' .source-plate').getBBox();return {x,y,width,height};})
  }));
  const centerY=r=>r.y+r.height/2;
  assert(Math.max(...geometry.resistors.map(centerY))-Math.min(...geometry.resistors.map(centerY))<1,'Resistencias de las tres ramas alineadas como en tipos 1 y 2: '+JSON.stringify(geometry));
