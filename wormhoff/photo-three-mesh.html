@@ -148,6 +148,22 @@ function solve(){try{const R={},U={};for(const [id] of fields){const raw=documen
 // Secuencia explicativa: no sustituye todavía la interacción jugable del motor principal.
 let guideStep=0;
 let demoEnabled=(()=>{try{return localStorage.getItem('wormhoff.demo')!=='false';}catch{return true;}})();
+// Sincronización del modo DEMO con el selector principal, incluso si se abre después.
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='wormhoff-demo')return;
+ demoEnabled=Boolean(event.data.enabled);
+ try{localStorage.setItem('wormhoff.demo',String(demoEnabled));}catch{}
+ document.getElementById('toggleDemo').setAttribute('aria-pressed',String(demoEnabled));
+ document.getElementById('toggleDemo').textContent='Modo demo: '+(demoEnabled?'activado':'desactivado');
+ guideNextState();
+});
+window.addEventListener('storage',event=>{
+ if(event.key!=='wormhoff.demo')return;
+ demoEnabled=event.newValue!=='false';
+ document.getElementById('toggleDemo').setAttribute('aria-pressed',String(demoEnabled));
+ document.getElementById('toggleDemo').textContent='Modo demo: '+(demoEnabled?'activado':'desactivado');
+ guideNextState();
+});
 const verifiedEquations=new Set();
 const selectedNodes=new Set();
 const kclVerified=new Set();
