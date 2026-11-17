@@ -14,7 +14,7 @@
 <g class="node"><circle cx="330" cy="135" r="5" class="pickable" data-node="A" tabindex="0" role="button" aria-label="Seleccionar nudo superior A"/><circle cx="330" cy="330" r="5" class="pickable" data-node="B" tabindex="0" role="button" aria-label="Seleccionar nudo central B"/><circle cx="95" cy="330" r="5" class="pickable" data-node="B" tabindex="0" role="button" aria-label="Seleccionar nudo central B"/><circle cx="555" cy="330" r="5" class="pickable" data-node="C" tabindex="0" role="button" aria-label="Seleccionar nudo derecho C"/></g>
 <g class="mesh" text-anchor="middle"><text data-mesh="0" x="210" y="245">M1 ↻</text><text data-mesh="1" x="448" y="245">M2 ↻</text><text data-mesh="2" x="330" y="390">M3 ↻</text></g>
 <g id="branchArrows"></g></svg><p class="branch-legend">Pulsa una flecha para invertir el sentido de referencia de la intensidad. Los valores se expresan con el signo correspondiente.</p><div class="guide"><h2>Recorrido guiado</h2><p id="guideTitle"></p><output id="guideText" aria-live="polite"></output><div id="nodeTask" hidden><p>Selecciona en el circuito los dos nudos donde se plantearán las ecuaciones de corrientes (A y C).</p><p id="nodeFeedback" aria-live="polite"></p><div id="kclBuilder" hidden><p id="kclPrompt"></p><div id="kclTerms"></div><p><strong id="kclPreview"></strong></p><button type="button" id="kclCheck">Comprobar nudo</button><p id="kclFeedback" aria-live="polite"></p></div></div><div id="equationTask" hidden><p>Completa los coeficientes de M1, M2, M3 y el término independiente:</p><div class="controls" id="equationInputs"></div><p><button type="button" id="checkEquation">Comprobar ecuación</button></p><p id="equationFeedback" aria-live="polite"></p></div><p class="actions"><button type="button" id="guideBack">Anterior</button><button type="button" id="guideNext">Siguiente</button><button type="button" id="guideRestart">Reiniciar recorrido</button></p></div><small>Esquema de prueba. Las fuentes se representan mediante placas de distinta longitud; la polaridad indicada prevalece para el cálculo.</small></section>
-<section><h2>Valores de los elementos</h2><div class="controls" id="controls"></div><p><button id="solve">Resolver circuito</button> <button id="reset" type="button">Restaurar valores</button></p><p id="error" role="alert"></p><h2>Resolución</h2><output id="result" aria-live="polite"></output></section></main>
+<section><h2>Valores de los elementos</h2><div class="controls" id="controls"></div><p><button type="button" id="toggleDemo" aria-pressed="false">Modo demo: desactivado</button></p><p><button id="solve">Resolver circuito</button> <button id="reset" type="button">Restaurar valores</button></p><p id="error" role="alert"></p><h2>Resolución</h2><output id="result" aria-live="polite"></output></section></main>
 <script type="module">
 import {photoTopology,photoSolve} from './photo-three-mesh.mjs';
 const controls=document.getElementById('controls'),out=document.getElementById('result'),err=document.getElementById('error');
@@ -35,7 +35,7 @@ function drawBranchArrows(){
   const line=document.createElementNS(ns,'line');line.setAttribute('x1',x-ux*19);line.setAttribute('y1',y-uy*19);line.setAttribute('x2',x+ux*19);line.setAttribute('y2',y+uy*19);group.append(line);
   const tip=document.createElementNS(ns,'path');const tx=x+ux*19,ty=y+uy*19;tip.setAttribute('d','M'+(tx-ux*10-uy*6)+' '+(ty-uy*10+ux*6)+' L'+tx+' '+ty+' L'+(tx-ux*10+uy*6)+' '+(ty-uy*10-ux*6));group.append(tip);
   const label=document.createElementNS(ns,'text');label.setAttribute('x',x+(dy?24:0));label.setAttribute('y',y+(dy?0:-12));label.setAttribute('text-anchor','middle');label.textContent='I'+id.slice(1);group.append(label);
-  const toggle=()=>{branchSigns[id]*=-1;kclVerified.clear();drawBranchArrows();solve();guide();};
+  const toggle=()=>{branchSigns[id]*=-1;kclVerified.clear();drawBranchArrows();if(!out.hidden)solve();guide();};
   group.addEventListener('click',toggle);group.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle();}});
   root.append(group);
  }
@@ -44,6 +44,7 @@ const fmt=n=>Number(n.toFixed(3)).toLocaleString('es-ES',{maximumFractionDigits:
 function solve(){try{const R={},U={};for(const [id] of fields){const raw=document.getElementById(id).value;if(!raw.trim())throw Error('Introduce un valor para '+id);const value=Number(raw);if(!Number.isFinite(value))throw Error('Valor no válido: '+id);(id[0]==='R'?R:U)[id]=value;}const x=photoSolve(R,U);err.textContent='';const lines=['Ecuaciones de malla (A · M = b):',...x.A.map((row,i)=>row.map(fmt).join(' · ')+' | '+fmt(x.b[i])),'','Corrientes de malla:',...x.mesh.map((v,i)=>'M'+(i+1)+' = '+fmt(v)+' A'),'','Corrientes de rama:',...Object.entries(x.branches).map(([id,v])=>'I('+id+') = '+fmt(v*branchSigns[id])+' A'),'','Potencia disipada = '+fmt(x.resistorPower)+' W','Potencia suministrada neta = '+fmt(x.sourcePower)+' W'];out.textContent=lines.join('\n');}catch(e){err.textContent=e.message;out.textContent='';}}
 // Secuencia explicativa: no sustituye todavía la interacción jugable del motor principal.
 let guideStep=0;
+let demoEnabled=false;
 const verifiedEquations=new Set();
 const selectedNodes=new Set();
 const kclVerified=new Set();
@@ -54,10 +55,12 @@ const kclNatural={A:{R1:'entra',R3:'sale',R4:'sale'},C:{R4:'entra',R5:'sale',R2:
 function kclExpected(node,id){const natural=kclNatural[node][id];return branchSigns[id]===1?natural:(natural==='entra'?'sale':'entra');}
 function renderKcl(){
  const builder=document.getElementById('kclBuilder');
- builder.hidden=guideStep!==1||!selectedNodes.has('A')||!selectedNodes.has('C');
+ builder.hidden=demoEnabled||guideStep!==1||!selectedNodes.has('A')||!selectedNodes.has('C');
  if(builder.hidden)return;
  if(kclVerified.has('A')&&kclActive==='A')kclActive='C';
  document.getElementById('kclPrompt').textContent='Nudo '+kclActive+': asigna cada intensidad al lado correspondiente de la igualdad.';
+ const switcher=document.createElement('button');switcher.type='button';switcher.textContent='Cambiar al nudo '+(kclActive==='A'?'C':'A');switcher.addEventListener('click',()=>{kclActive=kclActive==='A'?'C':'A';renderKcl();});
+ const prompt=document.getElementById('kclPrompt');prompt.replaceChildren(document.createTextNode('Nudo '+kclActive+': asigna las intensidades. '),switcher);
  const terms=document.getElementById('kclTerms');terms.replaceChildren();
  for(const id of kclBranches[kclActive]){
   const wrap=document.createElement('p');wrap.textContent='I'+id.slice(1)+' ';
@@ -76,7 +79,7 @@ function renderKcl(){
  document.getElementById('kclFeedback').textContent='Nudos comprobados: '+([...kclVerified].join(', ')||'ninguno');
 }
 function guideNextState(){
- document.getElementById('guideNext').disabled=guideStep===guideTitles.length-1||(guideStep===1&&!(kclVerified.has('A')&&kclVerified.has('C')))||(guideStep>=2&&guideStep<=4&&!verifiedEquations.has(guideStep-2));
+ document.getElementById('guideNext').disabled=guideStep===guideTitles.length-1||(!demoEnabled&&((guideStep===1&&!(kclVerified.has('A')&&kclVerified.has('C')))||(guideStep>=2&&guideStep<=4&&!verifiedEquations.has(guideStep-2))));
 }
 const guideTitles=['Identificar las mallas','Ley de los nudos','Primera malla','Segunda malla','Tercera malla','Sistema matricial','Resultado y comprobación'];
 function values(){const R={},U={};for(const [id] of fields){const raw=document.getElementById(id).value;if(!raw.trim())throw Error('Introduce un valor para '+id);const value=Number(raw);if(!Number.isFinite(value))throw Error('Valor no válido: '+id);(id[0]==='R'?R:U)[id]=value;}return {R,U};}
@@ -86,7 +89,7 @@ function guide(){
  document.querySelectorAll('[data-mesh]').forEach(el=>el.classList.toggle('active',Number(el.dataset.mesh)===guideStep-2&&guideStep>=2&&guideStep<=4));
  document.getElementById('guideBack').disabled=guideStep===0;
  guideNextState();
- document.getElementById('nodeTask').hidden=guideStep!==1;
+ document.getElementById('nodeTask').hidden=demoEnabled||guideStep!==1;
  document.querySelectorAll('[data-node]').forEach(el=>{el.classList.toggle('selected',guideStep===1&&selectedNodes.has(el.dataset.node));el.setAttribute('aria-pressed',String(selectedNodes.has(el.dataset.node)));});
  document.getElementById('nodeFeedback').textContent=guideStep===1?'Nudos seleccionados: '+([...selectedNodes].join(', ')||'ninguno'):'';
  renderKcl();
@@ -95,15 +98,15 @@ function guide(){
   const steps=[
    'Hay tres mallas independientes: M1 (superior izquierda), M2 (superior derecha) y M3 (inferior). Se elige sentido horario para las tres. Las intensidades negativas tendrán sentido real contrario.',
    'Selecciona los nudos A y C y construye sus ecuaciones asignando las intensidades que entran y salen. Las flechas determinan el sentido de referencia.',
-   'M1: R1·M1 + R3·(M1−M2) = U1−U2\n'+(verifiedEquations.has(0)?row(0):'Completa los coeficientes para comprobar la ecuación.'),
-   'M2: R4·M2 + R5·(M2−M3) − R3·(M1−M2) = U2\n'+(verifiedEquations.has(1)?row(1):'Completa los coeficientes para comprobar la ecuación.'),
-   'M3: R2·M3 − R5·(M2−M3) = −U3\n'+(verifiedEquations.has(2)?row(2):'Completa los coeficientes para comprobar la ecuación.'),
+   'M1: R1·M1 + R3·(M1−M2) = U1−U2\n'+((demoEnabled||verifiedEquations.has(0))?row(0):'Completa los coeficientes para comprobar la ecuación.'),
+   'M2: R4·M2 + R5·(M2−M3) − R3·(M1−M2) = U2\n'+((demoEnabled||verifiedEquations.has(1))?row(1):'Completa los coeficientes para comprobar la ecuación.'),
+   'M3: R2·M3 − R5·(M2−M3) = −U3\n'+((demoEnabled||verifiedEquations.has(2))?row(2):'Completa los coeficientes para comprobar la ecuación.'),
    'A · M = b\n'+x.A.map((a,i)=>'['+a.map(fmt).join(', ')+']  ['+fmt(x.b[i])+']').join('\n'),
    'M1 = '+fmt(x.mesh[0])+' A; M2 = '+fmt(x.mesh[1])+' A; M3 = '+fmt(x.mesh[2])+' A.\n'+Object.entries(x.branches).map(([id,v])=>'I('+id+') = '+fmt(v)+' A').join('\n')+'\nPotencias: '+fmt(x.resistorPower)+' W = '+fmt(x.sourcePower)+' W'
   ];
   body.textContent=steps[guideStep];err.textContent='';
   const task=document.getElementById('equationTask'),inputs=document.getElementById('equationInputs');
-  task.hidden=guideStep<2||guideStep>4;
+  task.hidden=demoEnabled||guideStep<2||guideStep>4;
   inputs.replaceChildren();
   document.getElementById('equationFeedback').textContent=verifiedEquations.has(guideStep-2)?'Ecuación comprobada.':'';
   if(!task.hidden)for(let j=0;j<4;j++){
@@ -149,5 +152,12 @@ document.getElementById('guideBack').addEventListener('click',()=>{guideStep=Mat
 document.getElementById('guideNext').addEventListener('click',()=>{guideStep=Math.min(guideTitles.length-1,guideStep+1);guide();});
 document.getElementById('guideRestart').addEventListener('click',()=>{guideStep=0;verifiedEquations.clear();selectedNodes.clear();kclVerified.clear();kclActive='A';for(const id of ['A','C'])kclAssignments[id]={};guide();});
 controls.addEventListener('input',()=>{verifiedEquations.clear();guide();});
-document.getElementById('solve').addEventListener('click',solve);document.getElementById('reset').addEventListener('click',()=>{for(const [id,,v] of fields)document.getElementById(id).value=v;verifiedEquations.clear();solve();guide();});drawBranchArrows();solve();guide();
+document.getElementById('toggleDemo').addEventListener('click',()=>{
+ demoEnabled=!demoEnabled;
+ const btn=document.getElementById('toggleDemo');
+ btn.textContent='Modo demo: '+(demoEnabled?'activado':'desactivado');
+ btn.setAttribute('aria-pressed',String(demoEnabled));
+ guide();
+});
+document.getElementById('solve').addEventListener('click',()=>{out.hidden=false;solve();});document.getElementById('reset').addEventListener('click',()=>{for(const [id,,v] of fields)document.getElementById(id).value=v;verifiedEquations.clear();out.hidden=true;guide();});drawBranchArrows();out.hidden=true;guide();
 </script></body></html>
