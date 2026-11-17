@@ -13,7 +13,7 @@
 <g class="name" text-anchor="middle"><text x="203" y="109">R1</text><text x="437" y="109">R4</text><text x="366" y="224">R3</text><text x="437" y="304">R5</text><text x="203" y="394">R2</text><text x="58" y="219">U1</text><text x="291" y="281">U2</text><text x="440" y="458">U3</text><text x="125" y="222">+</text><text x="125" y="247">−</text><text x="360" y="284">+</text><text x="360" y="312">−</text><text x="470" y="395">+</text><text x="393" y="395">−</text></g>
 <g class="node"><circle cx="330" cy="135" r="5" class="pickable" data-node="A" tabindex="0" role="button" aria-label="Seleccionar nudo superior A"/><circle cx="330" cy="330" r="5" class="pickable" data-node="B" tabindex="0" role="button" aria-label="Seleccionar nudo central B"/><circle cx="95" cy="330" r="5" class="pickable" data-node="B" tabindex="0" role="button" aria-label="Seleccionar nudo central B"/><circle cx="555" cy="330" r="5" class="pickable" data-node="C" tabindex="0" role="button" aria-label="Seleccionar nudo derecho C"/></g>
 <g class="mesh" text-anchor="middle"><text data-mesh="0" x="210" y="245">M1 ↻</text><text data-mesh="1" x="448" y="245">M2 ↻</text><text data-mesh="2" x="330" y="390">M3 ↻</text></g>
-<g id="branchArrows"></g><g id="wormLayer" aria-hidden="true"></g></svg><p class="branch-legend">Pulsa una flecha para invertir el sentido de referencia de la intensidad. Los valores se expresan con el signo correspondiente.</p><p class="actions"><button type="button" id="wormPlay">Reproducir recorrido</button><button type="button" id="wormReset">Reiniciar gusano</button></p><div class="guide"><h2>Recorrido guiado</h2><p id="guideTitle"></p><output id="guideText" aria-live="polite"></output><div id="nodeTask" hidden><p>Selecciona en el circuito los dos nudos donde se plantearán las ecuaciones de corrientes (A y C).</p><p id="nodeFeedback" aria-live="polite"></p><div id="kclBuilder" hidden><p id="kclPrompt"></p><div id="kclTerms"></div><p><strong id="kclPreview"></strong></p><button type="button" id="kclCheck">Comprobar nudo</button><p id="kclFeedback" aria-live="polite"></p></div></div><div id="equationTask" hidden><p>Completa los coeficientes de M1, M2, M3 y el término independiente:</p><div class="controls" id="equationInputs"></div><p><button type="button" id="checkEquation">Comprobar ecuación</button></p><p id="equationFeedback" aria-live="polite"></p></div><p class="actions"><button type="button" id="guideBack">Anterior</button><button type="button" id="guideNext">Siguiente</button><button type="button" id="guideRestart">Reiniciar recorrido</button></p></div><small>Esquema de prueba. Las fuentes se representan mediante placas de distinta longitud; la polaridad indicada prevalece para el cálculo.</small></section>
+<g id="branchArrows"></g><g id="wormLayer" aria-hidden="true"></g></svg><p class="branch-legend">Pulsa una flecha para invertir el sentido de referencia de la intensidad. Los valores se expresan con el signo correspondiente.</p><p class="actions"><button type="button" id="wormPlay">Reproducir recorrido</button><button type="button" id="wormReset">Reiniciar gusano</button></p><p id="wormStatus" aria-live="polite">Recorrido preparado.</p><div class="guide"><h2>Recorrido guiado</h2><p id="guideTitle"></p><output id="guideText" aria-live="polite"></output><div id="nodeTask" hidden><p>Selecciona en el circuito los dos nudos donde se plantearán las ecuaciones de corrientes (A y C).</p><p id="nodeFeedback" aria-live="polite"></p><div id="kclBuilder" hidden><p id="kclPrompt"></p><div id="kclTerms"></div><p><strong id="kclPreview"></strong></p><button type="button" id="kclCheck">Comprobar nudo</button><p id="kclFeedback" aria-live="polite"></p></div></div><div id="equationTask" hidden><p>Completa los coeficientes de M1, M2, M3 y el término independiente:</p><div class="controls" id="equationInputs"></div><p><button type="button" id="checkEquation">Comprobar ecuación</button></p><p id="equationFeedback" aria-live="polite"></p></div><p class="actions"><button type="button" id="guideBack">Anterior</button><button type="button" id="guideNext">Siguiente</button><button type="button" id="guideRestart">Reiniciar recorrido</button></p></div><small>Esquema de prueba. Las fuentes se representan mediante placas de distinta longitud; la polaridad indicada prevalece para el cálculo.</small></section>
 <section><h2>Valores de los elementos</h2><div class="controls" id="controls"></div><p><button type="button" id="toggleDemo" aria-pressed="false">Modo demo: desactivado</button></p><p><button id="solve">Resolver circuito</button> <button id="reset" type="button">Restaurar valores</button></p><p id="error" role="alert"></p><h2>Resolución</h2><output id="result" aria-live="polite"></output></section></main>
 <script type="module">
 import {photoTopology,photoSolve} from './photo-three-mesh.mjs';
@@ -47,35 +47,60 @@ const wormRoutes=[
  [[95,330],[555,330],[555,420],[95,420],[95,330]]
 ];
 let wormToken=0,wormFrame=null;
+const wormEvents=[
+ [{t:.14,name:'R1',kind:'resistor'},{t:.47,name:'R3',kind:'resistor'},{t:.63,name:'U2',kind:'source',sign:-1},{t:.90,name:'U1',kind:'source',sign:1}],
+ [{t:.18,name:'R4',kind:'resistor'},{t:.65,name:'R5',kind:'resistor'},{t:.86,name:'R3',kind:'resistor'},{t:.95,name:'U2',kind:'source',sign:1}],
+ [{t:.38,name:'R5',kind:'resistor'},{t:.66,name:'U3',kind:'source',sign:-1},{t:.85,name:'R2',kind:'resistor'}]
+];
+let wormEventIndex=0,wormPauseUntil=0;
 const wormLayer=document.getElementById('wormLayer');
-function wormDraw(x,y,angle,victory=false){
+function wormDraw(x,y,angle,victory=false,reaction=''){
  const ux=Math.cos(angle),uy=Math.sin(angle);
  const arrow=[[x+ux*20,y+uy*20],[x+ux*9-uy*7,y+uy*9+ux*7],[x+ux*9+uy*7,y+uy*9-ux*7]];
- wormLayer.innerHTML='<circle class="worm-body" cx="'+(x-ux*20)+'" cy="'+(y-uy*20)+'" r="11"/><circle class="worm-body" cx="'+(x-ux*10)+'" cy="'+(y-uy*10)+'" r="13"/><circle class="worm-head" cx="'+x+'" cy="'+y+'" r="16"/><circle class="worm-eye" cx="'+(x-uy*6+ux*5)+'" cy="'+(y+ux*6+uy*5)+'" r="2.6"/><circle class="worm-eye" cx="'+(x+uy*6+ux*5)+'" cy="'+(y-ux*6+uy*5)+'" r="2.6"/><polygon class="worm-arrow" points="'+arrow.map(p=>p.join(',')).join(' ')+'"/>'+(victory?'<path d="M'+(x-11)+' '+(y-4)+' h22" stroke="#1b293a" stroke-width="6"/><path d="M'+(x-15)+' '+(y+19)+' l30 -10 M'+(x+15)+' '+(y+19)+' l-30 -10" stroke="#315c27" stroke-width="4"/>':'');
+ wormLayer.innerHTML='<circle class="worm-body" cx="'+(x-ux*20)+'" cy="'+(y-uy*20)+'" r="11"/><circle class="worm-body" cx="'+(x-ux*10)+'" cy="'+(y-uy*10)+'" r="13"/><circle class="worm-head" cx="'+x+'" cy="'+y+'" r="16"/><circle class="worm-eye" cx="'+(x-uy*6+ux*5)+'" cy="'+(y+ux*6+uy*5)+'" r="2.6"/><circle class="worm-eye" cx="'+(x+uy*6+ux*5)+'" cy="'+(y-ux*6+uy*5)+'" r="2.6"/><polygon class="worm-arrow" points="'+arrow.map(p=>p.join(',')).join(' ')+'"/>'+(reaction?'<text x="'+(x+22)+'" y="'+(y-23)+'" fill="'+(reaction==='+'?'#187f3d':'#b23528')+'" font-size="21" font-weight="bold">'+reaction+'</text>':'')+(victory?'<path d="M'+(x-11)+' '+(y-4)+' h22" stroke="#1b293a" stroke-width="6"/><path d="M'+(x-15)+' '+(y+19)+' l30 -10 M'+(x+15)+' '+(y+19)+' l-30 -10" stroke="#315c27" stroke-width="4"/>':'');
 }
 function wormStop(){wormToken++;if(wormFrame!==null)cancelAnimationFrame(wormFrame);wormFrame=null;document.getElementById('wormPlay').disabled=false;}
 function wormPlay(){
- wormStop();const token=wormToken,button=document.getElementById('wormPlay');button.disabled=true;
- const routes=wormRoutes.map(route=>route.map(([x,y])=>({x,y})));
- let index=0,start=null;const duration=4200;
+ wormStop();
+ const token=wormToken,button=document.getElementById('wormPlay'),status=document.getElementById('wormStatus');
+ button.disabled=true;
+ let index=0,start=null,lastTime=null,elapsed=0;
+ wormEventIndex=0;wormPauseUntil=0;
+ const duration=4800;
  function tick(now){
   if(token!==wormToken)return;
+  if(lastTime===null)lastTime=now;
+  const delta=Math.min(100,now-lastTime);lastTime=now;
   if(start===null)start=now;
-  const route=routes[index],lengths=route.slice(1).map((p,i)=>Math.hypot(p.x-route[i].x,p.y-route[i].y)),total=lengths.reduce((a,b)=>a+b,0);
-  let distance=Math.min(1,(now-start)/duration)*total,segment=0;
+  if(wormPauseUntil>0){wormPauseUntil-=delta;if(wormPauseUntil>0){wormFrame=requestAnimationFrame(tick);return;}wormPauseUntil=0;}
+  elapsed+=delta;
+  const route=wormRoutes[index],lengths=route.slice(1).map((p,i)=>Math.hypot(p[0]-route[i][0],p[1]-route[i][1])),total=lengths.reduce((a,b)=>a+b,0);
+  const fraction=Math.min(1,elapsed/duration);
+  let distance=fraction*total,segment=0;
   while(segment<lengths.length-1&&distance>lengths[segment]){distance-=lengths[segment];segment++;}
   const a=route[segment],b=route[segment+1],t=distance/lengths[segment];
-  wormDraw(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,Math.atan2(b.y-a.y,b.x-a.x));
-  if(now-start>=duration){
-   index++;start=now;
-   if(index===routes.length){wormDraw(325,390,0,true);button.disabled=false;wormFrame=null;return;}
+  const x=a[0]+(b[0]-a[0])*t,y=a[1]+(b[1]-a[1])*t,angle=Math.atan2(b[1]-a[1],b[0]-a[0]);
+  const event=wormEvents[index][wormEventIndex];
+  if(event&&fraction>=event.t){
+   wormEventIndex++;wormPauseUntil=850;
+   const message=event.kind==='resistor'?'Resistencia '+event.name+': caída de tensión.':'Fuente '+event.name+': '+(event.sign>0?'subida':'bajada')+' de potencial según el recorrido.';
+   status.textContent='Malla '+(index+1)+' · '+message;
+   wormDraw(x,y,angle,false,event.kind==='source'?(event.sign>0?'+':'−'):'');
+   wormFrame=requestAnimationFrame(tick);return;
+  }
+  wormDraw(x,y,angle);
+  if(fraction>=1){
+   index++;elapsed=0;wormEventIndex=0;
+   if(index===wormRoutes.length){wormDraw(325,390,0,true);status.textContent='Recorrido completado: tres mallas. El gusano celebra la resolución.';button.disabled=false;wormFrame=null;return;}
+   status.textContent='Comienza la malla '+(index+1)+'.';
   }
   wormFrame=requestAnimationFrame(tick);
  }
+ status.textContent='Comienza la malla 1.';
  wormFrame=requestAnimationFrame(tick);
 }
 document.getElementById('wormPlay').addEventListener('click',wormPlay);
-document.getElementById('wormReset').addEventListener('click',()=>{wormStop();wormLayer.replaceChildren();});
+document.getElementById('wormReset').addEventListener('click',()=>{wormStop();wormLayer.replaceChildren();document.getElementById('wormStatus').textContent='Recorrido preparado.';});
 const fmt=n=>Number(n.toFixed(3)).toLocaleString('es-ES',{maximumFractionDigits:3});
 function solve(){try{const R={},U={};for(const [id] of fields){const raw=document.getElementById(id).value;if(!raw.trim())throw Error('Introduce un valor para '+id);const value=Number(raw);if(!Number.isFinite(value))throw Error('Valor no válido: '+id);(id[0]==='R'?R:U)[id]=value;}const x=photoSolve(R,U);err.textContent='';const lines=['Ecuaciones de malla (A · M = b):',...x.A.map((row,i)=>row.map(fmt).join(' · ')+' | '+fmt(x.b[i])),'','Corrientes de malla:',...x.mesh.map((v,i)=>'M'+(i+1)+' = '+fmt(v)+' A'),'','Corrientes de rama:',...Object.entries(x.branches).map(([id,v])=>'I('+id+') = '+fmt(v*branchSigns[id])+' A'),'','Potencia disipada = '+fmt(x.resistorPower)+' W','Potencia suministrada neta = '+fmt(x.sourcePower)+' W'];out.textContent=lines.join('\n');}catch(e){err.textContent=e.message;out.textContent='';}}
 // Secuencia explicativa: no sustituye todavía la interacción jugable del motor principal.
