@@ -13,12 +13,8 @@ assert(existsSync(source)&&existsSync(portal),
   "Faltan el juego Wormhoff o la portada del sitio generado");
 mkdirSync(join(site,"wormhoff"),{recursive:true});
 cpSync(source,destination);
-// El modo topológico importa su motor como módulo ES: ambos ficheros deben publicarse juntos.
-for(const filename of ["topologias.html","topology.mjs"]){
-  const asset=join(repo,"wormhoff",filename);
-  assert(existsSync(asset),"Falta el recurso de Wormhoff: "+filename);
-  cpSync(asset,join(site,"wormhoff",filename));
-}
+// La selección de topologías y su lógica están integradas en wormhoff/index.html.
+// No exigir recursos independientes que ya no forman parte de la aplicación.
 let index=readFileSync(portal,"utf8");
 const href='href="./wormhoff/"';
 if(!index.includes(href)){
@@ -30,7 +26,6 @@ if(!index.includes(href)){
   index=index.replace(marker,card+marker);
   writeFileSync(portal,index);
 }
-assert(["topologias.html","topology.mjs"].every(name=>existsSync(join(site,"wormhoff",name))),"Faltan recursos del modo topológico publicado");
 assert(existsSync(destination)&&readFileSync(destination,"utf8").includes("Wormhoff")&&
   readFileSync(portal,"utf8").includes(href),
   "No se ha publicado o enlazado Wormhoff");
