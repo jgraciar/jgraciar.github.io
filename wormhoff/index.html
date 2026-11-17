@@ -1246,7 +1246,7 @@
   const topologyIds=['base','r73','fig237','r76'];
   const topologyLabel=exercise=>exercise.kind==='multi'?'3 mallas · 5 fuentes · 6 resistencias':exercise.id==='f451'?'2 mallas · 3 fuentes · 4 resistencias':exercise.id==='r73'?'2 mallas · 3 fuentes · 3 resistencias':'2 mallas · 2 fuentes · 3 resistencias';
   let active=exercises[0];
-  let demoEnabled=true;
+  let demoEnabled=(()=>{try{const saved=localStorage.getItem('wormhoff.demo');return saved===null?true:saved==='true';}catch{return true;}})();
   const difficulty=()=>demoEnabled?0:2;
   function updateDemoButton(){
     const enabled=demoEnabled;
@@ -1830,6 +1830,7 @@
     };
     $('toggleDemo').addEventListener('click',()=>{
       demoEnabled=!demoEnabled;
+      try{localStorage.setItem('wormhoff.demo',String(demoEnabled));}catch{}
       updateDemoButton();
       if(active.kind==='multi')sixCancel();
       newGame(true);
