@@ -15,27 +15,16 @@ export const photoTopology={
   [0,1,0,0,-1]
  ]
 };
-export function photoSystem(R=photoTopology.defaultR,U=photoTopology.defaultU){
- const {incidence,resistors}=photoTopology;
- for(const id of resistors)if(!Number.isFinite(R[id])||R[id]<=0)throw Error('Resistencia no válida: '+id);
+import {meshSystem,solveMeshCircuit} from './mesh-engine.mjs';
+function config(R,U){
  for(const id of photoTopology.sources)if(!Number.isFinite(U[id]))throw Error('Fuente no válida: '+id);
- const A=incidence.map(row=>incidence.map(other=>row.reduce((sum,sign,j)=>sum+sign*other[j]*R[resistors[j]],0)));
- return {A,b:[U.U1-U.U2,U.U2,-U.U3]};
+ return {incidence:photoTopology.incidence,resistors:photoTopology.resistors,resistance:R,sourceTerms:[U.U1-U.U2,U.U2,-U.U3]};
+}
+export function photoSystem(R=photoTopology.defaultR,U=photoTopology.defaultU){
+ return meshSystem(config(R,U));
 }
 export function photoSolve(R=photoTopology.defaultR,U=photoTopology.defaultU){
- const {A,b}=photoSystem(R,U);
- const n=3,m=A.map((row,i)=>[...row,b[i]]);
- for(let k=0;k<n;k++){
-  let pivot=k;for(let i=k+1;i<n;i++)if(Math.abs(m[i][k])>Math.abs(m[pivot][k]))pivot=i;
-  if(Math.abs(m[pivot][k])<1e-12)throw Error('Sistema singular');
-  [m[k],m[pivot]]=[m[pivot],m[k]];
-  const d=m[k][k];for(let j=k;j<=n;j++)m[k][j]/=d;
-  for(let i=0;i<n;i++)if(i!==k){const f=m[i][k];for(let j=k;j<=n;j++)m[i][j]-=f*m[k][j];}
- }
- const mesh=m.map(row=>row[n]);
- const branches=Object.fromEntries(photoTopology.resistors.map((id,j)=>[id,photoTopology.incidence.reduce((sum,row,k)=>sum+row[j]*mesh[k],0)]));
- const residual=A.map((row,i)=>row.reduce((sum,v,k)=>sum+v*mesh[k],0)-b[i]);
- const resistorPower=photoTopology.resistors.reduce((sum,id)=>sum+R[id]*branches[id]**2,0);
- const sourcePower=U.U1*branches.R1-U.U2*branches.R3-U.U3*branches.R2;
- return {A,b,mesh,branches,residual,resistorPower,sourcePower};
+ const result=solveMeshCircuit(config(R,U));
+ const sourcePower=U.U1*result.branches.R1-U.U2*result.branches.R3-U.U3*result.branches.R2;
+ return {...result,sourcePower};
 }
