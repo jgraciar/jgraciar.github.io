@@ -586,7 +586,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  });
  assert.equal(reaction.face.name,'heroJoy');assert.equal(reaction.mouth.name,'heroLaugh');assert.equal(reaction.term.name,'termBlink');assert.equal(reaction.arrow.name,'arrowBlink');
  const signature={blink,reaction};if(animationReference)assert.deepEqual(signature,animationReference,'Parpadeos y gestos idénticos en móvil/escritorio y movimiento reducido');else animationReference=signature;
- await page.selectOption('#exerciseSelect','r76');await assignNumbers([1,2,3,4,5,6]);
+ await page.selectOption('#exerciseSelect','r76');if(await page.locator('#toggleDemo').getAttribute('aria-pressed')==='true')await page.click('#toggleDemo');await assignNumbers([1,2,3,4,5,6]);
  for(const i of [0,1,2,3,4,5]){
   const {x,y}=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   const sel='#sixCurrentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente avanzada '+i);await tap(x,y);assert.equal(await arrow(sel),before);
@@ -675,6 +675,20 @@ for(const mobile of [false,true]){
  const context=await browser.newContext({viewport:mobile?{width:430,height:932}:{width:1440,height:1100},isMobile:mobile,hasTouch:mobile});
  const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
  await page.goto('http://127.0.0.1:8767/wormhoff/');
+ // DEMO conserva el estado y su comportamiento al cargar cualquier otro tipo.
+ for(const enabled of [true,false]){
+  if((await page.locator('#toggleDemo').getAttribute('aria-pressed')==='true')!==enabled)await page.click('#toggleDemo');
+  for(const type of ['base','r73','f451','r76']){
+   await page.selectOption('#exerciseSelect',type);
+   assert.equal(await page.locator('#toggleDemo').getAttribute('aria-pressed'),String(enabled),'Estado global al cargar '+type);
+   assert.equal(await page.locator('#toggleDemo .demo-state').textContent(),enabled?'ON':'OFF');
+   await page.locator('[data-current-branch="0"]').dispatchEvent('click');
+   assert.equal(await page.locator('#currentNameDialog').isVisible(),!enabled,'Numeración según DEMO en '+type);
+   if(enabled)assert.equal(await page.locator(type==='r76'?'#sixCurrentArrow0 .dirlabel':'#currentArrow0 .dirlabel').textContent(),'I₁');
+   else await page.click('#cancelCurrentName');
+  }
+ }
+ await page.selectOption('#exerciseSelect','base');await page.click('#toggleDemo');
  const number=text=>Number(text.replace(/[−]/g,'-').replace(/\s*A$/,'').replace(',','.'));
  const assertResults=async(expected,six=false)=>{
   assert(await page.locator(six?'#advResultPanel':'#resultPanel').isVisible());
