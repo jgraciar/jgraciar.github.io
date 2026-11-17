@@ -677,7 +677,7 @@ for(const mobile of [false,true]){
  await page.route('**/wormhoff/',async route=>{
   const response=await route.fetch(),html=await response.text(),marker='  newGame();syncBoardActions();';
   assert(html.includes(marker),'Inicialización del circuito accesible');
-  await route.fulfill({response,body:html.replace(marker,'  globalThis.wormhoffRouteTest={getBranches:()=>BRANCHES.map(b=>b.map(p=>({...p}))),getRoute:(loop,cw)=>createRoute(loop,cw)};\\n'+marker)});
+  await route.fulfill({response,body:html.replace(marker,'  globalThis.wormhoffRouteTest={getBranches:()=>BRANCHES.map(b=>b.map(p=>({...p}))),getRoute:(loop,cw)=>createRoute(loop,cw)};\n'+marker)});
  });
  await page.goto('http://127.0.0.1:8767/wormhoff/');
  // DEMO conserva el estado y su comportamiento al cargar cualquier otro tipo.
