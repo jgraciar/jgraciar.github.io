@@ -1717,6 +1717,26 @@
   }
   function drawBoard(){
     const parts=[];
+    if(active.id==='fig237'){
+      // Figura 2.37: dos resistencias en los tramos superiores y una
+      // resistencia vertical central; dos fuentes en las ramas exteriores.
+      const wire=d=>'<path class="wire" d="'+d+'"/>';
+      parts.push(wire('M146 74 H218 M272 74 H318 M372 74 H518 M570 74 H594 V132 M594 141 V360 H146 V141 M146 132 V74 M345 74 V208 M345 262 V360'));
+      parts.push('<g class="component-resistor" id="resistorElement0">'+resistorSymbol(245,74,false,R[0],'R1')+'</g>');
+      parts.push('<g class="component-resistor" id="resistorElement1">'+resistorSymbol(345,235,true,R[1],'R2')+'</g>');
+      parts.push('<g class="component-resistor" id="resistorElement2">'+resistorSymbol(544,74,false,R[2],'R3')+'</g>');
+      for(const [i,x] of [[0,146],[2,594]]){
+        const e=E[i],pos=e>=0,big=pos?132:141,small=pos?141:132;
+        parts.push(`<g class="component-source" id="sourceElement${i}"><rect class="source-halo" x="${x-26}" y="126" width="52" height="22" rx="4" fill="transparent" stroke="transparent"/><path class="source-plate" d="M${x-22} ${big} H${x+22} M${x-10} ${small} H${x+10}"/><text class="txtsm" x="${x-34}" y="${pos?135:144}">+</text><text class="txtsm" x="${x-34}" y="${pos?146:135}">−</text><text class="component-value" x="${x+39}" y="141">${formatNumber(Math.abs(e))}V</text></g>`);
+      }
+      parts.push('<circle class="nod" cx="345" cy="74" r="5"/><circle class="nod" cx="345" cy="360" r="5"/><text class="txt" x="358" y="58">A</text><text class="txt" x="358" y="390">B</text>');
+      $('staticCircuit').innerHTML=parts.join('');decorateComponentValues();
+      $('boardTitle').textContent=topologyLabel(active);
+      $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
+      $('boardSummary').textContent='R: '+R.map(v=>formatNumber(v)+' Ω').join(' / ')+' · E: '+[E[0],E[2]].map(v=>formatNumber(Math.abs(v))+' V').join(' / ');
+      $('circuit').setAttribute('aria-label','Figura 2.37: dos mallas, resistencias superiores R1 y R3, resistencia central R2 y dos fuentes laterales');
+      return;
+    }
     if(active.id==='f451'){
       // Figura 4.51: rama izquierda E1–R1–R2; rama central E2–R3; rama derecha E3–R4.
       // Los nudos A y B son los extremos comunes de las tres ramas.
@@ -2277,6 +2297,14 @@
   // Las ramas exteriores incluyen los dos tramos horizontales hasta los nudos reales.
   let BRANCHES=[];
   function refreshBranches(){
+    if(active.id==='fig237'){
+      BRANCHES=[
+        [{x:345,y:360},{x:146,y:360},{x:146,y:136,component:'source'},{x:146,y:74},{x:245,y:74,component:'resistor',resistance:R[0],resistorId:'resistorElement0'},{x:345,y:74}],
+        [{x:345,y:360},{x:345,y:235,component:'resistor',resistance:R[1],resistorId:'resistorElement1'},{x:345,y:74}],
+        [{x:345,y:360},{x:594,y:360},{x:594,y:136,component:'source'},{x:594,y:74},{x:544,y:74,component:'resistor',resistance:R[2],resistorId:'resistorElement2'},{x:345,y:74}]
+      ];
+      return;
+    }
     if(active.id==='f451'){
       // Cada punto de la animación corresponde a un conductor o componente dibujado.
       // Las tres ramas van del nudo inferior B al superior A.
