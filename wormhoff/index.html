@@ -1823,6 +1823,7 @@
       $('gameLayout').hidden=true;
       $('stagebar').hidden=true;
       photoFrame.src='./photo-three-mesh.html?integrated=1';
+    photoFrame.addEventListener('load',()=>photoFrame.contentWindow?.postMessage({type:'wormhoff-demo',enabled:demoEnabled},location.origin),{once:true});
       $('solveDirect').disabled=true;
       $('randomizeValues').disabled=true;
     }
