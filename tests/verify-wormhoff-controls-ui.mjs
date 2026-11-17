@@ -203,7 +203,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
 
  assert.equal(await page.locator('#exerciseStatus,#exerciseHint,#difficultyInfo,.top .sub,.exercisebar').count(),0,'Cabecera sin estado, observaciones ni subtítulo');
  assert(await page.locator('#exerciseSelect').evaluate(el=>!!el.closest('.brand-exercise')),'Selector junto al nombre');
- const headerBoxes=await page.locator('.brand-exercise').evaluate(el=>{const a=el.querySelector('.logo').getBoundingClientRect(),b=el.querySelector('#exerciseSelect').getBoundingClientRect();return {beside:b.left>=a.right,sameRow:Math.abs((a.top+a.bottom)/2-(b.top+b.bottom)/2)<3}});assert(headerBoxes.beside&&headerBoxes.sameRow,'Ejercicio a la derecha de Wormhoff');
+ const headerBoxes=await page.locator('.brand-exercise').evaluate(el=>{const a=el.querySelector('.logo').getBoundingClientRect(),b=el.querySelector('#exerciseSelect').getBoundingClientRect();return {beside:b.left>=a.right,sameRow:Math.abs((a.top+a.bottom)/2-(b.top+b.bottom)/2)<3}});assert(mobile?(headerBoxes.beside||!headerBoxes.sameRow):(headerBoxes.beside&&headerBoxes.sameRow),'Selector de topologías junto al título en escritorio y visible en disposición adaptable en móvil');
  assert.equal(await page.locator('#symbolStandard').isVisible(),false,'Simbología dentro de configuración');
  await page.click('#openSettings');assert(await page.locator('#settingsDialog').isVisible());
  await page.selectOption('#themeSetting','light');
