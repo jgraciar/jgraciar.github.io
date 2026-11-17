@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-visual">
 <meta name="color-scheme" content="dark">
-<title>Wormhoff · 3.20</title>
+<title>Wormhoff · 3.21</title>
 <style>
   :root { --bg:var(--paint-09101d,#09101d); --card:var(--paint-111c30,#111c30); --card2:var(--paint-0c182b,#0c182b); --border:var(--paint-2c415b,#2c415b); --txt:var(--paint-f0f6ff,#f0f6ff); --muted:var(--paint-a7bbd0,#a7bbd0); --cyan:var(--paint-5ce6f0,#5ce6f0); --lime:var(--paint-b7f75c,#b7f75c); --amber:var(--paint-ffc66b,#ffc66b); --red:var(--paint-ff7786,#ff7786); --purple:var(--paint-ac98ff,#ac98ff); }
   *{box-sizing:border-box}
@@ -1066,7 +1066,7 @@
 </dialog>
 <dialog id="settingsDialog" aria-labelledby="settingsTitle">
   <div class="settings-heading"><h2 id="settingsTitle">Configuración</h2><button type="button" class="help-button" data-context-help="settings" aria-label="Ayuda de configuración" title="Ayuda">?</button><button type="button" id="closeSettings" class="ghost" aria-label="Cerrar configuración">×</button></div>
-  <div class="mini" id="appVersion">Wormhoff 3.20</div>
+  <div class="mini" id="appVersion">Wormhoff 3.21</div>
   <div class="settings-fields">
     <label for="symbolStandard">Simbología<select id="symbolStandard"><option value="iec">IEC · rectangular</option><option value="ansi">ANSI · zigzag</option></select></label>
     <label for="languageSetting">Idioma<select id="languageSetting"><option value="es">Español</option><option value="en">English</option></select></label>
@@ -2272,8 +2272,11 @@
     $('heroSpine').setAttribute('d',spine);$('heroSpine').setAttribute('stroke-width',(10*soften).toFixed(2));$('heroHit').setAttribute('d',spine);
     // Se dibuja desde la cola: las uniones quedan ocultas bajo el anillo siguiente.
     heroSegments.forEach(({g,body,shine},index)=>{
-      const i=8-index,p=pts[i],front=pts[i-1];
-      const angle=Math.atan2(front.y-p.y,front.x-p.x)*180/Math.PI+90;
+      const i=8-index,p=pts[i],front=pts[Math.max(0,i-1)],back=pts[Math.min(8,i+1)];
+      // En los extremos no existe un punto anterior/posterior: usar el tramo adyacente.
+      const dx=front.x!==p.x||front.y!==p.y?front.x-p.x:p.x-back.x;
+      const dy=front.x!==p.x||front.y!==p.y?front.y-p.y:p.y-back.y;
+      const angle=Math.atan2(dy,dx)*180/Math.PI+90;
       const u=i/8,wave=Math.sin(h.phase-u*3.4);
       const width=(7.7-3.4*u)*(1+.15*squeeze+.06*wave)*soften;
       g.setAttribute('transform',`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${angle.toFixed(2)})`);
