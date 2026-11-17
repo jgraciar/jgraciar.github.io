@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-visual">
 <meta name="color-scheme" content="dark">
-<title>Wormhoff · 3.23</title>
+<title>Wormhoff · 3.24</title>
 <style>
   :root { --bg:var(--paint-09101d,#09101d); --card:var(--paint-111c30,#111c30); --card2:var(--paint-0c182b,#0c182b); --border:var(--paint-2c415b,#2c415b); --txt:var(--paint-f0f6ff,#f0f6ff); --muted:var(--paint-a7bbd0,#a7bbd0); --cyan:var(--paint-5ce6f0,#5ce6f0); --lime:var(--paint-b7f75c,#b7f75c); --amber:var(--paint-ffc66b,#ffc66b); --red:var(--paint-ff7786,#ff7786); --purple:var(--paint-ac98ff,#ac98ff); }
   *{box-sizing:border-box}
@@ -951,7 +951,7 @@
           <path id="branchSelection" class="branch-selection"/><g id="currentBranchTargets"></g>
           <g id="dirGraphics"></g>
           <g id="loopArrows"></g><g id="nodeTargets"></g>
-          <g id="componentValueTargets"></g><g id="directMeshDirections" aria-hidden="true"></g>
+          <g id="componentValueTargets"></g><g id="directMeshDirections"></g>
           <g id="flowFX"></g>
           <g id="sourceArrowFX"></g>
           <g id="componentFX"></g>
@@ -1189,7 +1189,7 @@
 </dialog>
 <dialog id="settingsDialog" aria-labelledby="settingsTitle">
   <div class="settings-heading"><h2 id="settingsTitle">Configuración</h2><button type="button" class="help-button" data-context-help="settings" aria-label="Ayuda de configuración" title="Ayuda">?</button><button type="button" id="closeSettings" class="ghost" aria-label="Cerrar configuración">×</button></div>
-  <div class="mini" id="appVersion">Wormhoff 3.23</div>
+  <div class="mini" id="appVersion">Wormhoff 3.24</div>
   <div class="settings-fields">
     <label for="symbolStandard">Simbología<select id="symbolStandard"><option value="iec">IEC · rectangular</option><option value="ansi">ANSI · zigzag</option></select></label>
     <label for="languageSetting">Idioma<select id="languageSetting"><option value="es">Español</option><option value="en">English</option></select></label>
@@ -1769,11 +1769,7 @@
     const faces=[{x:156,y:87,w:179,h:260,sideY:180},{x:355,y:87,w:179,h:260,sideY:180}];
     drawMeshTargets([{x:163,y:87,w:169,h:258},{x:359,y:87,w:169,h:258}]);
     drawSelectedMesh(S.loop,faces[S.loop],S.loops[S.loop]?.cw??S.cw);
-    $('loopArrows').innerHTML=[0,1].map(k=>{
-      const chosen=S.loops[k]?.cw??S.meshDirections?.[k]??(S.loop===k?S.cw:true),x=k===0?246:445,done=!!S.loops[k];
-      const title='MALLA '+(k+1);
-      return `<g data-mesh-summary="${k}">`+meshStatusLabel(k,x,166,190,title,done,S.loop===k,false,S.loop===k&&S.meshDirectionsConfirmed?(S.pass==='resistors'?'Σ I·R':'Σ U'):null)+meshTurnIcon(k,x,237,chosen,done)+`</g>`;
-    }).join('');
+    $('loopArrows').innerHTML=[0,1].map(k=>meshSummaryMarkup(k,false)).join('');
     bindMeshTurns($('loopArrows'));
   }
   const fmt=(n)=>n<0?'−'+formatNumber(Math.abs(n)):formatNumber(n);
@@ -2158,6 +2154,15 @@
     const width=compact?82:110,height=compact?18:22,accent=active?'var(--paint-ffe2a0,#ffe2a0)':'var(--paint-9cb5c9,#9cb5c9)';
     return `<text class="mesh-label" data-mesh-name="${index}" x="${x}" y="${titleY}" text-anchor="middle" style="fill:var(--paint-8ce7ef,#8ce7ef);font:600 ${compact?10.5:11}px sans-serif">${title}</text>`+
       (done?meshCompleteMark(index,x,statusY):`<g data-mesh-pending="${index}" data-mesh-operation="${operation||''}"><rect class="mesh-label" x="${x-width/2}" y="${statusY-height/2}" width="${width}" height="${height}" rx="7" fill="var(--paint-12263a,#12263a)" stroke="${accent}" stroke-width="1"/><text class="mesh-label" x="${x}" y="${statusY}" dominant-baseline="middle" text-anchor="middle" style="fill:${accent};font:700 ${compact?10.5:13}px ui-monospace,monospace">${operation||'PENDIENTE'}</text></g>`);
+  }
+  // Un mismo dibujo para el recorrido guiado y la resolución directa.
+  function meshSummaryMarkup(index,six){
+    const model=six?A6:S,loop=(six?model.done:model.loops)[index],done=!!loop;
+    const cw=loop?.cw??model.meshDirections?.[index]??(model.loop===index?model.cw:true);
+    const positions=six?[[247,139,160,194],[497,139,160,194],[350,259,278,316]]:[[246,166,190,237],[445,166,190,237]];
+    const [x,titleY,statusY,turnY]=positions[index],selected=model.loop===index;
+    const operation=selected&&model.meshDirectionsConfirmed&&(!six||model.stage==='loops')?(six?(model.pass==='R'?'Σ I·R':'Σ U'):(model.pass==='resistors'?'Σ I·R':'Σ U')):null;
+    return `<g data-mesh-summary="${index}">`+meshStatusLabel(index,x,titleY,statusY,(six?'M':'MALLA ')+(index+1),done,selected,six,operation)+meshTurnIcon(index,x,turnY,cw,done,!six||model.stage==='loops',six?28:36)+`</g>`;
   }
   function setTransportState(id,state){
     const button=$(id),labels={ready:'Iniciar recorrido',running:'Detener recorrido',paused:'Reanudar recorrido',waiting:'Continuar recorrido',blocked:'Recorrido detenido: completa el término para continuar',complete:'Malla completada'};
@@ -3023,12 +3028,7 @@
     if(A6.stage==='loops'){
       drawMeshTargets(faces);drawSelectedMesh(A6.loop,faces[A6.loop],A6.done[A6.loop]?.cw??A6.cw);
     }else{$('meshTargets').innerHTML='';$('meshSelection').innerHTML='';}
-    const positions=[{x:247,titleY:139,statusY:160,turnY:194},{x:497,titleY:139,statusY:160,turnY:194},{x:350,titleY:259,statusY:278,turnY:316}];
-    $('sixLoops').innerHTML=positions.map(({x,titleY,statusY,turnY},i)=>{
-      const done=!!A6.done[i],cw=A6.done[i]?.cw??A6.meshDirections?.[i]??(i===A6.loop?A6.cw:true);
-      const title='M'+(i+1);
-      return `<g data-mesh-summary="${i}">`+meshStatusLabel(i,x,titleY,statusY,title,done,i===A6.loop,true,i===A6.loop&&A6.stage==='loops'&&A6.meshDirectionsConfirmed?(A6.pass==='R'?'Σ I·R':'Σ U'):null)+meshTurnIcon(i,x,turnY,cw,done,A6.stage==='loops',28)+`</g>`;
-    }).join('');
+    $('sixLoops').innerHTML=[0,1,2].map(i=>meshSummaryMarkup(i,true)).join('');
     bindMeshTurns($('sixLoops'));
   }
   function sixText(id,txt){$(id).textContent=txt}
@@ -4289,8 +4289,8 @@
     $('solveDirect').onclick=solveCircuitDirectly;
   }
   function drawDirectMeshDirections(){
-    const six=active.kind==='multi',positions=six?[[247,160],[497,160],[350,285]]:[[246,190],[445,190]];
-    $('directMeshDirections').innerHTML=positions.map(([x,y],i)=>'<text class="mesh-label" x="'+x+'" y="'+y+'" text-anchor="middle" style="fill:var(--cyan);font:700 15px system-ui">M'+(i+1)+' ↻</text>').join('');
+    const six=active.kind==='multi';
+    $('directMeshDirections').innerHTML=(six?[0,1,2]:[0,1]).map(i=>meshSummaryMarkup(i,six)).join('');
     layoutCurrentAnnotations();
   }
   function solveCircuitDirectly(){

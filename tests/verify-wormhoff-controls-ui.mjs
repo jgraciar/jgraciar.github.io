@@ -683,7 +683,19 @@ for(const mobile of [false,true]){
   assert.equal(panel.length,expected.length);assert.deepEqual(circuit,panel);
   panel.forEach((value,i)=>assert(Math.abs(value-expected[i])<=.000011,'Corriente '+i+': '+value+' frente a '+expected[i]));
   assert.match(await page.locator('#phaseHead').textContent(),/Fase 3 · Resolución/);
-  assert.equal(await page.locator('#directMeshDirections text').count(),six?3:2);
+  assert.equal(await page.locator('#directMeshDirections [data-mesh-summary]').count(),six?3:2);
+  const meshAppearance=await page.locator('#directMeshDirections [data-mesh-summary]').evaluateAll(nodes=>nodes.map(node=>{
+   const name=node.querySelector('[data-mesh-name]'),check=node.querySelector('.mesh-complete circle'),turn=node.querySelector('[data-mesh-turn] text');
+   return {name:name.textContent,titleY:Number(name.getAttribute('y')),checkY:Number(check.getAttribute('cy')),turnY:Number(turn.getAttribute('y')),x:Number(name.getAttribute('x')),turn:turn.textContent};
+  }));
+  assert.deepEqual(meshAppearance,six?[
+   {name:'M1',titleY:139,checkY:160,turnY:204.92,x:247,turn:'↻'},
+   {name:'M2',titleY:139,checkY:160,turnY:204.92,x:497,turn:'↻'},
+   {name:'M3',titleY:259,checkY:278,turnY:326.92,x:350,turn:'↻'}
+  ]:[
+   {name:'MALLA 1',titleY:166,checkY:190,turnY:251.04,x:246,turn:'↻'},
+   {name:'MALLA 2',titleY:166,checkY:190,turnY:251.04,x:445,turn:'↻'}
+  ],'Nombre, check y giro en las posiciones del procedimiento guiado');
  };
  const edit=async(id,value)=>{
   await page.locator('[data-component-edit="'+id+'"]').click();assert(await page.locator('#componentValueDialog').isVisible());
