@@ -758,7 +758,7 @@ for(const mobile of [false,true]){
   sources:[0,2].map(i=>document.querySelector('#sourceElement'+i+' .source-plate').getBBox())
  }));
  const centerY=r=>r.y+r.height/2;
- assert(Math.max(...geometry.resistors.map(centerY))-Math.min(...geometry.resistors.map(centerY))<1,'Resistencias de las tres ramas alineadas como en tipos 1 y 2');
+ assert(Math.max(...geometry.resistors.map(centerY))-Math.min(...geometry.resistors.map(centerY))<1,'Resistencias de las tres ramas alineadas como en tipos 1 y 2: '+JSON.stringify(geometry));
  assert(geometry.resistors[0].x<geometry.resistors[1].x&&geometry.resistors[1].x<geometry.resistors[2].x,'Resistencias en ramas izquierda, central y derecha');
  assert(Math.abs(centerY(geometry.sources[0])-centerY(geometry.sources[1]))<1,'Fuentes alineadas como en tipos 1 y 2');
  const routeCheck=await page.evaluate(()=>{
