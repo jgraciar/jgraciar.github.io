@@ -31,10 +31,10 @@ try{
   await selector.selectOption('r76');
   const type4Mobile=await visualSnapshot();
   assert.deepEqual(type5Mobile,type4Mobile,'Type 5 must preserve Type 4 layout on mobile');
-  await selector.selectOption('type5-3m5r3u');
   await page.setViewportSize({width:1280,height:900});
   await selector.selectOption('type5-3m5r3u');
-  await page.waitForFunction(()=>document.querySelector('#boardTitle')?.textContent==='Tipo 5',{timeout:10000});
+  const titleAfterSelection=await page.locator('#boardTitle').textContent();
+  assert.equal(titleAfterSelection,'Tipo 5','Type 5 selection must update title; actual title: '+JSON.stringify(titleAfterSelection));
   assert.equal(await page.locator('#stagebar').isVisible(),true,'Main phase navigation must be visible');
   const phaseState=await page.locator('#advancedPhase').evaluate(el=>({
     active:!el.classList.contains('hide'),
