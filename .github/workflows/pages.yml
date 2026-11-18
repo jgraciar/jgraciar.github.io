@@ -104,7 +104,7 @@ jobs:
           node adaptacion/scripts/package-circuits-jgr.mjs circuitjs-src/ts site-root adaptacion
           node adaptacion/scripts/promote-tabbed-workspace.mjs site-root
           node adaptacion/scripts/publish-interface-preview.mjs site-root
-          node scripts/publish-wormhoff.mjs site-root .
+          node adaptacion/scripts/publish-wormhoff.mjs site-root adaptacion
           node adaptacion/tests/calculadora-decimales.test.mjs site-root/calculadora
           node adaptacion/tests/calculadora-ejemplos.test.mjs site-root/calculadora
           node adaptacion/tests/calculadora-metodos.test.mjs site-root/calculadora
@@ -140,7 +140,7 @@ jobs:
           sleep 2
 
       - name: Verificar controles directos de Wormhoff
-        run: node tests/verify-wormhoff-controls-ui.mjs
+        run: node adaptacion/tests/verify-wormhoff-controls-ui.mjs
 
       - name: Verificar buscador de componentes
         run: node adaptacion/tests/verify-component-search-ui.mjs
