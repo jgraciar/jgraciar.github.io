@@ -694,7 +694,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(await page.locator('#sixSymbols .component-source').count(),3,'Tres fuentes IEC');
  assert.equal(await page.locator('#sixSymbols [data-wire-branch]').count(),6,'Seis ramas, incluida la rama conductora');
  await page.click('#solveDirect');
- assert.equal(await page.locator('#advSolve').isVisible(),true,'Resolución con motor común');
+ assert.equal(await page.locator('#advSolve').evaluate(el=>!el.classList.contains('hide')),true,'Resolución activada por el motor común');
+ assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),6,'Seis intensidades calculadas por el motor común');
  await page.selectOption('#exerciseSelect','r76');
  assert.equal(await page.locator('#sixSymbols .component-resistor').count(),6,'Restaurar las seis resistencias del tipo 4');
  assert.equal(await page.locator('#sixSymbols .component-source').count(),5,'Restaurar las cinco fuentes del tipo 4');
