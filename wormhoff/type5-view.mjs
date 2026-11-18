@@ -264,6 +264,7 @@ function guide(){
  if(guideStep>=2&&guideStep<=4){
    scope.getElementById('wormStatus').textContent='Malla '+(guideStep-1)+' seleccionada. Pulsa reproducir recorrido.';
  }
+ scope.getElementById('guideRestart').textContent=guideStep===guideTitles.length-1?'Volver a empezar':'Reiniciar recorrido';
  const title=scope.getElementById('guideTitle'),body=scope.getElementById('guideText');
  title.textContent='Paso '+(guideStep+1)+' de '+guideTitles.length+' · '+guideTitles[guideStep];
  scope.querySelectorAll('[data-mesh]').forEach(el=>el.classList.toggle('active',Number(el.dataset.mesh)===guideStep-2&&guideStep>=2&&guideStep<=4));
