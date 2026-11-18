@@ -2965,10 +2965,11 @@
   function configureMultiTopology(){
     EDGES6.splice(0,EDGES6.length,...EDGES6_ORIGINAL.map(edge=>({...edge,p:edge.p.map(point=>point.slice())})));
     if(active.id!=='type5-3m5r3u')return;
-    // Misma red de cuatro nudos y seis ramas; una rama es un conductor ideal.
+    // Conserva exactamente el bastidor de cuatro nudos, seis ramas y tres mallas del tipo 4.
+    // Solo se redistribuyen los elementos IEC sobre las mismas ramas.
     EDGES6[1].p=[[350,74],[350,125,'R'],[350,183,'U'],[350,225]];
     EDGES6[2].p=[[350,74],[465,74,'R'],[570,74],[570,225]];
-    EDGES6[3].p=[[130,225],[350,225]];
+    EDGES6[3].p=[[130,225],[209,225],[291,225],[350,225]];
     EDGES6[4].p=[[350,225],[510,225,'R'],[570,225]];
     EDGES6[5].p=[[130,225],[130,355],[290,355,'U'],[466,355,'R'],[570,355],[570,225]];
   }
