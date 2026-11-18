@@ -3983,7 +3983,7 @@
     const dialog=$('nodeEquationDialog');
     if(desktop){$('phaseCard').append(dialog);dialog.classList.add('node-equation-inline');dialog.show();}
     else{document.body.append(dialog);dialog.classList.remove('node-equation-inline');dialog.showModal();}
-    syncNodeSelection();if(!desktop)positionNodeEquationDialog();($('nodeEquationChallenge').querySelector('.kcl-answer')||$('nodeEquationChallenge').querySelector('.kcl-drag-token'))?.focus({preventScroll:true});
+    syncNodeSelection();if(!desktop)positionNodeEquationDialog();else{const d=$('nodeEquationDialog');d.style.left='50vw';d.style.top='50dvh';d.style.transform='translate(-50%,-50%)';}($('nodeEquationChallenge').querySelector('.kcl-answer')||$('nodeEquationChallenge').querySelector('.kcl-drag-token'))?.focus({preventScroll:true});
   }
   function positionNodeEquationDialog(){
     const dialog=$('nodeEquationDialog');if(!dialog.open)return;
