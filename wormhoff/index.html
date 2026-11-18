@@ -417,8 +417,8 @@
   #settingsDialog{color:var(--txt);background:var(--card);border:1px solid var(--border);border-radius:17px;width:min(430px,calc(100% - 28px));max-height:calc(100dvh - 28px);overflow:auto;padding:22px;box-shadow:0 20px 70px #0008}
   #settingsDialog::backdrop{background:#020b18b8}
   .settings-heading{display:flex;gap:15px;align-items:center;justify-content:space-between;margin-bottom:18px}
-  .settings-heading h2{margin:0;font-size:22px}
-  .settings-heading button{font-size:27px;padding:0;width:40px;height:40px}
+  .settings-heading h2{margin:0;font-size:22px;flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+  .settings-heading button{font-size:27px;padding:0;width:40px;height:40px;flex:0 0 40px;min-width:40px}
   #closeSettings{flex:0 0 40px;min-width:40px;position:relative;z-index:2;pointer-events:auto}
   .settings-fields{display:grid;gap:18px}
   .settings-fields label{display:grid;gap:7px;font-weight:650}
