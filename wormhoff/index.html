@@ -2961,10 +2961,11 @@
   // La topología cambia los componentes, nunca los controles ni las fases.
   const EDGES6_ORIGINAL=EDGES6.map(edge=>({...edge,p:edge.p.map(point=>point.slice())}));
   function configureMultiTopology(){
+    // El tipo 5 comparte sin excepciones el bastidor, las coordenadas y la
+    // estructura de la página del tipo 4. Cambian únicamente sus elementos.
     EDGES6.splice(0,EDGES6.length,...EDGES6_ORIGINAL.map(edge=>({...edge,p:edge.p.map(point=>point.slice())})));
     if(active.id!=='type5-3m5r3u')return;
-    // Conserva exactamente el bastidor de cuatro nudos, seis ramas y tres mallas del tipo 4.
-    // Solo se redistribuyen los elementos IEC sobre las mismas ramas.
+    // Cinco resistencias y tres fuentes, sobre el mismo trazado de seis ramas.
     EDGES6[1].p=[[350,74],[350,125,'R'],[350,183,'U'],[350,225]];
     EDGES6[2].p=[[350,74],[465,74,'R'],[570,74],[570,225]];
     EDGES6[3].p=[[130,225],[209,225],[291,225],[350,225]];
@@ -3036,7 +3037,7 @@
       h+='<path class="wire" data-wire-branch="'+i+'" d="'+sixWirePath(edge.p)+'"/>';
       for(const c of edge.p){if(c.length<3)continue;
         const x=c[0],y=c[1],t=c[2];
-        const horiz=(i===0?t==='R':i===2?t==='R':i===1?false:i===5?true:true);
+        const horiz=(i===0||i===2||i===3||i===4||i===5);
         const rid='sixCmp'+i+t;
         if(t==='R'){
           const valY=horiz?y+37:y+5;
