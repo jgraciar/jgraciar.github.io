@@ -912,7 +912,7 @@
     <div class="stage" data-stage="3" hidden><button type="button" class="phase-link" data-phase="3"><b>03</b><span>Matriz</span></button><span class="phase-complete" role="img" aria-label="Fase superada" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg></span></div>
     <div class="stage" data-stage="4"><button type="button" class="phase-link" data-phase="4"><b>03</b><span>Resolución</span></button><span class="phase-complete" role="img" aria-label="Fase superada" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg></span></div>
   </nav>
-  <section id="photoIntegrated" hidden aria-label="Circuito tipo 5" style="width:100%;min-height:850px"><iframe id="photoIntegratedFrame" title="Tipo 5 · Tres mallas, cinco resistencias y tres fuentes" loading="lazy" style="display:block;width:100%;height:1100px;border:0;border-radius:12px;background:white" src="about:blank"></iframe></section>
+  <section id="photoIntegrated" hidden aria-label="Circuito tipo 5" style="width:100%"><div id="photoIntegratedView"></div></section>
   <main class="layout" id="gameLayout">
     <section class="card" id="circuitCard">
       <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span><button type="button" class="help-button" data-context-help="circuit" aria-label="Ayuda del circuito" title="Ayuda">?</button><span class="chip hide" id="boardNodeSelectionCounter" role="status" aria-live="polite" title="Nudos seleccionados"></span><div class="column-text-controls" data-text-controls="circuit" aria-label="Tamaño del circuito"><button type="button" class="ghost" data-text-change="-1" aria-label="Reducir circuito">−</button><output>100%</output><button type="button" class="ghost" data-text-change="1" aria-label="Ampliar circuito">+</button></div></div>
@@ -1817,30 +1817,30 @@
     const sel=$('exerciseSelect');
     sel.innerHTML=topologyIds.map((id,index)=>{const ex=exercises.find(e=>e.id===id);if(!ex)throw new Error('Topología no encontrada: '+id);return `<option value="${id}">Tipo ${index+1}</option>`}).join('');
     sel.insertAdjacentHTML('beforeend','<option value="photo-5r3u-preview">Tipo 5 · 3 mallas · 3 fuentes · 5 resistencias</option>');
-    const photoPanel=$('photoIntegrated'),photoFrame=$('photoIntegratedFrame');
-    function activatePhoto(){
-      photoPanel.hidden=false;
-      $('gameLayout').hidden=true;
-      $('stagebar').hidden=true;
-      photoFrame.src='./photo-three-mesh.html?integrated=1';
-    photoFrame.addEventListener('load',()=>photoFrame.contentWindow?.postMessage({type:'wormhoff-demo',enabled:demoEnabled},location.origin),{once:true});
-      $('solveDirect').disabled=true;
-      $('randomizeValues').disabled=true;
-    }
-    function deactivatePhoto(){
-      photoPanel.hidden=true;
-      $('gameLayout').hidden=false;
-      $('stagebar').hidden=false;
-      photoFrame.src='about:blank';
-      $('solveDirect').disabled=false;
-      $('randomizeValues').disabled=false;
-    }
-    window.addEventListener('message',event=>{
-      if(event.origin!==window.location.origin||event.source!==photoFrame.contentWindow)return;
-      if(event.data?.type==='wormhoff-photo-height'&&Number.isFinite(event.data.height))
-        photoFrame.style.height=Math.max(650,Math.min(3500,event.data.height+20))+'px';
-    });
-    sel.onchange=()=>{
+    const photoPanel=$('photoIntegrated'),photoHost=$('photoIntegratedView');
+ let type5Loading=null;
+ function activatePhoto(){
+   photoPanel.hidden=false;
+   $('gameLayout').hidden=true;
+   $('stagebar').hidden=true;
+   $('solveDirect').disabled=true;
+   $('randomizeValues').disabled=true;
+   if(!type5Loading){
+     type5Loading=import('./type5-view.mjs').then(({mountType5})=>mountType5(photoHost,demoEnabled)).catch(error=>{
+       type5Loading=null;
+       photoHost.textContent='No se ha podido cargar el circuito tipo 5: '+error.message;
+       console.error(error);
+     });
+   }else window.dispatchEvent(new CustomEvent('wormhoff-demo-changed',{detail:demoEnabled}));
+ }
+ function deactivatePhoto(){
+   photoPanel.hidden=true;
+   $('gameLayout').hidden=false;
+   $('stagebar').hidden=false;
+   $('solveDirect').disabled=false;
+   $('randomizeValues').disabled=false;
+ }
+ sel.onchange=()=>{
       if(sel.value==='photo-5r3u-preview'){activatePhoto();return;}
       deactivatePhoto();
       const ex=exercises.find(e=>e.id===sel.value);
@@ -1856,6 +1856,8 @@
       demoEnabled=!demoEnabled;
       try{localStorage.setItem('wormhoff.demo',String(demoEnabled));}catch{}
       updateDemoButton();
+      window.dispatchEvent(new CustomEvent('wormhoff-demo-changed',{detail:demoEnabled}));
+      if(sel.value==='photo-5r3u-preview')return;
       if(active.kind==='multi')sixCancel();
       newGame(true);
     });
