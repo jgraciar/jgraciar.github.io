@@ -3998,6 +3998,12 @@
     dialog.style.left=(left+width/2)+'px';dialog.style.top=(top+Math.max(12,(height-dialog.offsetHeight)/2))+'px';
   }
   function initNodeEquations(){
+    document.addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&$('nodeEquationDialog').open){
+        event.preventDefault();
+        $('nodeEquationDialog').close();
+      }
+    });
     $('nodeEquationDialog').addEventListener('close',()=>{if(!$('nodeEquationDialog').open){delete $('nodeEquationDialog').dataset.node;syncNodeSelection();}});
     window.visualViewport?.addEventListener('resize',positionNodeEquationDialog);window.visualViewport?.addEventListener('scroll',positionNodeEquationDialog);window.addEventListener('resize',positionNodeEquationDialog);
     $('startNodeEquations').onclick=()=>beginNodeEquations(false);$('advStartNodeEquations').onclick=()=>beginNodeEquations(true);
