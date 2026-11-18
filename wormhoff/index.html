@@ -3116,12 +3116,12 @@
     $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('meshSelection').innerHTML='';
     $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();$('dirGraphics').append($('sixRefArrows'));$('loopArrows').append($('sixLoops'));decorateComponentValues();
     for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents='none';$('nodeHit').style.pointerEvents='none';
-    $('boardTitle').textContent=topologyLabel(active);$('boardBadge').textContent=symbolStandardLabel()+' · 4 nudos · 6 ramas · 3 mallas';$('circuit').setAttribute('aria-label','Circuito de seis ramas, cuatro nudos y tres mallas');
+    $('boardTitle').textContent=topologyLabel(active);$('boardBadge').textContent=symbolStandardLabel()+(active.id==='type5-3m5r3u'?' · 3 nudos eléctricos · 5 ramas con elementos · 3 mallas':' · 4 nudos · 6 ramas · 3 mallas');$('circuit').setAttribute('aria-label',active.id==='type5-3m5r3u'?'Circuito de cinco ramas con elementos, tres nudos eléctricos y tres mallas':'Circuito de seis ramas, cuatro nudos y tres mallas');
     $('boardSummary').textContent=active.id==='type5-3m5r3u'?'5 resistencias · 3 fuentes · valores enteros':'R: 4 / 3 / 2 / 2 / 5 / 3 Ω · U: 10, 4, 6, 12, 2 V';
     $('boardState').textContent=active.id==='type5-3m5r3u'?'Circuito tipo 5: mismo procedimiento de nudos, mallas y resolución que el tipo 4.':'Actividad resuelta 7.6: el circuito original, sin inventar conexiones ni fuentes.';
     show('boardEquations',false);show('advBoardEquations',true);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);sixRenderRows();
     show('advKCL',false);show('advLoops',false);show('advMatrix',false);show('advSolve',false);show('advResultPanel',false);show('advStart',true);
-    $('phaseHead').textContent='Tema 7 · Actividad resuelta 7.6';$('phaseChip').textContent='4 NUDOS';
+    $('phaseHead').textContent=active.id==='type5-3m5r3u'?'Tipo 5 · Kirchhoff completo':'Tema 7 · Actividad resuelta 7.6';$('phaseChip').textContent=active.id==='type5-3m5r3u'?'3 NUDOS':'4 NUDOS';
     sixText('advInfo','Pulsa sobre las flechas para invertir las corrientes. Cada elección es una referencia algebraica válida.');
     positionHero(...N6.C,0,true);setHeroGait(false);setHeroMood(false);sixRefArrow();sixMeshArrows();
     $('score').textContent='0000';$('percent').textContent='0%';syncPhaseNavigation();
