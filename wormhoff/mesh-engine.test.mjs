@@ -17,7 +17,7 @@ test('tipo 5: KVL y conservación de potencia',()=>{
 test('motor: admite otras matrices de mallas y rechaza sistemas singulares',()=>{
  const s=solveMeshCircuit({incidence:[[1,1],[0,-1]],resistors:['a','b'],resistance:{a:2,b:3},sourceTerms:[7,-3]});
  assert.ok(s.residual.every(v=>Math.abs(v)<1e-10));
- assert.deepEqual(s.mesh,[2,1]);
+ assert.ok(s.mesh.every((value,i)=>Math.abs(value-[2,1][i])<1e-10));
  assert.throws(()=>solveLinearSystem([[1,2],[2,4]],[3,6]),/singular/);
  assert.throws(()=>meshSystem({incidence:[[1]],resistors:['a'],resistance:{a:0},sourceTerms:[1]}),/Resistencia/);
 });
