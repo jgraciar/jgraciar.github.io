@@ -3115,18 +3115,12 @@
     $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('meshSelection').innerHTML='';
     $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();$('dirGraphics').append($('sixRefArrows'));$('loopArrows').append($('sixLoops'));decorateComponentValues();
     for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents='none';$('nodeHit').style.pointerEvents='none';
-    // El tipo 5 utiliza la misma presentación de fases que el tipo 4;
-    // únicamente cambia la descripción de su topología y sus elementos.
+    // Mantener intacta la presentación compartida de los circuitos de tres mallas.
     const introduction=$('advIntroduction');
-    const introductionTitle=introduction.querySelector('.phase-title');
-    const introductionDescription=introduction.querySelector('.desc');
-    if(active.id==='type5-3m5r3u'){
-      introductionTitle.textContent='Tipo 5 · Kirchhoff completo';
-      introductionDescription.innerHTML='Circuito de <b>4 nudos (n−1 = 3)</b>, <b>6 ramas</b> y <b>3 mallas</b>, con <b>5 resistencias</b> y <b>3 fuentes</b>. Se mantienen los mismos controles, fases y símbolos IEC que en el tipo 4.';
-    }else{
-      introductionTitle.textContent='Tipo 4 · Kirchhoff completo';
-      introductionDescription.innerHTML='Circuito de <b>4 nudos (n−1 = 3)</b>, <b>6 ramas</b> y <b>3 mallas</b>. Los elementos en serie de cada rama conservan sus valores y polaridades. Las referencias de corriente son elecciones algebraicas.';
-    }
+    const introductionTitle=introduction?.querySelector('.phase-title');
+    const introductionDescription=introduction?.querySelector('.desc');
+    if(introductionTitle)introductionTitle.textContent=active.id==='type5-3m5r3u'?'Tipo 5 · Kirchhoff completo':'Tipo 4 · Kirchhoff completo';
+    if(introductionDescription)introductionDescription.innerHTML=active.id==='type5-3m5r3u'?'Circuito de <b>4 nudos</b>, <b>6 ramas</b> y <b>3 mallas</b>, con <b>5 resistencias</b> y <b>3 fuentes</b>.':'Circuito de <b>4 nudos</b>, <b>6 ramas</b> y <b>3 mallas</b>.';
     $('boardTitle').textContent=topologyLabel(active);$('boardBadge').textContent=symbolStandardLabel()+(active.id==='type5-3m5r3u'?' · 4 nudos · 5 resistencias · 3 fuentes · 3 mallas':' · 4 nudos · 6 ramas · 3 mallas');$('circuit').setAttribute('aria-label',active.id==='type5-3m5r3u'?'Circuito de seis ramas entre cuatro nudos, con cinco resistencias, tres fuentes y tres mallas':'Circuito de seis ramas, cuatro nudos y tres mallas');
     $('boardSummary').textContent=active.id==='type5-3m5r3u'?'5 resistencias · 3 fuentes · valores enteros':'R: 4 / 3 / 2 / 2 / 5 / 3 Ω · U: 10, 4, 6, 12, 2 V';
     $('boardState').textContent=active.id==='type5-3m5r3u'?'Circuito tipo 5: mismo procedimiento de nudos, mallas y resolución que el tipo 4.':'Actividad resuelta 7.6: el circuito original, sin inventar conexiones ni fuentes.';
