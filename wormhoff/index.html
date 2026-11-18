@@ -3999,7 +3999,7 @@
   }
   function initNodeEquations(){
     document.addEventListener('keydown',event=>{
-      if(event.key==='Escape'&&$('nodeEquationDialog').open){
+      if(event.key==='Escape'&&$('nodeEquationDialog').open&&!$('phaseHelpDialog').open){
         event.preventDefault();
         $('nodeEquationDialog').close();
       }
