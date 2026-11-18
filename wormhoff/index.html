@@ -1248,6 +1248,11 @@
   // en serie repite la estructura de tres ramas y dos mallas.
   // La figura 2.37 es otra disposición didáctica de esa misma clase topológica.
   const topologyIds=['base','r73','fig237','r76'];
+  // Datos de topología independientes de los controles y fases comunes.
+  const multiTopologyDefinitions={
+    r76:{meshes:3,branches:6,resistors:6,sources:5},
+    'type5-3m5r3u':{meshes:3,branches:6,resistors:5,sources:3}
+  };
   const topologyLabel=exercise=>exercise.kind==='multi'?'3 mallas · 5 fuentes · 6 resistencias':exercise.id==='f451'?'2 mallas · 3 fuentes · 4 resistencias':exercise.id==='r73'?'2 mallas · 3 fuentes · 3 resistencias':'2 mallas · 2 fuentes · 3 resistencias';
   let active=exercises[0];
   let demoEnabled=(()=>{try{const saved=localStorage.getItem('wormhoff.demo');return saved===null?true:saved==='true';}catch{return true;}})();
