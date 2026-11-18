@@ -513,7 +513,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await saveNumber('#currentArrow0',17,editPose);assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₁₇');
  assert.equal(await page.locator('#currentArrow1 .dirlabel').textContent(),'I₁₂','No modifica números con prefijos parecidos');
  editPose=await openNumberEditor('#currentArrow0',mobile?'double':'long');
- await page.locator('#currentNumber').fill('9');await page.click('#cancelCurrentName');assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₁₇','Cancelar conserva el número');
+ await page.locator('#currentNumber').fill('9');await page.keyboard.press('Escape');await page.locator('#currentNameDialog').waitFor({state:'hidden'});assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₁₇','Cancelar conserva el número');
  editPose=await openNumberEditor('#currentArrow0');await saveNumber('#currentArrow0',7,editPose);
  for(const [i,x] of [146,345,544].entries()){
   const position=await page.locator('#currentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
@@ -681,7 +681,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await tap(570,300);assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente/);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
  await page.click('[data-reset-phase="0"]');
  await tap(130,105);await page.locator('#currentNumber').fill('123');assert.equal(await page.locator('#currentNumber').inputValue(),'12','Máximo dos cifras');
- await page.click('#cancelCurrentName');
+ await page.keyboard.press('Escape');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
  await assignNumbers([11,22,33,44,55,66]);
  await selectSymbol('ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  await selectSymbol('iec');await assertNoCurrentOverlap();
@@ -707,7 +707,7 @@ for(const mobile of [false,true]){
    await page.locator('[data-current-branch="0"]').dispatchEvent('click');
    assert.equal(await page.locator('#currentNameDialog').isVisible(),!enabled,'Numeración según DEMO en '+type);
    if(enabled)assert.equal(await page.locator(type==='r76'?'#sixCurrentArrow0 .dirlabel':'#currentArrow0 .dirlabel').textContent(),'I₁');
-   else await page.click('#cancelCurrentName');
+   else await page.keyboard.press('Escape');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
   }
  }
  await page.selectOption('#exerciseSelect','base');await page.click('#toggleDemo');
