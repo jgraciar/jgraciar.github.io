@@ -1816,7 +1816,7 @@
   function initExercises(){
     const sel=$('exerciseSelect');
     sel.innerHTML=topologyIds.map((id,index)=>{const ex=exercises.find(e=>e.id===id);if(!ex)throw new Error('Topología no encontrada: '+id);return `<option value="${id}">Tipo ${index+1}</option>`}).join('');
-    sel.insertAdjacentHTML('beforeend','<option value="photo-5r3u-preview">Tipo 5 · 3 mallas · 3 fuentes · 5 resistencias</option>');
+    sel.insertAdjacentHTML('beforeend','<option value="type5-3m5r3u">Tipo 5 · 3 mallas · 3 fuentes · 5 resistencias</option>');
     const photoPanel=$('photoIntegrated'),photoHost=$('photoIntegratedView');
  let type5Loading=null;
  function activatePhoto(){
@@ -1841,7 +1841,7 @@
    $('randomizeValues').disabled=false;
  }
  sel.onchange=()=>{
-      if(sel.value==='photo-5r3u-preview'){activatePhoto();return;}
+      if(sel.value==='type5-3m5r3u'){activatePhoto();return;}
       deactivatePhoto();
       const ex=exercises.find(e=>e.id===sel.value);
       if(!ex)return;
@@ -1857,7 +1857,7 @@
       try{localStorage.setItem('wormhoff.demo',String(demoEnabled));}catch{}
       updateDemoButton();
       window.dispatchEvent(new CustomEvent('wormhoff-demo-changed',{detail:demoEnabled}));
-      if(sel.value==='photo-5r3u-preview')return;
+      if(sel.value==='type5-3m5r3u')return;
       if(active.kind==='multi')sixCancel();
       newGame(true);
     });
