@@ -357,6 +357,7 @@ scope.getElementById('solve').addEventListener('click',()=>{out.hidden=false;sol
   setDemo(value){demoEnabled=Boolean(value);guide();},
   goTo(step){guideStep=Math.max(0,Math.min(guideTitles.length-1,step));guide();},
   playMesh(index){wormPlay(index);},
+  stop(){wormStop();},
   getStep(){return guideStep;}
  };
  if(typeof initialDemo==='boolean'&&initialDemo!==demoEnabled){
