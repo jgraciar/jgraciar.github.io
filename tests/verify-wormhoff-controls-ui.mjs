@@ -237,9 +237,9 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.locator('#speedSetting').evaluate(el=>{el.value='75';el.dispatchEvent(new Event('input',{bubbles:true}))});assert.equal(await page.locator('#speedValue').textContent(),'75%');
  await page.selectOption('#languageSetting','en');assert.equal(await page.locator('#settingsTitle').textContent(),'Settings');assert.equal(await page.locator('[data-phase="0"] span').textContent(),'Currents and nodes');
  await page.selectOption('#languageSetting','es');assert.equal(await page.locator('#settingsTitle').textContent(),'Configuración');
- await page.click('#closeSettings');await page.reload();
+ await page.keyboard.press('Escape');await page.locator('#settingsDialog').waitFor({state:'hidden'});await page.reload();
  assert.equal(await page.locator('#speedSetting').inputValue(),'75','Conserva la configuración');
- await page.click('#openSettings');await page.locator('#speedSetting').evaluate(el=>{el.value='100';el.dispatchEvent(new Event('input',{bubbles:true}))});await page.click('#closeSettings');
+ await page.click('#openSettings');await page.locator('#speedSetting').evaluate(el=>{el.value='100';el.dispatchEvent(new Event('input',{bubbles:true}))});await page.keyboard.press('Escape');await page.locator('#settingsDialog').waitFor({state:'hidden'});
 
  assert.equal(await page.locator('#hero').isVisible(),false,'Gusano oculto al numerar intensidades');
  assert.equal(await page.locator('#gameLayout .law-guide,#gameLayout .desc,#gameLayout .helper,#gameLayout .notes').count(),0,'Texto explicativo fuera de la vista general');
