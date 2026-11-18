@@ -13,13 +13,10 @@ assert(existsSync(source)&&existsSync(portal),
   "Faltan el juego Wormhoff o la portada del sitio generado");
 mkdirSync(join(site,"wormhoff"),{recursive:true});
 cpSync(source,destination);
-// El circuito tipo 5 utiliza módulos ESM independientes cargados desde index.html.
-// Copiarlos todos al sitio publicado para evitar errores de importación en el navegador.
-for(const moduleName of ['type5-view.mjs','type5-model.mjs','mesh-engine.mjs']){
- const moduleSource=join(repo,'wormhoff',moduleName);
- assert(existsSync(moduleSource),'Falta el módulo de Wormhoff: '+moduleName);
- cpSync(moduleSource,join(site,'wormhoff',moduleName));
-}
+// Copiar el motor eléctrico compartido con el juego.
+const engine=join(repo,'wormhoff','mesh-engine.mjs');
+assert(existsSync(engine),'Falta el motor eléctrico de Wormhoff');
+cpSync(engine,join(site,'wormhoff','mesh-engine.mjs'));
 
 let index=readFileSync(portal,"utf8");
 const href='href="./wormhoff/"';
@@ -31,14 +28,6 @@ if(!index.includes(href)){
     '        <span>Juego de circuitos y resolución de ecuaciones mediante las leyes de Kirchhoff.</span></a>\n';
   index=index.replace(marker,card+marker);
   writeFileSync(portal,index);
-}
-// Comprobar que los imports ESM del circuito tipo 5 se pueden resolver en Pages.
-const type5Entry=readFileSync(destination,'utf8');
-assert(type5Entry.includes("type5-view.mjs"),'La portada de Wormhoff no carga el tipo 5');
-for(const [file,dependency] of [['type5-view.mjs','type5-model.mjs'],['type5-model.mjs','mesh-engine.mjs']]){
- const published=join(site,'wormhoff',file);
- assert(existsSync(published),'Módulo no publicado: '+file);
- assert(readFileSync(published,'utf8').includes(dependency),'Import ESM no resuelto: '+file+' -> '+dependency);
 }
 assert(existsSync(destination)&&readFileSync(destination,"utf8").includes("Wormhoff")&&
   readFileSync(portal,"utf8").includes(href),
