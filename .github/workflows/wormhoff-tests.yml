@@ -32,3 +32,14 @@ jobs:
           npx playwright install chromium
       - name: Verify type 5 integration in Chromium
         run: node wormhoff/type5-browser.test.mjs
+      - name: Preserve visual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wormhoff-type4-type5-visual
+          path: |
+            wormhoff/type4-desktop.png
+            wormhoff/type5-desktop.png
+            wormhoff/type4-mobile.png
+            wormhoff/type5-mobile.png
+          if-no-files-found: warn
