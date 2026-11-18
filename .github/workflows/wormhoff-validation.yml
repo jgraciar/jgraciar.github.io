@@ -1,0 +1,40 @@
+name: Validar Wormhoff
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'wormhoff/**'
+      - 'tests/verify-wormhoff-*.mjs'
+      - '.github/workflows/wormhoff-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wormhoff-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Probar Wormhoff
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar Playwright y Chromium
+        working-directory: tests
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Iniciar servidor local
+        run: |
+          python3 -m http.server 8767 --directory . >/tmp/wormhoff-http.log 2>&1 &
+          sleep 2
+      - name: Verificar circuitos y controles
+        run: node tests/verify-wormhoff-controls-ui.mjs
