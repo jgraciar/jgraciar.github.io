@@ -3119,11 +3119,16 @@
     const introduction=$('advIntroduction');
     const introductionTitle=introduction?.querySelector('.phase-title');
     const introductionDescription=introduction?.querySelector('.desc');
-    if(introductionTitle)introductionTitle.textContent=active.id==='type5-3m5r3u'?'Tipo 5 · Kirchhoff completo':'Tipo 4 · Kirchhoff completo';
-    if(introductionDescription)introductionDescription.innerHTML=active.id==='type5-3m5r3u'?'Circuito de <b>4 nudos</b>, <b>6 ramas</b> y <b>3 mallas</b>, con <b>5 resistencias</b> y <b>3 fuentes</b>.':'Circuito de <b>4 nudos</b>, <b>6 ramas</b> y <b>3 mallas</b>.';
-    $('boardTitle').textContent=topologyLabel(active);$('boardBadge').textContent=symbolStandardLabel()+' · 4 nudos · 6 ramas · 3 mallas';$('circuit').setAttribute('aria-label',active.id==='type5-3m5r3u'?'Circuito de seis ramas entre cuatro nudos, con cinco resistencias, tres fuentes y tres mallas':'Circuito de seis ramas, cuatro nudos y tres mallas');
-    $('boardSummary').textContent=active.id==='type5-3m5r3u'?'5 resistencias · 3 fuentes · valores enteros':'R: 4 / 3 / 2 / 2 / 5 / 3 Ω · U: 10, 4, 6, 12, 2 V';
-    $('boardState').textContent=active.id==='type5-3m5r3u'?'Circuito tipo 5: mismo procedimiento de nudos, mallas y resolución que el tipo 4.':'Actividad resuelta 7.6: el circuito original, sin inventar conexiones ni fuentes.';
+    // Una única presentación para los tipos 4 y 5: solo varían los datos de topología.
+    const topology=multiTopologyDefinitions[active.id];
+    const typeName=topologyLabel(active);
+    if(introductionTitle)introductionTitle.textContent=typeName+' · Kirchhoff completo';
+    if(introductionDescription)introductionDescription.innerHTML='Circuito de <b>4 nudos</b>, <b>'+topology.branches+' ramas</b> y <b>'+topology.meshes+' mallas</b>.';
+    $('boardTitle').textContent=typeName;
+    $('boardBadge').textContent=symbolStandardLabel()+' · 4 nudos · '+topology.branches+' ramas · '+topology.meshes+' mallas';
+    $('circuit').setAttribute('aria-label','Circuito de '+topology.branches+' ramas, cuatro nudos y '+topology.meshes+' mallas');
+    $('boardSummary').textContent=topology.resistors+' resistencias · '+topology.sources+' fuentes';
+    $('boardState').textContent='Seleccione las referencias de corriente para comenzar.';
     show('boardEquations',false);show('advBoardEquations',true);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);sixRenderRows();
     show('advKCL',false);show('advLoops',false);show('advMatrix',false);show('advSolve',false);show('advResultPanel',false);show('advStart',true);
     $('phaseHead').textContent='Fase 1 · Numeración y sentidos';$('phaseChip').textContent='4 NUDOS';
