@@ -8,72 +8,31 @@ const page=await browser.newPage({viewport:{width:1280,height:900}});
 const errors=[];
 page.on('pageerror',error=>errors.push(error.message));
 try{
- await new Promise(resolve=>setTimeout(resolve,800));
- await page.goto('http://127.0.0.1:8765/wormhoff/',{waitUntil:'domcontentloaded'});
- await page.locator('#exerciseSelect').selectOption('type5-3m5r3u');
- await page.waitForFunction(()=>Boolean(document.querySelector('#photoIntegratedView')?.__wormhoffType5));
- assert.equal(await page.locator('#stagebar').isVisible(),true,'main stagebar must be visible');
- assert.equal(await page.locator('#gameLayout').isVisible(),false,'previous circuit must be hidden');
- const shadow=page.locator('#photoIntegratedView');
- assert.equal(await shadow.locator('#toggleDemo').isVisible(),false,'duplicate DEMO control must be hidden');
- await page.locator('#randomizeValues').click();
- await page.locator('#solveDirect').click();
- await page.waitForTimeout(200);
- const result=await shadow.locator('#result').textContent();
- assert.match(result,/Corrientes de malla/);
- assert.match(result,/Potencia disipada/);
- assert.equal(await shadow.locator('#type5SolutionOverlay text').count(),5);
- await page.locator('#exerciseSelect').selectOption('base');
- assert.equal(await page.locator('#gameLayout').isVisible(),true);
- await page.locator('#exerciseSelect').selectOption('type5-3m5r3u');
- assert.equal(await page.locator('#stagebar').isVisible(),true);
-
- // Recorrido completo jugable con DEMO desactivado.
- await page.evaluate(()=>localStorage.setItem('wormhoff.demo','false'));
- await page.reload({waitUntil:'domcontentloaded'});
- await page.locator('#exerciseSelect').selectOption('type5-3m5r3u');
- await page.waitForFunction(()=>Boolean(document.querySelector('#photoIntegratedView')?.__wormhoffType5));
- const game=page.locator('#photoIntegratedView');
- await game.locator('#guideNext').click();
- await game.locator('[data-node="A"]').click();
- await game.locator('[data-node="C"]').click();
- for(const answers of [['Entra','Sale','Sale'],['Entra','Sale','Sale']]){
-   for(let i=0;i<3;i++)await game.locator('#kclTerms p').nth(i).getByRole('button',{name:answers[i]}).click();
-   await game.locator('#kclCheck').click();
- }
- assert.equal(await game.locator('#guideNext').isDisabled(),false,'KCL accepted');
- await game.locator('#guideNext').click();
- for(const row of [[6,-4,0,10],[-4,15,-6,12],[0,-6,9,-3]]){
-   const inputs=game.locator('#equationInputs input');
-   for(let j=0;j<4;j++)await inputs.nth(j).fill(String(row[j]));
-   await game.locator('#checkEquation').click();
-   assert.equal(await game.locator('#guideNext').isDisabled(),false,'KVL accepted');
-   await game.locator('#guideNext').click();
- }
- await game.locator('#guideNext').click();
- assert.match(await game.locator('#result').textContent(),/Corrientes de malla/);
- assert.equal(await game.locator('#hero.hero-victory').count(),1,'original worm victory');
- 
- // Editar valores directamente sobre el esquema y comprobar el contraste.
- await game.locator('.type5-component-values text').first().click();
- assert.equal(await game.locator('#R1').evaluate(el=>el===el.getRootNode().activeElement),true);
- await game.locator('#R1').fill('7');
- assert.match(await game.locator('.type5-component-values text').first().textContent(),/7 Ω/);
- const contrast=await page.evaluate(()=>{
-   const panel=document.querySelector('#photoIntegratedView').shadowRoot.querySelector('section');
-   const css=getComputedStyle(panel);
-   return [css.color,css.backgroundColor];
- });
- assert.notEqual(contrast[0],contrast[1],'panel text must be legible');
-
- // Vista móvil: una columna y navegación visible.
- await page.setViewportSize({width:390,height:844});
- const columns=await game.locator('.type5-main').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length);
- assert.equal(columns,1,'mobile view must use one column');
- assert.equal(await page.locator('#stagebar').isVisible(),true);
+  await new Promise(resolve=>setTimeout(resolve,800));
+  await page.goto('http://127.0.0.1:8765/wormhoff/',{waitUntil:'domcontentloaded'});
+  const selector=page.locator('#exerciseSelect');
+  await selector.selectOption('type5-3m5r3u');
+  await assert.doesNotReject(()=>page.locator('#boardTitle').getByText('Tipo 5',{exact:true}).waitFor({timeout:10000}));
+  assert.equal(await page.locator('#stagebar').isVisible(),true,'Main phase navigation must be visible');
+  assert.equal(await page.locator('#advancedPhase').isVisible(),true,'Type 5 must use main advanced game');
+  assert.equal(await page.locator('#boardBadge').textContent().then(s=>s.includes('4 nudos')),true);
+  assert.equal(await page.locator('#staticCircuit .component-resistor').count(),5);
+  assert.equal(await page.locator('#staticCircuit .component-source').count(),3);
+  assert.equal(await page.locator('#staticCircuit .nod').count(),4);
+  await page.locator('#randomizeValues').click();
+  await page.locator('#solveDirect').click();
+  await page.locator('#advResultPanel').waitFor({state:'visible',timeout:10000});
+  assert.equal(await page.locator('#advResults strong').count(),6,'Six branch currents required');
+  assert.match(await page.locator('#advResultCheck').textContent(),/Verificado/);
+  await selector.selectOption('r76');
+  assert.equal(await page.locator('#boardTitle').textContent(),'Tipo 4');
+  await selector.selectOption('type5-3m5r3u');
+  assert.equal(await page.locator('#boardTitle').textContent(),'Tipo 5');
+  await page.setViewportSize({width:390,height:844});
+  assert.equal(await page.locator('#stagebar').isVisible(),true);
   assert.deepEqual(errors,[],'No uncaught browser errors');
- console.log('Type 5 browser integration smoke test passed');
+  console.log('Type 5 main-game browser integration smoke test passed');
 }finally{
- await browser.close();
- server.kill();
+  await browser.close();
+  server.kill();
 }
