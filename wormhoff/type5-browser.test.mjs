@@ -20,6 +20,7 @@ try{
     const rects=Object.fromEntries(ids.map(id=>{const el=document.getElementById(id);const r=el.getBoundingClientRect();return [id,[r.x,r.width].map(v=>Math.round(v))]}));
     return {viewBox:svg.getAttribute('viewBox'),nodes,wires,rects};
   });
+  await page.waitForFunction(()=>document.querySelector('#exerciseSelect')?.options.length>0,{timeout:5000}).catch(async()=>{throw new Error('Topology selector never initialized: '+JSON.stringify({errors,html:await page.locator('#exerciseSelect').evaluate(el=>el.outerHTML),scripts:await page.locator('script').count()}));});
   await selector.selectOption('r76');
   assert.equal(await page.locator('#boardTitle').textContent(),'Tipo 4','Type 4 failed to initialize: '+JSON.stringify(errors));
   const type4Visual=await visualSnapshot();
