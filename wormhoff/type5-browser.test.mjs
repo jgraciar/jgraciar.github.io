@@ -6,7 +6,7 @@ const server=spawn('python3',['-m','http.server','8765','--bind','127.0.0.1'],{s
 const browser=await chromium.launch({headless:true});
 const page=await browser.newPage({viewport:{width:1280,height:900}});
 const errors=[];
-page.on('pageerror',error=>errors.push(error.message));
+page.on('pageerror',error=>errors.push(error.stack||error.message));
 try{
   await new Promise(resolve=>setTimeout(resolve,800));
   await page.goto('http://127.0.0.1:8765/wormhoff/',{waitUntil:'domcontentloaded'});
