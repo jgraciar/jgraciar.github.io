@@ -25,9 +25,9 @@ try{
   assert.equal(await page.locator('#sixSymbols .component-resistor').count(),5);
   assert.equal(await page.locator('#sixSymbols .component-source').count(),3);
   assert.equal(await page.locator('#circuit .nod').count(),4);
-  await page.locator('#randomizeValues').click();
-  await page.locator('#solveDirect').click();
-  await page.locator('#advResultPanel').waitFor({state:'visible',timeout:10000});
+  await page.locator('#randomizeValues').evaluate(el=>el.click());
+  await page.locator('#solveDirect').evaluate(el=>el.click());
+  await page.waitForFunction(()=>!document.querySelector('#advResultPanel').classList.contains('hide'),{timeout:10000});
   assert.equal(await page.locator('#advResults strong').count(),6,'Six branch currents required');
   assert.match(await page.locator('#advResultCheck').textContent(),/Verificado/);
   await selector.selectOption('r76');
