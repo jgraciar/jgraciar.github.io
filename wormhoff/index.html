@@ -42,7 +42,7 @@
   .layout{display:grid;grid-template-columns:minmax(0,var(--left-track,1.1fr)) 18px minmax(0,var(--right-track,1fr));grid-template-areas:"circuit divider equations" "circuit divider phase";grid-template-rows:auto 1fr;row-gap:17px;column-gap:0;align-items:start}
   #circuitCard{grid-area:circuit;position:sticky;top:calc(var(--stagebar-height,80px) + 12px);min-width:0}
   #equationsCard{grid-area:equations;min-width:0}
-  #phaseCard{grid-area:phase;min-width:0}
+  #phaseCard{grid-area:phase;min-width:0;position:relative;z-index:1}
   .layout.network-mode{grid-template-areas:"circuit divider phase";grid-template-rows:auto}
   .layout.network-mode #equationsCard{display:none}
   #equationsCard,#phaseCard{container-type:inline-size}
