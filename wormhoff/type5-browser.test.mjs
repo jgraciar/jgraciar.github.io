@@ -21,8 +21,10 @@ try{
     return {viewBox:svg.getAttribute('viewBox'),nodes,wires,rects};
   });
   await selector.selectOption('r76');
+  assert.equal(await page.locator('#boardTitle').textContent(),'Tipo 4','Type 4 failed to initialize: '+JSON.stringify(errors));
   const type4Visual=await visualSnapshot();
   await selector.selectOption('type5-3m5r3u');
+  assert.equal(await page.locator('#boardTitle').textContent(),'Tipo 5','Type 5 failed to initialize: '+JSON.stringify(errors));
   const type5Visual=await visualSnapshot();
   assert.deepEqual(type5Visual,type4Visual,'Type 5 must preserve Type 4 circuit geometry, node positions and UI layout');
   await page.screenshot({path:'/tmp/wormhoff-type5-desktop.png',fullPage:true});
@@ -34,7 +36,7 @@ try{
   await page.setViewportSize({width:1280,height:900});
   await selector.selectOption('type5-3m5r3u');
   const titleAfterSelection=await page.locator('#boardTitle').textContent();
-  assert.equal(titleAfterSelection,'Tipo 5','Type 5 selection must update title; actual title: '+JSON.stringify(titleAfterSelection));
+  assert.equal(titleAfterSelection,'Tipo 5','Type 5 selection must update title; actual title: '+JSON.stringify(titleAfterSelection)+'; page errors: '+JSON.stringify(errors));
   assert.equal(await page.locator('#stagebar').isVisible(),true,'Main phase navigation must be visible');
   const phaseState=await page.locator('#advancedPhase').evaluate(el=>({
     active:!el.classList.contains('hide'),
