@@ -10,6 +10,7 @@ page.on('pageerror',error=>errors.push(error.stack||error.message));
 try{
   await new Promise(resolve=>setTimeout(resolve,800));
   await page.goto('http://127.0.0.1:8765/wormhoff/',{waitUntil:'domcontentloaded'});
+  assert.deepEqual(errors,[],'Browser startup JavaScript errors: '+JSON.stringify(errors));
   const selector=page.locator('#exerciseSelect');
   // Comparación visual: el tipo 5 conserva el mismo bastidor, escala y controles que el tipo 4.
   const visualSnapshot=()=>page.evaluate(()=>{
