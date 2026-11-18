@@ -27,7 +27,33 @@ try{
  assert.equal(await page.locator('#gameLayout').isVisible(),true);
  await page.locator('#exerciseSelect').selectOption('type5-3m5r3u');
  assert.equal(await page.locator('#stagebar').isVisible(),true);
- assert.deepEqual(errors,[],'No uncaught browser errors');
+
+ // Recorrido completo jugable con DEMO desactivado.
+ await page.evaluate(()=>localStorage.setItem('wormhoff.demo','false'));
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.locator('#exerciseSelect').selectOption('type5-3m5r3u');
+ await page.waitForFunction(()=>Boolean(document.querySelector('#photoIntegratedView')?.__wormhoffType5));
+ const game=page.locator('#photoIntegratedView');
+ await game.locator('#guideNext').click();
+ await game.locator('[data-node="A"]').click();
+ await game.locator('[data-node="C"]').click();
+ for(const answers of [['Entra','Sale','Sale'],['Entra','Sale','Sale']]){
+   for(let i=0;i<3;i++)await game.locator('#kclTerms p').nth(i).getByRole('button',{name:answers[i]}).click();
+   await game.locator('#kclCheck').click();
+ }
+ assert.equal(await game.locator('#guideNext').isDisabled(),false,'KCL accepted');
+ await game.locator('#guideNext').click();
+ for(const row of [[6,-4,0,10],[-4,15,-6,12],[0,-6,9,-3]]){
+   const inputs=game.locator('#equationInputs input');
+   for(let j=0;j<4;j++)await inputs.nth(j).fill(String(row[j]));
+   await game.locator('#checkEquation').click();
+   assert.equal(await game.locator('#guideNext').isDisabled(),false,'KVL accepted');
+   await game.locator('#guideNext').click();
+ }
+ await game.locator('#guideNext').click();
+ assert.match(await game.locator('#result').textContent(),/Corrientes de malla/);
+ assert.equal(await game.locator('#hero.hero-victory').count(),1,'original worm victory');
+  assert.deepEqual(errors,[],'No uncaught browser errors');
  console.log('Type 5 browser integration smoke test passed');
 }finally{
  await browser.close();
