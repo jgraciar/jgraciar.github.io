@@ -129,7 +129,31 @@ function wormPlay(meshOnly=null){
 scope.getElementById('wormPlay').addEventListener('click',wormPlay);
 scope.getElementById('wormReset').addEventListener('click',()=>{wormStop();wormLayer.replaceChildren();scope.getElementById('wormStatus').textContent='Recorrido preparado.';});
 const fmt=n=>Number(n.toFixed(3)).toLocaleString('es-ES',{maximumFractionDigits:3});
-function solve(){try{const R={},U={};for(const [id] of fields){const raw=scope.getElementById(id).value;if(!raw.trim())throw Error('Introduce un valor para '+id);const value=Number(raw);if(!Number.isFinite(value))throw Error('Valor no válido: '+id);(id[0]==='R'?R:U)[id]=value;}const x=type5Solve(R,U);err.textContent='';const lines=['Ecuaciones de malla (A · M = b):',...x.A.map((row,i)=>row.map(fmt).join(' · ')+' | '+fmt(x.b[i])),'','Corrientes de malla:',...x.mesh.map((v,i)=>'M'+(i+1)+' = '+fmt(v)+' A'),'','Corrientes de rama:',...Object.entries(x.branches).map(([id,v])=>'I('+id+') = '+fmt(v*branchSigns[id])+' A'),'','Potencia disipada = '+fmt(x.resistorPower)+' W','Potencia suministrada neta = '+fmt(x.sourcePower)+' W'];out.textContent=lines.join('\n');}catch(e){err.textContent=e.message;out.textContent='';}}
+function renderSolutionOverlay(){
+ const svg=root.querySelector('svg'),ns='http://www.w3.org/2000/svg';
+ let overlay=scope.getElementById('type5SolutionOverlay');
+ if(!overlay){overlay=document.createElementNS(ns,'g');overlay.id='type5SolutionOverlay';svg.append(overlay);}
+ overlay.replaceChildren();
+ const {R,U}=values(),sol=type5Solve(R,U);
+ for(const [id,[x,y]] of Object.entries(branchLocations)){
+  const current=sol.branches[id]*branchSigns[id];
+  const text=document.createElementNS(ns,'text');
+  text.setAttribute('x',x);text.setAttribute('y',y-16);
+  text.setAttribute('text-anchor','middle');text.setAttribute('font-size','13');
+  text.setAttribute('font-weight','700');text.setAttribute('fill','#17633d');
+  text.textContent='I'+id.slice(1)+' = '+fmt(current)+' A ✓';
+  overlay.append(text);
+ }
+ for(let i=0;i<3;i++){
+  const label=scope.querySelectorAll('[data-mesh]')[i];
+  if(label)label.textContent='M'+(i+1)+' ↻ ✓';
+ }
+}
+function clearSolutionOverlay(){
+ scope.getElementById('type5SolutionOverlay')?.replaceChildren();
+ scope.querySelectorAll('[data-mesh]').forEach((label,i)=>label.textContent='M'+(i+1)+' ↻');
+}
+function solve(){try{const R={},U={};for(const [id] of fields){const raw=scope.getElementById(id).value;if(!raw.trim())throw Error('Introduce un valor para '+id);const value=Number(raw);if(!Number.isFinite(value))throw Error('Valor no válido: '+id);(id[0]==='R'?R:U)[id]=value;}const x=type5Solve(R,U);err.textContent='';const lines=['Ecuaciones de malla (A · M = b):',...x.A.map((row,i)=>row.map(fmt).join(' · ')+' | '+fmt(x.b[i])),'','Corrientes de malla:',...x.mesh.map((v,i)=>'M'+(i+1)+' = '+fmt(v)+' A'),'','Corrientes de rama:',...Object.entries(x.branches).map(([id,v])=>'I('+id+') = '+fmt(v*branchSigns[id])+' A'),'','Potencia disipada = '+fmt(x.resistorPower)+' W','Potencia suministrada neta = '+fmt(x.sourcePower)+' W'];out.textContent=lines.join('\n');renderSolutionOverlay();}catch(e){err.textContent=e.message;out.textContent='';}}
 // Secuencia explicativa: no sustituye todavía la interacción jugable del motor principal.
 let guideStep=0;
 let demoEnabled=(()=>{try{return localStorage.getItem('wormhoff.demo')!=='false';}catch{return true;}})();
@@ -252,8 +276,8 @@ scope.querySelectorAll('[data-node]').forEach(el=>{
 });
 scope.getElementById('guideBack').addEventListener('click',()=>{guideStep=Math.max(0,guideStep-1);guide();});
 scope.getElementById('guideNext').addEventListener('click',()=>{guideStep=Math.min(guideTitles.length-1,guideStep+1);guide();if(guideStep>=2&&guideStep<=4)wormPlay(guideStep-2);if(guideStep===guideTitles.length-1){out.hidden=false;solve();wormDraw(325,390,0,true);}});
-scope.getElementById('guideRestart').addEventListener('click',()=>{wormStop();wormLayer.replaceChildren();out.hidden=true;guideStep=0;verifiedEquations.clear();selectedNodes.clear();kclVerified.clear();kclActive='A';for(const id of ['A','C'])kclAssignments[id]={};guide();});
-controls.addEventListener('input',()=>{verifiedEquations.clear();guide();});
+scope.getElementById('guideRestart').addEventListener('click',()=>{clearSolutionOverlay();wormStop();wormLayer.replaceChildren();out.hidden=true;guideStep=0;verifiedEquations.clear();selectedNodes.clear();kclVerified.clear();kclActive='A';for(const id of ['A','C'])kclAssignments[id]={};guide();});
+controls.addEventListener('input',()=>{clearSolutionOverlay();verifiedEquations.clear();guide();});
 scope.getElementById('toggleDemo').addEventListener('click',()=>{
  demoEnabled=!demoEnabled;
  try{localStorage.setItem('wormhoff.demo',String(demoEnabled));}catch{}
@@ -263,18 +287,19 @@ scope.getElementById('toggleDemo').addEventListener('click',()=>{
  window.dispatchEvent(new CustomEvent('wormhoff-type5-demo',{detail:demoEnabled}));
  guide();
 });
-scope.getElementById('solve').addEventListener('click',()=>{out.hidden=false;solve();});scope.getElementById('reset').addEventListener('click',()=>{for(const [id,,v] of fields)scope.getElementById(id).value=v;verifiedEquations.clear();out.hidden=true;guide();});drawBranchArrows();out.hidden=true;const demoButton=scope.getElementById('toggleDemo');demoButton.textContent='Modo demo: '+(demoEnabled?'activado':'desactivado');demoButton.setAttribute('aria-pressed',String(demoEnabled));guide();
+scope.getElementById('solve').addEventListener('click',()=>{out.hidden=false;solve();});scope.getElementById('reset').addEventListener('click',()=>{clearSolutionOverlay();for(const [id,,v] of fields)scope.getElementById(id).value=v;verifiedEquations.clear();out.hidden=true;guide();});drawBranchArrows();out.hidden=true;const demoButton=scope.getElementById('toggleDemo');demoButton.textContent='Modo demo: '+(demoEnabled?'activado':'desactivado');demoButton.setAttribute('aria-pressed',String(demoEnabled));guide();
 
  host.__wormhoffType5={
   solveDirect(){wormStop();out.hidden=false;guideStep=guideTitles.length-1;verifiedEquations.clear();guide();solve();wormDraw(325,390,0,true);},
   randomize(){
+   clearSolutionOverlay();
    const example=type5IntegerExample();
    for(const [id] of fields){
     scope.getElementById(id).value=example[id[0]==='R'?'R':'U'][id];
    }
    verifiedEquations.clear();selectedNodes.clear();kclVerified.clear();guideStep=0;out.hidden=true;guide();
   },
-  reset(){wormStop();guideStep=0;verifiedEquations.clear();selectedNodes.clear();kclVerified.clear();guide();},
+  reset(){clearSolutionOverlay();wormStop();guideStep=0;verifiedEquations.clear();selectedNodes.clear();kclVerified.clear();guide();},
   setDemo(value){demoEnabled=Boolean(value);guide();},
   goTo(step){guideStep=Math.max(0,Math.min(guideTitles.length-1,step));guide();},
   playMesh(index){wormPlay(index);},
