@@ -1872,6 +1872,8 @@
  }
  function deactivatePhoto(){
    photoHost.__wormhoffType5?.stop();
+   const matrixStage=stagebar5.querySelector('[data-stage="3"]');
+   if(matrixStage)matrixStage.hidden=false;
    document.body.classList.remove('wormhoff-type5-active');
    photoPanel.hidden=true;
    $('gameLayout').hidden=false;
