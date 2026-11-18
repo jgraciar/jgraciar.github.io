@@ -53,6 +53,24 @@ try{
  await game.locator('#guideNext').click();
  assert.match(await game.locator('#result').textContent(),/Corrientes de malla/);
  assert.equal(await game.locator('#hero.hero-victory').count(),1,'original worm victory');
+ 
+ // Editar valores directamente sobre el esquema y comprobar el contraste.
+ await game.locator('.type5-component-values text').first().click();
+ assert.equal(await game.locator('#R1').evaluate(el=>el===el.getRootNode().activeElement),true);
+ await game.locator('#R1').fill('7');
+ assert.match(await game.locator('.type5-component-values text').first().textContent(),/7 Ω/);
+ const contrast=await page.evaluate(()=>{
+   const panel=document.querySelector('#photoIntegratedView').shadowRoot.querySelector('section');
+   const css=getComputedStyle(panel);
+   return [css.color,css.backgroundColor];
+ });
+ assert.notEqual(contrast[0],contrast[1],'panel text must be legible');
+
+ // Vista móvil: una columna y navegación visible.
+ await page.setViewportSize({width:390,height:844});
+ const columns=await game.locator('.type5-main').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(/\\s+/).length);
+ assert.equal(columns,1,'mobile view must use one column');
+ assert.equal(await page.locator('#stagebar').isVisible(),true);
   assert.deepEqual(errors,[],'No uncaught browser errors');
  console.log('Type 5 browser integration smoke test passed');
 }finally{
