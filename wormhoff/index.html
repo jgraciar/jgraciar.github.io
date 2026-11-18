@@ -1819,12 +1819,44 @@
     sel.insertAdjacentHTML('beforeend','<option value="type5-3m5r3u">Tipo 5 · 3 mallas · 3 fuentes · 5 resistencias</option>');
     const photoPanel=$('photoIntegrated'),photoHost=$('photoIntegratedView');
  let type5Loading=null;
+ const stagebar5=$('stagebar');
+ const stage5Map={0:0,2:2,4:6};
+ function syncType5Stages(step){
+   const groups=[{id:0,end:2},{id:2,end:6},{id:4,end:7}];
+   for(const {id,end} of groups){
+     const stage=stagebar5.querySelector('[data-stage="'+id+'"]');
+     if(!stage)continue;
+     const active5=step>=stage5Map[id]&&step<end;
+     const completed5=step>=end;
+     stage.classList.toggle('active',active5);
+     stage.classList.toggle('done',completed5);
+     const check=stage.querySelector('.phase-complete');
+     if(check)check.hidden=!completed5;
+   }
+   const matrix=stagebar5.querySelector('[data-stage="3"]');
+   if(matrix)matrix.hidden=true;
+ }
+ stagebar5.addEventListener('click',event=>{
+   if($('exerciseSelect').value!=='type5-3m5r3u')return;
+   const link=event.target.closest('[data-phase]');
+   if(!link)return;
+   event.preventDefault();event.stopImmediatePropagation();
+   const target=stage5Map[Number(link.dataset.phase)];
+   if(target===undefined)return;
+   const controller=photoHost.__wormhoffType5;
+   if(!controller)return;
+   if(!demoEnabled&&target>controller.getStep())return;
+   controller.goTo(target);
+ },true);
+ photoHost.addEventListener('wormhoff-type5-phase',event=>syncType5Stages(event.detail));
+
  function activatePhoto(){
    photoPanel.hidden=false;
    $('gameLayout').hidden=true;
-   $('stagebar').hidden=true;
+   $('stagebar').hidden=false;
    $('solveDirect').disabled=false;
    $('randomizeValues').disabled=false;
+   syncType5Stages(photoHost.__wormhoffType5?.getStep()??0);
    if(!type5Loading){
      type5Loading=import('./type5-view.mjs').then(({mountType5})=>mountType5(photoHost,demoEnabled)).catch(error=>{
        type5Loading=null;
