@@ -12,13 +12,13 @@ try{
   await page.goto('http://127.0.0.1:8765/wormhoff/',{waitUntil:'domcontentloaded'});
   const selector=page.locator('#exerciseSelect');
   await selector.selectOption('type5-3m5r3u');
-  await assert.doesNotReject(()=>page.locator('#boardTitle').getByText('Tipo 5',{exact:true}).waitFor({timeout:10000}));
+  await page.waitForFunction(()=>document.querySelector('#boardTitle')?.textContent==='Tipo 5',{timeout:10000});
   assert.equal(await page.locator('#stagebar').isVisible(),true,'Main phase navigation must be visible');
   assert.equal(await page.locator('#advancedPhase').isVisible(),true,'Type 5 must use main advanced game');
   assert.equal(await page.locator('#boardBadge').textContent().then(s=>s.includes('4 nudos')),true);
-  assert.equal(await page.locator('#staticCircuit .component-resistor').count(),5);
-  assert.equal(await page.locator('#staticCircuit .component-source').count(),3);
-  assert.equal(await page.locator('#staticCircuit .nod').count(),4);
+  assert.equal(await page.locator('#sixSymbols .component-resistor').count(),5);
+  assert.equal(await page.locator('#sixSymbols .component-source').count(),3);
+  assert.equal(await page.locator('#circuit .nod').count(),4);
   await page.locator('#randomizeValues').click();
   await page.locator('#solveDirect').click();
   await page.locator('#advResultPanel').waitFor({state:'visible',timeout:10000});
