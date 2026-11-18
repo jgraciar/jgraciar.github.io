@@ -685,6 +685,19 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await assignNumbers([11,22,33,44,55,66]);
  await selectSymbol('ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  await selectSymbol('iec');await assertNoCurrentOverlap();
+ // El tipo 5 usa exactamente la misma interfaz, fases y resolución que el tipo 4.
+ await page.selectOption('#exerciseSelect','type5-3m5r3u');
+ assert.equal(await page.locator('#gameLayout').isVisible(),true,'El tipo 5 utiliza el tablero común');
+ assert.equal(await page.locator('#advancedPhase').isVisible(),true,'El tipo 5 utiliza las fases comunes');
+ assert.equal(await page.locator('#photoIntegrated').isVisible(),false,'Sin interfaz independiente');
+ assert.equal(await page.locator('#sixSymbols .component-resistor').count(),5,'Cinco resistencias IEC');
+ assert.equal(await page.locator('#sixSymbols .component-source').count(),3,'Tres fuentes IEC');
+ assert.equal(await page.locator('#sixSymbols [data-wire-branch]').count(),6,'Seis ramas, incluida la rama conductora');
+ await page.click('#solveDirect');
+ assert.equal(await page.locator('#advSolve').isVisible(),true,'Resolución con motor común');
+ await page.selectOption('#exerciseSelect','r76');
+ assert.equal(await page.locator('#sixSymbols .component-resistor').count(),6,'Restaurar las seis resistencias del tipo 4');
+ assert.equal(await page.locator('#sixSymbols .component-source').count(),5,'Restaurar las cinco fuentes del tipo 4');
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
 // Edición y resolución inmediata: comprobar resultados físicos y conservación de valores.
