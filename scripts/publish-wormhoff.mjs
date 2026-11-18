@@ -13,8 +13,14 @@ assert(existsSync(source)&&existsSync(portal),
   "Faltan el juego Wormhoff o la portada del sitio generado");
 mkdirSync(join(site,"wormhoff"),{recursive:true});
 cpSync(source,destination);
-// La selección de topologías y su lógica están integradas en wormhoff/index.html.
-// No exigir recursos independientes que ya no forman parte de la aplicación.
+// El circuito tipo 5 utiliza módulos ESM independientes cargados desde index.html.
+// Copiarlos todos al sitio publicado para evitar errores de importación en el navegador.
+for(const moduleName of ['type5-view.mjs','type5-model.mjs','mesh-engine.mjs']){
+ const moduleSource=join(repo,'wormhoff',moduleName);
+ assert(existsSync(moduleSource),'Falta el módulo de Wormhoff: '+moduleName);
+ cpSync(moduleSource,join(site,'wormhoff',moduleName));
+}
+
 let index=readFileSync(portal,"utf8");
 const href='href="./wormhoff/"';
 if(!index.includes(href)){
