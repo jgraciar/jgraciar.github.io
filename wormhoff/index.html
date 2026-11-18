@@ -1241,19 +1241,20 @@
     {id:'f451',label:'Figura 4.51 · dos mallas',R:[2,4,7],E:[10,20,5],components:[1,1,4,7],status:'Jugable',hint:'Figura 4.51: cuatro resistencias y tres fuentes; dos resistencias en serie en la rama izquierda.'},
     {id:'fig237',label:'Figura 2.37 · método de las mallas',R:[4,3,2],E:[20,0,-10],status:'Jugable',hint:'Figura 2.37: dos mallas, tres resistencias (4, 3 y 2 Ω) y dos fuentes (20 y 10 V). La fuente derecha tiene polaridad opuesta a la izquierda; el motor conserva las tres ramas y sus ecuaciones de Kirchhoff.'},
     {id:'r73',label:'Nivel 2 · P. Resuelta 7.3 · tres generadores',R:[6,4,2],E:[10,6,4],status:'Jugable · fuentes en serie',hint:'Adaptación de las tres ramas de la actividad 7.3. En la rama central las fuentes de 12 V y 6 V tienen polaridades opuestas: su tensión algebraica es 6 V. No se combinan resistencias.',source:'act.-resuelta-7.3.txt'},
-    {id:'r76',kind:'multi',label:'Nivel 2 · P. Resuelta 7.6 · seis ramas y tres mallas',status:'Jugable · 6 corrientes',hint:'Se conservan seis corrientes, cuatro nudos y tres mallas. Resistencias originales de 4, 3, 2, 2, 5 y 3 Ω, sin simplificaciones de serie/paralelo.',source:'act.-resuelta-7.6.txt'}
+    {id:'r76',kind:'multi',label:'Nivel 2 · P. Resuelta 7.6 · seis ramas y tres mallas',status:'Jugable · 6 corrientes',hint:'Se conservan seis corrientes, cuatro nudos y tres mallas. Resistencias originales de 4, 3, 2, 2, 5 y 3 Ω, sin simplificaciones de serie/paralelo.',source:'act.-resuelta-7.6.txt'},
+    {id:'type5-3m5r3u',kind:'multi',label:'Tipo 5 · tres mallas, cinco resistencias y tres fuentes',status:'Jugable',hint:'Tres mallas con cinco resistencias y tres fuentes. Comparte controles, fases y motor con el tipo 4.'}
   ];
   // Ejercicios ordenados por número de mallas. La figura 4.51 permanece en el
   // catálogo histórico pero se retira del selector: al reducir resistencias
   // en serie repite la estructura de tres ramas y dos mallas.
   // La figura 2.37 es otra disposición didáctica de esa misma clase topológica.
-  const topologyIds=['base','r73','fig237','r76'];
+  const topologyIds=['base','r73','fig237','r76','type5-3m5r3u'];
   // Datos de topología independientes de los controles y fases comunes.
   const multiTopologyDefinitions={
     r76:{meshes:3,branches:6,resistors:6,sources:5},
     'type5-3m5r3u':{meshes:3,branches:6,resistors:5,sources:3}
   };
-  const topologyLabel=exercise=>exercise.kind==='multi'?'3 mallas · 5 fuentes · 6 resistencias':exercise.id==='f451'?'2 mallas · 3 fuentes · 4 resistencias':exercise.id==='r73'?'2 mallas · 3 fuentes · 3 resistencias':'2 mallas · 2 fuentes · 3 resistencias';
+  const topologyLabel=exercise=>exercise.id==='type5-3m5r3u'?'3 mallas · 3 fuentes · 5 resistencias':exercise.kind==='multi'?'3 mallas · 5 fuentes · 6 resistencias':exercise.id==='f451'?'2 mallas · 3 fuentes · 4 resistencias':exercise.id==='r73'?'2 mallas · 3 fuentes · 3 resistencias':'2 mallas · 2 fuentes · 3 resistencias';
   let active=exercises[0];
   let demoEnabled=(()=>{try{const saved=localStorage.getItem('wormhoff.demo');return saved===null?true:saved==='true';}catch{return true;}})();
   const difficulty=()=>demoEnabled?0:2;
@@ -1792,6 +1793,16 @@
   const randomInt=(min,max)=>min+Math.floor(Math.random()*(max-min+1));
   function generateIntegerValues(){
     if(active.kind==='multi'){
+      if(active.id==='type5-3m5r3u'){
+        const r=Array.from({length:5},()=>randomInt(1,9));
+        const [x,y,z]=Array.from({length:3},()=>randomInt(-3,3));
+        const [r1,r2,r3,r4,r5]=r;
+        const b0=(r1+r3)*x-r3*y;
+        const b1=-r3*x+(r3+r4+r5)*y-r5*z;
+        const b2=-r5*y+(r2+r5)*z;
+        R6=[r1,r3,r4,0,r5,r2];E6=[b0+b1,-b1,0,0,0,-b2];
+        return;
+      }
       for(let attempt=0;attempt<500;attempt++){
         const i0=randomInt(-5,5),i1=randomInt(-5,5),i3=randomInt(-5,5);
         const currents=[i0,i1,i0-i1,i3,i1+i3,-i0-i3];
@@ -1824,79 +1835,10 @@
   function initExercises(){
     const sel=$('exerciseSelect');
     sel.innerHTML=topologyIds.map((id,index)=>{const ex=exercises.find(e=>e.id===id);if(!ex)throw new Error('Topología no encontrada: '+id);return `<option value="${id}">Tipo ${index+1}</option>`}).join('');
-    sel.insertAdjacentHTML('beforeend','<option value="type5-3m5r3u">Tipo 5 · 3 mallas · 3 fuentes · 5 resistencias</option>');
-    const photoPanel=$('photoIntegrated'),photoHost=$('photoIntegratedView');
- let type5Loading=null;
- const stagebar5=$('stagebar');
- const stage5Map={0:0,2:2,4:6};
- function syncType5Stages(step){
-   const groups=[{id:0,end:2},{id:2,end:6},{id:4,end:7}];
-   for(const {id,end} of groups){
-     const stage=stagebar5.querySelector('[data-stage="'+id+'"]');
-     if(!stage)continue;
-     const active5=step>=stage5Map[id]&&step<end;
-     const completed5=step>=end;
-     stage.classList.toggle('active',active5);
-     stage.classList.toggle('done',completed5);
-     const check=stage.querySelector('.phase-complete');
-     if(check)check.hidden=!completed5;
-   }
-   const matrix=stagebar5.querySelector('[data-stage="3"]');
-   if(matrix)matrix.hidden=true;
- }
- stagebar5.addEventListener('click',event=>{
-   if($('exerciseSelect').value!=='type5-3m5r3u')return;
-   const link=event.target.closest('[data-phase]');
-   if(!link)return;
-   event.preventDefault();event.stopImmediatePropagation();
-   const target=stage5Map[Number(link.dataset.phase)];
-   if(target===undefined)return;
-   const controller=photoHost.__wormhoffType5;
-   if(!controller)return;
-   if(!demoEnabled&&target>controller.getStep())return;
-   controller.goTo(target);
- },true);
- photoHost.addEventListener('wormhoff-type5-phase',event=>syncType5Stages(event.detail));
-
- function activatePhoto(){
-   photoHost.__wormhoffType5?.reset();
-   document.body.classList.add('wormhoff-type5-active');
-   photoPanel.hidden=false;
-   $('gameLayout').hidden=true;
-   $('stagebar').hidden=false;
-   $('solveDirect').disabled=false;
-   $('randomizeValues').disabled=false;
-   syncType5Stages(photoHost.__wormhoffType5?.getStep()??0);
-   if(!type5Loading){
-     type5Loading=import('./type5-view.mjs?v=3.27').then(({mountType5})=>{
-       const controller=mountType5(photoHost,demoEnabled);
-       if(sel.value==='type5-3m5r3u')syncType5Stages(controller.getStep());
-       return controller;
-     }).catch(error=>{
-       type5Loading=null;
-       photoHost.textContent='No se ha podido cargar el circuito tipo 5: '+error.message;
-       console.error(error);
-     });
-   }else window.dispatchEvent(new CustomEvent('wormhoff-demo-changed',{detail:demoEnabled}));
- }
- function deactivatePhoto(){
-   photoHost.__wormhoffType5?.stop();
-   const matrixStage=stagebar5.querySelector('[data-stage="3"]');
-   if(matrixStage)matrixStage.hidden=false;
-   document.body.classList.remove('wormhoff-type5-active');
-   photoPanel.hidden=true;
-   $('gameLayout').hidden=false;
-   $('stagebar').hidden=false;
-   $('solveDirect').disabled=false;
-   $('randomizeValues').disabled=false;
- }
  sel.onchange=()=>{
-      if(sel.value==='type5-3m5r3u'){activatePhoto();return;}
-      deactivatePhoto();
       const ex=exercises.find(e=>e.id===sel.value);
       if(!ex)return;
       // Invalidar cualquier animación anterior; reinicio inmediato.
-      if(sel.value==='type5-3m5r3u'){photoHost.__wormhoffType5?.randomize();return;}
       if(active.kind==='multi')sixCancel();
       flowToken++;if(S.pausedResume){S.pausedResume();S.pausedResume=null}
       stopFlow();S.animating=false;
@@ -1908,7 +1850,6 @@
       try{localStorage.setItem('wormhoff.demo',String(demoEnabled));}catch{}
       updateDemoButton();
       window.dispatchEvent(new CustomEvent('wormhoff-demo-changed',{detail:demoEnabled}));
-      if(sel.value==='type5-3m5r3u')return;
       if(active.kind==='multi')sixCancel();
       newGame(true);
     });
@@ -1918,11 +1859,6 @@
       flowToken++;if(S.pausedResume){S.pausedResume();S.pausedResume=null}
       stopFlow();S.animating=false;
       try{generateIntegerValues();newGame(true);}catch(error){currentPlacementNotice(error.message)}
-    });
-    window.addEventListener('wormhoff-type5-demo',event=>{
-      demoEnabled=Boolean(event.detail);
-      try{localStorage.setItem('wormhoff.demo',String(demoEnabled));}catch{}
-      updateDemoButton();
     });
     renderExerciseInfo();updateDemoButton();
   }
@@ -3020,6 +2956,19 @@
     {from:'C',to:'D',p:[[350,225],[426,225,'U'],[510,225,'R'],[570,225]],src:4},
     {from:'B',to:'D',p:[[130,225],[130,355],[290,355,'U'],[466,355,'R'],[570,355],[570,225]],src:5}
   ];
+  // La topología cambia los componentes, nunca los controles ni las fases.
+  const EDGES6_ORIGINAL=EDGES6.map(edge=>({...edge,p:edge.p.map(point=>point.slice())}));
+  function configureMultiTopology(){
+    EDGES6.splice(0,EDGES6.length,...EDGES6_ORIGINAL.map(edge=>({...edge,p:edge.p.map(point=>point.slice())})));
+    if(active.id!=='type5-3m5r3u')return;
+    // Misma red de cuatro nudos y seis ramas; una rama es un conductor ideal.
+    EDGES6[1].p=[[350,74],[350,125,'R'],[350,183,'U'],[350,225]];
+    EDGES6[2].p=[[350,74],[465,74,'R'],[570,74],[570,225]];
+    EDGES6[3].p=[[130,225],[350,225]];
+    EDGES6[4].p=[[350,225],[510,225,'R'],[570,225]];
+    EDGES6[5].p=[[130,225],[130,355],[290,355,'U'],[466,355,'R'],[570,355],[570,225]];
+  }
+  const type5ResistanceNames={0:'R1',1:'R3',2:'R4',4:'R5',5:'R2'};
   const MESH6=[
     [{id:0,d:1},{id:1,d:1},{id:3,d:-1}],
     [{id:1,d:-1},{id:2,d:1},{id:4,d:-1}],
@@ -3088,9 +3037,9 @@
         const rid='sixCmp'+i+t;
         if(t==='R'){
           const valY=horiz?y+37:y+5;
-          h+=`<g id="${rid}" class="component-resistor">${resistorSymbol(x,y,!horiz,R6[i],'R'+(i+1),25)}</g>`;
+          h+=`<g id="${rid}" class="component-resistor">${resistorSymbol(x,y,!horiz,R6[i],active.id==='type5-3m5r3u'?type5ResistanceNames[i]:'R'+(i+1),25)}</g>`;
         }else{
-          const ep=E6[i];const plus=(ep>0),vert=[0,2].includes(i);
+          const ep=E6[i];const plus=(ep>0),vert=active.id==='type5-3m5r3u'?[0,1].includes(i):[0,2].includes(i);
           // Las dos fuentes verticales del 7.6 tienen el borne positivo arriba.
           // Placas a 12 unidades; dos terminales dibujados explícitamente para
           // conectar ambos extremos del símbolo IEC a la rama.
@@ -3154,6 +3103,7 @@
     sixCancel();
     S.phase=6;S.score=0;
     // Cada nuevo ejercicio de tres mallas parte de intensidades enteras que satisfacen KCL.
+    configureMultiTopology();
     if(active.kind==='multi'&&!preserveValues)generateIntegerValues();
     $('advShowCramer').checked=false;A6.solveMethod='algebra';
     A6.currentNumbers=Array(6).fill(null);A6.currentPositions=Array(6).fill(null);NAMES6.splice(0,NAMES6.length,...Array(6).fill('I'));
@@ -3163,8 +3113,8 @@
     $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();$('dirGraphics').append($('sixRefArrows'));$('loopArrows').append($('sixLoops'));decorateComponentValues();
     for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents='none';$('nodeHit').style.pointerEvents='none';
     $('boardTitle').textContent=topologyLabel(active);$('boardBadge').textContent=symbolStandardLabel()+' · 4 nudos · 6 ramas · 3 mallas';$('circuit').setAttribute('aria-label','Circuito de seis ramas, cuatro nudos y tres mallas');
-    $('boardSummary').textContent='R: 4 / 3 / 2 / 2 / 5 / 3 Ω · U: 10, 4, 6, 12, 2 V';
-    $('boardState').textContent='Actividad resuelta 7.6: el circuito original, sin inventar conexiones ni fuentes.';
+    $('boardSummary').textContent=active.id==='type5-3m5r3u'?'5 resistencias · 3 fuentes · valores enteros':'R: 4 / 3 / 2 / 2 / 5 / 3 Ω · U: 10, 4, 6, 12, 2 V';
+    $('boardState').textContent=active.id==='type5-3m5r3u'?'Circuito tipo 5: mismo procedimiento de nudos, mallas y resolución que el tipo 4.':'Actividad resuelta 7.6: el circuito original, sin inventar conexiones ni fuentes.';
     show('boardEquations',false);show('advBoardEquations',true);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);sixRenderRows();
     show('advKCL',false);show('advLoops',false);show('advMatrix',false);show('advSolve',false);show('advResultPanel',false);show('advStart',true);
     $('phaseHead').textContent='Tema 7 · Actividad resuelta 7.6';$('phaseChip').textContent='4 NUDOS';
