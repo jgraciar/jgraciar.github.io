@@ -1741,19 +1741,7 @@
       parts.push(source('sourceElement2',544,136,E[2],'E3'));
       parts.push('<circle class="nod" cx="345" cy="74" r="5"/><circle class="nod" cx="345" cy="360" r="5"/><text class="txt" x="358" y="58">A</text><text class="txt" x="358" y="390">B</text>');
       $('staticCircuit').innerHTML=parts.join('');decorateComponentValues();
-      // El tipo 5 utiliza la misma presentación de fases que el tipo 4;
-    // únicamente cambia la descripción de su topología y sus elementos.
-    const introduction=$('advIntroduction');
-    const introductionTitle=introduction.querySelector('.phase-title');
-    const introductionDescription=introduction.querySelector('.desc');
-    if(active.id==='type5-3m5r3u'){
-      introductionTitle.textContent='Tipo 5 · Kirchhoff completo';
-      introductionDescription.innerHTML='Circuito de <b>4 nudos (n−1 = 3)</b>, <b>6 ramas</b> y <b>3 mallas</b>, con <b>5 resistencias</b> y <b>3 fuentes</b>. Se mantienen los mismos controles, fases y símbolos IEC que en el tipo 4.';
-    }else{
-      introductionTitle.textContent='Tipo 4 · Kirchhoff completo';
-      introductionDescription.innerHTML='Circuito de <b>4 nudos (n−1 = 3)</b>, <b>6 ramas</b> y <b>3 mallas</b>. Los elementos en serie de cada rama conservan sus valores y polaridades. Las referencias de corriente son elecciones algebraicas.';
-    }
-    $('boardTitle').textContent=topologyLabel(active);
+      $('boardTitle').textContent=topologyLabel(active);
       $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
       $('boardSummary').textContent='R1 '+formatComponentValue(f[0])+' Ω · R2 '+formatComponentValue(f[1])+' Ω · R3 '+formatComponentValue(f[2])+' Ω · R4 '+formatComponentValue(f[3])+' Ω · E1 '+formatComponentValue(E[0])+' V · E2 '+formatComponentValue(E[1])+' V · E3 '+formatComponentValue(E[2])+' V';
       $('circuit').setAttribute('aria-label','Figura 4.51: dos mallas, tres fuentes y cuatro resistencias independientes');
@@ -3127,6 +3115,18 @@
     $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('meshSelection').innerHTML='';
     $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();$('dirGraphics').append($('sixRefArrows'));$('loopArrows').append($('sixLoops'));decorateComponentValues();
     for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents='none';$('nodeHit').style.pointerEvents='none';
+    // El tipo 5 utiliza la misma presentación de fases que el tipo 4;
+    // únicamente cambia la descripción de su topología y sus elementos.
+    const introduction=$('advIntroduction');
+    const introductionTitle=introduction.querySelector('.phase-title');
+    const introductionDescription=introduction.querySelector('.desc');
+    if(active.id==='type5-3m5r3u'){
+      introductionTitle.textContent='Tipo 5 · Kirchhoff completo';
+      introductionDescription.innerHTML='Circuito de <b>4 nudos (n−1 = 3)</b>, <b>6 ramas</b> y <b>3 mallas</b>, con <b>5 resistencias</b> y <b>3 fuentes</b>. Se mantienen los mismos controles, fases y símbolos IEC que en el tipo 4.';
+    }else{
+      introductionTitle.textContent='Tipo 4 · Kirchhoff completo';
+      introductionDescription.innerHTML='Circuito de <b>4 nudos (n−1 = 3)</b>, <b>6 ramas</b> y <b>3 mallas</b>. Los elementos en serie de cada rama conservan sus valores y polaridades. Las referencias de corriente son elecciones algebraicas.';
+    }
     $('boardTitle').textContent=topologyLabel(active);$('boardBadge').textContent=symbolStandardLabel()+(active.id==='type5-3m5r3u'?' · 4 nudos · 5 resistencias · 3 fuentes · 3 mallas':' · 4 nudos · 6 ramas · 3 mallas');$('circuit').setAttribute('aria-label',active.id==='type5-3m5r3u'?'Circuito de seis ramas entre cuatro nudos, con cinco resistencias, tres fuentes y tres mallas':'Circuito de seis ramas, cuatro nudos y tres mallas');
     $('boardSummary').textContent=active.id==='type5-3m5r3u'?'5 resistencias · 3 fuentes · valores enteros':'R: 4 / 3 / 2 / 2 / 5 / 3 Ω · U: 10, 4, 6, 12, 2 V';
     $('boardState').textContent=active.id==='type5-3m5r3u'?'Circuito tipo 5: mismo procedimiento de nudos, mallas y resolución que el tipo 4.':'Actividad resuelta 7.6: el circuito original, sin inventar conexiones ni fuentes.';
