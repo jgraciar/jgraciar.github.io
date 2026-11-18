@@ -32,6 +32,14 @@ if(!index.includes(href)){
   index=index.replace(marker,card+marker);
   writeFileSync(portal,index);
 }
+// Comprobar que los imports ESM del circuito tipo 5 se pueden resolver en Pages.
+const type5Entry=readFileSync(destination,'utf8');
+assert(type5Entry.includes("type5-view.mjs"),'La portada de Wormhoff no carga el tipo 5');
+for(const [file,dependency] of [['type5-view.mjs','type5-model.mjs'],['type5-model.mjs','mesh-engine.mjs']]){
+ const published=join(site,'wormhoff',file);
+ assert(existsSync(published),'Módulo no publicado: '+file);
+ assert(readFileSync(published,'utf8').includes(dependency),'Import ESM no resuelto: '+file+' -> '+dependency);
+}
 assert(existsSync(destination)&&readFileSync(destination,"utf8").includes("Wormhoff")&&
   readFileSync(portal,"utf8").includes(href),
   "No se ha publicado o enlazado Wormhoff");
