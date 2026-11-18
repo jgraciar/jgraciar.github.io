@@ -3,7 +3,7 @@
 // The source image does not specify numeric values: these are test values.
 // Clockwise mesh currents M1, M2, M3. U1/U2 positive at top; U3 positive at right.
 import assert from 'node:assert/strict';
-import {photoSystem,photoSolve} from '../wormhoff/photo-three-mesh.mjs';
+import {type5System as photoSystem,type5Solve as photoSolve} from '../wormhoff/type5-model.mjs';
 const R={R1:2,R2:3,R3:4,R4:5,R5:6};
 const U={U1:12,U2:6,U3:9};
 const A=[
