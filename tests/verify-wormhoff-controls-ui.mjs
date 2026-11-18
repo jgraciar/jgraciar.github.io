@@ -688,7 +688,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  // El tipo 5 usa exactamente la misma interfaz, fases y resolución que el tipo 4.
  await page.selectOption('#exerciseSelect','type5-3m5r3u');
  assert.equal(await page.locator('#gameLayout').isVisible(),true,'El tipo 5 utiliza el tablero común');
- assert.equal(await page.locator('#advancedPhase').isVisible(),true,'El tipo 5 utiliza las fases comunes');
+ assert.equal(await page.locator('#advancedPhase').isVisible(),true,'El tipo 5 utiliza las fases comunes: '+JSON.stringify(await page.evaluate(()=>({phase:document.querySelector('#advancedPhase').className,layout:document.querySelector('#gameLayout').className,phaseCard:document.querySelector('#phaseCard').className,selected:document.querySelector('#exerciseSelect').value,body:document.body.className}))));
  assert.equal(await page.locator('#photoIntegrated').isVisible(),false,'Sin interfaz independiente');
  assert.equal(await page.locator('#sixSymbols .component-resistor').count(),5,'Cinco resistencias IEC');
  assert.equal(await page.locator('#sixSymbols .component-source').count(),3,'Tres fuentes IEC');
