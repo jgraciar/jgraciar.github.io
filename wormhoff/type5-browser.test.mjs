@@ -68,7 +68,7 @@ try{
 
  // Vista móvil: una columna y navegación visible.
  await page.setViewportSize({width:390,height:844});
- const columns=await game.locator('.type5-main').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(/\\s+/).length);
+ const columns=await game.locator('.type5-main').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length);
  assert.equal(columns,1,'mobile view must use one column');
  assert.equal(await page.locator('#stagebar').isVisible(),true);
   assert.deepEqual(errors,[],'No uncaught browser errors');
