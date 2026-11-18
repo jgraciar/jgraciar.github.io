@@ -1863,7 +1863,11 @@
    $('randomizeValues').disabled=false;
    syncType5Stages(photoHost.__wormhoffType5?.getStep()??0);
    if(!type5Loading){
-     type5Loading=import('./type5-view.mjs?v=3.27').then(({mountType5})=>mountType5(photoHost,demoEnabled)).catch(error=>{
+     type5Loading=import('./type5-view.mjs?v=3.27').then(({mountType5})=>{
+       const controller=mountType5(photoHost,demoEnabled);
+       if(sel.value==='type5-3m5r3u')syncType5Stages(controller.getStep());
+       return controller;
+     }).catch(error=>{
        type5Loading=null;
        photoHost.textContent='No se ha podido cargar el circuito tipo 5: '+error.message;
        console.error(error);
