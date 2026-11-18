@@ -1854,6 +1854,7 @@
  photoHost.addEventListener('wormhoff-type5-phase',event=>syncType5Stages(event.detail));
 
  function activatePhoto(){
+   photoHost.__wormhoffType5?.reset();
    document.body.classList.add('wormhoff-type5-active');
    photoPanel.hidden=false;
    $('gameLayout').hidden=true;
@@ -1870,6 +1871,7 @@
    }else window.dispatchEvent(new CustomEvent('wormhoff-demo-changed',{detail:demoEnabled}));
  }
  function deactivatePhoto(){
+   photoHost.__wormhoffType5?.stop();
    document.body.classList.remove('wormhoff-type5-active');
    photoPanel.hidden=true;
    $('gameLayout').hidden=false;
