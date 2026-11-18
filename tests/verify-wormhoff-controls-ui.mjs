@@ -59,7 +59,7 @@ const enterNodeEquation=async(page,id,equation)=>{
   }
  }else await page.locator('#nodeEquationChallenge .kcl-answer').fill(equation);
  await page.click('#nodeEquationDialog [data-context-help="nodeEquation"]');assert(await page.locator('#phaseHelpDialog').isVisible());assert.match(await page.locator('#phaseHelpBody').textContent(),/Σ I que entran/);
- await page.click('#closePhaseHelp');assert(await page.locator('#nodeEquationDialog').isVisible());if(await page.locator('#nodeEquationChallenge .kcl-answer').count())assert.equal(await page.locator('#nodeEquationChallenge .kcl-answer').inputValue(),equation,'La ayuda conserva la ecuación escrita');else assert(await page.locator('#nodeEquationChallenge .kcl-live-term').count()>0,'La ayuda conserva las intensidades colocadas');
+ await page.keyboard.press('Escape');await page.locator('#phaseHelpDialog').waitFor({state:'hidden'});assert(await page.locator('#nodeEquationDialog').isVisible());if(await page.locator('#nodeEquationChallenge .kcl-answer').count())assert.equal(await page.locator('#nodeEquationChallenge .kcl-answer').inputValue(),equation,'La ayuda conserva la ecuación escrita');else assert(await page.locator('#nodeEquationChallenge .kcl-live-term').count()>0,'La ayuda conserva las intensidades colocadas');
  assert.equal(await page.locator('#nodeEquationSummary').isVisible(),false,'Explicaciones del diálogo solo en ayuda');
  await page.click('#nodeEquationChallenge .kcl-check');
  assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'Ecuación validada en '+id);
@@ -110,12 +110,12 @@ for(let mesh=0;mesh<2;mesh++){
 await assertStageChecks(page,[0]);
 assert(await page.locator('[data-mesh-summary]').evaluateAll(groups=>groups.every(group=>group.querySelector('[data-mesh-complete]').getBoundingClientRect().bottom<group.querySelector('.mesh-turn-hit').getBoundingClientRect().top)),'Check encima del símbolo de giro');
 await page.click('#goMatrix');await completeSimplification(page);
-assert.equal(await page.locator('#phase3>.desc').count(),0);await page.click('#phaseSectionHelp');assert(await page.locator('#phaseHelpDialog').isVisible());assert.equal(await page.locator('#phaseHelpBody li').count(),5);assert.match(await page.locator('#phaseHelpBody').textContent(),/coeficientes|coeficiente/);await page.click('#closePhaseHelp');
+assert.equal(await page.locator('#phase3>.desc').count(),0);await page.click('#phaseSectionHelp');assert(await page.locator('#phaseHelpDialog').isVisible());assert.equal(await page.locator('#phaseHelpBody li').count(),5);assert.match(await page.locator('#phaseHelpBody').textContent(),/coeficientes|coeficiente/);await page.keyboard.press('Escape');await page.locator('#phaseHelpDialog').waitFor({state:'hidden'});
 await page.click('#fillMatrix');await assertStageChecks(page,[0,2]);await page.click('#verifyMatrix');await assertStageChecks(page,[0,2]);
 const testedCoefficient=page.locator('#matrixInputs input').first(),correctCoefficient=await testedCoefficient.inputValue();await testedCoefficient.fill('999');await assertStageChecks(page,[0,2]);assert.equal(await page.locator('#resolveAlgebraChoice').isVisible(),true,'La matriz es opcional y no bloquea la resolución');await testedCoefficient.fill(correctCoefficient);await page.click('#verifyMatrix');await assertStageChecks(page,[0,2]);await page.click('#resolveAlgebraChoice');
 await page.click('#nextStep');
-assert.equal(await page.locator('#phase4>.desc,#solutionSteps .step-description').count(),0);await page.click('#phaseSectionHelp');assert.equal(await page.locator('#phaseHelpBody li').count(),5);await page.click('#closePhaseHelp');
-await page.locator('#solutionSteps [data-step-help]').first().click();assert.match(await page.locator('#phaseHelpBody').textContent(),/Partimos de/);await page.click('#closePhaseHelp');
+assert.equal(await page.locator('#phase4>.desc,#solutionSteps .step-description').count(),0);await page.click('#phaseSectionHelp');assert.equal(await page.locator('#phaseHelpBody li').count(),5);await page.keyboard.press('Escape');await page.locator('#phaseHelpDialog').waitFor({state:'hidden'});
+await page.locator('#solutionSteps [data-step-help]').first().click();assert.match(await page.locator('#phaseHelpBody').textContent(),/Partimos de/);await page.keyboard.press('Escape');await page.locator('#phaseHelpDialog').waitFor({state:'hidden'});
 await page.locator('#currentArrow1').focus();await page.locator('#currentArrow1').press('F2');
 assert.equal(await page.locator('#currentNumber').inputValue(),'2');await page.locator('#currentNumber').fill('22');await page.click('#currentNameForm button[type="submit"]');
 assert.match(await page.locator('#matrixVariableOrder').textContent(),/I₂₂/);assert(!/I₂(?!₂)/.test(await page.locator('#solutionSteps').textContent()),'Resolución con la referencia nueva');
@@ -180,7 +180,7 @@ await page.evaluate(()=>{
 // Complete verification using the existing renderer without awarding more points.
 await page.evaluate(()=>{wormhoffTest.sixStartSolve(true);});
 assert(await page.locator('#advResultPanel').isVisible());assert(await page.locator('#hero').evaluate(el=>el.classList.contains('hero-victory')),'Pose final también con seis ramas');
-await page.click('#phaseSectionHelp');assert.equal(await page.locator('#phaseHelpBody li').count(),5);assert((await page.locator('#phaseHelpBody .help-step').count())>3);await page.click('#closePhaseHelp');
+await page.click('#phaseSectionHelp');assert.equal(await page.locator('#phaseHelpBody li').count(),5);assert((await page.locator('#phaseHelpBody .help-step').count())>3);await page.keyboard.press('Escape');await page.locator('#phaseHelpDialog').waitFor({state:'hidden'});
  await page.evaluate(()=>{const {A6,openSimplification}=wormhoffTest;A6.stage='loops';A6.simplified=false;A6.completedScore=false;openSimplification(true);});
  assert.equal(await page.locator('.simplification-answer').count(),0,'No se piden ecuaciones que ya están simplificadas');
  assert.equal(await page.locator('#continueSimplification').count(),0,'El botón anterior está retirado');
@@ -244,8 +244,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(await page.locator('#hero').isVisible(),false,'Gusano oculto al numerar intensidades');
  assert.equal(await page.locator('#gameLayout .law-guide,#gameLayout .desc,#gameLayout .helper,#gameLayout .notes').count(),0,'Texto explicativo fuera de la vista general');
  assert.equal(await page.locator('#boardState').isVisible(),false);
- await page.click('#equationsCard [data-context-help="laws"]');assert(await page.locator('#phaseHelpDialog').isVisible());assert.match(await page.locator('#phaseHelpBody').textContent(),/Ley de los nudos/);assert.match(await page.locator('#phaseHelpBody').textContent(),/Ley de las mallas/);assert((await page.locator('#phaseHelpBody .law-formula').count())>=3);await page.click('#closePhaseHelp');
- await page.click('#phaseSectionHelp');assert.match(await page.locator('#phaseHelpBody').textContent(),/numerar|numera/);await page.click('#closePhaseHelp');
+ await page.click('#equationsCard [data-context-help="laws"]');assert(await page.locator('#phaseHelpDialog').isVisible());assert.match(await page.locator('#phaseHelpBody').textContent(),/Ley de los nudos/);assert.match(await page.locator('#phaseHelpBody').textContent(),/Ley de las mallas/);assert((await page.locator('#phaseHelpBody .law-formula').count())>=3);await page.keyboard.press('Escape');await page.locator('#phaseHelpDialog').waitFor({state:'hidden'});
+ await page.click('#phaseSectionHelp');assert.match(await page.locator('#phaseHelpBody').textContent(),/numerar|numera/);await page.keyboard.press('Escape');await page.locator('#phaseHelpDialog').waitFor({state:'hidden'});
  assert.equal(await page.locator('#currentNumber').getAttribute('maxlength'),'2');
  assert.equal(await page.locator('#currentNameDialog h3,#currentBranchDescription,#currentNumberError').count(),0,'Conserva el diálogo compacto con I');
  if(!mobile){await page.setViewportSize({width:1920,height:1100});assert((await page.locator('.shell').boundingBox()).width>1900,'Utiliza todo el ancho disponible');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.setViewportSize({width:1440,height:1100});}
@@ -417,7 +417,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   await page.locator('#currentNameDialog').waitFor({state:'visible'});
   assert(await page.locator('#currentNumber').evaluate(el=>el.selectionStart===0&&el.selectionEnd===el.value.length),'Número actual seleccionado');
   const dialog=await page.locator('#currentNameDialog').boundingBox();assert(dialog.width<250&&dialog.height<100,'Editor compacto');
-  const entered=await page.locator('#currentNumber').inputValue();await page.click('#currentNameDialog [data-context-help="currentName"]');assert(await page.locator('#phaseHelpDialog').isVisible());await page.click('#closePhaseHelp');assert(await page.locator('#currentNameDialog').isVisible());assert.equal(await page.locator('#currentNumber').inputValue(),entered,'La ayuda conserva el número');
+  const entered=await page.locator('#currentNumber').inputValue();await page.click('#currentNameDialog [data-context-help="currentName"]');assert(await page.locator('#phaseHelpDialog').isVisible());await page.keyboard.press('Escape');await page.locator('#phaseHelpDialog').waitFor({state:'hidden'});assert(await page.locator('#currentNameDialog').isVisible());assert.equal(await page.locator('#currentNumber').inputValue(),entered,'La ayuda conserva el número');
   const current=await page.locator(selector).evaluate(el=>({x:el.dataset.arrowX,y:el.dataset.arrowY,d:el.querySelector('.direction').getAttribute('d')}));
   assert.deepEqual(current,pose,'Abrir el editor no mueve ni invierte la flecha');return pose;
  };
@@ -452,7 +452,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const button=page.locator('#'+id);
   await page.waitForFunction(id=>document.getElementById(id).dataset.state==='running',id);
   await page.waitForTimeout(80);
-  await page.click('#circuitCard [data-context-help="circuit"]');assert.equal(await button.getAttribute('data-state'),'paused');const helpPosition=await page.locator('#hero').getAttribute('transform');await page.waitForTimeout(100);assert.equal(await page.locator('#hero').getAttribute('transform'),helpPosition,'La ayuda detiene el recorrido');await page.click('#closePhaseHelp');await page.waitForFunction(id=>document.getElementById(id).dataset.state==='running',id);await page.waitForTimeout(50);
+  await page.click('#circuitCard [data-context-help="circuit"]');assert.equal(await button.getAttribute('data-state'),'paused');const helpPosition=await page.locator('#hero').getAttribute('transform');await page.waitForTimeout(100);assert.equal(await page.locator('#hero').getAttribute('transform'),helpPosition,'La ayuda detiene el recorrido');await page.keyboard.press('Escape');await page.locator('#phaseHelpDialog').waitFor({state:'hidden'});await page.waitForFunction(id=>document.getElementById(id).dataset.state==='running',id);await page.waitForTimeout(50);
   assert.equal(await page.locator('.mesh-status-moving').count(),1,'Rótulo de operación parpadea al moverse');
   assert.match(await page.locator('.mesh-status-moving').textContent(),/Σ I·R|Σ U/);
   const runningColor=await button.evaluate(el=>getComputedStyle(el).backgroundColor);
@@ -654,7 +654,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.match(await page.locator('#advKCLtext').textContent(),/I₁₅/,'Actualiza las ecuaciones de nudo');
  assert.match(await page.locator('#sixTermChallenge .term-answer').getAttribute('placeholder'),/I₁₅/,'Actualiza el término pendiente');
  await page.locator('#sixTermChallenge .term-answer').fill('5I15');
- assert.equal(await page.locator('#sixTermChallenge .context-explanation').isVisible(),false);await page.click('#sixTermChallenge [data-context-help="resistanceTerm"]');assert(await page.locator('#phaseHelpDialog').isVisible());await page.click('#closePhaseHelp');assert.equal(await page.locator('#sixTermChallenge .term-answer').inputValue(),'5I15');await page.click('#sixTermChallenge .term-check');
+ assert.equal(await page.locator('#sixTermChallenge .context-explanation').isVisible(),false);await page.click('#sixTermChallenge [data-context-help="resistanceTerm"]');assert(await page.locator('#phaseHelpDialog').isVisible());await page.keyboard.press('Escape');await page.locator('#phaseHelpDialog').waitFor({state:'hidden'});assert.equal(await page.locator('#sixTermChallenge .term-answer').inputValue(),'5I15');await page.click('#sixTermChallenge .term-check');
  await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').waitFor({state:'visible'});
  assert.match(await page.locator('#equationsCard #advBoardEquations [data-equation="E5"]').textContent(),/E5:/);
  assert.match(await page.locator('#advBoardRows').textContent(),/I₁₅/);editPose=await openNumberEditor('#sixCurrentArrow4');await saveNumber('#sixCurrentArrow4',5,editPose);assert(!/I₁₅/.test(await page.locator('#advBoardRows').textContent()));
