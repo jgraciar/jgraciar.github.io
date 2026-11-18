@@ -915,7 +915,6 @@
     <div class="stage" data-stage="3" hidden><button type="button" class="phase-link" data-phase="3"><b>03</b><span>Matriz</span></button><span class="phase-complete" role="img" aria-label="Fase superada" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg></span></div>
     <div class="stage" data-stage="4"><button type="button" class="phase-link" data-phase="4"><b>03</b><span>Resolución</span></button><span class="phase-complete" role="img" aria-label="Fase superada" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg></span></div>
   </nav>
-  <section id="photoIntegrated" hidden aria-label="Circuito tipo 5" style="width:100%"><div id="photoIntegratedView"></div></section>
   <main class="layout" id="gameLayout">
     <section class="card" id="circuitCard">
       <div class="cardhead"><strong id="boardTitle">Circuito de tres ramas · 2 nudos</strong><span class="chip" id="boardBadge">IEC · CC</span><button type="button" class="help-button" data-context-help="circuit" aria-label="Ayuda del circuito" title="Ayuda">?</button><span class="chip hide" id="boardNodeSelectionCounter" role="status" aria-live="polite" title="Nudos seleccionados"></span><div class="column-text-controls" data-text-controls="circuit" aria-label="Tamaño del circuito"><button type="button" class="ghost" data-text-change="-1" aria-label="Reducir circuito">−</button><output>100%</output><button type="button" class="ghost" data-text-change="1" aria-label="Ampliar circuito">+</button></div></div>
@@ -1860,7 +1859,6 @@
       newGame(true);
     });
     $('randomizeValues').addEventListener('click',()=>{
-      if(sel.value==='type5-3m5r3u'){photoHost.__wormhoffType5?.randomize();return;}
       if(active.kind==='multi')sixCancel();
       flowToken++;if(S.pausedResume){S.pausedResume();S.pausedResume=null}
       stopFlow();S.animating=false;
@@ -4346,7 +4344,7 @@
       else R[component.index]=value;
       $('componentValueDialog').close();newGame(true);if(solved)solveCircuitDirectly();
     };
-    $('solveDirect').onclick=()=>{if($('exerciseSelect').value==='type5-3m5r3u'){$('photoIntegratedView').__wormhoffType5?.solveDirect();return;}solveCircuitDirectly();};
+    $('solveDirect').onclick=()=>solveCircuitDirectly();
   }
   function drawDirectMeshDirections(){
     const six=active.kind==='multi';
