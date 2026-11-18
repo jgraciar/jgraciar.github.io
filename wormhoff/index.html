@@ -3125,6 +3125,8 @@
     sixText('advInfo','Pulsa sobre las flechas para invertir las corrientes. Cada elección es una referencia algebraica válida.');
     positionHero(...N6.C,0,true);setHeroGait(false);setHeroMood(false);sixRefArrow();sixMeshArrows();
     $('score').textContent='0000';$('percent').textContent='0%';syncPhaseNavigation();
+    // Garantizar que la fase compartida queda visible al cambiar de topología.
+    show('advancedPhase',true);
   }
   function sixNodeSides(row){
     const incoming=[],outgoing=[];
