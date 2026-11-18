@@ -1795,13 +1795,19 @@
     if(active.kind==='multi'){
       if(active.id==='type5-3m5r3u'){
         const r=Array.from({length:5},()=>randomInt(1,9));
-        const [x,y,z]=Array.from({length:3},()=>randomInt(-3,3));
         const [r1,r2,r3,r4,r5]=r;
-        const b0=(r1+r3)*x-r3*y;
-        const b1=-r3*x+(r3+r4+r5)*y-r5*z;
-        const b2=-r5*y+(r2+r5)*z;
-        R6=[r1,r3,r4,0,r5,r2];E6=[b0+b1,-b1,0,0,0,-b2];
-        return;
+        for(let attempt=0;attempt<100;attempt++){
+          const [x,y,z]=Array.from({length:3},()=>randomInt(-3,3));
+          if(x===0&&y===0&&z===0)continue;
+          const b0=(r1+r3)*x-r3*y;
+          const b1=-r3*x+(r3+r4+r5)*y-r5*z;
+          const b2=-r5*y+(r2+r5)*z;
+          const sources=[b0+b1,b1,-b2];
+          if(sources.some(v=>v===0||Math.abs(v)>150))continue;
+          R6=[r1,r3,r4,0,r5,r2];E6=[sources[0],-sources[1],0,0,0,sources[2]];
+          return;
+        }
+        throw new Error('No se han encontrado tres fuentes no nulas para el tipo 5.');
       }
       for(let attempt=0;attempt<500;attempt++){
         const i0=randomInt(-5,5),i1=randomInt(-5,5),i3=randomInt(-5,5);
