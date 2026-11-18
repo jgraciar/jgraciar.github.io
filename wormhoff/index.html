@@ -1239,7 +1239,6 @@
     {id:'fig237',label:'Figura 2.37 · método de las mallas',R:[4,3,2],E:[20,0,-10],status:'Jugable',hint:'Figura 2.37: dos mallas, tres resistencias (4, 3 y 2 Ω) y dos fuentes (20 y 10 V). La fuente derecha tiene polaridad opuesta a la izquierda; el motor conserva las tres ramas y sus ecuaciones de Kirchhoff.'},
     {id:'r73',label:'Nivel 2 · P. Resuelta 7.3 · tres generadores',R:[6,4,2],E:[10,6,4],status:'Jugable · fuentes en serie',hint:'Adaptación de las tres ramas de la actividad 7.3. En la rama central las fuentes de 12 V y 6 V tienen polaridades opuestas: su tensión algebraica es 6 V. No se combinan resistencias.',source:'act.-resuelta-7.3.txt'},
     {id:'r76',kind:'multi',label:'Nivel 2 · P. Resuelta 7.6 · seis ramas y tres mallas',status:'Jugable · 6 corrientes',hint:'Se conservan seis corrientes, cuatro nudos y tres mallas. Resistencias originales de 4, 3, 2, 2, 5 y 3 Ω, sin simplificaciones de serie/paralelo.',source:'act.-resuelta-7.6.txt'},
-    {id:'type5-3m5r3u',kind:'multi',label:'Tipo 5 · tres mallas, cinco resistencias y tres fuentes',status:'Jugable',hint:'Tres mallas con cinco resistencias y tres fuentes. Comparte controles, fases y motor con el tipo 4.'}
   ];
   // Ejercicios ordenados por número de mallas. La figura 4.51 permanece en el
   // catálogo histórico pero se retira del selector: al reducir resistencias
@@ -1248,8 +1247,7 @@
   const topologyIds=['base','r73','fig237','r76'];
   // Datos de topología independientes de los controles y fases comunes.
   const multiTopologyDefinitions={
-    r76:{meshes:3,branches:6,resistors:6,sources:5},
-    'type5-3m5r3u':{meshes:3,branches:6,resistors:5,sources:3}
+    r76:{meshes:3,branches:6,resistors:6,sources:5}
   };
   const topologyLabel=exercise=>'Tipo '+(topologyIds.indexOf(exercise.id)+1);
   let active=exercises[0];
@@ -1790,22 +1788,6 @@
   const randomInt=(min,max)=>min+Math.floor(Math.random()*(max-min+1));
   function generateIntegerValues(){
     if(active.kind==='multi'){
-      if(active.id==='type5-3m5r3u'){
-        const r=Array.from({length:5},()=>randomInt(1,9));
-        const [r1,r2,r3,r4,r5]=r;
-        for(let attempt=0;attempt<100;attempt++){
-          const [x,y,z]=Array.from({length:3},()=>randomInt(-3,3));
-          if(x===0&&y===0&&z===0)continue;
-          const b0=(r1+r3)*x-r3*y;
-          const b1=-r3*x+(r3+r4+r5)*y-r5*z;
-          const b2=-r5*y+(r2+r5)*z;
-          const sources=[b0+b1,b1,-b2];
-          if(sources.some(v=>v===0||Math.abs(v)>150))continue;
-          R6=[r1,r3,r4,0,r5,r2];E6=[sources[0],-sources[1],0,0,0,sources[2]];
-          return;
-        }
-        throw new Error('No se han encontrado tres fuentes no nulas para el tipo 5.');
-      }
       for(let attempt=0;attempt<500;attempt++){
         const i0=randomInt(-5,5),i1=randomInt(-5,5),i3=randomInt(-5,5);
         const currents=[i0,i1,i0-i1,i3,i1+i3,-i0-i3];
@@ -2961,18 +2943,8 @@
   // La topología cambia los componentes, nunca los controles ni las fases.
   const EDGES6_ORIGINAL=EDGES6.map(edge=>({...edge,p:edge.p.map(point=>point.slice())}));
   function configureMultiTopology(){
-    // El tipo 5 comparte sin excepciones el bastidor, las coordenadas y la
-    // estructura de la página del tipo 4. Cambian únicamente sus elementos.
     EDGES6.splice(0,EDGES6.length,...EDGES6_ORIGINAL.map(edge=>({...edge,p:edge.p.map(point=>point.slice())})));
-    if(active.id!=='type5-3m5r3u')return;
-    // Cinco resistencias y tres fuentes, sobre el mismo trazado de seis ramas.
-    EDGES6[1].p=[[350,74],[350,125,'R'],[350,183,'U'],[350,225]];
-    EDGES6[2].p=[[350,74],[465,74,'R'],[570,74],[570,225]];
-    EDGES6[3].p=[[130,225],[209,225],[291,225],[350,225]];
-    EDGES6[4].p=[[350,225],[510,225,'R'],[570,225]];
-    EDGES6[5].p=[[130,225],[130,355],[290,355,'U'],[466,355,'R'],[570,355],[570,225]];
   }
-  const type5ResistanceNames={0:'R1',1:'R3',2:'R4',4:'R5',5:'R2'};
   const MESH6=[
     [{id:0,d:1},{id:1,d:1},{id:3,d:-1}],
     [{id:1,d:-1},{id:2,d:1},{id:4,d:-1}],
@@ -3041,9 +3013,9 @@
         const rid='sixCmp'+i+t;
         if(t==='R'){
           const valY=horiz?y+37:y+5;
-          h+=`<g id="${rid}" class="component-resistor">${resistorSymbol(x,y,!horiz,R6[i],active.id==='type5-3m5r3u'?type5ResistanceNames[i]:'R'+(i+1),25)}</g>`;
+          h+=`<g id="${rid}" class="component-resistor">${resistorSymbol(x,y,!horiz,R6[i],'R'+(i+1),25)}</g>`;
         }else{
-          const ep=E6[i];const plus=(ep>0),vert=active.id==='type5-3m5r3u'?[0,1].includes(i):[0,2].includes(i);
+          const ep=E6[i];const plus=(ep>0),vert=[0,2].includes(i);
           // Las dos fuentes verticales del 7.6 tienen el borne positivo arriba.
           // Placas a 12 unidades; dos terminales dibujados explícitamente para
           // conectar ambos extremos del símbolo IEC a la rama.
@@ -3120,7 +3092,7 @@
     const introduction=$('advIntroduction');
     const introductionTitle=introduction?.querySelector('.phase-title');
     const introductionDescription=introduction?.querySelector('.desc');
-    // Una única presentación para los tipos 4 y 5: solo varían los datos de topología.
+    // Presentación compartida de las topologías de tres mallas.
     const topology=multiTopologyDefinitions[active.id];
     const typeName=topologyLabel(active);
     if(introductionTitle)introductionTitle.textContent=typeName+' · Kirchhoff completo';
