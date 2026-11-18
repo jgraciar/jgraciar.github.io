@@ -1823,8 +1823,8 @@
    photoPanel.hidden=false;
    $('gameLayout').hidden=true;
    $('stagebar').hidden=true;
-   $('solveDirect').disabled=true;
-   $('randomizeValues').disabled=true;
+   $('solveDirect').disabled=false;
+   $('randomizeValues').disabled=false;
    if(!type5Loading){
      type5Loading=import('./type5-view.mjs').then(({mountType5})=>mountType5(photoHost,demoEnabled)).catch(error=>{
        type5Loading=null;
@@ -1846,6 +1846,7 @@
       const ex=exercises.find(e=>e.id===sel.value);
       if(!ex)return;
       // Invalidar cualquier animación anterior; reinicio inmediato.
+      if(sel.value==='type5-3m5r3u'){photoHost.__wormhoffType5?.randomize();return;}
       if(active.kind==='multi')sixCancel();
       flowToken++;if(S.pausedResume){S.pausedResume();S.pausedResume=null}
       stopFlow();S.animating=false;
@@ -1866,6 +1867,11 @@
       flowToken++;if(S.pausedResume){S.pausedResume();S.pausedResume=null}
       stopFlow();S.animating=false;
       try{generateIntegerValues();newGame(true);}catch(error){currentPlacementNotice(error.message)}
+    });
+    window.addEventListener('wormhoff-type5-demo',event=>{
+      demoEnabled=Boolean(event.detail);
+      try{localStorage.setItem('wormhoff.demo',String(demoEnabled));}catch{}
+      updateDemoButton();
     });
     renderExerciseInfo();updateDemoButton();
   }
@@ -4327,7 +4333,7 @@
       else R[component.index]=value;
       $('componentValueDialog').close();newGame(true);if(solved)solveCircuitDirectly();
     };
-    $('solveDirect').onclick=solveCircuitDirectly;
+    $('solveDirect').onclick=()=>{if($('exerciseSelect').value==='type5-3m5r3u'){$('photoIntegratedView').__wormhoffType5?.solveDirect();return;}solveCircuitDirectly();};
   }
   function drawDirectMeshDirections(){
     const six=active.kind==='multi';
