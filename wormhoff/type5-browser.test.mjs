@@ -11,6 +11,21 @@ try{
   await new Promise(resolve=>setTimeout(resolve,800));
   await page.goto('http://127.0.0.1:8765/wormhoff/',{waitUntil:'domcontentloaded'});
   const selector=page.locator('#exerciseSelect');
+  // Comparación visual: el tipo 5 conserva el mismo bastidor, escala y controles que el tipo 4.
+  const visualSnapshot=()=>page.evaluate(()=>{
+    const svg=document.querySelector('#circuit');
+    const nodes=[...svg.querySelectorAll('#staticCircuit .nod')].map(n=>[Number(n.getAttribute('cx')),Number(n.getAttribute('cy'))]);
+    const wires=[...svg.querySelectorAll('#sixSymbols .wire')].map(n=>n.getAttribute('data-wire-branch'));
+    const ids=['circuitCard','equationsCard','phaseCard','stagebar','boardActions'];
+    const rects=Object.fromEntries(ids.map(id=>{const el=document.getElementById(id);const r=el.getBoundingClientRect();return [id,[r.x,r.y,r.width,r.height].map(v=>Math.round(v))]}));
+    return {viewBox:svg.getAttribute('viewBox'),nodes,wires,rects};
+  });
+  await selector.selectOption('r76');
+  const type4Visual=await visualSnapshot();
+  await selector.selectOption('type5-3m5r3u');
+  const type5Visual=await visualSnapshot();
+  assert.deepEqual(type5Visual,type4Visual,'Type 5 must preserve Type 4 circuit geometry, node positions and UI layout');
+  await page.screenshot({path:'/tmp/wormhoff-type5-desktop.png',fullPage:true});
   await selector.selectOption('type5-3m5r3u');
   await page.waitForFunction(()=>document.querySelector('#boardTitle')?.textContent==='Tipo 5',{timeout:10000});
   assert.equal(await page.locator('#stagebar').isVisible(),true,'Main phase navigation must be visible');
