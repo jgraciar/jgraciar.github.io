@@ -32,9 +32,15 @@ try{
   assert.deepEqual(type5Visual,type4Visual,'Type 5 must preserve Type 4 circuit geometry, node positions and UI layout');
   await page.screenshot({path:'wormhoff/type5-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
+  const type5Badge=await page.locator('#boardBadge').textContent();
+  const type5BadgeHeight=await page.locator('#boardBadge').evaluate(el=>Math.round(el.getBoundingClientRect().height));
   const type5Mobile=await visualSnapshot();
   await page.screenshot({path:'wormhoff/type5-mobile.png',fullPage:true});
   await selector.selectOption('r76');
+  const type4Badge=await page.locator('#boardBadge').textContent();
+  const type4BadgeHeight=await page.locator('#boardBadge').evaluate(el=>Math.round(el.getBoundingClientRect().height));
+  assert.equal(type5Badge,type4Badge,'Type 5 mobile header must match Type 4');
+  assert.equal(type5BadgeHeight,type4BadgeHeight,'Type 5 mobile header must not gain an extra line');
   const type4Mobile=await visualSnapshot();
   await page.screenshot({path:'wormhoff/type4-mobile.png',fullPage:true});
   assert.equal(type5Mobile.viewBox,type4Mobile.viewBox,'Mobile circuit scale must match');
