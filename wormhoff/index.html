@@ -1253,7 +1253,7 @@
     r76:{meshes:3,branches:6,resistors:6,sources:5},
     'type5-3m5r3u':{meshes:3,branches:6,resistors:5,sources:3}
   };
-  const topologyLabel=exercise=>exercise.id==='type5-3m5r3u'?'3 mallas · 3 fuentes · 5 resistencias':exercise.kind==='multi'?'3 mallas · 5 fuentes · 6 resistencias':exercise.id==='f451'?'2 mallas · 3 fuentes · 4 resistencias':exercise.id==='r73'?'2 mallas · 3 fuentes · 3 resistencias':'2 mallas · 2 fuentes · 3 resistencias';
+  const topologyLabel=exercise=>'Tipo '+(topologyIds.indexOf(exercise.id)+1);
   let active=exercises[0];
   let demoEnabled=(()=>{try{const saved=localStorage.getItem('wormhoff.demo');return saved===null?true:saved==='true';}catch{return true;}})();
   const difficulty=()=>demoEnabled?0:2;
@@ -3122,7 +3122,7 @@
     $('boardState').textContent=active.id==='type5-3m5r3u'?'Circuito tipo 5: mismo procedimiento de nudos, mallas y resolución que el tipo 4.':'Actividad resuelta 7.6: el circuito original, sin inventar conexiones ni fuentes.';
     show('boardEquations',false);show('advBoardEquations',true);show('circuitControls',false);show('standardCircuitControls',false);show('advancedCircuitControls',false);sixRenderRows();
     show('advKCL',false);show('advLoops',false);show('advMatrix',false);show('advSolve',false);show('advResultPanel',false);show('advStart',true);
-    $('phaseHead').textContent=active.id==='type5-3m5r3u'?'Tipo 5 · Kirchhoff completo':'Tema 7 · Actividad resuelta 7.6';$('phaseChip').textContent='4 NUDOS';
+    $('phaseHead').textContent='Fase 1 · Numeración y sentidos';$('phaseChip').textContent='4 NUDOS';
     sixText('advInfo','Pulsa sobre las flechas para invertir las corrientes. Cada elección es una referencia algebraica válida.');
     positionHero(...N6.C,0,true);setHeroGait(false);setHeroMood(false);sixRefArrow();sixMeshArrows();
     $('score').textContent='0000';$('percent').textContent='0%';syncPhaseNavigation();
