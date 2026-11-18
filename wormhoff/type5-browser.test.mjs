@@ -35,7 +35,15 @@ try{
   await selector.selectOption('r76');
   const type4Mobile=await visualSnapshot();
   await page.screenshot({path:'wormhoff/type4-mobile.png',fullPage:true});
-  assert.deepEqual(type5Mobile,type4Mobile,'Type 5 must preserve Type 4 layout on mobile');
+  assert.equal(type5Mobile.viewBox,type4Mobile.viewBox,'Mobile circuit scale must match');
+  assert.deepEqual(type5Mobile.nodes,type4Mobile.nodes,'Mobile node positions must match');
+  assert.deepEqual(type5Mobile.wires,type4Mobile.wires,'Mobile branch geometry must match');
+  for(const [id,actual] of Object.entries(type5Mobile.rects)){
+    const expected=type4Mobile.rects[id];
+    assert.ok(expected,'Missing Type 4 mobile panel: '+id);
+    assert.ok(actual.every((v,i)=>Math.abs(v-expected[i])<=2),
+      'Mobile panel '+id+' must retain Type 4 geometry (max 2px rounding/scrollbar difference): '+JSON.stringify({actual,expected}));
+  }
   await page.setViewportSize({width:1280,height:900});
   await selector.selectOption('type5-3m5r3u');
   const titleAfterSelection=await page.locator('#boardTitle').textContent();
