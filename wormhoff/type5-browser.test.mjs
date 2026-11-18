@@ -18,7 +18,8 @@ try{
     active:!el.classList.contains('hide'),
     ancestors:[el,...function*(n){while(n=n.parentElement)yield n}(el)].map(n=>({id:n.id,classes:n.className,display:getComputedStyle(n).display,visibility:getComputedStyle(n).visibility}))
   }));
-  assert.equal(phaseState.active,true,'Type 5 must activate main advanced game: '+JSON.stringify(phaseState));
+  assert.equal(phaseState.active,true,'Type 5 must activate main advanced game: '+JSON.stringify({phaseState,errors}));
+  assert.equal(await page.locator('#advancedPhase').isVisible(),true,'Type 5 advanced phase must actually be visible: '+JSON.stringify({phaseState,errors}));
   assert.equal(await page.locator('#boardBadge').textContent().then(s=>s.includes('4 nudos')),true);
   assert.equal(await page.locator('#sixSymbols .component-resistor').count(),5);
   assert.equal(await page.locator('#sixSymbols .component-source').count(),3);
