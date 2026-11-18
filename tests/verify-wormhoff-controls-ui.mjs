@@ -58,7 +58,7 @@ const enterNodeEquation=async(page,id,equation)=>{
    if(side>=0){await tokens.nth(i).click();await page.locator('#nodeEquationChallenge .kcl-drop-side').nth(side).click();}
   }
  }else await page.locator('#nodeEquationChallenge .kcl-answer').fill(equation);
- await page.click('#nodeEquationDialog [data-context-help="nodeEquation"]');assert(await page.locator('#phaseHelpDialog').isVisible());assert.match(await page.locator('#phaseHelpBody').textContent(),/Σ I que entran/);
+ await page.locator('#nodeEquationDialog [data-context-help="nodeEquation"]').focus();await page.keyboard.press('Enter');assert(await page.locator('#phaseHelpDialog').isVisible());assert.match(await page.locator('#phaseHelpBody').textContent(),/Σ I que entran/);
  await page.keyboard.press('Escape');await page.locator('#phaseHelpDialog').waitFor({state:'hidden'});assert(await page.locator('#nodeEquationDialog').isVisible());if(await page.locator('#nodeEquationChallenge .kcl-answer').count())assert.equal(await page.locator('#nodeEquationChallenge .kcl-answer').inputValue(),equation,'La ayuda conserva la ecuación escrita');else assert(await page.locator('#nodeEquationChallenge .kcl-live-term').count()>0,'La ayuda conserva las intensidades colocadas');
  assert.equal(await page.locator('#nodeEquationSummary').isVisible(),false,'Explicaciones del diálogo solo en ayuda');
  await page.click('#nodeEquationChallenge .kcl-check');
