@@ -1,4 +1,4 @@
-import {type5Topology,type5Solve} from './type5-model.mjs';
+import {type5Topology,type5Solve,type5IntegerExample} from './type5-model.mjs';
 // Circuito tipo 5 montado directamente en el DOM de Wormhoff, sin iframe.
 export function mountType5(host, initialDemo){
  if(host.__wormhoffType5)return host.__wormhoffType5;
@@ -248,8 +248,8 @@ scope.querySelectorAll('[data-node]').forEach(el=>{
  el.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle();}});
 });
 scope.getElementById('guideBack').addEventListener('click',()=>{guideStep=Math.max(0,guideStep-1);guide();});
-scope.getElementById('guideNext').addEventListener('click',()=>{guideStep=Math.min(guideTitles.length-1,guideStep+1);guide();});
-scope.getElementById('guideRestart').addEventListener('click',()=>{guideStep=0;verifiedEquations.clear();selectedNodes.clear();kclVerified.clear();kclActive='A';for(const id of ['A','C'])kclAssignments[id]={};guide();});
+scope.getElementById('guideNext').addEventListener('click',()=>{guideStep=Math.min(guideTitles.length-1,guideStep+1);guide();if(guideStep>=2&&guideStep<=4)wormPlay(guideStep-2);if(guideStep===guideTitles.length-1){out.hidden=false;solve();wormDraw(325,390,0,true);}});
+scope.getElementById('guideRestart').addEventListener('click',()=>{wormStop();wormLayer.replaceChildren();out.hidden=true;guideStep=0;verifiedEquations.clear();selectedNodes.clear();kclVerified.clear();kclActive='A';for(const id of ['A','C'])kclAssignments[id]={};guide();});
 controls.addEventListener('input',()=>{verifiedEquations.clear();guide();});
 scope.getElementById('toggleDemo').addEventListener('click',()=>{
  demoEnabled=!demoEnabled;
@@ -263,11 +263,11 @@ scope.getElementById('toggleDemo').addEventListener('click',()=>{
 scope.getElementById('solve').addEventListener('click',()=>{out.hidden=false;solve();});scope.getElementById('reset').addEventListener('click',()=>{for(const [id,,v] of fields)scope.getElementById(id).value=v;verifiedEquations.clear();out.hidden=true;guide();});drawBranchArrows();out.hidden=true;const demoButton=scope.getElementById('toggleDemo');demoButton.textContent='Modo demo: '+(demoEnabled?'activado':'desactivado');demoButton.setAttribute('aria-pressed',String(demoEnabled));guide();
 
  host.__wormhoffType5={
-  solveDirect(){out.hidden=false;guideStep=guideTitles.length-1;verifiedEquations.clear();solve();guide();wormDraw(325,390,0,true);},
+  solveDirect(){wormStop();out.hidden=false;guideStep=guideTitles.length-1;verifiedEquations.clear();guide();solve();wormDraw(325,390,0,true);},
   randomize(){
-   // Integer-valued source voltages and positive resistances.
+   const example=type5IntegerExample();
    for(const [id] of fields){
-    scope.getElementById(id).value=id[0]==='R'?1+Math.floor(Math.random()*9):Math.floor(Math.random()*31)-15;
+    scope.getElementById(id).value=example[id[0]==='R'?'R':'U'][id];
    }
    verifiedEquations.clear();selectedNodes.clear();kclVerified.clear();guideStep=0;out.hidden=true;guide();
   },
