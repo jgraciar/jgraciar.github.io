@@ -416,23 +416,9 @@
   .settings-button svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round}
   #settingsDialog{color:var(--txt);background:var(--card);border:1px solid var(--border);border-radius:17px;width:min(430px,calc(100% - 28px));max-height:calc(100dvh - 28px);overflow:auto;padding:22px;box-shadow:0 20px 70px #0008}
   #settingsDialog::backdrop{background:#020b18b8}
-  .settings-heading{display:grid;grid-template-columns:minmax(0,1fr) 40px 40px;gap:10px;align-items:center;margin-bottom:18px}
-  .settings-heading > h2{grid-column:1;min-width:0}
-  .settings-heading > .help-button{grid-column:2;position:relative;z-index:1}
-  .settings-heading > #closeSettings{grid-column:3;position:relative;z-index:3}
+  .settings-heading{display:flex;align-items:center;gap:10px;margin-bottom:18px;min-width:0}
   .settings-heading h2{margin:0;font-size:22px;flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
-  .settings-heading button{font-size:27px;padding:0;width:40px;height:40px;flex:0 0 40px;min-width:40px}
-  #settingsDialog .settings-heading{position:relative;padding-right:100px;min-height:44px;display:block}
-  #settingsDialog .settings-heading h2{max-width:100%;margin:0;overflow-wrap:anywhere;pointer-events:none}
-  #settingsDialog .settings-heading .help-button{position:absolute;right:50px;top:0;z-index:10}
-  /* Mantener los controles dentro del rectángulo interactivo del diálogo. */
-  #settingsDialog .settings-heading{display:flex!important;align-items:center;gap:8px;padding:0!important;min-height:44px;pointer-events:auto}
-  #settingsDialog .settings-heading h2{flex:1 1 0;min-width:0;max-width:none}
-  #settingsDialog .settings-heading .help-button,
-  #settingsDialog #closeSettings{position:static!important;inset:auto!important;transform:none!important;flex:0 0 40px;z-index:auto!important}
-  #settingsDialog .settings-heading{pointer-events:none}
-  #settingsDialog .settings-heading button{pointer-events:auto}
-  #closeSettings{position:absolute!important;right:0;top:0;display:grid;place-items:center;width:40px;height:40px;min-width:40px;z-index:20!important;pointer-events:auto!important;transform:none!important}
+  .settings-heading button{position:relative;flex:0 0 40px;width:40px;height:40px;min-width:40px;padding:0;font-size:27px;z-index:1}
   .settings-fields{display:grid;gap:18px}
   .settings-fields label{display:grid;gap:7px;font-weight:650}
   .settings-fields select{width:100%}
