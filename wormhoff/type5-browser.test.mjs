@@ -18,7 +18,7 @@ try{
  assert.equal(await shadow.locator('#toggleDemo').isVisible(),false,'duplicate DEMO control must be hidden');
  await page.locator('#randomizeValues').click();
  await page.locator('#solveDirect').click();
- await page.waitForTimeout(100);
+ await page.waitForTimeout(200);
  const result=await shadow.locator('#result').textContent();
  assert.match(result,/Corrientes de malla/);
  assert.match(result,/Potencia disipada/);
