@@ -74,7 +74,7 @@ function drawOriginalHero(x,y,angle,victory=false,reaction=''){
     if(/hero|worm|@keyframes/i.test(rule.cssText))css.push(rule.cssText);
    }}catch{}
   }
-  const style=document.createElement('style');style.textContent=css.join('\\n');
+  const style=document.createElement('style');style.textContent=css.join(' ');
   root.prepend(style);heroStyleReady=true;
  }
  const avatar=originalHero.cloneNode(true);
