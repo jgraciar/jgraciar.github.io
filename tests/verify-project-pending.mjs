@@ -118,5 +118,16 @@ try{
   }
   return {resistance,maxError,roundTrips:3};
  });
+ await test('solver-isolated-resistor-remains-zero-and-survives-reload',async()=>{
+  const xml=head+source()+wire(80,160,240,160)+`<r x="240 160 240 448" f="0" r="100"/>`+wire(240,448,80,448)+`<r x="640 160 640 448" f="0" r="470"/>`+'</cir>';
+  await load(xml);
+  const rows=await record([{type:'ResistorElm',n:0},{type:'ResistorElm',n:1}],.2,.22);
+  for(const z of rows){assert(z.slice(1).every(Number.isFinite),'Non-finite current');close(z[2],0,1e-8,0);}
+  const saved=await page.evaluate(()=>window.CircuitJS1.exportCircuit());
+  await load(saved);
+  const again=await record([{type:'ResistorElm',n:0},{type:'ResistorElm',n:1}],.2,.22);
+  for(const z of again)close(z[2],0,1e-8,0);
+  return {isolatedResistance:470,samples:rows.length,xmlRoundTrip:true};
+ });
  report.ok=report.cases.every(c=>c.ok);console.log('RESULT '+JSON.stringify({passed:report.cases.filter(c=>c.ok).length,total:report.cases.length,ok:report.ok}));assert(report.ok,'Pending checks found failures; see results.json');
 }finally{writeFileSync(join(out,'results.json'),JSON.stringify(report,null,2));await browser.close();}
