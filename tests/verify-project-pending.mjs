@@ -104,6 +104,9 @@ try{
   const xml=head+source()+wire(80,160,240,160)+`<r x="240 160 240 448" f="0" r="${resistance}"/>`+wire(240,448,80,448)+'</cir>';
   await load(xml);
   const rows=await record([{type:'VoltageElm',what:'v'},{type:'ResistorElm',what:'v'},{type:'ResistorElm'}],.2,.24);
+  assert(rows.length>100,'Insufficient solver samples');
+  assert(rows.some(z=>Math.abs(z[1])>5),'Voltage source did not energize the circuit');
+  assert(rows.some(z=>Math.abs(z[3])>5/resistance),'Resistor current did not respond to source');
   let maxError=0;
   for(const z of rows){
    assert(z.slice(1).every(Number.isFinite),'Non-finite solver output');
@@ -122,6 +125,8 @@ try{
   const xml=head+source()+wire(80,160,240,160)+`<r x="240 160 240 448" f="0" r="100"/>`+wire(240,448,80,448)+`<r x="640 160 640 448" f="0" r="470"/>`+'</cir>';
   await load(xml);
   const rows=await record([{type:'ResistorElm',n:0},{type:'ResistorElm',n:1}],.2,.22);
+  assert(rows.length>100,'Insufficient isolated-branch samples');
+  assert(rows.some(z=>Math.abs(z[1])>.05),'Main energized branch is unexpectedly inactive');
   for(const z of rows){assert(z.slice(1).every(Number.isFinite),'Non-finite current');close(z[2],0,1e-8,0);}
   const saved=await page.evaluate(()=>window.CircuitJS1.exportCircuit());
   await load(saved);
