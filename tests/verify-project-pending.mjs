@@ -99,5 +99,24 @@ try{
   try{await page.evaluate(text=>window.CircuitJS1.importCircuit(text,false),text);}catch(e){error=String(e);}
   const after=await page.evaluate(()=>window.CircuitJS1.exportCircuit());assert.equal(after,before,'Unsupported or malformed input must not partially replace the open circuit');return {preserved:true,error};
  });
+ // Solver nodal real: ley de Ohm, extremos razonables y reinicios de importación.
+ for(const [label,resistance] of [['low-R',.1],['nominal-R',100],['high-R',1000000]])await test('solver-resistor-'+label,async()=>{
+  const xml=head+source()+wire(80,160,240,160)+`<r x="240 160 240 448" f="0" r="${resistance}"/>`+wire(240,448,80,448)+'</cir>';
+  await load(xml);
+  const rows=await record([{type:'VoltageElm',what:'v'},{type:'ResistorElm',what:'v'},{type:'ResistorElm'}],.2,.24);
+  let maxError=0;
+  for(const z of rows){
+   assert(z.slice(1).every(Number.isFinite),'Non-finite solver output');
+   maxError=Math.max(maxError,Math.abs(z[2]/resistance-z[3]));
+   close(z[2]/resistance,z[3],1e-6,1e-5);
+  }
+  const saved=await page.evaluate(()=>window.CircuitJS1.exportCircuit());
+  for(let k=0;k<3;k++){
+   await load(saved);
+   const again=await record([{type:'VoltageElm',what:'v'},{type:'ResistorElm',what:'v'},{type:'ResistorElm'}],.2,.22);
+   for(const z of again)close(z[2]/resistance,z[3],1e-6,1e-5);
+  }
+  return {resistance,maxError,roundTrips:3};
+ });
  report.ok=report.cases.every(c=>c.ok);console.log('RESULT '+JSON.stringify({passed:report.cases.filter(c=>c.ok).length,total:report.cases.length,ok:report.ok}));assert(report.ok,'Pending checks found failures; see results.json');
 }finally{writeFileSync(join(out,'results.json'),JSON.stringify(report,null,2));await browser.close();}
