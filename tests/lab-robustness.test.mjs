@@ -41,4 +41,28 @@ for(const amplitude of [0.01,1,100]){
  near(spectrum.fundamentalRms,amplitude,1e-7);
  assert(spectrum.thd<1e-6);
 }
+// Verificación de estabilidad temporal del rectificador ideal filtrado.
+for(const dt of [1e-7,1e-5,1e-3,.1]){
+ let state={capacitorVoltage:0};
+ for(let k=0;k<200;k++){
+  const voltage=325*Math.sin(2*Math.PI*50*k*dt);
+  const result=filteredBridgeStep(voltage,2,200,.002,dt,state);
+  assert(Number.isFinite(result.state.capacitorVoltage));
+  assert(Number.isFinite(result.inputCurrent));
+  assert(Number.isFinite(result.loadCurrent));
+  assert(result.state.capacitorVoltage>=0);
+  assert(result.state.capacitorVoltage<=325+1e-9);
+  assert(result.loadCurrent>=0);
+  assert(voltage*result.inputCurrent>=0);
+  state=result.state;
+ }
+}
+// Los armónicos puros deben identificarse sin confundir la THD con la continua.
+const distorted=Array.from({length:n},(_,k)=>
+ Math.SQRT2*(10*Math.sin(2*Math.PI*k/n)+3*Math.sin(6*Math.PI*k/n)));
+const harmonicResult=currentHarmonics(distorted,20);
+near(harmonicResult.fundamentalRms,10,1e-7);
+near(harmonicResult.harmonics[2],3,1e-7);
+near(harmonicResult.thd,.3,1e-7);
+near(harmonicResult.totalRms,Math.sqrt(109),1e-7);
 console.log("OK: robustez numérica, entradas inválidas, CC, corriente nula y THD.");
