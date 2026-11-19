@@ -36,6 +36,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Robustez numérica de modelos de referencia
+        run: node --experimental-strip-types adaptacion/tests/lab-robustness.test.mjs
       - name: Instalar Chromium
         working-directory: adaptacion/tests
         run: |
