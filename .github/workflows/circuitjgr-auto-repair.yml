@@ -1,0 +1,55 @@
+name: Reparación asistida de Circuit JGR
+on:
+  workflow_run:
+    workflows: ['Comprobaciones eléctricas e importación de Circuit JGR']
+    types: [completed]
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: circuitjgr-repair-triage
+  cancel-in-progress: false
+jobs:
+  triage:
+    if: github.event.workflow_run.event != 'pull_request'
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RUN_URL: ${{ github.event.workflow_run.html_url }}
+      CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+      ISSUE_TITLE: '[Circuit JGR] Fallo en validación automática'
+    steps:
+      - name: Registrar fallo, solicitar reparación o cerrar incidencia resuelta
+        shell: bash
+        run: |
+          set -euo pipefail
+          number="$(gh issue list --state open --limit 100 --json number,title --jq '.[] | select(.title == env.ISSUE_TITLE) | .number' | head -n 1)"
+          if [[ "$CONCLUSION" == "success" ]]; then
+            if [[ -n "$number" ]]; then
+              gh issue comment "$number" --body "PASA: la validación posterior ha terminado correctamente. $RUN_URL"
+              gh issue close "$number" --reason completed
+            fi
+            exit 0
+          fi
+          if [[ "$CONCLUSION" != "failure" && "$CONCLUSION" != "timed_out" ]]; then exit 0; fi
+          if [[ -n "$number" ]]; then
+            echo "NO PASA: incidencia #$number ya abierta; se evita crear duplicados."
+            exit 0
+          fi
+          body="$(cat <<EOF
+          La batería automática de Circuit JGR ha fallado.
+
+          Ejecución: $RUN_URL
+
+          Investiga los logs y el artefacto `project-checks`; reproduce el fallo, corrige exclusivamente el código de Circuit JGR y sus pruebas, y abre una pull request con la corrección. No modifiques Wormhoff. Comprueba la batería antes de solicitar la integración. No hagas merge automático ni omitas pruebas.
+          EOF
+          )"
+          issue_url="$(gh issue create --title "$ISSUE_TITLE" --body "$body")"
+          echo "NO PASA: incidencia creada: $issue_url"
+          issue_number="${issue_url##*/}"
+          if gh issue edit "$issue_number" --add-assignee copilot; then
+            echo "Agente Copilot asignado; podrá preparar una PR si está habilitado."
+          else
+            echo "::warning::Copilot no está disponible como asignatario; la incidencia queda abierta para reparación."
+          fi
