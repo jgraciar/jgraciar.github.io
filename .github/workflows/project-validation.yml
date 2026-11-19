@@ -1,6 +1,8 @@
 name: Comprobaciones eléctricas e importación de Circuit JGR
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
   push:
     branches: [main]
     paths:
@@ -9,6 +11,9 @@ on:
     workflows: ['Publicar Circuit JGR 1.0']
     types: [completed]
     branches: [main]
+concurrency:
+  group: circuitjgr-validation
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
