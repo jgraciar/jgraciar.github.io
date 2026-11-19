@@ -1,4 +1,4 @@
-name: Reparación asistida de Circuit JGR
+name: Seguimiento de fallos de Circuit JGR
 on:
   workflow_run:
     workflows: ['Comprobaciones eléctricas e importación de Circuit JGR']
@@ -20,7 +20,7 @@ jobs:
       CONCLUSION: ${{ github.event.workflow_run.conclusion }}
       ISSUE_TITLE: '[Circuit JGR] Fallo en validación automática'
     steps:
-      - name: Registrar fallo, solicitar reparación o cerrar incidencia resuelta
+      - name: Registrar fallo para corrección directa o cerrar incidencia resuelta
         shell: bash
         run: |
           set -euo pipefail
@@ -42,7 +42,7 @@ jobs:
 
           Ejecución: $RUN_URL
 
-          Investiga los logs y el artefacto `project-checks`; reproduce el fallo, corrige exclusivamente el código de Circuit JGR y sus pruebas, y abre una pull request con la corrección. No modifiques Wormhoff. Comprueba la batería antes de solicitar la integración. No hagas merge automático ni omitas pruebas.
+          Investiga los logs y el artefacto project-checks; reproduce el fallo, corrige exclusivamente el código de Circuit JGR y sus pruebas, y abre una pull request con la corrección. No modifiques Wormhoff. Comprueba la batería antes de solicitar la integración. No hagas merge automático ni omitas pruebas.
           EOF
           )"
           issue_url="$(gh issue create --title "$ISSUE_TITLE" --body "$body")"
