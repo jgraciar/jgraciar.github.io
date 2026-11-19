@@ -49,3 +49,7 @@ La permanencia del tiempo de simulación y del paso temporal en el panel lateral
 Se incorpora a `tests/lab-robustness.test.mjs` la batería determinista del repositorio docente anterior, cuyas dependencias `LabFilteredBridge.ts` y `LabHarmonics.ts` existen en el simulador autónomo. Se ejecutará durante las pruebas numéricas previas a la compilación. Cubre rechazos de NaN e infinitos, parámetros no físicos, ventanas y órdenes de Fourier inválidos, tensión positiva/negativa/nula, corriente nula y continua, RMS fundamental y THD de senos de tres amplitudes.
 
 **Alcance:** prueba los modelos analíticos de referencia, no el solver nodal completo ni la estabilidad del navegador. El resto de ensayos de estrés, rectificación R/C en el solver y régimen de 230 V sigue pendiente. No se considera superada hasta una ejecución satisfactoria en el commit que la incorpora.
+
+## Auditoría integral aplazada (19-11-2026)
+
+**PENDIENTE — retomar más adelante, no ejecutar ahora.** Seguimiento en https://github.com/jgraciar/jgraciar.github.io/issues/6. Comprende todas las funciones e interfaces y la revisión de los 22 idiomas, con matriz de cobertura y evidencias por caso. La batería de comprobaciones eléctricas del 19-11-2026 pasó 33/33 (https://github.com/jgraciar/jgraciar.github.io/actions/runs/44613906678); no acredita la auditoría integral.
