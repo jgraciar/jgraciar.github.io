@@ -7,7 +7,7 @@ import vm from 'node:vm';
 const gameSource=readFileSync(new URL('../wormhoff/index.html',import.meta.url),'utf8');
 // Invariantes del futuro editor de tres posiciones por rama.
 const slotContext={};vm.createContext(slotContext);
-vm.runInContext(gameSource.slice(gameSource.indexOf('  const BRANCH_SLOT_LIMIT='),gameSource.indexOf("  const topologyIds=['base','r76'];"))+';globalThis.totals=branchSlotTotals;globalThis.make=createBranchSlots;globalThis.edit=replaceBranchSlot;globalThis.from=branchSlotsFromEquivalents;globalThis.to=branchEquivalentsFromSlots;globalThis.distribute=distributeIntegerCircuitComponents;',slotContext);
+vm.runInContext(gameSource.slice(gameSource.indexOf('  const BRANCH_SLOT_LIMIT='),gameSource.indexOf("  const topologyIds=['base','r76'];"))+';globalThis.totals=branchSlotTotals;globalThis.make=createBranchSlots;globalThis.edit=replaceBranchSlot;globalThis.from=branchSlotsFromEquivalents;globalThis.to=branchEquivalentsFromSlots;globalThis.distribute=distributeIntegerCircuitComponents;globalThis.reconcile=reconcileBranchSlots;',slotContext);
 const totals=slots=>JSON.parse(JSON.stringify(slotContext.totals(slots)));
 assert.deepEqual(totals([{kind:'R',value:2},{kind:'U',value:-7},null]),{resistance:2,voltage:-7,counts:{R:1,U:1}});
 assert.deepEqual(totals([{kind:'R',value:3},{kind:'R',value:5},{kind:'U',value:12}]),{resistance:8,voltage:12,counts:{R:2,U:1}});
@@ -42,6 +42,10 @@ vm.runInContext(gameSource.slice(gameSource.indexOf('  let branchSlots=null;'),g
 slotContext.randomInt=(lo,hi)=>hi;
 slotContext.sync([2,3,4],[12,-8,0],true);
 assert.deepEqual(JSON.parse(JSON.stringify(slotContext.to(slotContext.slots()))),{resistances:[2,3,4],voltages:[12,-8,0]});
+const beforeReconcile=JSON.parse(JSON.stringify(slotContext.distribute([4,5],[10,6],(lo,hi)=>hi)));
+const afterReconcile=JSON.parse(JSON.stringify(slotContext.reconcile(beforeReconcile,[4,5],[-10,6])));
+assert.deepEqual(afterReconcile[1],beforeReconcile[1],'Editar una fuente conserva las otras ramas');
+assert.deepEqual(JSON.parse(JSON.stringify(slotContext.to(afterReconcile))),{resistances:[4,5],voltages:[-10,6]});
 console.log('OK: equivalentes serie, polaridades opuestas y límites de tres posiciones por rama');
 const algebraContext={names:['I₁','I₂','I₃'],escapeHtml:s=>String(s),formatNumber:n=>Number(n.toFixed(5)).toLocaleString('es-ES'),fmt:n=>(n<0?'−':'')+Number(Math.abs(n).toFixed(5)).toLocaleString('es-ES')};
 vm.createContext(algebraContext);
