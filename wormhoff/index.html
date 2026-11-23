@@ -1263,12 +1263,12 @@
   // catálogo histórico pero se retira del selector: al reducir resistencias
   // en serie repite la estructura de tres ramas y dos mallas.
   // La figura 2.37 es otra disposición didáctica de esa misma clase topológica.
-  const topologyIds=['base','r73','fig237','r76'];
+  const topologyIds=['base','r76'];
   // Datos de topología independientes de los controles y fases comunes.
   const multiTopologyDefinitions={
     r76:{meshes:3,branches:6,resistors:6,sources:5}
   };
-  const topologyLabel=exercise=>'Tipo '+(topologyIds.indexOf(exercise.id)+1);
+  const topologyLabel=exercise=>exercise.kind==='multi'?'Tres mallas':'Dos mallas';
   let active=exercises[0];
   let demoEnabled=(()=>{try{const saved=localStorage.getItem('wormhoff.demo');return saved===null?true:saved==='true';}catch{return true;}})();
   const difficulty=()=>demoEnabled?0:2;
@@ -1838,7 +1838,7 @@
   }
   function initExercises(){
     const sel=$('exerciseSelect');
-    sel.innerHTML=topologyIds.map((id,index)=>{const ex=exercises.find(e=>e.id===id);if(!ex)throw new Error('Topología no encontrada: '+id);return `<option value="${id}">Tipo ${index+1}</option>`}).join('');
+    sel.innerHTML=topologyIds.map(id=>{const ex=exercises.find(e=>e.id===id);if(!ex)throw new Error('Topología no encontrada: '+id);return `<option value="${id}">${topologyLabel(ex)}</option>`}).join('');
  sel.onchange=()=>{
       const ex=exercises.find(e=>e.id===sel.value);
       if(!ex)return;
