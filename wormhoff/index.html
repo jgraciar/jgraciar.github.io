@@ -1278,6 +1278,28 @@
     }
     return {resistance,voltage,counts};
   }
+  function createBranchSlots(resistance=0,voltage=0){
+    if(!Number.isFinite(resistance)||resistance<0||!Number.isFinite(voltage))throw new Error('Equivalentes de rama no válidos.');
+    const slots=Array(BRANCH_SLOT_LIMIT).fill(null);
+    if(resistance>0)slots[0]={kind:'R',value:resistance};
+    if(voltage!==0)slots[resistance>0?1:0]={kind:'U',value:voltage};
+    return slots;
+  }
+  function replaceBranchSlot(slots,index,component){
+    if(!Number.isInteger(index)||index<0||index>=BRANCH_SLOT_LIMIT)throw new Error('Posición fuera de la rama.');
+    const next=slots.map(slot=>slot===null?null:{...slot});
+    next[index]=component===null?null:{...component};
+    branchSlotTotals(next);
+    return next;
+  }
+  function branchSlotsFromEquivalents(resistances,voltages){
+    if(resistances.length!==voltages.length)throw new Error('Número de ramas incompatible.');
+    return resistances.map((resistance,index)=>createBranchSlots(resistance,voltages[index]));
+  }
+  function branchEquivalentsFromSlots(branches){
+    const totals=branches.map(branchSlotTotals);
+    return {resistances:totals.map(t=>t.resistance),voltages:totals.map(t=>t.voltage)};
+  }
   const topologyIds=['base','r76'];
   // Datos de topología independientes de los controles y fases comunes.
   const multiTopologyDefinitions={
