@@ -4346,13 +4346,27 @@
     if(solved)solveCircuitDirectly();
   }
   function bindSourcePolarityControls(){
-    $('staticCircuit').querySelectorAll('.component-source').forEach(source=>{
-      source.dataset.sourceFlip=source.id;
-      source.setAttribute('role','button');
-      source.setAttribute('tabindex','0');
-      source.setAttribute('aria-label','Invertir polaridad de '+(editableComponent(source.id)?.label||'fuente'));
-      source.style.cursor='pointer';
-    });
+    // Los objetivos de selección de corriente están por encima de staticCircuit.
+    // Por ello el área pulsable de las fuentes debe estar en la capa de controles.
+    const layer=$('componentValueTargets');
+    for(const source of $('staticCircuit').querySelectorAll('.component-source')){
+      const component=editableComponent(source.id);
+      const halo=source.querySelector('.source-halo');
+      if(!component||!halo)continue;
+      const bounds=halo.getBBox();
+      const hit=document.createElementNS('http://www.w3.org/2000/svg','rect');
+      hit.dataset.sourceFlip=source.id;
+      hit.setAttribute('x',bounds.x);hit.setAttribute('y',bounds.y);
+      hit.setAttribute('width',bounds.width);hit.setAttribute('height',bounds.height);
+      hit.setAttribute('rx','5');hit.setAttribute('fill','transparent');
+      hit.style.pointerEvents='all';hit.style.cursor='pointer';
+      hit.setAttribute('tabindex','0');hit.setAttribute('role','button');
+      hit.setAttribute('aria-label','Invertir polaridad de '+component.label);
+      const title=document.createElementNS('http://www.w3.org/2000/svg','title');
+      title.textContent='Invertir polaridad de '+component.label;
+      hit.append(title);
+      layer.insertBefore(hit,layer.firstChild);
+    }
   }
   function initComponentEditing(){
     $('circuit').addEventListener('click',event=>{
