@@ -5,6 +5,18 @@ import {chromium} from 'playwright';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const gameSource=readFileSync(new URL('../wormhoff/index.html',import.meta.url),'utf8');
+// Invariantes del futuro editor de tres posiciones por rama.
+const slotContext={};vm.createContext(slotContext);
+vm.runInContext(gameSource.slice(gameSource.indexOf('  const BRANCH_SLOT_LIMIT='),gameSource.indexOf("  const topologyIds=['base','r76'];"))+';globalThis.totals=branchSlotTotals;',slotContext);
+const totals=slots=>JSON.parse(JSON.stringify(slotContext.totals(slots)));
+assert.deepEqual(totals([{kind:'R',value:2},{kind:'U',value:-7},null]),{resistance:2,voltage:-7,counts:{R:1,U:1}});
+assert.deepEqual(totals([{kind:'R',value:3},{kind:'R',value:5},{kind:'U',value:12}]),{resistance:8,voltage:12,counts:{R:2,U:1}});
+assert.deepEqual(totals([{kind:'U',value:10},{kind:'U',value:-4},{kind:'R',value:6}]),{resistance:6,voltage:6,counts:{R:1,U:2}});
+assert.throws(()=>totals([{kind:'R',value:1},{kind:'R',value:2},{kind:'R',value:3}]),/Máximo dos/);
+assert.throws(()=>totals([{kind:'U',value:1},{kind:'U',value:2},{kind:'U',value:3}]),/Máximo dos/);
+assert.throws(()=>totals([{kind:'R',value:0},null,null]),/positiva/);
+assert.throws(()=>totals([{kind:'R',value:1}]),/tres posiciones/);
+console.log('OK: equivalentes serie, polaridades opuestas y límites de tres posiciones por rama');
 const algebraContext={names:['I₁','I₂','I₃'],escapeHtml:s=>String(s),formatNumber:n=>Number(n.toFixed(5)).toLocaleString('es-ES'),fmt:n=>(n<0?'−':'')+Number(Math.abs(n).toFixed(5)).toLocaleString('es-ES')};
 vm.createContext(algebraContext);
 vm.runInContext(gameSource.slice(gameSource.indexOf('  function algebraIsolation('),gameSource.indexOf('  function algebraStepsHTML('))+';globalThis.render=algebraTable;',algebraContext);
