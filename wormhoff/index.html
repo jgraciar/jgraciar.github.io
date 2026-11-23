@@ -1338,6 +1338,15 @@
        equivalent.voltages.some((v,i)=>v!==voltages[i]))throw new Error('Las ramas han alterado el circuito equivalente.');
     return branchSlots;
   }
+  function reconcileBranchSlots(branches,resistances,voltages){
+    if(!Array.isArray(branches)||branches.length!==resistances.length)return branchSlotsFromEquivalents(resistances,voltages);
+    return resistances.map((r,i)=>{
+      const existing=branches[i];
+      if(!existing)return createBranchSlots(r,voltages[i]);
+      const total=branchSlotTotals(existing);
+      return total.resistance===r&&total.voltage===voltages[i]?existing:createBranchSlots(r,voltages[i]);
+    });
+  }
   const topologyIds=['base','r76'];
   // Datos de topología independientes de los controles y fases comunes.
   const multiTopologyDefinitions={
@@ -4418,6 +4427,7 @@
     const solved=solutionComplete(source.six);
     stopPhaseActivity();
     values[source.index]=-values[source.index];
+    branchSlots=reconcileBranchSlots(branchSlots,source.six?R6:R,source.six?E6:E);
     newGame(true);
     if(solved)solveCircuitDirectly();
   }
@@ -4468,6 +4478,7 @@
       else if(component.kind==='U')E[component.index]=value;
       else if(active.id==='f451'){active.components[component.index]=value;R=[active.components[0]+active.components[1],active.components[2],active.components[3]];}
       else R[component.index]=value;
+      branchSlots=reconcileBranchSlots(branchSlots,component.six?R6:R,component.six?E6:E);
       $('componentValueDialog').close();newGame(true);if(solved)solveCircuitDirectly();
     };
     $('solveDirect').onclick=()=>solveCircuitDirectly();
