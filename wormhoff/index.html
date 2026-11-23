@@ -1263,6 +1263,21 @@
   // catálogo histórico pero se retira del selector: al reducir resistencias
   // en serie repite la estructura de tres ramas y dos mallas.
   // La figura 2.37 es otra disposición didáctica de esa misma clase topológica.
+  // Modelo de edición: tres posiciones por rama, como máximo dos elementos de cada clase.
+  // Los equivalentes se calculan sin modificar la topología de nudos y mallas.
+  const BRANCH_SLOT_LIMIT=3;
+  function branchSlotTotals(slots){
+    if(!Array.isArray(slots)||slots.length!==BRANCH_SLOT_LIMIT)throw new Error('Cada rama debe tener tres posiciones.');
+    const counts={R:0,U:0};let resistance=0,voltage=0;
+    for(const slot of slots){
+      if(slot===null)continue;
+      if(!slot||!['R','U'].includes(slot.kind)||!Number.isFinite(slot.value))throw new Error('Componente de rama no válido.');
+      if(++counts[slot.kind]>2)throw new Error('Máximo dos resistencias y dos fuentes por rama.');
+      if(slot.kind==='R'){if(slot.value<=0)throw new Error('La resistencia debe ser positiva.');resistance+=slot.value;}
+      else voltage+=slot.value;
+    }
+    return {resistance,voltage,counts};
+  }
   const topologyIds=['base','r76'];
   // Datos de topología independientes de los controles y fases comunes.
   const multiTopologyDefinitions={
