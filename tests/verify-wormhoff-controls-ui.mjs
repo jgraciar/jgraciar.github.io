@@ -7,7 +7,7 @@ import vm from 'node:vm';
 const gameSource=readFileSync(new URL('../wormhoff/index.html',import.meta.url),'utf8');
 // Invariantes del futuro editor de tres posiciones por rama.
 const slotContext={};vm.createContext(slotContext);
-vm.runInContext(gameSource.slice(gameSource.indexOf('  const BRANCH_SLOT_LIMIT='),gameSource.indexOf("  const topologyIds=['base','r76'];"))+';globalThis.totals=branchSlotTotals;globalThis.make=createBranchSlots;globalThis.edit=replaceBranchSlot;globalThis.from=branchSlotsFromEquivalents;globalThis.to=branchEquivalentsFromSlots;globalThis.distribute=distributeIntegerCircuitComponents;globalThis.reconcile=reconcileBranchSlots;',slotContext);
+vm.runInContext(gameSource.slice(gameSource.indexOf('  const BRANCH_SLOT_LIMIT='),gameSource.indexOf("  const topologyIds=['base','r76'];"))+';globalThis.totals=branchSlotTotals;globalThis.make=createBranchSlots;globalThis.edit=replaceBranchSlot;globalThis.from=branchSlotsFromEquivalents;globalThis.to=branchEquivalentsFromSlots;globalThis.distribute=distributeIntegerCircuitComponents;globalThis.reconcile=reconcileBranchSlots;globalThis.sync=syncBranchSlots;globalThis.slots=()=>branchSlots;',slotContext);
 const totals=slots=>JSON.parse(JSON.stringify(slotContext.totals(slots)));
 assert.deepEqual(totals([{kind:'R',value:2},{kind:'U',value:-7},null]),{resistance:2,voltage:-7,counts:{R:1,U:1}});
 assert.deepEqual(totals([{kind:'R',value:3},{kind:'R',value:5},{kind:'U',value:12}]),{resistance:8,voltage:12,counts:{R:2,U:1}});
@@ -37,8 +37,6 @@ for(const pick of [(lo,hi)=>lo,(lo,hi)=>hi]){
 }
 assert.throws(()=>slotContext.distribute([0],[5],(lo,hi)=>lo),/positiva/);
 // La generación conserva el modelo eléctrico también al sincronizar el estado aleatorio.
-vm.runInContext(gameSource.slice(gameSource.indexOf('  let branchSlots=null;'),gameSource.indexOf("  const topologyIds=['base','r76'];"))+
- ';globalThis.sync=syncBranchSlots;globalThis.slots=()=>branchSlots;',slotContext);
 slotContext.randomInt=(lo,hi)=>hi;
 slotContext.sync([2,3,4],[12,-8,0],true);
 assert.deepEqual(JSON.parse(JSON.stringify(slotContext.to(slotContext.slots()))),{resistances:[2,3,4],voltages:[12,-8,0]});
