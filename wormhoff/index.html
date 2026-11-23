@@ -1363,6 +1363,8 @@
             for(let j=0;j<3;j++){
               const type=panel.querySelector('[data-slot-kind="'+i+'-'+j+'"]').value;
               const raw=panel.querySelector('[data-slot-value="'+i+'-'+j+'"]').value;
+              if(type&&raw.trim()==='')throw new Error('Introduce el valor de la rama '+(i+1)+', posición '+(j+1)+'.');
+              if(type&&!Number.isFinite(Number(raw)))throw new Error('El valor debe ser un número finito.');
               slots.push(type?{kind:type,value:Number(raw)}:null);
             }
             const total=branchSlotTotals(slots);
@@ -1370,6 +1372,7 @@
             branches.push(slots);
           }
           const eq=branchEquivalentsFromSlots(branches);
+          if(active.kind==='multi'&&eq.voltages[1]!==0)throw new Error('En la topología actual de tres mallas, la rama 2 debe tener tensión equivalente nula.');
           if(active.kind==='multi'){R6=eq.resistances;E6=eq.voltages;}
           else{R=eq.resistances;E=eq.voltages;}
           branchSlots=branches;panel.querySelector('#branchSlotError').textContent='';
