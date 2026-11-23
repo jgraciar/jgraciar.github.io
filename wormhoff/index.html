@@ -1931,7 +1931,7 @@
       if(active.kind==='multi')sixCancel();
       flowToken++;if(S.pausedResume){S.pausedResume();S.pausedResume=null}
       stopFlow();S.animating=false;
-      active=ex.components?{...ex,components:ex.components.slice()}:ex;if(ex.kind!=='network'&&ex.kind!=='multi'){R=ex.R.slice();E=ex.E.slice();jValues=calcCurrents();}
+      active=ex.components?{...ex,components:ex.components.slice()}:ex;branchSlots=null;if(ex.kind!=='network'&&ex.kind!=='multi'){R=ex.R.slice();E=ex.E.slice();jValues=calcCurrents();}
       renderExerciseInfo();updateDemoButton();newGame();
     };
     $('toggleDemo').addEventListener('click',()=>{
@@ -3008,6 +3008,7 @@
     if(active.kind==='network'){clearFX();startNetwork();return}
     if(active.kind==='multi'){sixStart(preserveValues);return}
     $('stagebar').classList.remove('hide');show('networkPhase',false);$('hero').classList.remove('hide');
+    branchSlots=reconcileBranchSlots(branchSlots,R,E);
     jValues=calcCurrents();refreshBranches();drawBoard();clearFX();show('boardEquations',false);
     $('nodeEqPanel').classList.add('hide');$('goLoops').classList.add('hide');
     show('goMatrix',false);show('goSolve',false);
@@ -3185,6 +3186,7 @@
     // Cada nuevo ejercicio de tres mallas parte de intensidades enteras que satisfacen KCL.
     configureMultiTopology();
     if(active.kind==='multi'&&!preserveValues)generateIntegerValues();
+    else branchSlots=reconcileBranchSlots(branchSlots,R6,E6);
     $('advShowCramer').checked=false;A6.solveMethod='algebra';
     A6.currentNumbers=Array(6).fill(null);A6.currentPositions=Array(6).fill(null);NAMES6.splice(0,NAMES6.length,...Array(6).fill('I'));
     A6.meshDirections=[true,true,true];A6.meshDirectionsConfirmed=false;A6.stage='dirs';A6.nodeCount=0;A6.nodeIds=[];A6.nodeChoices=[];A6.nodeSelectionConfirmed=false;A6.nodesScored=false;$('advKCLtext').innerHTML='';A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
