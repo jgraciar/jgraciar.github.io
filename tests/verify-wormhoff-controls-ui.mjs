@@ -36,6 +36,12 @@ for(const pick of [(lo,hi)=>lo,(lo,hi)=>hi]){
  }
 }
 assert.throws(()=>slotContext.distribute([0],[5],(lo,hi)=>lo),/positiva/);
+// La generación conserva el modelo eléctrico también al sincronizar el estado aleatorio.
+vm.runInContext(gameSource.slice(gameSource.indexOf('  let branchSlots=null;'),gameSource.indexOf("  const topologyIds=['base','r76'];"))+
+ ';globalThis.sync=syncBranchSlots;globalThis.slots=()=>branchSlots;',slotContext);
+slotContext.randomInt=(lo,hi)=>hi;
+slotContext.sync([2,3,4],[12,-8,0],true);
+assert.deepEqual(JSON.parse(JSON.stringify(slotContext.to(slotContext.slots()))),{resistances:[2,3,4],voltages:[12,-8,0]});
 console.log('OK: equivalentes serie, polaridades opuestas y límites de tres posiciones por rama');
 const algebraContext={names:['I₁','I₂','I₃'],escapeHtml:s=>String(s),formatNumber:n=>Number(n.toFixed(5)).toLocaleString('es-ES'),fmt:n=>(n<0?'−':'')+Number(Math.abs(n).toFixed(5)).toLocaleString('es-ES')};
 vm.createContext(algebraContext);
