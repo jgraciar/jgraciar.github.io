@@ -767,8 +767,21 @@ for(const mobile of [false,true]){
  await edit('sixCmp0R','2,5');await assertResults(Array(6).fill(0),true);
  assert.match(await page.locator('#sixCmp0R .component-value').textContent(),/2,5Ω/);
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'La cabecera con Resolver cabe en la pantalla');
+ // Verificar que la polaridad se invierte desde el área pulsable, en ambas topologías.
+ await page.selectOption('#exerciseSelect','base');
+ assert.equal(await page.locator('[data-source-flip="sourceElement0"]').count(),1,'Fuente de dos mallas pulsable');
+ const plateBefore=await page.locator('#sourceElement0 .source-plate').getAttribute('d');
+ await page.locator('[data-source-flip="sourceElement0"]').dispatchEvent('click');
+ const plateAfter=await page.locator('#sourceElement0 .source-plate').getAttribute('d');
+ assert.notEqual(plateAfter,plateBefore,'La fuente de dos mallas invierte las placas');
+ await page.selectOption('#exerciseSelect','r76');
+ assert.equal(await page.locator('[data-source-flip="sixCmp0U"]').count(),1,'Fuente de tres mallas pulsable');
+ const sixBefore=await page.locator('#sixCmp0U .source-plate').last().getAttribute('d');
+ await page.locator('[data-source-flip="sixCmp0U"]').dispatchEvent('click');
+ const sixAfter=await page.locator('#sixCmp0U .source-plate').last().getAttribute('d');
+ assert.notEqual(sixAfter,sixBefore,'La fuente de tres mallas invierte las placas');
  assert.deepEqual(errors,[]);await context.close();
- console.log('OK: edición de valores, cero y polaridad negativa, cuatro tipos, recálculo y resultados directos en circuito y resolución; '+(mobile?'móvil':'escritorio'));
+ console.log('OK: edición de valores, cero y polaridad negativa, dos topologías, inversión de polaridad, recálculo y resultados directos en circuito y resolución; '+(mobile?'móvil':'escritorio'));
 }
 }finally{await browser.close()}
 
