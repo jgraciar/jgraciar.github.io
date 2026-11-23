@@ -1757,7 +1757,7 @@
       parts.push(source('sourceElement1',345,136,E[1],'E2'));
       parts.push(source('sourceElement2',544,136,E[2],'E3'));
       parts.push('<circle class="nod" cx="345" cy="74" r="5"/><circle class="nod" cx="345" cy="360" r="5"/><text class="txt" x="358" y="58">A</text><text class="txt" x="358" y="390">B</text>');
-      $('staticCircuit').innerHTML=parts.join('');decorateComponentValues();
+      $('staticCircuit').innerHTML=parts.join('');decorateComponentValues();bindSourcePolarityControls();
       $('boardTitle').textContent=topologyLabel(active);
       $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
       $('boardSummary').textContent='R1 '+formatComponentValue(f[0])+' Ω · R2 '+formatComponentValue(f[1])+' Ω · R3 '+formatComponentValue(f[2])+' Ω · R4 '+formatComponentValue(f[3])+' Ω · E1 '+formatComponentValue(E[0])+' V · E2 '+formatComponentValue(E[1])+' V · E3 '+formatComponentValue(E[2])+' V';
@@ -1784,7 +1784,7 @@
     }
     if(active.id==='f451')parts.push(`<g class="component-resistor" id="resistorElementExtra">${resistorSymbol(X[0],312,true,active.components[1],'R2',22)}</g>`);
     parts.push('<circle class="nod" cx="345" cy="74" r="5"/><circle class="nod" cx="345" cy="360" r="5"/><text class="txt" x="358" y="58">A</text><text class="txt" x="358" y="390">B</text>');
-    $('staticCircuit').innerHTML=parts.join('');decorateComponentValues();
+    $('staticCircuit').innerHTML=parts.join('');decorateComponentValues();bindSourcePolarityControls();
     $('boardTitle').textContent=topologyLabel(active);
     $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
     $('boardSummary').textContent='R: '+(active.id==='f451'?active.components:R).map(r=>r===0?'fuente ideal':formatNumber(r)+' Ω').join(' / ')+' · E: '+E.map(formatNumber).join(' / ')+' V';
@@ -4332,7 +4332,39 @@
     if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(text))return null;
     const value=Number(text);return Number.isFinite(value)&&Math.abs(value)<=1e9&&(kind!=='R'||value>0)?value:null;
   }
+  // Pulsar el símbolo de una fuente invierte su polaridad; el valor sigue
+  // siendo editable de forma independiente pulsando sobre su cifra.
+  function invertSourcePolarity(id){
+    const source=editableComponent(id);
+    if(!source||source.kind!=='U')return;
+    const values=source.six?E6:E;
+    if(values[source.index]===0)return;
+    const solved=solutionComplete(source.six);
+    stopPhaseActivity();
+    values[source.index]=-values[source.index];
+    newGame(true);
+    if(solved)solveCircuitDirectly();
+  }
+  function bindSourcePolarityControls(){
+    $('staticCircuit').querySelectorAll('.component-source').forEach(source=>{
+      source.dataset.sourceFlip=source.id;
+      source.setAttribute('role','button');
+      source.setAttribute('tabindex','0');
+      source.setAttribute('aria-label','Invertir polaridad de '+(editableComponent(source.id)?.label||'fuente'));
+      source.style.cursor='pointer';
+    });
+  }
   function initComponentEditing(){
+    $('circuit').addEventListener('click',event=>{
+      if(event.target.closest('[data-component-edit]'))return;
+      const source=event.target.closest('[data-source-flip]');if(!source)return;
+      event.preventDefault();event.stopImmediatePropagation();invertSourcePolarity(source.dataset.sourceFlip);
+    },true);
+    $('circuit').addEventListener('keydown',event=>{
+      if(event.target.closest('[data-component-edit]')||!['Enter',' '].includes(event.key))return;
+      const source=event.target.closest('[data-source-flip]');if(!source)return;
+      event.preventDefault();event.stopImmediatePropagation();invertSourcePolarity(source.dataset.sourceFlip);
+    },true);
     $('circuit').addEventListener('click',event=>{const hit=event.target.closest('[data-component-edit]');if(!hit)return;event.preventDefault();event.stopImmediatePropagation();openComponentValue(hit.dataset.componentEdit);},true);
     $('circuit').addEventListener('keydown',event=>{const hit=event.target.closest('[data-component-edit]');if(!hit||!['Enter',' '].includes(event.key))return;event.preventDefault();event.stopImmediatePropagation();openComponentValue(hit.dataset.componentEdit);},true);
     $('cancelComponentValue').onclick=()=>$('componentValueDialog').close();
