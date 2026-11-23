@@ -1872,6 +1872,31 @@
       `<g class="resistor-ansi"><g transform="${transform}"><rect x="${-half}" y="-13" width="${2*half}" height="26" fill="var(--paint-15233a,#15233a)"/><path class="symbol" d="${zigzag}"/></g><text class="resistor-name" x="${x-(vertical?27:half+12)}" y="${y-(vertical?0:20)}" dominant-baseline="middle" style="text-anchor:end">${label}</text></g>`+
       `<text class="component-value resistor-value" x="${vertical?x+30:x}" y="${vertical?y:y+35}" text-anchor="${vertical?'start':'middle'}" dominant-baseline="middle">${formatComponentValue(value)}Ω</text>`;
   }
+  function drawSlottedThreeBranchCircuit(parts){
+    parts.push('<path class="wire" d="M146 74 H544 M146 360 H544"/>');
+    const positions=[136,220,305];
+    branchSlots.forEach((slots,i)=>{
+      const x=X[i],occupied=slots.filter(Boolean);
+      const placed=occupied.map((slot,k)=>({slot,y:positions[k],index:k}));
+      let cursor=74;
+      for(const {slot,y} of placed){
+        const half=slot.kind==='R'?27:6;
+        parts.push('<path class="wire" d="M'+x+' '+cursor+' V'+(y-half)+'"/>');
+        cursor=y+half;
+        if(slot.kind==='R'){
+          const ordinal=placed.filter(p=>p.y<=y&&p.slot.kind==='R').length;
+          const id=ordinal===1?'resistorElement'+i:'branchResistor'+i+'_'+ordinal;
+          parts.push('<g class="component-resistor" id="'+id+'">'+resistorSymbol(x,y,true,slot.value,'R'+(i+1)+(ordinal>1?'.'+ordinal:''))+'</g>');
+        }else{
+          const ordinal=placed.filter(p=>p.y<=y&&p.slot.kind==='U').length;
+          const id=ordinal===1?'sourceElement'+i:'branchSource'+i+'_'+ordinal;
+          const positive=slot.value>=0,big=positive?y-4:y+4,small=positive?y+4:y-4;
+          parts.push('<g class="component-source" id="'+id+'"><rect class="source-halo" x="'+(x-26)+'" y="'+(y-11)+'" width="52" height="22" rx="4" fill="transparent" stroke="transparent"/><path class="source-plate" d="M'+(x-22)+' '+big+' H'+(x+22)+' M'+(x-10)+' '+small+' H'+(x+10)+'"/><text class="component-value" x="'+(x+39)+'" y="'+(y+5)+'">'+formatNumber(Math.abs(slot.value))+'V</text></g>');
+        }
+      }
+      parts.push('<path class="wire" d="M'+x+' '+cursor+' V360"/>');
+    });
+  }
   function drawBoard(){
     const parts=[];
     if(active.id==='f451'){
@@ -1895,6 +1920,14 @@
       $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
       $('boardSummary').textContent='R1 '+formatComponentValue(f[0])+' Ω · R2 '+formatComponentValue(f[1])+' Ω · R3 '+formatComponentValue(f[2])+' Ω · R4 '+formatComponentValue(f[3])+' Ω · E1 '+formatComponentValue(E[0])+' V · E2 '+formatComponentValue(E[1])+' V · E3 '+formatComponentValue(E[2])+' V';
       $('circuit').setAttribute('aria-label','Figura 4.51: dos mallas, tres fuentes y cuatro resistencias independientes');
+      return;
+    }
+    if(active.id==='base'&&branchSlots){
+      drawSlottedThreeBranchCircuit(parts);
+      parts.push('<circle class="nod" cx="345" cy="74" r="5"/><circle class="nod" cx="345" cy="360" r="5"/><text class="txt" x="358" y="58">A</text><text class="txt" x="358" y="390">B</text>');
+      $('staticCircuit').innerHTML=parts.join('');decorateComponentValues();bindSourcePolarityControls();
+      $('boardTitle').textContent=topologyLabel(active);$('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
+      $('boardSummary').textContent='R: '+R.map(v=>formatNumber(v)+' Ω').join(' / ')+' · E: '+E.map(formatNumber).join(' / ')+' V';
       return;
     }
     parts.push('<path class="wire" d="M146 74 H544 M146 360 H544"/>');
