@@ -1347,6 +1347,52 @@
       return total.resistance===r&&total.voltage===voltages[i]?existing:createBranchSlots(r,voltages[i]);
     });
   }
+  // Editor de las tres posiciones físicas de cada rama.
+  function renderBranchSlotEditor(){
+    let panel=document.getElementById('branchSlotEditor');
+    if(!panel){
+      panel=document.createElement('details');panel.id='branchSlotEditor';
+      panel.style.cssText='width:100%;padding:8px 12px;border:1px solid var(--paint-8df09c,#8df09c);border-radius:8px;margin:8px 0';
+      panel.innerHTML='<summary style="cursor:pointer">Componentes de las ramas (máximo 3 por rama)</summary><div id="branchSlotFields"></div><button type="button" id="applyBranchSlots">Aplicar componentes</button><p id="branchSlotError" role="alert"></p>';
+      document.querySelector('header.top').insertAdjacentElement('afterend',panel);
+      panel.querySelector('#applyBranchSlots').onclick=()=>{
+        const branches=[];
+        try{
+          for(let i=0;i<(active.kind==='multi'?6:3);i++){
+            const slots=[];
+            for(let j=0;j<3;j++){
+              const type=panel.querySelector('[data-slot-kind="'+i+'-'+j+'"]').value;
+              const raw=panel.querySelector('[data-slot-value="'+i+'-'+j+'"]').value;
+              slots.push(type?{kind:type,value:Number(raw)}:null);
+            }
+            const total=branchSlotTotals(slots);
+            if(total.resistance<=0)throw new Error('Cada rama debe tener resistencia positiva.');
+            branches.push(slots);
+          }
+          const eq=branchEquivalentsFromSlots(branches);
+          if(active.kind==='multi'){R6=eq.resistances;E6=eq.voltages;}
+          else{R=eq.resistances;E=eq.voltages;}
+          branchSlots=branches;panel.querySelector('#branchSlotError').textContent='';
+          newGame(true);
+        }catch(error){panel.querySelector('#branchSlotError').textContent=error.message;}
+      };
+    }
+    const six=active.kind==='multi',res=six?R6:R,vol=six?E6:E;
+    branchSlots=reconcileBranchSlots(branchSlots,res,vol);
+    const fields=panel.querySelector('#branchSlotFields');
+    fields.replaceChildren();
+    branchSlots.forEach((slots,i)=>{
+      const row=document.createElement('div');row.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0';
+      const name=document.createElement('strong');name.textContent='Rama '+(i+1);row.append(name);
+      slots.forEach((slot,j)=>{
+        const type=document.createElement('select');type.dataset.slotKind=i+'-'+j;type.setAttribute('aria-label','Rama '+(i+1)+' posición '+(j+1));
+        [['','Vacío'],['R','R'],['U','U']].forEach(([value,label])=>{const opt=document.createElement('option');opt.value=value;opt.textContent=label;type.append(opt);});
+        type.value=slot?.kind||'';
+        const input=document.createElement('input');input.type='number';input.step='any';input.style.width='70px';input.dataset.slotValue=i+'-'+j;input.value=slot?.value??'';input.setAttribute('aria-label','Valor de rama '+(i+1)+' posición '+(j+1));
+        row.append(type,input);
+      });fields.append(row);
+    });
+  }
   const topologyIds=['base','r76'];
   // Datos de topología independientes de los controles y fases comunes.
   const multiTopologyDefinitions={
@@ -3009,7 +3055,7 @@
     if(active.kind==='multi'){sixStart(preserveValues);return}
     $('stagebar').classList.remove('hide');show('networkPhase',false);$('hero').classList.remove('hide');
     branchSlots=reconcileBranchSlots(branchSlots,R,E);
-    jValues=calcCurrents();refreshBranches();drawBoard();clearFX();show('boardEquations',false);
+    jValues=calcCurrents();refreshBranches();drawBoard();renderBranchSlotEditor();clearFX();show('boardEquations',false);
     $('nodeEqPanel').classList.add('hide');$('goLoops').classList.add('hide');
     show('goMatrix',false);show('goSolve',false);
     show('reductions',hasReduction());$('confirmDirs').disabled=hasReduction();
@@ -3192,7 +3238,7 @@
     A6.meshDirections=[true,true,true];A6.meshDirectionsConfirmed=false;A6.stage='dirs';A6.nodeCount=0;A6.nodeIds=[];A6.nodeChoices=[];A6.nodeSelectionConfirmed=false;A6.nodesScored=false;$('advKCLtext').innerHTML='';A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
     $('stagebar').classList.remove('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
     $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('meshSelection').innerHTML='';
-    $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();$('dirGraphics').append($('sixRefArrows'));$('loopArrows').append($('sixLoops'));decorateComponentValues();bindSourcePolarityControls();
+    $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();$('dirGraphics').append($('sixRefArrows'));$('loopArrows').append($('sixLoops'));decorateComponentValues();bindSourcePolarityControls();renderBranchSlotEditor();
     for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents='none';$('nodeHit').style.pointerEvents='none';
     // Mantener intacta la presentación compartida de los circuitos de tres mallas.
     const introduction=$('advIntroduction');
