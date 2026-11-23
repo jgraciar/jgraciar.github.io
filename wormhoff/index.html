@@ -3105,7 +3105,7 @@
     A6.meshDirections=[true,true,true];A6.meshDirectionsConfirmed=false;A6.stage='dirs';A6.nodeCount=0;A6.nodeIds=[];A6.nodeChoices=[];A6.nodeSelectionConfirmed=false;A6.nodesScored=false;$('advKCLtext').innerHTML='';A6.finalVerified=false;$('sixFinalChallenge').replaceChildren();A6.signs=[1,1,1,1,1,1];A6.loop=0;A6.cw=true;A6.pass='R';A6.done=[null,null,null];A6.rowsR=[[],[],[]];A6.rowsU=[[],[],[]];A6.steps=[];A6.step=0;A6.matrixScore=false;
     $('stagebar').classList.remove('hide');for(let i=0;i<5;i++)show('phase'+i,false);show('networkPhase',false);show('advancedPhase',true);
     $('hero').classList.remove('hide');$('nodePulse').classList.add('hide');$('meshSelection').innerHTML='';
-    $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();$('dirGraphics').append($('sixRefArrows'));$('loopArrows').append($('sixLoops'));decorateComponentValues();
+    $('dirGraphics').innerHTML='';$('loopArrows').innerHTML='';$('staticCircuit').innerHTML=sixSVG();$('dirGraphics').append($('sixRefArrows'));$('loopArrows').append($('sixLoops'));decorateComponentValues();bindSourcePolarityControls();
     for(let i=0;i<3;i++)$('dirHit'+i).style.pointerEvents='none';$('nodeHit').style.pointerEvents='none';
     // Mantener intacta la presentación compartida de los circuitos de tres mallas.
     const introduction=$('advIntroduction');
