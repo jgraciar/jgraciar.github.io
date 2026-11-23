@@ -7,7 +7,7 @@ import vm from 'node:vm';
 const gameSource=readFileSync(new URL('../wormhoff/index.html',import.meta.url),'utf8');
 // Invariantes del futuro editor de tres posiciones por rama.
 const slotContext={};vm.createContext(slotContext);
-vm.runInContext(gameSource.slice(gameSource.indexOf('  const BRANCH_SLOT_LIMIT='),gameSource.indexOf("  const topologyIds=['base','r76'];"))+';globalThis.totals=branchSlotTotals;',slotContext);
+vm.runInContext(gameSource.slice(gameSource.indexOf('  const BRANCH_SLOT_LIMIT='),gameSource.indexOf("  const topologyIds=['base','r76'];"))+';globalThis.totals=branchSlotTotals;globalThis.make=createBranchSlots;globalThis.edit=replaceBranchSlot;globalThis.from=branchSlotsFromEquivalents;globalThis.to=branchEquivalentsFromSlots;',slotContext);
 const totals=slots=>JSON.parse(JSON.stringify(slotContext.totals(slots)));
 assert.deepEqual(totals([{kind:'R',value:2},{kind:'U',value:-7},null]),{resistance:2,voltage:-7,counts:{R:1,U:1}});
 assert.deepEqual(totals([{kind:'R',value:3},{kind:'R',value:5},{kind:'U',value:12}]),{resistance:8,voltage:12,counts:{R:2,U:1}});
@@ -16,6 +16,13 @@ assert.throws(()=>totals([{kind:'R',value:1},{kind:'R',value:2},{kind:'R',value:
 assert.throws(()=>totals([{kind:'U',value:1},{kind:'U',value:2},{kind:'U',value:3}]),/Máximo dos/);
 assert.throws(()=>totals([{kind:'R',value:0},null,null]),/positiva/);
 assert.throws(()=>totals([{kind:'R',value:1}]),/tres posiciones/);
+const original=slotContext.make(4,9);
+const changed=slotContext.edit(original,2,{kind:'R',value:3});
+assert.deepEqual(totals(changed),{resistance:7,voltage:9,counts:{R:2,U:1}});
+assert.equal(original[2],null,'La edición no modifica la rama original');
+assert.deepEqual(totals(slotContext.edit(changed,1,null)),{resistance:7,voltage:0,counts:{R:2,U:0}});
+assert.throws(()=>slotContext.edit(changed,3,null),/fuera/);
+assert.deepEqual(JSON.parse(JSON.stringify(slotContext.to(slotContext.from([2,4,6],[10,-8,0])))),{resistances:[2,4,6],voltages:[10,-8,0]});
 console.log('OK: equivalentes serie, polaridades opuestas y límites de tres posiciones por rama');
 const algebraContext={names:['I₁','I₂','I₃'],escapeHtml:s=>String(s),formatNumber:n=>Number(n.toFixed(5)).toLocaleString('es-ES'),fmt:n=>(n<0?'−':'')+Number(Math.abs(n).toFixed(5)).toLocaleString('es-ES')};
 vm.createContext(algebraContext);
