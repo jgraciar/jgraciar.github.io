@@ -1327,6 +1327,17 @@
     if(resistances.length!==voltages.length)throw new Error('Número de ramas incompatible.');
     return resistances.map((r,i)=>distributeIntegerBranchComponents(r,voltages[i],randomInteger));
   }
+  // Estado de los componentes individuales; el motor de Kirchhoff sigue usando equivalentes.
+  let branchSlots=null;
+  function syncBranchSlots(resistances,voltages,randomize=false){
+    branchSlots=randomize
+      ?distributeIntegerCircuitComponents(resistances,voltages,randomInt)
+      :branchSlotsFromEquivalents(resistances,voltages);
+    const equivalent=branchEquivalentsFromSlots(branchSlots);
+    if(equivalent.resistances.some((v,i)=>v!==resistances[i])||
+       equivalent.voltages.some((v,i)=>v!==voltages[i]))throw new Error('Las ramas han alterado el circuito equivalente.');
+    return branchSlots;
+  }
   const topologyIds=['base','r76'];
   // Datos de topología independientes de los controles y fases comunes.
   const multiTopologyDefinitions={
@@ -1880,6 +1891,7 @@
         const sources=EDGES6.map((edge,k)=>resistances[k]*currents[k]+potentials[edge.to]-potentials[edge.from]);
         if(sources[1]!==0||sources.some((v,k)=>k!==1&&(v===0||Math.abs(v)>150)))continue;
         R6=resistances;E6=sources;
+        syncBranchSlots(R6,E6,true);
         return;
       }
       throw new Error('No se ha encontrado una combinación válida para las seis ramas.');
@@ -1896,7 +1908,7 @@
       if(zeros.some(k=>sources[k]!==0)||sources.some((value,k)=>original[k]!==0&&(value===0||Math.abs(value)>150)))continue;
       if(f451Parts){active.components=f451Parts;R=resistances;E=sources;jValues=calcCurrents();if(jValues.every((current,k)=>Math.abs(current-currents[k])<1e-8))return;continue;}
       R=resistances;E=sources;jValues=calcCurrents();
-      if(jValues.every((current,k)=>Math.abs(current-currents[k])<1e-8))return;
+      if(jValues.every((current,k)=>Math.abs(current-currents[k])<1e-8)){syncBranchSlots(R,E,true);return;}
     }
     throw new Error('No se ha encontrado una combinación válida para las tres ramas.');
   }
