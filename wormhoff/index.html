@@ -1209,7 +1209,7 @@
   async function refreshVisitCounters(){
     if(!WORMHOFF_STATS_ENDPOINT)return;
     try{
-      const base=WORMHOFF_STATS_ENDPOINT.replace(/\\/$/,'');
+      const base=WORMHOFF_STATS_ENDPOINT.replace(/\/$/,'');
       const response=await fetch(base+'/stats',{cache:'no-store'});
       if(!response.ok)throw new Error('Stats HTTP '+response.status);
       const data=await response.json();
@@ -1218,7 +1218,7 @@
     }catch(error){console.warn('Estadísticas no disponibles',error);}
   }
   if(WORMHOFF_STATS_ENDPOINT){
-    fetch(WORMHOFF_STATS_ENDPOINT.replace(/\\/$/,'')+'/visit',{method:'POST',keepalive:true}).finally(refreshVisitCounters);
+    fetch(WORMHOFF_STATS_ENDPOINT.replace(/\/$/,'')+'/visit',{method:'POST',keepalive:true}).finally(refreshVisitCounters);
   }
 
   // El personaje solo se oculta mientras dura la pulsación.
