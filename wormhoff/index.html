@@ -1300,6 +1300,33 @@
     const totals=branches.map(branchSlotTotals);
     return {resistances:totals.map(t=>t.resistance),voltages:totals.map(t=>t.voltage)};
   }
+  function distributeIntegerBranchComponents(resistance,voltage,randomInteger){
+    if(!Number.isInteger(resistance)||resistance<=0||!Number.isInteger(voltage))throw new Error('Los equivalentes deben ser enteros y la resistencia positiva.');
+    const draw=(low,high)=>{
+      const value=randomInteger(low,high);
+      if(!Number.isInteger(value)||value<low||value>high)throw new Error('Generador aleatorio fuera de rango.');
+      return value;
+    };
+    const sourceCount=voltage===0?0:Math.abs(voltage)>1?draw(1,2):1;
+    const resistorCount=resistance>1?draw(1,sourceCount===2?1:2):1;
+    const slots=[];
+    if(resistorCount===2){
+      const first=draw(1,resistance-1);
+      slots.push({kind:'R',value:first},{kind:'R',value:resistance-first});
+    }else slots.push({kind:'R',value:resistance});
+    if(sourceCount===2){
+      const sign=Math.sign(voltage),first=draw(1,Math.abs(voltage)-1)*sign;
+      slots.push({kind:'U',value:first},{kind:'U',value:voltage-first});
+    }else if(sourceCount===1)slots.push({kind:'U',value:voltage});
+    while(slots.length<BRANCH_SLOT_LIMIT)slots.push(null);
+    const equivalent=branchSlotTotals(slots);
+    if(equivalent.resistance!==resistance||equivalent.voltage!==voltage)throw new Error('La distribución altera los equivalentes.');
+    return slots;
+  }
+  function distributeIntegerCircuitComponents(resistances,voltages,randomInteger){
+    if(resistances.length!==voltages.length)throw new Error('Número de ramas incompatible.');
+    return resistances.map((r,i)=>distributeIntegerBranchComponents(r,voltages[i],randomInteger));
+  }
   const topologyIds=['base','r76'];
   // Datos de topología independientes de los controles y fases comunes.
   const multiTopologyDefinitions={
