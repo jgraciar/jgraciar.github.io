@@ -686,7 +686,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await selectSymbol('ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  await selectSymbol('iec');await assertNoCurrentOverlap();
  // El tipo 5 fue retirado; validar las cuatro opciones que existen realmente.
- assert.deepEqual(await page.locator('#exerciseSelect option').evaluateAll(options=>options.map(o=>o.value)),['base','r73','fig237','r76']);
+ assert.deepEqual(await page.locator('#exerciseSelect option').evaluateAll(options=>options.map(o=>o.value)),['base','r76']);
  await page.selectOption('#exerciseSelect','r76');
  assert.equal(await page.locator('#sixSymbols .component-resistor').count(),6,'Restaurar las seis resistencias del tipo 4');
  assert.equal(await page.locator('#sixSymbols .component-source').count(),5,'Restaurar las cinco fuentes del tipo 4');
@@ -705,7 +705,7 @@ for(const mobile of [false,true]){
  // DEMO conserva el estado y su comportamiento al cargar cualquier otro tipo.
  for(const enabled of [true,false]){
   if((await page.locator('#toggleDemo').getAttribute('aria-pressed')==='true')!==enabled)await page.click('#toggleDemo');
-  for(const type of ['base','r73','fig237','r76']){
+  for(const type of ['base','r76']){
    await page.selectOption('#exerciseSelect',type);
    assert.equal(await page.locator('#toggleDemo').getAttribute('aria-pressed'),String(enabled),'Estado global al cargar '+type);
    assert.equal(await page.locator('#toggleDemo .demo-state').textContent(),enabled?'ON':'OFF');
@@ -751,47 +751,7 @@ for(const mobile of [false,true]){
  await edit('sourceElement0','0');await assertResults([-.6,-1.8,1.2]);
  assert.equal(await page.locator('[data-component-edit="sourceElement0"]').count(),1,'La fuente de cero voltios sigue siendo editable');
  await edit('sourceElement0','-6');await assertResults([-1.8,-2.4,.6]);
- await page.selectOption('#exerciseSelect','r73');await page.click('#solveDirect');await assertResults([8/11,-1/11,9/11]);
- await page.selectOption('#exerciseSelect','fig237');
- assert.equal(await page.locator('#exerciseSelect option:checked').textContent(),'Tipo 3','La figura 2.37 sustituye a la figura 4.51');
- assert.deepEqual(await page.locator('#staticCircuit .resistor-value').allTextContents(),['4Ω','3Ω','2Ω'],'Valores originales de la figura 2.37');
- assert.equal(await page.locator('#staticCircuit .component-source').count(),2,'La figura 2.37 tiene exactamente dos fuentes laterales');
- assert.equal(await page.locator('#staticCircuit .component-resistor').count(),3,'La figura 2.37 tiene tres resistencias');
- // Comprobar la posición del símbolo, no el getBBox del grupo con textos.
- // Los símbolos están dentro de grupos transformados: medir en coordenadas del SVG raíz.
- const geometry=await page.evaluate(()=>{
-  const root=document.getElementById('circuit');
-  const center=el=>{
-   const b=el.getBBox(),p=root.createSVGPoint();p.x=b.x+b.width/2;p.y=b.y+b.height/2;
-   const matrix=root.getScreenCTM().inverse().multiply(el.getScreenCTM());
-   const c=p.matrixTransform(matrix);return {x:c.x,y:c.y};
-  };
-  return {
-   resistors:[0,1,2].map(i=>center(document.querySelector('#resistorElement'+i+' .symbol'))),
-   sources:[0,2].map(i=>center(document.querySelector('#sourceElement'+i+' .source-plate')))
-  };
- });
- assert(Math.max(...geometry.resistors.map(r=>r.y))-Math.min(...geometry.resistors.map(r=>r.y))<1,'Resistencias de las tres ramas alineadas como en tipos 1 y 2: '+JSON.stringify(geometry));
- assert(geometry.resistors[0].x<geometry.resistors[1].x&&geometry.resistors[1].x<geometry.resistors[2].x,'Resistencias en ramas izquierda, central y derecha: '+JSON.stringify(geometry));
- assert(Math.abs(geometry.sources[0].y-geometry.sources[1].y)<1,'Fuentes alineadas como en tipos 1 y 2: '+JSON.stringify(geometry));
- const routeCheck=await page.evaluate(()=>{
-  const {getBranches,getRoute}=wormhoffRouteTest,branches=getBranches();
-  return {resistors:branches.map(b=>b.filter(p=>p.component==='resistor').length),sources:branches.map(b=>b.filter(p=>p.component==='source').length),loops:[0,1].flatMap(i=>[true,false].map(cw=>getRoute(i,cw)))};
- });
- assert.deepEqual(routeCheck.resistors,[1,1,1],'Una resistencia en cada rama');
- assert.deepEqual(routeCheck.sources,[1,0,1],'Fuentes solamente en las ramas exteriores');
- for(const route of routeCheck.loops){
-  assert.equal(route.legs.length,2);
-  const a=route.legs[0].points.at(-1),b=route.legs[1].points[0];
-  assert.equal(a.x,b.x,'Sin salto horizontal entre ramas');
-  assert.equal(a.y,b.y,'Sin salto vertical entre ramas');
-  assert.equal(route.legs[1].points.at(-1).y,360,'La malla termina en el nudo inferior');
- }
- await page.click('#solveDirect');await assertResults([5,0,5]);
- assert.equal(await page.locator('#componentValueDialog').isVisible(),false);
- await edit('resistorElement0','5');await assertResults([130/31,-10/31,140/31]);
- await page.selectOption('#exerciseSelect','r73');await page.selectOption('#exerciseSelect','fig237');
- assert.deepEqual(await page.locator('#staticCircuit .resistor-value').allTextContents(),['4Ω','3Ω','2Ω'],'Se restauran los valores originales al volver al tipo 3');
+ // Las pruebas de figuras históricas se reintroducirán como pruebas del editor de ramas.
  await page.selectOption('#exerciseSelect','r76');
  const sourceBackgrounds=await page.locator('#sixSymbols .source-halo').evaluateAll(nodes=>nodes.map(rect=>{
   const x=Number(rect.getAttribute('x'))+Number(rect.getAttribute('width'))/2,y=Number(rect.getAttribute('y'))+Number(rect.getAttribute('height'))/2;
