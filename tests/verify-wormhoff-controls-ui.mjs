@@ -594,7 +594,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const position=await page.locator('#currentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   assert(Math.abs(position.x-x)<2&&Math.abs(position.y-235)<2,'Flecha sobre la rama en el punto pulsado');
  }
- await tap(146,205);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
+ await tap(146,265);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
  assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente I₇/);
  assert.equal(await page.locator('#dirGraphics [data-current-index]').count(),3,'No duplica la corriente de una rama ocupada');
  assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₇');assert.equal(await page.locator('#currentArrow1 .dirlabel').textContent(),'I₁₂');
