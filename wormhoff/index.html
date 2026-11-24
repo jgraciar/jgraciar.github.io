@@ -1725,7 +1725,7 @@
     clearTimeout(placementNoticeTimer);$('currentPlacementNotice').textContent=text;show('currentPlacementNotice',true);
     $('boardState').textContent=text;placementNoticeTimer=setTimeout(()=>show('currentPlacementNotice',false),4500);
   }
-  function branchPoints(six,index){return six?EDGES6[index].p.map(p=>({x:p[0],y:p[1]})):BRANCHES[index];}
+  function branchPoints(six,index){return six?EDGES6[index].p.filter(p=>p.length===2).map(p=>({x:p[0],y:p[1]})):BRANCHES[index].filter(p=>!p.component);}
   function branchClickPoint(event,six,index){
     if(event&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY)&&(event.clientX||event.clientY)){
       const p=new DOMPoint(event.clientX,event.clientY).matrixTransform($('circuit').getScreenCTM().inverse());return {x:p.x,y:p.y};
@@ -3218,12 +3218,13 @@
     const point=t=>[segment.a[0]+dx*t,segment.a[1]+dy*t];
     return {points,segments,segment,dx,dy,point};
   }
+  function sixSlotDistance(length,index){return length*[0.23,0.55][index];}
   function sixPhysicalRoute(i,edge){
     if(!branchSlots)return edge.p;
     const {points,segments,segment,point}=sixSlotGeometry(edge);
     const route=[points[0]];
     for(const part of segments){
-      if(part===segment)branchSlots[i].forEach((slot,j)=>{if(slot)route.push([...point(part.len*(j+1)/(branchSlots[i].length+1)),slot.kind]);});
+      if(part===segment)branchSlots[i].forEach((slot,j)=>{if(slot)route.push([...point(sixSlotDistance(part.len,j)),slot.kind]);});
       route.push(part.b);
     }
     return route;
@@ -3238,7 +3239,7 @@
     for(const p of segments)if(p!==segment)h+=wire(p.a,p.b);
     slots.forEach((slot,j)=>{
       if(!slot)return;
-      const t=segment.len*(j+1)/(slots.length+1),[x,y]=point(t);
+      const t=sixSlotDistance(segment.len,j),[x,y]=point(t);
       const half=slot.kind==='R'?Math.min(25,segment.len/(2*(slots.length+1))-4):6;
       h+=wire(point(cursor),point(t-half));cursor=t+half;
       const ordinal=++counts[slot.kind],id='sixCmp'+i+slot.kind+(ordinal>1?'_'+ordinal:'');
