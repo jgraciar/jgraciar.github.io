@@ -227,8 +227,8 @@ await page.route('**/wormhoff/',async route=>{
  await route.fulfill({response,body:html.replace('  newGame();syncBoardActions();','  globalThis.wormhoffTest={A6,S,sixStartSolve,sixRefArrow,sixRenderRows,sixKCLRows,NAMES6,openSimplification,sixEq};\n  newGame();syncBoardActions();')});
 });
 await page.reload();await page.selectOption('#exerciseSelect','r76');
-// El tipo 4 debe admitir flechas en los tramos R2–C y R5–D.
-for(const [branch,x,y] of [[1,350,190],[4,548,225]]){
+// Las ramas deben admitir flechas después del último componente, antes del nudo.
+for(const [branch,x,y] of [[1,350,208],[4,548,225]]){
  const target=page.locator('[data-current-branch="'+branch+'"]');
  await target.evaluate((el,{x,y})=>{
   const svg=document.getElementById('circuit'),p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());
@@ -239,7 +239,7 @@ for(const [branch,x,y] of [[1,350,190],[4,548,225]]){
  assert.notEqual(await arrow.getAttribute('data-placement-unavailable'),'true','Flecha disponible entre resistencia y nudo');
  assert.equal(await arrow.isVisible(),true,'Flecha visible en el tramo solicitado');
  const point=await arrow.evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
- if(branch===1)assert(point.x>=338&&point.x<=362&&point.y>166&&point.y<225,'Flecha entre R2 y C');
+ if(branch===1)assert(point.x>=338&&point.x<=362&&point.y>193&&point.y<225,'Flecha después del último componente y antes de C');
  else assert(point.x>535&&point.x<570&&point.y>=212&&point.y<=238,'Flecha entre R5 y D');
 }
 await page.reload();await page.selectOption('#exerciseSelect','r76');
