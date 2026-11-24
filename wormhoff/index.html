@@ -1802,7 +1802,19 @@
     if(!choosing){$('currentBranchTargets').innerHTML='';return;}
     const branches=six?EDGES6.map(edge=>edge.p):BRANCHES.map(points=>points.map(p=>[p.x,p.y]));
     $('currentBranchTargets').innerHTML=branches.map((points,i)=>`<polyline class="current-branch-hit" data-current-branch="${i}" points="${points.map(p=>p[0]+','+p[1]).join(' ')}" tabindex="0" role="button" aria-label="Numerar corriente de rama ${i+1}"/>`).join('');
-    $('currentBranchTargets').querySelectorAll('[data-current-branch]').forEach(el=>bindClickable(el,event=>openCurrentName(Number(el.dataset.currentBranch),six,event)));
+    $('currentBranchTargets').querySelectorAll('[data-current-branch]').forEach(el=>{
+      // Preserve the actual touch position: Chromium may retarget the synthetic click
+      // to a nearby point on a wide SVG hit area.
+      let touch=null;
+      el.addEventListener('pointerdown',event=>{touch=event.pointerType==='touch'?{id:event.pointerId,x:event.clientX,y:event.clientY}:null;});
+      el.addEventListener('pointercancel',()=>{touch=null;});
+      el.addEventListener('pointerup',event=>{if(touch&&touch.id===event.pointerId)touch={clientX:event.clientX,clientY:event.clientY};});
+      bindClickable(el,event=>{
+        const point=event&&touch&&Number.isFinite(touch.clientX)?touch:event;
+        touch=null;
+        openCurrentName(Number(el.dataset.currentBranch),six,point);
+      });
+    });
     const count=model.currentNumbers.filter(n=>n!==null).length;
     $(six?'advInfo':'currentNamingStatus').textContent='Pulsa una rama y numera su corriente: '+count+' de '+labels.length+' asignadas.';
     $('boardState').textContent='Pulsa las ramas para numerar sus corrientes: '+count+' de '+labels.length+' asignadas.';
