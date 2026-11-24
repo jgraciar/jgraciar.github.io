@@ -1900,7 +1900,7 @@
       `<g class="resistor-ansi"><g transform="${transform}"><rect x="${-half}" y="-13" width="${2*half}" height="26" fill="var(--paint-15233a,#15233a)"/><path class="symbol" d="${zigzag}"/></g><text class="resistor-name" x="${x-(vertical?27:half+12)}" y="${y-(vertical?0:20)}" dominant-baseline="middle" style="text-anchor:end">${label}</text></g>`+
       `<text class="component-value resistor-value" x="${vertical?x+30:x}" y="${vertical?y:y+35}" text-anchor="${vertical?'start':'middle'}" dominant-baseline="middle">${formatComponentValue(value)}Ω</text>`;
   }
-  const THREE_SLOT_Y=[136,305];
+  const THREE_SLOT_Y=[TOP+(BOT-TOP)/3,TOP+2*(BOT-TOP)/3];
   function drawSlottedThreeBranchCircuit(parts){
     parts.push('<path class="wire" d="M146 74 H544 M146 360 H544"/>');
     const positions=THREE_SLOT_Y;
@@ -1909,18 +1909,18 @@
       const placed=slots.map((slot,k)=>({slot,y:positions[k],index:k})).filter(p=>p.slot);
       let cursor=74;
       for(const {slot,y} of placed){
-        const half=slot.kind==='R'?27:4;
+        const half=slot.kind==='R'?20:4;
         parts.push('<path class="wire" d="M'+x+' '+cursor+' V'+(y-half)+'"/>');
         cursor=y+half;
         if(slot.kind==='R'){
           const ordinal=placed.filter(p=>p.y<=y&&p.slot.kind==='R').length;
           const id=ordinal===1?'resistorElement'+i:'branchResistor'+i+'_'+ordinal;
-          parts.push('<g class="component-resistor" id="'+id+'">'+resistorSymbol(x,y,true,slot.value,'R'+(i+1)+(ordinal>1?'.'+ordinal:''))+'</g>');
+          parts.push('<g class="component-resistor" id="'+id+'">'+resistorSymbol(x,y,true,slot.value,'R'+(i+1)+(ordinal>1?'.'+ordinal:''),20)+'</g>');
         }else{
           const ordinal=placed.filter(p=>p.y<=y&&p.slot.kind==='U').length;
           const id=ordinal===1?'sourceElement'+i:'branchSource'+i+'_'+ordinal;
           const positive=slot.value>=0,big=positive?y-4:y+4,small=positive?y+4:y-4;
-          parts.push('<g class="component-source" id="'+id+'"><rect class="source-halo" x="'+(x-26)+'" y="'+(y-11)+'" width="52" height="22" rx="4" fill="transparent" stroke="transparent"/><path class="source-plate" d="M'+(x-22)+' '+big+' H'+(x+22)+' M'+(x-10)+' '+small+' H'+(x+10)+'"/><text class="component-value" x="'+(x+39)+'" y="'+(y+5)+'">'+formatNumber(Math.abs(slot.value))+'V</text></g>');
+          parts.push('<g class="component-source" id="'+id+'"><rect class="source-halo" x="'+(x-26)+'" y="'+(y-11)+'" width="52" height="22" rx="4" fill="transparent" stroke="transparent"/><path class="source-plate" d="M'+(x-22)+' '+big+' H'+(x+22)+' M'+(x-10)+' '+small+' H'+(x+10)+'"/><text class="component-value" x="'+(x+39)+'" y="'+(y+5)+'">'+formatComponentValue(Math.abs(slot.value))+'V</text></g>');
         }
       }
       parts.push('<path class="wire" d="M'+x+' '+cursor+' V360"/>');
@@ -3230,7 +3230,7 @@
     const point=t=>[segment.a[0]+dx*t,segment.a[1]+dy*t];
     return {points,segments,segment,dx,dy,point};
   }
-  function sixSlotDistance(length,index){return length*(length<180?[0.19,0.46]:[0.23,0.55])[index];}
+  function sixSlotDistance(length,index){return length*(index+1)/3;}
   function sixPhysicalRoute(i,edge){
     if(!branchSlots)return edge.p;
     const {points,segments,segment,point}=sixSlotGeometry(edge);
@@ -3252,7 +3252,7 @@
     slots.forEach((slot,j)=>{
       if(!slot)return;
       const t=sixSlotDistance(segment.len,j),[x,y]=point(t);
-      const half=slot.kind==='R'?Math.min(segment.len<180?17:25,segment.len/(2*(slots.length+1))-4):6;
+      const half=slot.kind==='R'?Math.min(20,segment.len/12):6;
       h+=wire(point(cursor),point(t-half));cursor=t+half;
       const ordinal=++counts[slot.kind],id='sixCmp'+i+slot.kind+(ordinal>1?'_'+ordinal:'');
       if(slot.kind==='R')h+='<g id="'+id+'" class="component-resistor">'+resistorSymbol(x,y,vertical,slot.value,'R'+(i+1)+(ordinal>1?'.'+ordinal:''),half)+'</g>';
