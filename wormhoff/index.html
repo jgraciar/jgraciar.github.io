@@ -1265,14 +1265,14 @@
   // La figura 2.37 es otra disposición didáctica de esa misma clase topológica.
   // Modelo de edición: tres posiciones por rama, como máximo dos elementos de cada clase.
   // Los equivalentes se calculan sin modificar la topología de nudos y mallas.
-  const BRANCH_SLOT_LIMIT=3;
+  const BRANCH_SLOT_LIMIT=2;
   function branchSlotTotals(slots){
-    if(!Array.isArray(slots)||slots.length!==BRANCH_SLOT_LIMIT)throw new Error('Cada rama debe tener tres posiciones.');
+    if(!Array.isArray(slots)||slots.length!==BRANCH_SLOT_LIMIT)throw new Error('Cada rama debe tener dos posiciones.');
     const counts={R:0,U:0};let resistance=0,voltage=0;
     for(const slot of slots){
       if(slot===null)continue;
       if(!slot||!['R','U'].includes(slot.kind)||!Number.isFinite(slot.value))throw new Error('Componente de rama no válido.');
-      if(++counts[slot.kind]>2)throw new Error('Máximo dos resistencias y dos fuentes por rama.');
+      if(++counts[slot.kind]>2)throw new Error('Máximo dos componentes por rama.');
       if(slot.kind==='R'){if(slot.value<=0)throw new Error('La resistencia debe ser positiva.');resistance+=slot.value;}
       else voltage+=slot.value;
     }
@@ -1307,8 +1307,8 @@
       if(!Number.isInteger(value)||value<low||value>high)throw new Error('Generador aleatorio fuera de rango.');
       return value;
     };
-    const sourceCount=voltage===0?0:Math.abs(voltage)>1?draw(1,2):1;
-    const resistorCount=resistance>1?draw(1,sourceCount===2?1:2):1;
+    const sourceCount=voltage===0?0:1;
+    const resistorCount=resistance>1?draw(1,2-sourceCount):1;
     const slots=[];
     if(resistorCount===2){
       const first=draw(1,resistance-1);
@@ -1353,7 +1353,7 @@
     if(!panel){
       panel=document.createElement('details');panel.id='branchSlotEditor';
       panel.style.cssText='width:100%;padding:8px 12px;border:1px solid var(--paint-8df09c,#8df09c);border-radius:8px;margin:8px 0';
-      panel.innerHTML='<summary style="cursor:pointer">Componentes de las ramas (máximo 3 por rama)</summary><div id="branchSlotFields"></div><button type="button" id="applyBranchSlots">Aplicar componentes</button><p id="branchSlotError" role="alert"></p>';
+      panel.innerHTML='<summary style="cursor:pointer">Componentes de las ramas (máximo 2 por rama)</summary><div id="branchSlotFields"></div><button type="button" id="applyBranchSlots">Aplicar componentes</button><p id="branchSlotError" role="alert"></p>';
       document.querySelector('header.top').insertAdjacentElement('afterend',panel);
       panel.style.display='none';
       const toggle=document.getElementById('openBranchEditor');
@@ -1369,7 +1369,7 @@
         try{
           for(let i=0;i<(active.kind==='multi'?6:3);i++){
             const slots=[];
-            for(let j=0;j<3;j++){
+            for(let j=0;j<BRANCH_SLOT_LIMIT;j++){
               const type=panel.querySelector('[data-slot-kind="'+i+'-'+j+'"]').value;
               const raw=panel.querySelector('[data-slot-value="'+i+'-'+j+'"]').value;
               if(type&&raw.trim()==='')throw new Error('Introduce el valor de la rama '+(i+1)+', posición '+(j+1)+'.');
@@ -1883,7 +1883,7 @@
   }
   function drawSlottedThreeBranchCircuit(parts){
     parts.push('<path class="wire" d="M146 74 H544 M146 360 H544"/>');
-    const positions=[136,220,305];
+    const positions=[136,305];
     branchSlots.forEach((slots,i)=>{
       const x=X[i];
       const placed=slots.map((slot,k)=>({slot,y:positions[k],index:k})).filter(p=>p.slot);
@@ -3779,13 +3779,6 @@
         for(const t of distances){const x=a.x+dx*t,y=a.y+dy*t;candidates.push({x,y,dx,dy,distance:(x-wanted.x)**2+(y-wanted.y)**2});}
       }
       if(currentRenamingPlacement&&currentRenamingPlacement.index===index&&currentRenamingPlacement.six===six)candidates=[{...currentRenamingPlacement,distance:0}];
-      // Prefer the conductor itself; when it is crowded, use a parallel arrow beside the same branch.
-      if(branchSlots&&!currentRenamingPlacement){
-        const original=candidates.slice();
-        for(const offset of [24,-24,36,-36,48,-48]){
-          for(const c of original)candidates.push({...c,x:c.x-c.dy*offset,y:c.y+c.dx*offset,distance:c.distance+100000+offset*offset,parallel:true});
-        }
-      }
       candidates.sort((a,b)=>a.distance-b.distance);
       let chosen=null;
       const metric=el=>{el.setAttribute('x','0');el.setAttribute('y','0');el.setAttribute('text-anchor','start');el.removeAttribute('transform');return el.getBBox();};
@@ -3799,7 +3792,7 @@
           const tail={x:c.x-vx*half,y:c.y-vy*half},tipPoint={x:c.x+vx*half,y:c.y+vy*half};
           const segments=[[tail,tipPoint],...[-1,1].map(side=>[{x:c.x+vx*(half-9)+side*vy*7,y:c.y+vy*(half-9)-side*vx*7},tipPoint])];
           // Compara el trazo real y su contorno: el rectángulo completo de la punta bloqueaba el texto de B y D sin tocarlo.
-          if(!inside(arrow)||fixed.some(r=>segments.some(([a,b])=>arrowSegmentTouchesRect(a,b,r)))||occupied.some(b=>overlap(arrow,b))||(c.parallel&&wires.some(r=>segments.some(([a,b])=>arrowSegmentTouchesRect(a,b,r)))))continue;
+          if(!inside(arrow)||fixed.some(r=>segments.some(([a,b])=>arrowSegmentTouchesRect(a,b,r)))||occupied.some(b=>overlap(arrow,b)))continue;
           const horizontal=Math.abs(c.dx)>.5;
           const positions=horizontal?[11,18,28].flatMap(offset=>[
             {l:{x:c.x-l.width/2,y:c.y-offset-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+offset,w:v.width,h:v.height}:null},
