@@ -1895,9 +1895,9 @@
     const rotation=angle===null?(vertical?90:0):angle;
     const transform=`translate(${x} ${y}) rotate(${rotation})`;
     const points=[[-1,0],[-.82,0],[-.64,-10],[-.42,10],[-.2,-10],[.02,10],[.24,-10],[.46,10],[.7,0],[1,0]];
-    const zigzag=points.map(([a,b],i)=>`${i?'L':'M'}${(a*half).toFixed(2)} ${b}`).join(' ');
-    return `<g class="resistor-iec"><g transform="${transform}"><rect class="symbol" x="${-half}" y="-13" width="${2*half}" height="26"/></g><text class="resistor-name" x="${x}" y="${y}" dominant-baseline="middle">${label}</text></g>`+
-      `<g class="resistor-ansi"><g transform="${transform}"><rect x="${-half}" y="-13" width="${2*half}" height="26" fill="var(--paint-15233a,#15233a)"/><path class="symbol" d="${zigzag}"/></g><text class="resistor-name" x="${x-(vertical?27:half+12)}" y="${y-(vertical?0:20)}" dominant-baseline="middle" style="text-anchor:end">${label}</text></g>`+
+    const thickness=half/27; const zigzag=points.map(([a,b],i)=>`${i?'L':'M'}${(a*half).toFixed(2)} ${b*thickness}`).join(' ');
+    return `<g class="resistor-iec"><g transform="${transform}"><rect class="symbol" x="${-half}" y="${-13*thickness}" width="${2*half}" height="${26*thickness}"/></g><text class="resistor-name" x="${x}" y="${y}" dominant-baseline="middle">${label}</text></g>`+
+      `<g class="resistor-ansi"><g transform="${transform}"><rect x="${-half}" y="${-13*thickness}" width="${2*half}" height="${26*thickness}" fill="var(--paint-15233a,#15233a)"/><path class="symbol" d="${zigzag}"/></g><text class="resistor-name" x="${x-(vertical?27:half+12)}" y="${y-(vertical?0:20)}" dominant-baseline="middle" style="text-anchor:end">${label}</text></g>`+
       `<text class="component-value resistor-value" x="${vertical?x+30:x}" y="${vertical?y:y+35}" text-anchor="${vertical?'start':'middle'}" dominant-baseline="middle">${formatComponentValue(value)}Ω</text>`;
   }
   const THREE_SLOT_Y=[TOP+(BOT-TOP)/3,TOP+2*(BOT-TOP)/3];
@@ -1909,13 +1909,13 @@
       const placed=slots.map((slot,k)=>({slot,y:positions[k],index:k})).filter(p=>p.slot);
       let cursor=74;
       for(const {slot,y} of placed){
-        const half=slot.kind==='R'?20:4;
+        const half=slot.kind==='R'?27:4;
         parts.push('<path class="wire" d="M'+x+' '+cursor+' V'+(y-half)+'"/>');
         cursor=y+half;
         if(slot.kind==='R'){
           const ordinal=placed.filter(p=>p.y<=y&&p.slot.kind==='R').length;
           const id=ordinal===1?'resistorElement'+i:'branchResistor'+i+'_'+ordinal;
-          parts.push('<g class="component-resistor" id="'+id+'">'+resistorSymbol(x,y,true,slot.value,'R'+(i+1)+(ordinal>1?'.'+ordinal:''),20)+'</g>');
+          parts.push('<g class="component-resistor" id="'+id+'">'+resistorSymbol(x,y,true,slot.value,'R'+(i+1)+(ordinal>1?'.'+ordinal:''))+'</g>');
         }else{
           const ordinal=placed.filter(p=>p.y<=y&&p.slot.kind==='U').length;
           const id=ordinal===1?'sourceElement'+i:'branchSource'+i+'_'+ordinal;
@@ -3252,7 +3252,7 @@
     slots.forEach((slot,j)=>{
       if(!slot)return;
       const t=sixSlotDistance(segment.len,j),[x,y]=point(t);
-      const half=slot.kind==='R'?Math.min(20,segment.len/12):6;
+      const half=slot.kind==='R'?Math.min(27,segment.len/8):6;
       h+=wire(point(cursor),point(t-half));cursor=t+half;
       const ordinal=++counts[slot.kind],id='sixCmp'+i+slot.kind+(ordinal>1?'_'+ordinal:'');
       if(slot.kind==='R')h+='<g id="'+id+'" class="component-resistor">'+resistorSymbol(x,y,vertical,slot.value,'R'+(i+1)+(ordinal>1?'.'+ordinal:''),half)+'</g>';
