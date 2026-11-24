@@ -3218,7 +3218,7 @@
     const point=t=>[segment.a[0]+dx*t,segment.a[1]+dy*t];
     return {points,segments,segment,dx,dy,point};
   }
-  function sixSlotDistance(length,index){return length*[0.23,0.55][index];}
+  function sixSlotDistance(length,index){return length*(length<180?[0.19,0.46]:[0.23,0.55])[index];}
   function sixPhysicalRoute(i,edge){
     if(!branchSlots)return edge.p;
     const {points,segments,segment,point}=sixSlotGeometry(edge);
@@ -3240,7 +3240,7 @@
     slots.forEach((slot,j)=>{
       if(!slot)return;
       const t=sixSlotDistance(segment.len,j),[x,y]=point(t);
-      const half=slot.kind==='R'?Math.min(25,segment.len/(2*(slots.length+1))-4):6;
+      const half=slot.kind==='R'?Math.min(segment.len<180?17:25,segment.len/(2*(slots.length+1))-4):6;
       h+=wire(point(cursor),point(t-half));cursor=t+half;
       const ordinal=++counts[slot.kind],id='sixCmp'+i+slot.kind+(ordinal>1?'_'+ordinal:'');
       if(slot.kind==='R')h+='<g id="'+id+'" class="component-resistor">'+resistorSymbol(x,y,vertical,slot.value,'R'+(i+1)+(ordinal>1?'.'+ordinal:''),half)+'</g>';
