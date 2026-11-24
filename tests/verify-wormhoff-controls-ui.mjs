@@ -576,10 +576,10 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  if(!mobile){const distance=await page.locator('#currentNameDialog').evaluate(el=>{const p=new DOMPoint(146,235).matrixTransform(document.getElementById('circuit').getScreenCTM()),r=el.getBoundingClientRect();return Math.hypot(Math.max(r.left-p.x,0,p.x-r.right),Math.max(r.top-p.y,0,p.y-r.bottom));});if(distance>=60)console.log('CURRENT DIALOG DIAGNOSTIC',JSON.stringify(await page.locator('#currentNameDialog').evaluate(el=>{const svg=document.getElementById('circuit'),p=new DOMPoint(146,235).matrixTransform(svg.getScreenCTM()),cs=getComputedStyle(el);return {anchor:{x:p.x,y:p.y},rect:el.getBoundingClientRect().toJSON(),svg:svg.getBoundingClientRect().toJSON(),selection:document.getElementById('branchSelection').getAttribute('d'),left:cs.left,top:cs.top,transform:cs.transform,position:cs.position,customX:el.style.getPropertyValue('--current-dialog-x'),customY:el.style.getPropertyValue('--current-dialog-y'),viewport:[innerWidth,innerHeight],scroll:[scrollX,scrollY],open:el.open};})));assert(distance<60,'Editor junto a la rama seleccionada: '+distance);}assert(await page.locator('[data-current-branch="0"]').evaluate(el=>getComputedStyle(el).outlineStyle==='none'));assert((await page.locator('#branchSelection').getAttribute('d')).length>0);assert(await page.locator('#currentNameDialog').isVisible(),JSON.stringify(await page.evaluate(()=>({scroll:[scrollX,scrollY],bar:document.querySelector('#stagebar').getBoundingClientRect().toJSON(),circuit:document.querySelector('#circuit').getBoundingClientRect().toJSON(),width:document.documentElement.scrollWidth}))));await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
  await page.waitForFunction(original=>document.querySelector('meta[name=viewport]').getAttribute('content')===original,originalViewport);
  assert.equal(await page.locator('meta[name=viewport]').getAttribute('content'),originalViewport,'Al cerrar se restaura el zoom habitual de la página');
- await tap(345,310);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
+ await tap(345,235);await page.locator('#currentNumber').fill('7');await page.click('#currentNameForm button[type="submit"]');
  assert.equal(await page.locator('#currentNumber').getAttribute('aria-invalid'),'true');assert(await page.locator('#currentNameDialog').isVisible());
  await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
- await tap(544,310);await page.locator('#currentNumber').fill('3');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
+ await tap(544,235);await page.locator('#currentNumber').fill('3');await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,await page.locator('#currentNumber').getAttribute('aria-invalid'));
  let editPose=await openNumberEditor('#currentArrow0');
  assert.equal(await page.locator('#currentNumber').inputValue(),'7');
  await page.locator('#currentNumber').fill('12');await page.click('#currentNameForm button[type="submit"]');
@@ -592,9 +592,9 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  editPose=await openNumberEditor('#currentArrow0');await saveNumber('#currentArrow0',7,editPose);
  for(const [i,x] of [146,345,544].entries()){
   const position=await page.locator('#currentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
-  assert(Math.abs(position.x-x)<2&&Math.abs(position.y-310)<2,'Flecha sobre la rama en el punto pulsado');
+  assert(Math.abs(position.x-x)<2&&Math.abs(position.y-235)<2,'Flecha sobre la rama en el punto pulsado');
  }
- await tap(146,175);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
+ await tap(146,205);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
  assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente I₇/);
  assert.equal(await page.locator('#dirGraphics [data-current-index]').count(),3,'No duplica la corriente de una rama ocupada');
  assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₇');assert.equal(await page.locator('#currentArrow1 .dirlabel').textContent(),'I₁₂');
