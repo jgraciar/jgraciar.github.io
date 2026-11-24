@@ -662,13 +662,13 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const fixedEquation=await page.locator('#nodeEq').textContent();
  await dragCurrent('#currentArrow0',146,300,true);assert.equal(await page.locator('#nodeEq').textContent(),fixedEquation,'Mover la flecha conserva las ecuaciones');
  await checkAction('goLoops');await page.click('#goLoops');await checkMeshSelection(0,true);await checkVisibleMeshShade(205,110);await checkAction('confirmMeshDirections');assert.equal(await page.locator('#advance').isDisabled(),true);assert.equal(await page.locator('#advance').isVisible(),false);assert(await page.locator('#equationsCard #nodeEqPanel [data-equation="E1"]').isVisible());
- await tap(490,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-selected-mesh'),'1');
+ await tap(445,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-selected-mesh'),'1');
  await tapMeshTurn(1);await checkMeshSelection(1,false);assert.match(await page.locator('#boardState').textContent(),/antihorario/);
- await tap(490,290);assert.match(await page.locator('#boardState').textContent(),/antihorario/,'Pulsar la malla activa conserva el progreso');
+ await tap(445,290);assert.match(await page.locator('#boardState').textContent(),/antihorario/,'Pulsar la malla activa conserva el progreso');
  await page.locator('[data-mesh-turn="1"]').focus();await page.locator('[data-mesh-turn="1"]').press('Space');
  assert.match(await page.locator('#boardState').textContent(),/horario/);assert.equal(await page.locator('#advance').isEnabled(),false,'No inicia el recorrido sin confirmar los sentidos');
- await checkMeshSelection(1,true);await tap(210,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-selected-mesh'),'0');
- await page.click('#confirmMeshDirections');await checkAction('advance');await page.click('#advance');await tap(490,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-selected-mesh'),'0','No cambiar malla durante el recorrido');
+ await checkMeshSelection(1,true);await tap(245,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-selected-mesh'),'0');
+ await page.click('#confirmMeshDirections');await checkAction('advance');await page.click('#advance');await tap(445,290);assert.equal(await page.locator('#meshSelection').getAttribute('data-selected-mesh'),'0','No cambiar malla durante el recorrido');
  await pauseResume('advance');
  await page.waitForFunction(()=>document.querySelector('#hero').classList.contains('hero-happy'));
  assert.equal(await page.locator('#advance').getAttribute('data-state'),'waiting');
