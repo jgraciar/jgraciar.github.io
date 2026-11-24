@@ -5,33 +5,31 @@ import {chromium} from 'playwright';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const gameSource=readFileSync(new URL('../wormhoff/index.html',import.meta.url),'utf8');
-// Invariantes del futuro editor de tres posiciones por rama.
+// Invariantes del futuro editor de dos posiciones por rama.
 const slotContext={};vm.createContext(slotContext);
 vm.runInContext(gameSource.slice(gameSource.indexOf('  const BRANCH_SLOT_LIMIT='),gameSource.indexOf("  const topologyIds=['base','r76'];"))+';globalThis.totals=branchSlotTotals;globalThis.make=createBranchSlots;globalThis.edit=replaceBranchSlot;globalThis.from=branchSlotsFromEquivalents;globalThis.to=branchEquivalentsFromSlots;globalThis.distribute=distributeIntegerCircuitComponents;globalThis.reconcile=reconcileBranchSlots;globalThis.sync=syncBranchSlots;globalThis.slots=()=>branchSlots;',slotContext);
 const totals=slots=>JSON.parse(JSON.stringify(slotContext.totals(slots)));
-assert.deepEqual(totals([{kind:'R',value:2},{kind:'U',value:-7},null]),{resistance:2,voltage:-7,counts:{R:1,U:1}});
-assert.deepEqual(totals([{kind:'R',value:3},{kind:'R',value:5},{kind:'U',value:12}]),{resistance:8,voltage:12,counts:{R:2,U:1}});
-assert.deepEqual(totals([{kind:'U',value:10},{kind:'U',value:-4},{kind:'R',value:6}]),{resistance:6,voltage:6,counts:{R:1,U:2}});
-assert.throws(()=>totals([{kind:'R',value:1},{kind:'R',value:2},{kind:'R',value:3}]),/Máximo dos/);
-assert.throws(()=>totals([{kind:'U',value:1},{kind:'U',value:2},{kind:'U',value:3}]),/Máximo dos/);
-assert.throws(()=>totals([{kind:'R',value:0},null,null]),/positiva/);
-assert.throws(()=>totals([{kind:'R',value:1}]),/tres posiciones/);
+assert.deepEqual(totals([{kind:'R',value:2},{kind:'U',value:-7}]),{resistance:2,voltage:-7,counts:{R:1,U:1}});
+assert.throws(()=>totals([{kind:'R',value:1},{kind:'R',value:2}]),/una resistencia y una fuente/);
+assert.throws(()=>totals([{kind:'U',value:1},{kind:'U',value:2}]),/una resistencia y una fuente/);
+assert.throws(()=>totals([{kind:'R',value:0},null]),/positiva/);
+assert.throws(()=>totals([{kind:'R',value:1}]),/dos posiciones/);
 const original=slotContext.make(4,9);
-const changed=slotContext.edit(original,2,{kind:'R',value:3});
-assert.deepEqual(totals(changed),{resistance:7,voltage:9,counts:{R:2,U:1}});
-assert.equal(original[2],null,'La edición no modifica la rama original');
-assert.deepEqual(totals(slotContext.edit(changed,1,null)),{resistance:7,voltage:0,counts:{R:2,U:0}});
-assert.throws(()=>slotContext.edit(changed,3,null),/fuera/);
+const changed=slotContext.edit(original,0,{kind:'R',value:3});
+assert.deepEqual(totals(changed),{resistance:3,voltage:9,counts:{R:1,U:1}});
+assert.equal(original[0].value,4);
+assert.deepEqual(totals(slotContext.edit(changed,1,null)),{resistance:3,voltage:0,counts:{R:1,U:0}});
+assert.throws(()=>slotContext.edit(changed,2,null),/fuera/);
 assert.deepEqual(JSON.parse(JSON.stringify(slotContext.to(slotContext.from([2,4,6],[10,-8,0])))),{resistances:[2,4,6],voltages:[10,-8,0]});
 for(const pick of [(lo,hi)=>lo,(lo,hi)=>hi]){
  const branches=JSON.parse(JSON.stringify(slotContext.distribute([2,7,3,9,4,5],[10,-12,0,1,-1,8],pick)));
  const equivalent=JSON.parse(JSON.stringify(slotContext.to(branches)));
  assert.deepEqual(equivalent,{resistances:[2,7,3,9,4,5],voltages:[10,-12,0,1,-1,8]});
  for(const slots of branches){
-  assert.equal(slots.length,3);
-  assert(slots.filter(Boolean).length<=3);
-  assert(slots.filter(c=>c?.kind==='R').length<=2);
-  assert(slots.filter(c=>c?.kind==='U').length<=2);
+  assert.equal(slots.length,2);
+  assert(slots.filter(Boolean).length<=1);
+  assert(slots.filter(c=>c?.kind==='R').length<=1);
+  assert(slots.filter(c=>c?.kind==='U').length<=1);
   assert(slots.filter(Boolean).every(c=>Number.isInteger(c.value)));
  }
 }
@@ -44,7 +42,7 @@ const beforeReconcile=JSON.parse(JSON.stringify(slotContext.distribute([4,5],[10
 const afterReconcile=JSON.parse(JSON.stringify(slotContext.reconcile(beforeReconcile,[4,5],[-10,6])));
 assert.deepEqual(afterReconcile[1],beforeReconcile[1],'Editar una fuente conserva las otras ramas');
 assert.deepEqual(JSON.parse(JSON.stringify(slotContext.to(afterReconcile))),{resistances:[4,5],voltages:[-10,6]});
-console.log('OK: equivalentes serie, polaridades opuestas y límites de tres posiciones por rama');
+console.log('OK: equivalentes serie, polaridades opuestas y límites de dos posiciones por rama');
 const algebraContext={names:['I₁','I₂','I₃'],escapeHtml:s=>String(s),formatNumber:n=>Number(n.toFixed(5)).toLocaleString('es-ES'),fmt:n=>(n<0?'−':'')+Number(Math.abs(n).toFixed(5)).toLocaleString('es-ES')};
 vm.createContext(algebraContext);
 vm.runInContext(gameSource.slice(gameSource.indexOf('  function algebraIsolation('),gameSource.indexOf('  function algebraStepsHTML('))+';globalThis.render=algebraTable;',algebraContext);
@@ -123,18 +121,16 @@ await page.addInitScript(()=>{
  performance.now=()=>now()*80;window.requestAnimationFrame=callback=>raf(time=>callback(time*80));
 });
 await page.goto('http://127.0.0.1:8767/wormhoff/');
-assert.equal(await page.locator('#branchSlotFields [data-slot-kind]').count(),9,'Dos mallas: tres posiciones por rama');
+assert.equal(await page.locator('#branchSlotFields [data-slot-kind]').count(),6);
 await page.locator('#openBranchEditor').click();
-await page.locator('[data-slot-kind="0-2"]').selectOption('R');
+await page.locator('[data-slot-value="0-0"]').fill('');
 await page.locator('#applyBranchSlots').click();
-assert.match(await page.locator('#branchSlotError').textContent(),/Introduce el valor/,'Un valor vacío no se acepta');
-await page.locator('[data-slot-value="0-2"]').fill('3');
+assert.match(await page.locator('#branchSlotError').textContent(),/Introduce el valor/);
+await page.locator('[data-slot-value="0-0"]').fill('3');
 await page.locator('#applyBranchSlots').click();
-assert.equal(await page.locator('#branchSlotError').textContent(),'','El editor aplica una resistencia adicional');
-assert.equal(await page.locator('[data-slot-value="0-2"]').inputValue(),'3','Se conserva la posición añadida');
-assert.equal(await page.locator('#branchSlotFields [data-slot-kind]').count(),9,'El reinicio mantiene las tres posiciones');
+assert.equal(await page.locator('#branchSlotError').textContent(),'');
 await page.locator('#exerciseSelect').selectOption('r76');
-assert.equal(await page.locator('#branchSlotFields [data-slot-kind]').count(),18,'Tres mallas: seis ramas de tres posiciones');
+assert.equal(await page.locator('#branchSlotFields [data-slot-kind]').count(),12);
 await page.locator('#exerciseSelect').selectOption('base');
 for(const viewport of [{width:1440,height:1100},{width:390,height:844}]){
  await page.setViewportSize(viewport);
@@ -142,8 +138,8 @@ for(const viewport of [{width:1440,height:1100},{width:390,height:844}]){
   await page.locator('#exerciseSelect').selectOption(topology);
   const count=topology==='base'?3:6;
   if(await page.locator('#openBranchEditor').getAttribute('aria-expanded')!=='true')await page.locator('#openBranchEditor').click();
-  for(let i=0;i<count;i++)for(let j=0;j<3;j++){
-   const kind=j===1&&!(topology==='r76'&&i===1)?'U':j===2&&topology==='r76'&&i===1?'':'R';
+  for(let i=0;i<count;i++)for(let j=0;j<2;j++){
+   const kind=j===0?'R':topology==='r76'&&i===1?'':'U';
    await page.locator('[data-slot-kind="'+i+'-'+j+'"]').selectOption(kind);
    await page.locator('[data-slot-value="'+i+'-'+j+'"]').fill(kind==='U'?'12':kind?'5':'');
   }
