@@ -154,7 +154,8 @@ for(const viewport of [{width:1440,height:1100},{width:390,height:844}]){
   for(let i=0;i<count;i++){
    const arrow=page.locator('#'+(topology==='base'?'currentArrow':'sixCurrentArrow')+i);
    assert.equal(await arrow.getAttribute('data-placement-unavailable'),null,'Flecha '+i+' disponible en '+topology+' a '+viewport.width+'px');
-   assert.equal(await arrow.locator('.direction').isVisible(),true,'Flecha visible');
+   assert.equal(await arrow.locator('.direction').count(),1,'Flecha creada '+i+' en '+topology+' a '+viewport.width+'px');
+   assert.equal(await arrow.evaluate(el=>getComputedStyle(el).display!=='none'&&!!el.querySelector('.direction')?.getAttribute('d')) ,true,'Flecha dibujada '+i+' en '+topology+' a '+viewport.width+'px');
   }
  }
 }
