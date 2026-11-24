@@ -3779,6 +3779,13 @@
         for(const t of distances){const x=a.x+dx*t,y=a.y+dy*t;candidates.push({x,y,dx,dy,distance:(x-wanted.x)**2+(y-wanted.y)**2});}
       }
       if(currentRenamingPlacement&&currentRenamingPlacement.index===index&&currentRenamingPlacement.six===six)candidates=[{...currentRenamingPlacement,distance:0}];
+      // Prefer the conductor itself; when it is crowded, use a parallel arrow beside the same branch.
+      if(branchSlots&&!currentRenamingPlacement){
+        const original=candidates.slice();
+        for(const offset of [24,-24,36,-36,48,-48]){
+          for(const c of original)candidates.push({...c,x:c.x-c.dy*offset,y:c.y+c.dx*offset,distance:c.distance+100000+offset*offset,parallel:true});
+        }
+      }
       candidates.sort((a,b)=>a.distance-b.distance);
       let chosen=null;
       const metric=el=>{el.setAttribute('x','0');el.setAttribute('y','0');el.setAttribute('text-anchor','start');el.removeAttribute('transform');return el.getBBox();};
@@ -3792,7 +3799,7 @@
           const tail={x:c.x-vx*half,y:c.y-vy*half},tipPoint={x:c.x+vx*half,y:c.y+vy*half};
           const segments=[[tail,tipPoint],...[-1,1].map(side=>[{x:c.x+vx*(half-9)+side*vy*7,y:c.y+vy*(half-9)-side*vx*7},tipPoint])];
           // Compara el trazo real y su contorno: el rectángulo completo de la punta bloqueaba el texto de B y D sin tocarlo.
-          if(!inside(arrow)||fixed.some(r=>segments.some(([a,b])=>arrowSegmentTouchesRect(a,b,r)))||occupied.some(b=>overlap(arrow,b)))continue;
+          if(!inside(arrow)||fixed.some(r=>segments.some(([a,b])=>arrowSegmentTouchesRect(a,b,r)))||occupied.some(b=>overlap(arrow,b))||(c.parallel&&wires.some(r=>segments.some(([a,b])=>arrowSegmentTouchesRect(a,b,r)))))continue;
           const horizontal=Math.abs(c.dx)>.5;
           const positions=horizontal?[11,18,28].flatMap(offset=>[
             {l:{x:c.x-l.width/2,y:c.y-offset-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+offset,w:v.width,h:v.height}:null},
