@@ -3198,10 +3198,35 @@
       return `L${x-6*dx} ${y-6*dy} M${x+6*dx} ${y+6*dy}`;
     }).join(' ');
   }
+  function sixSlotMarkup(i,edge){
+    const points=edge.p.filter(p=>p.length===2),slots=branchSlots[i].filter(Boolean);
+    const segments=points.slice(1).map((p,j)=>({a:points[j],b:p,len:Math.hypot(p[0]-points[j][0],p[1]-points[j][1])}));
+    const segment=segments.reduce((best,p)=>p.len>best.len?p:best,segments[0]);
+    const dx=(segment.b[0]-segment.a[0])/segment.len,dy=(segment.b[1]-segment.a[1])/segment.len;
+    const vertical=dx===0,counts={R:0,U:0};
+    let h='',cursor=0;
+    const point=t=>[segment.a[0]+dx*t,segment.a[1]+dy*t];
+    const wire=(a,b)=>'<path class="wire" d="M'+a.join(' ')+' L'+b.join(' ')+'"/>';
+    for(const p of segments)if(p!==segment)h+=wire(p.a,p.b);
+    slots.forEach((slot,j)=>{
+      const t=segment.len*(j+1)/(slots.length+1),[x,y]=point(t);
+      const half=slot.kind==='R'?Math.min(25,segment.len/(2*(slots.length+1))-4):6;
+      h+=wire(point(cursor),point(t-half));cursor=t+half;
+      const ordinal=++counts[slot.kind],id='sixCmp'+i+slot.kind+(ordinal>1?'_'+ordinal:'');
+      if(slot.kind==='R')h+='<g id="'+id+'" class="component-resistor">'+resistorSymbol(x,y,vertical,slot.value,'R'+(i+1)+(ordinal>1?'.'+ordinal:''),half)+'</g>';
+      else{
+        const sign=slot.value>=0?1:-1,big=point(t+6*sign),small=point(t-6*sign);
+        const plate=(p,w)=>'M'+(p[0]-dy*w)+' '+(p[1]+dx*w)+' L'+(p[0]+dy*w)+' '+(p[1]-dx*w);
+        h+='<g id="'+id+'" class="component-source"><rect class="source-halo" x="'+(x-18)+'" y="'+(y-18)+'" width="36" height="36" fill="transparent"/><path class="source-plate" d="'+plate(big,19)+' '+plate(small,9)+'"/><text class="component-value" x="'+(vertical?x+28:x)+'" y="'+(vertical?y+5:y+35)+'" text-anchor="'+(vertical?'start':'middle')+'">'+fmt6(Math.abs(slot.value))+'V</text></g>';
+      }
+    });
+    return h+wire(point(cursor),segment.b);
+  }
   function sixSVG(){
     // Capa inferior: el fondo de la malla activa jamás tapa conductores ni valores.
     let h='<g id="sixSymbols">';
     for(const [i,edge] of EDGES6.entries()){
+      if(branchSlots){h+=sixSlotMarkup(i,edge);continue;}
       h+='<path class="wire" data-wire-branch="'+i+'" d="'+sixWirePath(edge.p)+'"/>';
       for(const c of edge.p){if(c.length<3)continue;
         const x=c[0],y=c[1],t=c[2];
