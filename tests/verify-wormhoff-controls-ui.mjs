@@ -553,8 +553,19 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   await page.waitForFunction(position=>document.getElementById('hero').getAttribute('transform')!==position,position);
  };
  const assignNumbers=async numbers=>{
-  const coords=numbers.length===6?[[235,74],[350,150],[465,74],[209,225],[510,225],[466,355]]:[[146,235],[345,235],[544,235]];
-  for(let i=0;i<numbers.length;i++){await tap(...coords[i]);await page.locator('#currentNumber').fill(String(numbers[i]));await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,'Rama '+(i+1)+': '+await page.locator('#currentNumber').getAttribute('aria-invalid'));}
+  for(let i=0;i<numbers.length;i++){
+   const point=await page.locator(`#currentBranchTargets [data-current-branch="${i}"]`).evaluate(el=>{
+    const svg=el.ownerSVGElement,m=svg.getScreenCTM(),length=el.getTotalLength();
+    const candidates=[];
+    for(let d=2;d<length-2;d+=2){
+     const p=el.getPointAtLength(d),screen=new DOMPoint(p.x,p.y).matrixTransform(m);
+     if(document.elementFromPoint(screen.x,screen.y)?.closest('[data-current-branch]')===el)candidates.push({x:p.x,y:p.y,d});
+    }
+    let best=null,run=[];
+    for(const p of candidates){if(run.length&&p.d-run.at(-1).d>2)run=[];run.push(p);if(!best||run.length>best.length)best=run.slice();}
+    return best?best[Math.floor(best.length/2)]:null;
+   });
+   assert(point,'La rama '+(i+1)+' debe tener conductor accesible para numerar');await tap(point.x,point.y);await page.locator('#currentNumber').fill(String(numbers[i]));await page.click('#currentNameForm button[type="submit"]');assert.deepEqual(errors,[]);assert.equal(await page.locator('#currentNameDialog').isVisible(),false,'Rama '+(i+1)+': '+await page.locator('#currentNumber').getAttribute('aria-invalid'));}
  };
  await page.selectOption('#exerciseSelect','base');
   if(await page.locator('#toggleDemo').getAttribute('aria-pressed')==='true')await page.click('#toggleDemo');
