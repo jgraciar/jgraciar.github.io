@@ -758,7 +758,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.click('#advEditCurrentReferences');assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0);
  await page.click('[data-reset-phase="0"]');
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),0,'Reiniciar corrientes y nudos limpia los números');
- const freePoints=[[130,190],[350,105],[570,190],[255,225],[465,225],[370,355]];
+ const freePoints=[[130,190],[350,190],[570,190],[315,225],[535,225],[370,355]];
  for(let i=0;i<6;i++){
   await tap(...freePoints[i]);await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
   const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
@@ -772,11 +772,11 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await assignNumbers([11,22,33,44,55,66]);
  await selectSymbol('ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  await selectSymbol('iec');await assertNoCurrentOverlap();
- // El tipo 5 fue retirado; validar las cuatro opciones que existen realmente.
+ // Validar las dos topologías disponibles.
  assert.deepEqual(await page.locator('#exerciseSelect option').evaluateAll(options=>options.map(o=>o.value)),['base','r76']);
  await page.selectOption('#exerciseSelect','r76');
  assert.equal(await page.locator('#sixSymbols .component-resistor').count(),6,'Restaurar las seis resistencias del tipo 4');
- assert.equal(await page.locator('#sixSymbols .component-source').count(),5,'Restaurar las cinco fuentes del tipo 4');
+ assert.equal(await page.locator('#sixSymbols .component-source').count(),6,'Restaurar las seis fuentes de la topología de tres mallas');
  assert.deepEqual(errors,[]);await context.close();console.log('OK: controles play/stop, pausa real, colores, checks verdes, despejes resaltados, acciones centradas, controles, parpadeos y expresiones; '+(mobile?'móvil':'escritorio')+'; movimiento '+reducedMotion);
 }
 // Edición y resolución inmediata: comprobar resultados físicos y conservación de valores.
