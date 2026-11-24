@@ -1272,7 +1272,7 @@
     for(const slot of slots){
       if(slot===null)continue;
       if(!slot||!['R','U'].includes(slot.kind)||!Number.isFinite(slot.value))throw new Error('Componente de rama no válido.');
-      if(++counts[slot.kind]>2)throw new Error('Máximo dos componentes por rama.');
+      if(++counts[slot.kind]>1)throw new Error('Cada rama admite una resistencia y una fuente como máximo.');
       if(slot.kind==='R'){if(slot.value<=0)throw new Error('La resistencia debe ser positiva.');resistance+=slot.value;}
       else voltage+=slot.value;
     }
@@ -1308,7 +1308,7 @@
       return value;
     };
     const sourceCount=voltage===0?0:1;
-    const resistorCount=resistance>1?draw(1,2-sourceCount):1;
+    const resistorCount=1;
     const slots=[];
     if(resistorCount===2){
       const first=draw(1,resistance-1);
@@ -1353,7 +1353,7 @@
     if(!panel){
       panel=document.createElement('details');panel.id='branchSlotEditor';
       panel.style.cssText='width:100%;padding:8px 12px;border:1px solid var(--paint-8df09c,#8df09c);border-radius:8px;margin:8px 0';
-      panel.innerHTML='<summary style="cursor:pointer">Componentes de las ramas (máximo 2 por rama)</summary><div id="branchSlotFields"></div><button type="button" id="applyBranchSlots">Aplicar componentes</button><p id="branchSlotError" role="alert"></p>';
+      panel.innerHTML='<summary style="cursor:pointer">Componentes de las ramas (una resistencia y una fuente como máximo)</summary><div id="branchSlotFields"></div><button type="button" id="applyBranchSlots">Aplicar componentes</button><p id="branchSlotError" role="alert"></p>';
       document.querySelector('header.top').insertAdjacentElement('afterend',panel);
       panel.style.display='none';
       const toggle=document.getElementById('openBranchEditor');
@@ -1402,7 +1402,14 @@
         type.value=slot?.kind||'';
         const input=document.createElement('input');input.type='number';input.step='any';input.style.width='70px';input.dataset.slotValue=i+'-'+j;input.value=slot?.value??'';input.setAttribute('aria-label','Valor de rama '+(i+1)+' posición '+(j+1));
         row.append(type,input);
-      });fields.append(row);
+        type.addEventListener('change',()=>{
+          const selects=[...row.querySelectorAll('select')];
+          for(const other of selects)if(other!==type&&type.value&&other.value===type.value)other.value='';
+          for(const select of selects)for(const option of select.options)option.disabled=!!option.value&&selects.some(other=>other!==select&&other.value===option.value);
+        });
+      });
+      const selects=[...row.querySelectorAll('select')];for(const select of selects)for(const option of select.options)option.disabled=!!option.value&&selects.some(other=>other!==select&&other.value===option.value);
+      fields.append(row);
     });
   }
   const topologyIds=['base','r76'];
