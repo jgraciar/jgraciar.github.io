@@ -1253,7 +1253,7 @@
   // Solo circuitos resolubles por KCL/KVL; no hay actividades de reducción
   // serie/paralelo ni ramas sustituidas por resistencias equivalentes.
   const exercises=[
-    {id:'base',label:'Demo · 3 ramas',R:[2,2,2],E:[18,6,0],status:'Demostración',hint:'Circuito introductorio de dos mallas y tres intensidades.'},
+    {id:'base',label:'Demo · 3 ramas',R:[2,2,2],E:[18,6,12],status:'Demostración',hint:'Circuito introductorio de dos mallas y tres intensidades.'},
     {id:'f451',label:'Figura 4.51 · dos mallas',R:[2,4,7],E:[10,20,5],components:[1,1,4,7],status:'Jugable',hint:'Figura 4.51: cuatro resistencias y tres fuentes; dos resistencias en serie en la rama izquierda.'},
     {id:'fig237',label:'Figura 2.37 · método de las mallas',R:[4,3,2],E:[20,0,-10],status:'Jugable',hint:'Figura 2.37: dos mallas, tres resistencias (4, 3 y 2 Ω) y dos fuentes (20 y 10 V). La fuente derecha tiene polaridad opuesta a la izquierda; el motor conserva las tres ramas y sus ecuaciones de Kirchhoff.'},
     {id:'r73',label:'Nivel 2 · P. Resuelta 7.3 · tres generadores',R:[6,4,2],E:[10,6,4],status:'Jugable · fuentes en serie',hint:'Adaptación de las tres ramas de la actividad 7.3. En la rama central las fuentes de 12 V y 6 V tienen polaridades opuestas: su tensión algebraica es 6 V. No se combinan resistencias.',source:'act.-resuelta-7.3.txt'},
@@ -1381,7 +1381,7 @@
             branches.push(slots);
           }
           const eq=branchEquivalentsFromSlots(branches);
-          if(active.kind==='multi'&&eq.voltages[1]!==0)throw new Error('En la topología actual de tres mallas, la rama 2 debe tener tensión equivalente nula.');
+
           if(active.kind==='multi'){R6=eq.resistances;E6=eq.voltages;}
           else{R=eq.resistances;E=eq.voltages;}
           branchSlots=branches;panel.querySelector('#branchSlotError').textContent='';
@@ -1415,7 +1415,7 @@
   const topologyIds=['base','r76'];
   // Datos de topología independientes de los controles y fases comunes.
   const multiTopologyDefinitions={
-    r76:{meshes:3,branches:6,resistors:6,sources:5}
+    r76:{meshes:3,branches:6,resistors:6,sources:6}
   };
   const topologyLabel=exercise=>exercise.kind==='multi'?'Tres mallas':'Dos mallas';
   let active=exercises[0];
@@ -1888,9 +1888,10 @@
       `<g class="resistor-ansi"><g transform="${transform}"><rect x="${-half}" y="-13" width="${2*half}" height="26" fill="var(--paint-15233a,#15233a)"/><path class="symbol" d="${zigzag}"/></g><text class="resistor-name" x="${x-(vertical?27:half+12)}" y="${y-(vertical?0:20)}" dominant-baseline="middle" style="text-anchor:end">${label}</text></g>`+
       `<text class="component-value resistor-value" x="${vertical?x+30:x}" y="${vertical?y:y+35}" text-anchor="${vertical?'start':'middle'}" dominant-baseline="middle">${formatComponentValue(value)}Ω</text>`;
   }
+  const THREE_SLOT_Y=[136,305];
   function drawSlottedThreeBranchCircuit(parts){
     parts.push('<path class="wire" d="M146 74 H544 M146 360 H544"/>');
-    const positions=[136,305];
+    const positions=THREE_SLOT_Y;
     branchSlots.forEach((slots,i)=>{
       const x=X[i];
       const placed=slots.map((slot,k)=>({slot,y:positions[k],index:k})).filter(p=>p.slot);
@@ -1994,9 +1995,9 @@
         const currents=[i0,i1,i0-i1,i3,i1+i3,-i0-i3];
         if(currents.some(v=>Math.abs(v)>9)||currents.every(v=>v===0))continue;
         const resistances=Array.from({length:6},()=>randomInt(1,9));
-        const potentials={A:0,C:-resistances[1]*currents[1],B:randomInt(-12,12),D:randomInt(-12,12)};
+        const potentials={A:0,C:randomInt(-12,12),B:randomInt(-12,12),D:randomInt(-12,12)};
         const sources=EDGES6.map((edge,k)=>resistances[k]*currents[k]+potentials[edge.to]-potentials[edge.from]);
-        if(sources[1]!==0||sources.some((v,k)=>k!==1&&(v===0||Math.abs(v)>150)))continue;
+        if(sources.some(v=>v===0||Math.abs(v)>150))continue;
         R6=resistances;E6=sources;
         syncBranchSlots(R6,E6,true);
         return;
@@ -2010,9 +2011,9 @@
       const resistances=f451Parts?[f451Parts[0]+f451Parts[1],f451Parts[2],f451Parts[3]]:Array.from({length:3},()=>randomInt(1,9));
       const a=randomInt(-6,6),b=randomInt(-6,6),currents=[a,b,-a-b];
       if(currents.some(v=>Math.abs(v)>9)||currents.every(v=>v===0))continue;
-      const v=zeros.length? -resistances[zeros[0]]*currents[zeros[0]]:randomInt(-15,15);
+      const v=randomInt(-15,15);
       const sources=currents.map((current,k)=>resistances[k]*current+v);
-      if(zeros.some(k=>sources[k]!==0)||sources.some((value,k)=>original[k]!==0&&(value===0||Math.abs(value)>150)))continue;
+      if(sources.some(value=>value===0||Math.abs(value)>150))continue;
       if(f451Parts){active.components=f451Parts;R=resistances;E=sources;jValues=calcCurrents();if(jValues.every((current,k)=>Math.abs(current-currents[k])<1e-8))return;continue;}
       R=resistances;E=sources;jValues=calcCurrents();
       if(jValues.every((current,k)=>Math.abs(current-currents[k])<1e-8)){syncBranchSlots(R,E,true);return;}
@@ -2486,6 +2487,10 @@
   // Las ramas exteriores incluyen los dos tramos horizontales hasta los nudos reales.
   let BRANCHES=[];
   function refreshBranches(){
+    if(active.id==='base'&&branchSlots){
+      BRANCHES=X.map((x,i)=>[{x:345,y:BOT},...(x!==345?[{x,y:BOT}]:[]),...branchSlots[i].map((slot,j)=>slot?{x,y:THREE_SLOT_Y[j],component:slot.kind==='R'?'resistor':'source',resistance:slot.kind==='R'?slot.value:undefined}:null).filter(Boolean).reverse(),{x,y:TOP},...(x!==345?[{x:345,y:TOP}]:[])]);
+      return;
+    }
     if(active.id==='f451'){
       // Cada punto de la animación corresponde a un conductor o componente dibujado.
       // Las tres ramas van del nudo inferior B al superior A.
@@ -2740,7 +2745,7 @@
   function showSourcePolarity(branch){
     if(S.pass!=='sources'||!E[branch]){$('sourceArrowFX').innerHTML='';return}
     // La polaridad propia de cada fuente se indica siempre desde el terminal − hacia el +.
-    const x=X[branch]-58,y=SY,positive=E[branch]>0;
+    const x=X[branch]-58,y=BRANCHES[branch].find(p=>p.component==='source')?.y??SY,positive=E[branch]>0;
     const tail=positive?y+22:y-22,head=positive?y-22:y+22;
     const near=positive?head+11:head-11;
     $('sourceArrowFX').innerHTML=`<path class="fx-arrow" d="M${x} ${tail} V${head} M${x-7} ${near} L${x} ${head} L${x+7} ${near}"/>`;
@@ -3205,14 +3210,30 @@
       return `L${x-6*dx} ${y-6*dy} M${x+6*dx} ${y+6*dy}`;
     }).join(' ');
   }
-  function sixSlotMarkup(i,edge){
-    const points=edge.p.filter(p=>p.length===2),slots=branchSlots[i];
+  function sixSlotGeometry(edge){
+    const points=edge.p.filter(p=>p.length===2);
     const segments=points.slice(1).map((p,j)=>({a:points[j],b:p,len:Math.hypot(p[0]-points[j][0],p[1]-points[j][1])}));
     const segment=segments.reduce((best,p)=>p.len>best.len?p:best,segments[0]);
     const dx=(segment.b[0]-segment.a[0])/segment.len,dy=(segment.b[1]-segment.a[1])/segment.len;
+    const point=t=>[segment.a[0]+dx*t,segment.a[1]+dy*t];
+    return {points,segments,segment,dx,dy,point};
+  }
+  function sixPhysicalRoute(i,edge){
+    if(!branchSlots)return edge.p;
+    const {points,segments,segment,point}=sixSlotGeometry(edge);
+    const route=[points[0]];
+    for(const part of segments){
+      if(part===segment)branchSlots[i].forEach((slot,j)=>{if(slot)route.push([...point(part.len*(j+1)/(branchSlots[i].length+1)),slot.kind]);});
+      route.push(part.b);
+    }
+    return route;
+  }
+  function sixSlotMarkup(i,edge){
+    const {points,segments,segment,dx,dy,point}=sixSlotGeometry(edge);
+    const slots=branchSlots[i];
     const vertical=dx===0,counts={R:0,U:0};
     let h='',cursor=0;
-    const point=t=>[segment.a[0]+dx*t,segment.a[1]+dy*t];
+
     const wire=(a,b)=>'<path class="wire" d="M'+a.join(' ')+' L'+b.join(' ')+'"/>';
     for(const p of segments)if(p!==segment)h+=wire(p.a,p.b);
     slots.forEach((slot,j)=>{
@@ -3473,9 +3494,9 @@
     const x=p[0]+30,y=p[1]+28;
     $('componentFX').innerHTML=`<circle class="fx-plusminus" cx="${x}" cy="${y}" r="14"/><text class="fx-pm-text" x="${x}" y="${y+1}">${val<0?'−':'+'}</text>`;
     if(component==='U'){
-      const v=E6[i],vertical=[0,2].includes(i),side=v>0?1:-1;
+      const v=E6[i],geometry=sixSlotGeometry(EDGES6[i]),vertical=geometry.dx===0,side=v>0?1:-1;
       const ax=vertical?p[0]-41:p[0],ay=vertical?p[1]:p[1]+44;
-      const dx=vertical?0:side,dy=vertical?-1:0;
+      const dx=geometry.dx*side,dy=geometry.dy*side;
       $('sourceArrowFX').innerHTML=`<path class="fx-arrow" d="M${ax-17*dx} ${ay-17*dy} L${ax+17*dx} ${ay+17*dy} M${ax+17*dx-8*dx-6*dy} ${ay+17*dy-8*dy+6*dx} L${ax+17*dx} ${ay+17*dy} L${ax+17*dx-8*dx+6*dy} ${ay+17*dy-8*dy-6*dx}"/>`;
     }
     return val;
@@ -3489,7 +3510,7 @@
     positionHero(...N6[START6[k]],0,true);setHeroGait(false);setHeroMood(false);
     for(const leg of route){
       if(token!==A6.runId)return;
-      const id=leg.id,edge=EDGES6[id],d=leg.d,points=(d===1?edge.p:edge.p.slice().reverse());
+      const id=leg.id,edge=EDGES6[id],d=leg.d,physical=sixPhysicalRoute(id,edge),points=(d===1?physical:physical.slice().reverse());
       if(!leg.transit){
         if(pass==='R')sixFlow(edge.p,A6.signs[id],token);
       }
@@ -4653,7 +4674,7 @@
       A6.meshDirections=[true,true,true];A6.meshDirectionsConfirmed=true;A6.simplified=true;
       A6.done=MESH6.map((mesh,k)=>{
         const row=Array(6).fill(0);let b=0;A6.rowsR[k]=[];A6.rowsU[k]=[];
-        for(const {id,d} of mesh){row[id]+=d*R6[id];b+=d*E6[id];A6.rowsR[k].push({i:id,v:d*R6[id]});if(EDGES6[id].p.some(p=>p[2]==='U'))A6.rowsU[k].push({i:id,v:d*E6[id]});}
+        for(const {id,d} of mesh){row[id]+=d*R6[id];b+=d*E6[id];A6.rowsR[k].push({i:id,v:d*R6[id]});if(sixPhysicalRoute(id,EDGES6[id]).some(p=>p[2]==='U'))A6.rowsU[k].push({i:id,v:d*E6[id]});}
         return {row,b,cw:true};
       });
       const {A,b}=sixSystem(),values=matSolve6(A,b).x;
