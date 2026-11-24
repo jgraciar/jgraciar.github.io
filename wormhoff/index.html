@@ -1885,8 +1885,8 @@
     parts.push('<path class="wire" d="M146 74 H544 M146 360 H544"/>');
     const positions=[136,220,305];
     branchSlots.forEach((slots,i)=>{
-      const x=X[i],occupied=slots.filter(Boolean);
-      const placed=occupied.map((slot,k)=>({slot,y:positions[k],index:k}));
+      const x=X[i];
+      const placed=slots.map((slot,k)=>({slot,y:positions[k],index:k})).filter(p=>p.slot);
       let cursor=74;
       for(const {slot,y} of placed){
         const half=slot.kind==='R'?27:4;
@@ -3199,7 +3199,7 @@
     }).join(' ');
   }
   function sixSlotMarkup(i,edge){
-    const points=edge.p.filter(p=>p.length===2),slots=branchSlots[i].filter(Boolean);
+    const points=edge.p.filter(p=>p.length===2),slots=branchSlots[i];
     const segments=points.slice(1).map((p,j)=>({a:points[j],b:p,len:Math.hypot(p[0]-points[j][0],p[1]-points[j][1])}));
     const segment=segments.reduce((best,p)=>p.len>best.len?p:best,segments[0]);
     const dx=(segment.b[0]-segment.a[0])/segment.len,dy=(segment.b[1]-segment.a[1])/segment.len;
@@ -3209,6 +3209,7 @@
     const wire=(a,b)=>'<path class="wire" d="M'+a.join(' ')+' L'+b.join(' ')+'"/>';
     for(const p of segments)if(p!==segment)h+=wire(p.a,p.b);
     slots.forEach((slot,j)=>{
+      if(!slot)return;
       const t=segment.len*(j+1)/(slots.length+1),[x,y]=point(t);
       const half=slot.kind==='R'?Math.min(25,segment.len/(2*(slots.length+1))-4):6;
       h+=wire(point(cursor),point(t-half));cursor=t+half;
