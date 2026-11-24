@@ -27,7 +27,8 @@ for(const pick of [(lo,hi)=>lo,(lo,hi)=>hi]){
  assert.deepEqual(equivalent,{resistances:[2,7,3,9,4,5],voltages:[10,-12,0,1,-1,8]});
  for(const slots of branches){
   assert.equal(slots.length,2);
-  assert(slots.filter(Boolean).length<=1);
+  assert(slots.filter(Boolean).length<=2);
+  assert.equal(slots.filter(c=>c?.kind==='R').length,1);
   assert(slots.filter(c=>c?.kind==='R').length<=1);
   assert(slots.filter(c=>c?.kind==='U').length<=1);
   assert(slots.filter(Boolean).every(c=>Number.isInteger(c.value)));
