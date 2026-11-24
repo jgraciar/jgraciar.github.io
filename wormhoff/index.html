@@ -4478,6 +4478,16 @@
   let editingComponent=null;
   function editableComponent(id){
     const six=active.kind==='multi';let kind,index;
+    if(six&&branchSlots){
+      const match=/^sixCmp([0-5])([RU])(?:_([2-3]))?$/.exec(id);
+      if(match){
+        index=Number(match[1]);kind=match[2];const ordinal=Number(match[3]||1);
+        const positions=branchSlots[index].map((slot,j)=>slot?.kind===kind?j:-1).filter(j=>j>=0);
+        const slotIndex=positions[ordinal-1];
+        if(slotIndex===undefined)return null;
+        return {id,six,kind,index,slotIndex,value:branchSlots[index][slotIndex].value,label:kind+(index+1)+(ordinal>1?'.'+ordinal:''),unit:kind==='R'?'Ω':'V'};
+      }
+    }
     if(!six&&active.id==='base'&&branchSlots){
       const first=/^(resistor|source)Element([0-2])$/.exec(id);
       const extra=/^branch(Resistor|Source)([0-2])_([2-3])$/.exec(id);
@@ -4534,7 +4544,7 @@
     stopPhaseActivity();
     if(source.slotIndex!==undefined){
       branchSlots[source.index]=replaceBranchSlot(branchSlots[source.index],source.slotIndex,{kind:'U',value:-source.value});
-      E[source.index]=branchSlotTotals(branchSlots[source.index]).voltage;
+      (source.six?E6:E)[source.index]=branchSlotTotals(branchSlots[source.index]).voltage;
     }else values[source.index]=-values[source.index];
     branchSlots=reconcileBranchSlots(branchSlots,source.six?R6:R,source.six?E6:E);
     newGame(true);
@@ -4586,7 +4596,7 @@
       if(component.slotIndex!==undefined){
         branchSlots[component.index]=replaceBranchSlot(branchSlots[component.index],component.slotIndex,{kind:component.kind,value});
         const total=branchSlotTotals(branchSlots[component.index]);
-        R[component.index]=total.resistance;E[component.index]=total.voltage;
+        (component.six?R6:R)[component.index]=total.resistance;(component.six?E6:E)[component.index]=total.voltage;
       }else if(component.six)(component.kind==='R'?R6:E6)[component.index]=value;
       else if(component.kind==='U')E[component.index]=value;
       else if(active.id==='f451'){active.components[component.index]=value;R=[active.components[0]+active.components[1],active.components[2],active.components[3]];}
