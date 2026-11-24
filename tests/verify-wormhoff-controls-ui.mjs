@@ -124,7 +124,7 @@ await page.addInitScript(()=>{
 });
 await page.goto('http://127.0.0.1:8767/wormhoff/');
 assert.equal(await page.locator('#branchSlotFields [data-slot-kind]').count(),9,'Dos mallas: tres posiciones por rama');
-await page.locator('#branchSlotEditor summary').click();
+await page.locator('#openBranchEditor').click();
 await page.locator('[data-slot-kind="0-2"]').selectOption('R');
 await page.locator('#applyBranchSlots').click();
 assert.match(await page.locator('#branchSlotError').textContent(),/Introduce el valor/,'Un valor vacío no se acepta');
@@ -136,6 +136,30 @@ assert.equal(await page.locator('#branchSlotFields [data-slot-kind]').count(),9,
 await page.locator('#exerciseSelect').selectOption('r76');
 assert.equal(await page.locator('#branchSlotFields [data-slot-kind]').count(),18,'Tres mallas: seis ramas de tres posiciones');
 await page.locator('#exerciseSelect').selectOption('base');
+for(const viewport of [{width:1440,height:1100},{width:390,height:844}]){
+ await page.setViewportSize(viewport);
+ for(const topology of ['base','r76']){
+  await page.locator('#exerciseSelect').selectOption(topology);
+  const count=topology==='base'?3:6;
+  if(await page.locator('#openBranchEditor').getAttribute('aria-expanded')!=='true')await page.locator('#openBranchEditor').click();
+  for(let i=0;i<count;i++)for(let j=0;j<3;j++){
+   const kind=j===1&&!(topology==='r76'&&i===1)?'U':j===2&&topology==='r76'&&i===1?'':'R';
+   await page.locator('[data-slot-kind="'+i+'-'+j+'"]').selectOption(kind);
+   await page.locator('[data-slot-value="'+i+'-'+j+'"]').fill(kind==='U'?'12':kind?'5':'');
+  }
+  await page.locator('#applyBranchSlots').click();
+  assert.equal(await page.locator('#branchSlotError').textContent(),'','Configuración de ramas para prueba de flechas');
+  await page.locator('#openBranchEditor').click();
+  for(let i=0;i<count;i++)await page.locator('[data-current-branch="'+i+'"]').dispatchEvent('click');
+  for(let i=0;i<count;i++){
+   const arrow=page.locator('#'+(topology==='base'?'currentArrow':'sixCurrentArrow')+i);
+   assert.equal(await arrow.getAttribute('data-placement-unavailable'),null,'Flecha '+i+' disponible en '+topology+' a '+viewport.width+'px');
+   assert.equal(await arrow.locator('.direction').isVisible(),true,'Flecha visible');
+  }
+ }
+}
+await page.setViewportSize({width:1440,height:1100});
+await page.reload();
 await page.locator('[data-current-branch="0"]').dispatchEvent('click');
 assert.equal(await page.locator('#currentArrow0 .dirlabel').textContent(),'I₁','Numeración automática en demo');
 assert.equal(await page.locator('#currentNameDialog').isVisible(),false,'Sin diálogo en demo');
