@@ -3838,6 +3838,7 @@
       }
       candidates.sort((a,b)=>a.distance-b.distance);
       let chosen=null;
+      const rejection={candidates:candidates.length,bounds:0,fixed:0,occupied:0,text:0};
       const metric=el=>{el.setAttribute('x','0');el.setAttribute('y','0');el.setAttribute('text-anchor','start');el.removeAttribute('transform');return el.getBBox();};
       for(const fontSize of [16]){
         label.style.fontSize=(fontSize*columnTextScales.circuit)+'px';if(value)value.style.fontSize=(16*columnTextScales.circuit)+'px';
@@ -3849,7 +3850,9 @@
           const tail={x:c.x-vx*half,y:c.y-vy*half},tipPoint={x:c.x+vx*half,y:c.y+vy*half};
           const segments=[[tail,tipPoint],...[-1,1].map(side=>[{x:c.x+vx*(half-9)+side*vy*7,y:c.y+vy*(half-9)-side*vx*7},tipPoint])];
           // Compara el trazo real y su contorno: el rectángulo completo de la punta bloqueaba el texto de B y D sin tocarlo.
-          if(!inside(arrow)||fixed.some(r=>segments.some(([a,b])=>arrowSegmentTouchesRect(a,b,r)))||occupied.some(b=>overlap(arrow,b)))continue;
+          if(!inside(arrow)){rejection.bounds++;continue;}
+          if(fixed.some(r=>segments.some(([a,b])=>arrowSegmentTouchesRect(a,b,r)))){rejection.fixed++;continue;}
+          if(occupied.some(b=>overlap(arrow,b))){rejection.occupied++;continue;}
           const horizontal=Math.abs(c.dx)>.5;
           const positions=horizontal?[11,18,28,38,48,60].flatMap(offset=>[
             {l:{x:c.x-l.width/2,y:c.y-offset-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+offset,w:v.width,h:v.height}:null},
@@ -3876,10 +3879,12 @@
             }
           }
           if(arrangement){chosen={...c,vx,vy,half,arrow,...arrangement,lMetric:l,vMetric:v};break;}
+          rejection.text++;
         }
         if(chosen)break;
       }
-      if(!chosen){group.dataset.placementUnavailable='true';group.style.display='none';continue;}
+      if(!chosen){group.dataset.placementUnavailable='true';group.dataset.placementDiagnostic=JSON.stringify({wanted,explicitPosition,rejection,fixed,occupied});group.style.display='none';continue;}
+      delete group.dataset.placementDiagnostic;
       const c=chosen;
       const stem=`M${c.x-c.vx*c.half} ${c.y-c.vy*c.half} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half}`;
       const tip=`M${c.x+c.vx*(c.half-9)-c.vy*7} ${c.y+c.vy*(c.half-9)+c.vx*7} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half} L${c.x+c.vx*(c.half-9)+c.vy*7} ${c.y+c.vy*(c.half-9)-c.vx*7}`;
