@@ -651,8 +651,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await tap(expandedHit.x,expandedHit.y);assert.notEqual(await page.locator('#currentArrow0 .direction').getAttribute('d'),originalDirection,'Pulsación fuera del dibujo dentro de la zona ampliada');
  await tap(expandedHit.x,expandedHit.y);assert.equal(await page.locator('#currentArrow0 .direction').getAttribute('d'),originalDirection);
  assert(parseFloat(await page.locator('#currentArrow0 .current-direction-hit').evaluate(el=>getComputedStyle(el).strokeWidth))>=44);
- let dragged=await dragCurrent('#currentArrow0',146,250,'padding');
- assert(Math.hypot(dragged.x-146,dragged.y-250)<2,'Arrastra flecha por su conductor');
+ let dragged=await dragCurrent('#currentArrow0',146,230,'padding');
+ assert(Math.hypot(dragged.x-146,dragged.y-230)<2,'Arrastra flecha por su conductor');
  let direction=await page.locator('#currentArrow0 .direction').getAttribute('d');
  assert(Number(direction.split(' ')[1])>Number(direction.split(' L')[1].split(' ')[1]),'Arrastrar conserva el sentido ascendente');
  dragged=await dragCurrent('#currentArrow0',249,74,true);
@@ -660,7 +660,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await dragCurrent('#currentArrow0',345,300);await assertBranchPlacement(false);await assertNoCurrentOverlap();
  await dragCurrent('#currentArrow0',146,235);await assertNoCurrentOverlap();
  await dragCurrent('#currentArrow0',146,310,true);await assertBranchPlacement(false);await assertNoCurrentOverlap();
- dragged=await dragCurrent('#currentArrow0',146,250,true);
+ dragged=await dragCurrent('#currentArrow0',146,230,true);
  await page.locator('#currentArrow0').focus();await page.locator('#currentArrow0').press('ArrowUp');
  const keyboard=await page.locator('#currentArrow0').evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
  assert(keyboard.y<dragged.y-5,'También se puede desplazar con el teclado');
