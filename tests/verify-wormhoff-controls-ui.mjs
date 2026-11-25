@@ -763,7 +763,10 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),0,'Reiniciar corrientes y nudos limpia los números');
  const freePoints=[[130,190],[350,207],[570,190],[324,225],[535,225],[130,300]];
  for(let i=0;i<6;i++){
-  await tap(...freePoints[i]);await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
+  const hit=await page.locator('#circuit').evaluate((svg,[x,y])=>{const p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());return document.elementsFromPoint(p.x,p.y).slice(0,8).map(el=>({tag:el.tagName,id:el.id,cls:el.getAttribute('class'),branch:el.getAttribute('data-current-branch'),text:el.textContent?.slice(0,40)}));},freePoints[i]);
+  await tap(...freePoints[i]);
+  assert(await page.locator('#currentNameDialog').isVisible(),'Numeración rama '+(i+1)+' punto '+JSON.stringify(freePoints[i])+' elementos '+JSON.stringify(hit)+' aviso '+await page.locator('#currentPlacementNotice').textContent());
+  await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
   const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   assert(Math.hypot(position.x-freePoints[i][0],position.y-freePoints[i][1])<([0,2].includes(i)?10:2),'Posición de la flecha avanzada más próxima al clic: rama '+(i+1)+' '+JSON.stringify(position));
  }
