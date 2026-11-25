@@ -3809,7 +3809,7 @@
     }
     for(const group of groups){
       const index=Number(group.dataset.currentIndex),six=group.dataset.six==='true',model=six?A6:S,points=branchPoints(six,index);
-      const wanted=model.currentPositions[index]||points[Math.floor(points.length/2)],label=group.querySelector('.dirlabel'),value=group.querySelector('.dir-result');
+      const explicitPosition=model.currentPositions[index],wanted=explicitPosition||points[Math.floor(points.length/2)],label=group.querySelector('.dirlabel'),value=group.querySelector('.dir-result');
       group.style.display='';delete group.dataset.placementUnavailable;
       group.querySelectorAll('.current-label-hit').forEach(el=>el.remove());
       let candidates=[];
@@ -3822,7 +3822,7 @@
       }
       if(currentRenamingPlacement&&currentRenamingPlacement.index===index&&currentRenamingPlacement.six===six)candidates=[{...currentRenamingPlacement,distance:0}];
       // Keep the requested free interval, even when its label needs more lateral clearance.
-      if(branchSlots?.[index]&&!currentRenamingPlacement){
+      if(explicitPosition&&branchSlots?.[index]&&!currentRenamingPlacement){
         const route=six?sixPhysicalRoute(index,EDGES6[index]).map(p=>({x:p[0],y:p[1],component:p.length>2})):BRANCHES[index];
         const interval=p=>{
           let distance=Infinity,which=0,part=0;
