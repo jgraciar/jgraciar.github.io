@@ -3852,7 +3852,7 @@
           // Compara el trazo real y su contorno: el rectángulo completo de la punta bloqueaba el texto de B y D sin tocarlo.
           if(!inside(arrow)){rejection.bounds++;continue;}
           if(fixed.some(r=>segments.some(([a,b])=>arrowSegmentTouchesRect(a,b,r)))){rejection.fixed++;continue;}
-          if(occupied.some(b=>overlap(arrow,b))){rejection.occupied++;continue;}
+          if(occupied.some(r=>segments.some(([a,b])=>arrowSegmentTouchesRect(a,b,r)))){rejection.occupied++;continue;}
           const horizontal=Math.abs(c.dx)>.5;
           const positions=horizontal?[11,18,28,38,48,60].flatMap(offset=>[
             {l:{x:c.x-l.width/2,y:c.y-offset-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+offset,w:v.width,h:v.height}:null},
