@@ -3857,6 +3857,14 @@
             {l:{x:c.x-l.width/2,y:c.y+offset,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+offset+l.height+5,w:v.width,h:v.height}:null},
             {l:{x:c.x-l.width/2,y:c.y-offset-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y-offset-l.height-5-v.height,w:v.width,h:v.height}:null}
           ]):[13,20,27,36,46,58].flatMap(offset=>[1,-1].flatMap(side=>[1,-1].map(vertical=>({l:{x:side>0?c.x+offset:c.x-offset-l.width,y:c.y-l.height/2,w:l.width,h:l.height},v:v?{x:side>0?c.x+offset:c.x-offset-v.width,y:vertical>0?c.y+l.height/2+5:c.y-l.height/2-5-v.height,w:v.width,h:v.height}:null}))));
+          // Horizontal branches have short free intervals beside components. Allow
+          // text to shift along the conductor while keeping the arrow fixed.
+          if(horizontal){
+            const base=positions.slice();
+            for(const shift of [12,-12,24,-24,36,-36,48,-48]){
+              for(const pos of base)positions.push({l:{...pos.l,x:pos.l.x+shift},v:pos.v?{...pos.v,x:pos.v.x+shift}:null});
+            }
+          }
           const clear=r=>inside(r)&&![...fixed,...wires,...occupied,arrow].some(b=>overlap(r,b));
           let arrangement=positions.find(pos=>[pos.l,pos.v].filter(Boolean).every(clear));
           if(!arrangement&&v){
