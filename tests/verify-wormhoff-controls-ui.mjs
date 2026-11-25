@@ -266,7 +266,10 @@ await page.evaluate(()=>{const {A6,sixStartSolve}=wormhoffTest;sixStartSolve();A
 const sixBefore=await page.locator('#advResults strong').allTextContents();
 for(let i=0;i<6;i++){
  const working=await page.locator('#advSolveSteps').textContent();
- await page.locator('#sixCurrentArrow'+i).focus();await page.locator('#sixCurrentArrow'+i).press('Enter');
+ const reference=page.locator('#sixCurrentArrow'+i);
+ console.log('BEFORE REFERENCE',i,JSON.stringify(await reference.evaluate(el=>({display:getComputedStyle(el).display,placement:el.dataset.placementUnavailable,x:el.dataset.arrowX,y:el.dataset.arrowY,sign:wormhoffTest.A6.signs[Number(el.dataset.currentIndex)],tabindex:el.getAttribute('tabindex')}))));
+ await reference.focus();console.log('FOCUS',await page.evaluate(()=>document.activeElement?.id));await reference.press('Enter');
+ console.log('AFTER REFERENCE',i,await page.evaluate(i=>wormhoffTest.A6.signs[i],i));
  const results=await page.locator('#advResults strong').allTextContents();
  assert.deepEqual(results.map(numeric),sixBefore.map((v,j)=>i===j?-numeric(v):numeric(v)),'Referencia avanzada '+i);
  assert.notEqual(await page.locator('#advSolveSteps').textContent(),working);
