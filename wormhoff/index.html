@@ -3259,7 +3259,7 @@
       else{
         const sign=slot.value>=0?1:-1,big=point(t+6*sign),small=point(t-6*sign);
         const plate=(p,w)=>'M'+(p[0]-dy*w)+' '+(p[1]+dx*w)+' L'+(p[0]+dy*w)+' '+(p[1]-dx*w);
-        h+='<g id="'+id+'" class="component-source"><rect class="source-halo" x="'+(x-18)+'" y="'+(y-18)+'" width="36" height="36" fill="transparent"/><path class="source-plate" d="'+plate(big,19)+' '+plate(small,9)+'"/><text class="component-value" x="'+(vertical?x+28:x)+'" y="'+(vertical?y+5:y+35)+'" text-anchor="'+(vertical?'start':'middle')+'">'+fmt6(Math.abs(slot.value))+'V</text></g>';
+        h+='<g id="'+id+'" class="component-source"><rect class="source-halo" x="'+(x-(vertical?20:8))+'" y="'+(y-(vertical?8:20))+'" width="'+(vertical?40:16)+'" height="'+(vertical?16:40)+'" fill="transparent"/><path class="source-plate" d="'+plate(big,19)+' '+plate(small,9)+'"/><text class="component-value" x="'+(vertical?x+28:x)+'" y="'+(vertical?y+5:y+35)+'" text-anchor="'+(vertical?'start':'middle')+'">'+fmt6(Math.abs(slot.value))+'V</text></g>';
       }
     });
     return h+wire(point(cursor),segment.b);
