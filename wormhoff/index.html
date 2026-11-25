@@ -3293,7 +3293,8 @@
       }
     }
     h+='</g>';
-    Object.entries(N6).forEach(([id,[x,y]])=>h+=`<circle class="nod" cx="${x}" cy="${y}" r="5"/><text class="txt" x="${x+8}" y="${y-13}">${id}</text>`);
+    // Keep node labels clear of the arrowhead on the incoming vertical conductor.
+    Object.entries(N6).forEach(([id,[x,y]])=>h+=`<circle class="nod" cx="${x}" cy="${y}" r="5"/><text class="txt" x="${x+20}" y="${y-13}">${id}</text>`);
     h+='<g id="sixRefArrows"></g><g id="sixLoops"></g>';
     return h;
   }
