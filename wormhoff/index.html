@@ -3857,7 +3857,16 @@
             {l:{x:c.x-l.width/2,y:c.y+offset,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y+offset+l.height+5,w:v.width,h:v.height}:null},
             {l:{x:c.x-l.width/2,y:c.y-offset-l.height,w:l.width,h:l.height},v:v?{x:c.x-v.width/2,y:c.y-offset-l.height-5-v.height,w:v.width,h:v.height}:null}
           ]):[13,20,27,36,46,58].flatMap(offset=>[1,-1].flatMap(side=>[1,-1].map(vertical=>({l:{x:side>0?c.x+offset:c.x-offset-l.width,y:c.y-l.height/2,w:l.width,h:l.height},v:v?{x:side>0?c.x+offset:c.x-offset-v.width,y:vertical>0?c.y+l.height/2+5:c.y-l.height/2-5-v.height,w:v.width,h:v.height}:null}))));
-          const arrangement=positions.find(pos=>[pos.l,pos.v].filter(Boolean).every(r=>inside(r)&&![...fixed,...wires,...occupied,arrow].some(b=>overlap(r,b))));
+          const clear=r=>inside(r)&&![...fixed,...wires,...occupied,arrow].some(b=>overlap(r,b));
+          let arrangement=positions.find(pos=>[pos.l,pos.v].filter(Boolean).every(clear));
+          if(!arrangement&&v){
+            // The name and numerical result may use different sides or offsets.
+            for(const pos of positions){
+              if(!clear(pos.l))continue;
+              const result=positions.map(p=>p.v).find(r=>r&&clear(r)&&!overlap(r,pos.l));
+              if(result){arrangement={l:pos.l,v:result};break;}
+            }
+          }
           if(arrangement){chosen={...c,vx,vy,half,arrow,...arrangement,lMetric:l,vMetric:v};break;}
         }
         if(chosen)break;
