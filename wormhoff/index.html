@@ -3812,6 +3812,22 @@
         wires.push({x:Math.min(a.x,b.x)-1.5,y:Math.min(a.y,b.y)-1.5,w:Math.abs(b.x-a.x)+3,h:Math.abs(b.y-a.y)+3});
       }
     }
+    // Reserve requested arrow footprints before placing any labels, so an earlier
+    // branch cannot force a later arrow away from its selected conductor position.
+    const reserved=groups.flatMap(group=>{
+      const index=Number(group.dataset.currentIndex),six=group.dataset.six==='true',model=six?A6:S,p=model.currentPositions[index];
+      if(!p)return [];
+      const points=branchPoints(six,index);let best=null;
+      for(let j=1;j<points.length;j++){
+        const a=points[j-1],b=points[j],len=Math.hypot(b.x-a.x,b.y-a.y),margin=six?10:15;
+        if(len<2*margin)continue;
+        const dx=(b.x-a.x)/len,dy=(b.y-a.y)/len,t=Math.max(margin,Math.min(len-margin,(p.x-a.x)*dx+(p.y-a.y)*dy)),x=a.x+t*dx,y=a.y+t*dy,d=(x-p.x)**2+(y-p.y)**2;
+        if(!best||d<best.d)best={x,y,dx,dy,d};
+      }
+      if(!best)return [];
+      const {x,y,dx,dy}=best,half=six?9:12,rx=Math.abs(dx)*half+Math.abs(dy)*7+3,ry=Math.abs(dy)*half+Math.abs(dx)*7+3;
+      return [{group,rect:{x:x-rx,y:y-ry,w:2*rx,h:2*ry}}];
+    });
     for(const group of groups){
       const index=Number(group.dataset.currentIndex),six=group.dataset.six==='true',model=six?A6:S,points=branchPoints(six,index);
       const explicitPosition=model.currentPositions[index],wanted=explicitPosition||points[Math.floor(points.length/2)],label=group.querySelector('.dirlabel'),value=group.querySelector('.dir-result');
@@ -3873,7 +3889,7 @@
               for(const pos of base)positions.push({l:{...pos.l,x:pos.l.x+shift},v:pos.v?{...pos.v,x:pos.v.x+shift}:null});
             }
           }
-          const clear=r=>inside(r)&&![...fixed,...wires,...occupied,arrow].some(b=>overlap(r,b));
+          const clear=r=>inside(r)&&![...fixed,...wires,...occupied,arrow,...reserved.filter(item=>item.group!==group).map(item=>item.rect)].some(b=>overlap(r,b));
           let arrangement=positions.find(pos=>[pos.l,pos.v].filter(Boolean).every(clear));
           if(!arrangement&&v){
             // The name and numerical result may use different sides or offsets.
@@ -3898,7 +3914,8 @@
       const place=(el,r,m)=>{el.setAttribute('x',r.x-m.x);el.setAttribute('y',r.y-m.y);};
       place(label,c.l,c.lMetric);if(value)place(value,c.v,c.vMetric);
       group.dataset.arrowX=c.x;group.dataset.arrowY=c.y;group.dataset.arrowDx=c.dx;group.dataset.arrowDy=c.dy;
-      model.currentPositions[index]={x:c.x,y:c.y};
+      // Preserve the requested position across automatic layout passes.
+      if(!explicitPosition)model.currentPositions[index]={x:c.x,y:c.y};
       occupied.push(c.arrow,c.l);if(c.v)occupied.push(c.v);
       for(const r of [c.l,c.v].filter(Boolean)){
         const hit=document.createElementNS('http://www.w3.org/2000/svg','rect');hit.setAttribute('class','dirclick current-label-hit');if(r===c.l)hit.setAttribute('data-current-label-hit','true');
