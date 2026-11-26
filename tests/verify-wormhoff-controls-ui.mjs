@@ -877,10 +877,10 @@ for(const mobile of [false,true]){
   if(!wires.length)throw new Error('Missing conductor segments for branch '+branch);
   return {fill:getComputedStyle(rect).fill,wireAcrossSource:wires.some(wire=>wire.isPointInStroke(new DOMPoint(x,y)))};
  }));
- assert.equal(sourceBackgrounds.length,5);
+ assert.equal(sourceBackgrounds.length,6,'Una fuente inicial por cada una de las seis ramas');
  assert(sourceBackgrounds.every(s=>s.fill==='rgba(0, 0, 0, 0)'&&!s.wireAcrossSource),'Fuentes sin fondo ni conductor que cruce entre sus placas');
  const originalResistors=await page.locator('#componentValueTargets [data-component-edit$="R"]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')));
- for(const i of [0,2,3,4,5])await edit('sixCmp'+i+'U','0');
+ for(const i of [0,1,2,3,4,5])await edit('sixCmp'+i+'U','0');
  await page.click('#solveDirect');await assertResults(Array(6).fill(0),true);
  assert.deepEqual(await page.locator('#componentValueTargets [data-component-edit$="R"]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label'))),originalResistors,'Resolver y editar no regeneran las resistencias');
  await edit('sixCmp0R','2,5');await assertResults(Array(6).fill(0),true);
