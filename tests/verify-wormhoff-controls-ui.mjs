@@ -91,6 +91,16 @@ const enterNodeEquation=async(page,id,equation)=>{
  if(await page.locator('#nodeEquationChallenge .kcl-drag-token').count()){
   const [left='',right='']=equation.replace(/\\s/g,'').split('=');
   const tokens=page.locator('#nodeEquationChallenge .kcl-drag-token');
+  const left=page.locator('#nodeEquationChallenge .kcl-drop-side').first();
+  await tokens.first().click();await left.click();
+  assert.equal(await left.locator('[data-kcl-term]').count(),1);
+  await tokens.first().click();
+  assert.equal(await left.locator('[data-kcl-term]').count(),0,'Una intensidad colocada puede volver al banco pulsando su botón');
+  assert.equal(await tokens.first().getAttribute('aria-pressed'),'false');
+  await tokens.first().click();await left.click();
+  await left.locator('[data-kcl-term]').focus();await page.keyboard.press('Delete');
+  assert.equal(await left.locator('[data-kcl-term]').count(),0,'Supr retira la intensidad de la ecuación');
+
   for(let i=0;i<await tokens.count();i++){
    const label=await tokens.nth(i).textContent();
    const plain=v=>v.replace(/[₀₁₂₃₄₅₆₇₈₉]/g,d=>String('₀₁₂₃₄₅₆₇₈₉'.indexOf(d))).toUpperCase();
