@@ -698,10 +698,10 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   const {x,y}=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
   const sel='#sixCurrentArrow'+i,before=await arrow(sel);await tap(x,y);assert.notEqual(await arrow(sel),before,'Invertir corriente avanzada '+i);await tap(x,y);assert.equal(await arrow(sel),before);
  }
- dragged=await dragCurrent('#sixCurrentArrow4',535,225,true);
- assert(Math.hypot(dragged.x-535,dragged.y-225)<2,'Arrastra I5 y su texto dentro de su rama');
+ dragged=await dragCurrent('#sixCurrentArrow4',535,245,true);
+ assert(Math.hypot(dragged.x-535,dragged.y-245)<2,'Arrastra I5 y su texto dentro de su rama');
  await dragCurrent('#sixCurrentArrow4',130,190);await assertBranchPlacement(true);await assertNoCurrentOverlap();
- await dragCurrent('#sixCurrentArrow4',465,225);await assertBranchPlacement(true);await assertNoCurrentOverlap();
+ await dragCurrent('#sixCurrentArrow4',465,245);await assertBranchPlacement(true);await assertNoCurrentOverlap();
  await selectSymbol('ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
  for(const resistor of await page.locator('#circuit .component-resistor').all()){
   assert(await resistor.evaluate(el=>{
