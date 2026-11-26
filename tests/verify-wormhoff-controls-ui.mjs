@@ -860,14 +860,15 @@ for(const mobile of [false,true]){
   await page.locator('#componentValueInput').fill(value);await page.locator('#componentValueForm button[type="submit"]').click();
   assert.equal(await page.locator('#componentValueDialog').isVisible(),false);
  };
- await page.click('#solveDirect');await assertResults([5,1,4]);
+ // Base: E=[18,6,12], R=[2,2,2]; reference signs [1,-1,-1].
+ await page.click('#solveDirect');await assertResults([3,3,0]);
  await page.locator('[data-component-edit="resistorElement0"]').click();await page.locator('#componentValueInput').fill('0');await page.locator('#componentValueForm button[type="submit"]').click();
  assert(await page.locator('#componentValueDialog').isVisible());assert.equal(await page.locator('#componentValueInput').getAttribute('aria-invalid'),'true');
- await page.click('#cancelComponentValue');await assertResults([5,1,4]);
- await edit('resistorElement0','4');await assertResults([3,0,3]);
- await edit('sourceElement0','0');await assertResults([-.6,-1.8,1.2]);
+ await page.click('#cancelComponentValue');await assertResults([3,3,0]);
+ await edit('resistorElement0','4');await assertResults([1.8,2.4,-.6]);
+ await edit('sourceElement0','0');await assertResults([-1.8,.6,-2.4]);
  assert.equal(await page.locator('[data-component-edit="sourceElement0"]').count(),1,'La fuente de cero voltios sigue siendo editable');
- await edit('sourceElement0','-6');await assertResults([-1.8,-2.4,.6]);
+ await edit('sourceElement0','-6');await assertResults([-3,0,-3]);
  // Las pruebas de figuras históricas se reintroducirán como pruebas del editor de ramas.
  await page.selectOption('#exerciseSelect','r76');
  const sourceBackgrounds=await page.locator('#sixSymbols .source-halo').evaluateAll(nodes=>nodes.map(rect=>{
