@@ -3931,7 +3931,7 @@
       if(!chosen){group.dataset.placementUnavailable='true';group.dataset.placementDiagnostic=JSON.stringify({wanted,explicitPosition,rejection,fixed,occupied});group.style.display='none';continue;}
       delete group.dataset.placementDiagnostic;
       const c=chosen;
-      if(c.distance>4)group.dataset.requestedBlockers=JSON.stringify({wanted,requestedBlockers,rejection});
+      group.dataset.requestedBlockers=JSON.stringify({wanted,chosen:{x:c.x,y:c.y},requestedBlockers,rejection});
       const stem=`M${c.x-c.vx*c.half} ${c.y-c.vy*c.half} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half}`;
       const tip=`M${c.x+c.vx*(c.half-9)-c.vy*7} ${c.y+c.vy*(c.half-9)+c.vx*7} L${c.x+c.vx*c.half} ${c.y+c.vy*c.half} L${c.x+c.vx*(c.half-9)+c.vy*7} ${c.y+c.vy*(c.half-9)-c.vx*7}`;
       group.querySelectorAll('.direction,.direction-outline,.current-direction-hit').forEach(el=>{el.removeAttribute('transform');el.setAttribute('d',stem+' '+tip);});
