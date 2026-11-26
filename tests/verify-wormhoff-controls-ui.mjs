@@ -873,8 +873,9 @@ for(const mobile of [false,true]){
  await page.selectOption('#exerciseSelect','r76');
  const sourceBackgrounds=await page.locator('#sixSymbols .source-halo').evaluateAll(nodes=>nodes.map(rect=>{
   const x=Number(rect.getAttribute('x'))+Number(rect.getAttribute('width'))/2,y=Number(rect.getAttribute('y'))+Number(rect.getAttribute('height'))/2;
-  const branch=rect.parentElement.id.match(/^sixCmp(\d)U$/)[1],wire=document.querySelector('[data-wire-branch="'+branch+'"]');
-  return {fill:getComputedStyle(rect).fill,wireAcrossSource:wire.isPointInStroke(new DOMPoint(x,y))};
+  const branch=rect.parentElement.id.match(/^sixCmp(\d)U$/)[1],wires=[...document.querySelectorAll('[data-wire-branch="'+branch+'"]')];
+  if(!wires.length)throw new Error('Missing conductor segments for branch '+branch);
+  return {fill:getComputedStyle(rect).fill,wireAcrossSource:wires.some(wire=>wire.isPointInStroke(new DOMPoint(x,y)))};
  }));
  assert.equal(sourceBackgrounds.length,5);
  assert(sourceBackgrounds.every(s=>s.fill==='rgba(0, 0, 0, 0)'&&!s.wireAcrossSource),'Fuentes sin fondo ni conductor que cruce entre sus placas');
