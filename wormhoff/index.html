@@ -3276,7 +3276,7 @@
     const vertical=dx===0,counts={R:0,U:0};
     let h='',cursor=0;
 
-    const wire=(a,b)=>'<path class="wire" d="M'+a.join(' ')+' L'+b.join(' ')+'"/>';
+    const wire=(a,b)=>'<path class="wire" data-wire-branch="'+i+'" d="M'+a.join(' ')+' L'+b.join(' ')+'"/>';
     for(const p of segments)if(p!==segment)h+=wire(p.a,p.b);
     slots.forEach((slot,j)=>{
       if(!slot)return;
