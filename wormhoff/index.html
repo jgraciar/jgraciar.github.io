@@ -1524,16 +1524,26 @@
         if(picked!==null&&picked!==before)place(picked,assignments[before],before);
         else{picked=before;tokens.forEach((el,k)=>el.classList.toggle('selected',k===before))}
       });
+      const remove=i=>{if(!Number.isInteger(i)||i<0||i>=assignments.length)return;
+        assignments[i]=null;const previous=order.indexOf(i);if(previous!==-1)order.splice(previous,1);
+        picked=null;tokens.forEach(el=>el.classList.remove('selected'));render();
+      };
+      const bank=host.querySelector('.kcl-drag-bank');
+      bank.addEventListener('dragover',event=>event.preventDefault());
+      bank.addEventListener('drop',event=>{event.preventDefault();const value=event.dataTransfer.getData('text/plain');if(value!=='')remove(Number(value))});
+      host.querySelector('.kcl-live-expression').addEventListener('keydown',event=>{
+        const i=termIndex(event.target);if(i!==null&&(event.key==='Delete'||event.key==='Backspace')){event.preventDefault();remove(i)}
+      });
       tokens.forEach((token,i)=>{
         token.addEventListener('dragstart',event=>{picked=i;event.dataTransfer.setData('text/plain',String(i));event.dataTransfer.effectAllowed='move'});
-        token.addEventListener('click',()=>{picked=i;tokens.forEach((el,k)=>el.classList.toggle('selected',k===i))});
+        token.addEventListener('click',()=>{if(assignments[i]!==null){remove(i);return}picked=i;tokens.forEach((el,k)=>el.classList.toggle('selected',k===i))});
       });
       sides.forEach((slot,side)=>{
         slot.classList.add('kcl-drop-side');slot.setAttribute('role','button');slot.tabIndex=0;
         slot.setAttribute('aria-label',side===0?'Miembro izquierdo':'Miembro derecho');
         slot.addEventListener('dragover',event=>event.preventDefault());
-        slot.addEventListener('drop',event=>{event.preventDefault();place(Number(event.dataTransfer.getData('text/plain')),side)});
-        slot.addEventListener('click',()=>place(picked,side));
+        slot.addEventListener('drop',event=>{event.preventDefault();if(termIndex(event.target)===null)place(Number(event.dataTransfer.getData('text/plain')),side)});
+        slot.addEventListener('click',event=>{if(termIndex(event.target)===null)place(picked,side)});
         slot.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();place(picked,side)}});
       });
       host._kclDemoAssignments=assignments;
