@@ -2220,6 +2220,14 @@
     });
     svg.addEventListener('pointerdown',event=>{
       let group=event.target.closest?.('[data-current-index]');
+      // A visible current label must remain editable even when the worm or an
+      // enlarged component hit area overlaps it during a stopped traversal.
+      if(!group)group=[...svg.querySelectorAll('[data-current-index]')].find(candidate=>{
+        if(getComputedStyle(candidate).display==='none')return false;
+        const label=candidate.querySelector('.dirlabel');if(!label)return false;
+        const box=label.getBoundingClientRect();
+        return event.clientX>=box.left&&event.clientX<=box.right&&event.clientY>=box.top&&event.clientY<=box.bottom;
+      });
       if(!group||!event.isPrimary||event.button!==0||currentArrowDrag)return;
       // Expanded hit areas may overlap; prefer the nearest visible arrow or text.
       let closest=Infinity;
