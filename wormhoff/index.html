@@ -1808,7 +1808,11 @@
       let touch=null;
       el.addEventListener('pointerdown',event=>{touch=event.pointerType==='touch'?{id:event.pointerId,x:event.clientX,y:event.clientY}:null;});
       el.addEventListener('pointercancel',()=>{touch=null;});
-      el.addEventListener('pointerup',event=>{if(touch&&touch.id===event.pointerId)touch={clientX:event.clientX,clientY:event.clientY};});
+      el.addEventListener('touchstart',event=>{
+        const finger=event.changedTouches[0];if(finger&&event.touches.length===1)touch={clientX:finger.clientX,clientY:finger.clientY};
+      },{passive:true});
+      el.addEventListener('touchcancel',()=>{touch=null;});
+      el.addEventListener('pointerup',event=>{if(touch&&touch.id===event.pointerId)touch={clientX:touch.x,clientY:touch.y};});
       bindClickable(el,event=>{
         const point=event&&touch&&Number.isFinite(touch.clientX)?touch:event;
         touch=null;
