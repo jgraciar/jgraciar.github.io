@@ -17,6 +17,7 @@ cpSync(source,destination);
 const engine=join(repo,'wormhoff','mesh-engine.mjs');
 assert(existsSync(engine),'Falta el motor eléctrico de Wormhoff');
 cpSync(engine,join(site,'wormhoff','mesh-engine.mjs'));
+cpSync(join(repo,'wormhoff','mascota-cabecera.webp'),join(site,'wormhoff','mascota-cabecera.webp'));
 
 let index=readFileSync(portal,"utf8");
 const href='href="./wormhoff/"';
