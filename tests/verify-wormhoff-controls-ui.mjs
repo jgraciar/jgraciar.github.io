@@ -415,8 +415,8 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  };
  const assertBranchPlacement=async six=>{
   const branches=six?[
-   [[130,225],[130,74],[350,74]],[[350,74],[350,225]],[[350,74],[570,74],[570,225]],
-   [[130,225],[350,225]],[[350,225],[570,225]],[[130,225],[130,355],[570,355],[570,225]]
+   [[51,245],[51,45],[350,45]],[[350,45],[350,245]],[[350,45],[649,45],[649,245]],
+   [[51,245],[350,245]],[[350,245],[649,245]],[[51,245],[51,375],[649,375],[649,245]]
   ]:[[[345,360],[146,360],[146,74],[345,74]],[[345,360],[345,74]],[[345,360],[544,360],[544,74],[345,74]]];
   const details=await page.locator(six?'#sixRefArrows [data-current-index]':'#dirGraphics [data-current-index]').evaluateAll((groups,branches)=>groups.map(el=>{
    const x=Number(el.dataset.arrowX),y=Number(el.dataset.arrowY),points=branches[Number(el.dataset.currentIndex)];
