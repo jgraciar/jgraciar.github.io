@@ -735,9 +735,13 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  assert.deepEqual(await page.locator('#advKCLtext small').allTextContents(),['Nudo D','Nudo A','Nudo C'],'Conserva el orden de los nudos elegidos');await assertStageChecks(page,[0]);
  await page.locator('#nodeTargets [data-node="B"]').click();assert.equal(await page.locator('#nodeEquationDialog').isVisible(),false,'El cuarto nudo aporta una ecuación dependiente');
  await checkAction('advGoLoops');await page.click('#advGoLoops');assert(await page.locator('#hero').isVisible());
- await checkMeshSelection(0,true);await checkVisibleMeshShade(185,190); await tap(460,290);assert.match(await page.locator('#advLap').textContent(),/Malla 3/);
+ await checkMeshSelection(0,true);await checkVisibleMeshShade(185,190);
+ // Click the free interior, away from the editable component labels on C–D.
+ await page.locator('#circuit').scrollIntoViewIfNeeded();
+ const meshHit=await page.locator('#circuit').evaluate(svg=>{const p=new DOMPoint(550,320).matrixTransform(svg.getScreenCTM());const el=document.elementFromPoint(p.x,p.y);return {mesh:el?.closest('[data-mesh]')?.dataset.mesh,hit:el?.outerHTML.slice(0,250)};});
+ assert.equal(meshHit.mesh,'2',JSON.stringify(meshHit));await tap(550,320);assert.match(await page.locator('#advLap').textContent(),/Malla 3/);
  await tapMeshTurn(2);await checkMeshSelection(2,false);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
- await tap(460,290);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
+ await tap(550,320);assert.match(await page.locator('#sixLoops [data-mesh-turn="2"]').textContent(),/↺/);
  await tapMeshTurn(1);await checkMeshSelection(1,false);assert.match(await page.locator('#advLap').textContent(),/Malla 2/);assert.match(await page.locator('#sixLoops [data-mesh-turn="1"]').textContent(),/↺/);
  await checkAction('advConfirmMeshDirections');assert.equal(await page.locator('#advNext').isDisabled(),true);await page.click('#advConfirmMeshDirections');await checkAction('advNext');await page.click('#advNext');await tap(300,190);assert.match(await page.locator('#advLap').textContent(),/Malla 2/,'No cambiar malla avanzada durante el recorrido');
  await pauseResume('advNext');
