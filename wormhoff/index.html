@@ -1729,7 +1729,10 @@
   function branchClickPoint(event,six,index){
     if(event?.circuitPoint)return event.circuitPoint;
     if(event&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY)&&(event.clientX||event.clientY)){
-      const svg=$('circuit'),p=new DOMPoint(event.clientX,event.clientY).matrixTransform(svg.getScreenCTM().inverse());return {x:p.x,y:p.y};
+      const svg=$('circuit'),viewport=window.visualViewport;
+      // Touch client coordinates include the visual viewport displacement in Chromium.
+      const touch=event.pointerType==='touch'||typeof event.identifier==='number';
+      const p=new DOMPoint(event.clientX-(touch?(viewport?.offsetLeft||0):0),event.clientY-(touch?(viewport?.offsetTop||0):0)).matrixTransform(svg.getScreenCTM().inverse());return {x:p.x,y:p.y};
     }
     const points=branchPoints(six,index);return points[Math.floor(points.length/2)];
   }
