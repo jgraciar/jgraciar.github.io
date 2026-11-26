@@ -520,6 +520,10 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
    return {start,end:{x:target.x+start.x-arrow.x,y:target.y+start.y-arrow.y}};
   },{x,y,byLabel});
   const scrollBefore=await page.evaluate(()=>scrollY);
+  if(byLabel==='padding')await page.evaluate(({start})=>{
+   const svg=document.getElementById('circuit');window.wormhoffDragTrace={hit:document.elementsFromPoint(start.x,start.y).slice(0,6).map(e=>({id:e.id,cls:e.getAttribute('class')})),events:[]};
+   for(const type of ['pointerdown','pointermove','pointerup','pointercancel','lostpointercapture'])svg.addEventListener(type,e=>window.wormhoffDragTrace.events.push({type,x:e.clientX,y:e.clientY,target:e.target.id,group:e.target.closest?.('[data-current-index]')?.id}),{capture:true});
+  },points);
   if(mobile){
    const session=await context.newCDPSession(page);
    const touch=(type,x,y)=>session.send('Input.dispatchTouchEvent',{type,touchPoints:type==='touchEnd'?[]:[{x,y,id:9,radiusX:1,radiusY:1}]});
@@ -659,7 +663,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await tap(expandedHit.x,expandedHit.y);assert.equal(await page.locator('#currentArrow0 .direction').getAttribute('d'),originalDirection);
  assert(parseFloat(await page.locator('#currentArrow0 .current-direction-hit').evaluate(el=>getComputedStyle(el).strokeWidth))>=44);
  let dragged=await dragCurrent('#currentArrow0',146,230,'padding');
- assert(Math.hypot(dragged.x-146,dragged.y-230)<2,'Arrastra flecha por su conductor');
+ assert(Math.hypot(dragged.x-146,dragged.y-230)<2,'Arrastra flecha por su conductor: '+JSON.stringify({dragged,trace:await page.evaluate(()=>window.wormhoffDragTrace)}));
  let direction=await page.locator('#currentArrow0 .direction').getAttribute('d');
  assert(Number(direction.split(' ')[1])>Number(direction.split(' L')[1].split(' ')[1]),'Arrastrar conserva el sentido ascendente');
  dragged=await dragCurrent('#currentArrow0',249,74,true);
