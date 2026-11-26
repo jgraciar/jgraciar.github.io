@@ -767,7 +767,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  await page.click('#advEditCurrentReferences');assert.equal(await page.locator('#advKCLtext [data-equation]').count(),0);
  await page.click('[data-reset-phase="0"]');
  assert.equal(await page.locator('#sixRefArrows .dirlabel').count(),0,'Reiniciar corrientes y nudos limpia los números');
- const freePoints=[[130,190],[350,207],[570,190],[324,225],[535,225],[130,300]];
+ const freePoints=[[51,190],[350,226],[649,190],[316,245],[630,245],[51,300]];
  for(let i=0;i<6;i++){
   const hit=await page.locator('#circuit').evaluate((svg,[x,y])=>{const p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());return document.elementsFromPoint(p.x,p.y).slice(0,8).map(el=>({tag:el.tagName,id:el.id,cls:el.getAttribute('class'),branch:el.getAttribute('data-current-branch'),text:el.textContent?.slice(0,40)}));},freePoints[i]);
   await tap(...freePoints[i]);
@@ -777,9 +777,9 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   assert(Math.hypot(position.x-freePoints[i][0],position.y-freePoints[i][1])<([0,2].includes(i)?10:2),'Posición de la flecha avanzada más próxima al clic: rama '+(i+1)+' '+JSON.stringify(position));
  }
  await assertBranchPlacement(true);await assertNoCurrentOverlap();
- await tap(570,300);assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente/);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
+ await tap(649,300);assert.match(await page.locator('#currentPlacementNotice').textContent(),/ya tiene la corriente/);assert.equal(await page.locator('#currentNameDialog').isVisible(),false);
  await page.click('[data-reset-phase="0"]');
- await tap(130,105);await page.locator('#currentNumber').fill('123');assert.equal(await page.locator('#currentNumber').inputValue(),'12','Máximo dos cifras');
+ await tap(51,105);await page.locator('#currentNumber').fill('123');assert.equal(await page.locator('#currentNumber').inputValue(),'12','Máximo dos cifras');
  await page.keyboard.press('Escape');await page.locator('#currentNameDialog').waitFor({state:'hidden'});
  await assignNumbers([11,22,33,44,55,66]);
  await selectSymbol('ansi');await assertNoCurrentOverlap();await assertBranchPlacement((await page.locator('#sixRefArrows').count())>0);
