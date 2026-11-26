@@ -445,6 +445,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   await page.locator('#circuit').scrollIntoViewIfNeeded();
   const p=await page.locator('#circuit').evaluate((svg,[x,y])=>{const p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());return {x:p.x,y:p.y}},[x,y]);
   if(mobile){
+   console.log('TOUCH TARGET',JSON.stringify({x,y,p,geometry:await page.locator('#circuit').evaluate(svg=>({matrix:Array.from(['a','b','c','d','e','f'],k=>svg.getScreenCTM()[k]),viewport:[visualViewport.offsetLeft,visualViewport.offsetTop,visualViewport.scale]}))}));
    // CDP touch coordinates are not subject to Chromium's tap target adjustment.
    // Keep the intended physical point and the original placement assertion.
    const session=await context.newCDPSession(page);
@@ -790,7 +791,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   await tap(...freePoints[i]);
   assert(await page.locator('#currentNameDialog').isVisible(),'Numeración rama '+(i+1)+' punto '+JSON.stringify(freePoints[i])+' elementos '+JSON.stringify(hit)+' aviso '+await page.locator('#currentPlacementNotice').textContent());
   await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
-  const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY),diagnostic:el.dataset.requestedBlockers}));
+  const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY),diagnostic:el.dataset.requestedBlockers,touchTrace:document.getElementById('circuit').dataset.branchTouchTrace}));
   assert(Math.hypot(position.x-freePoints[i][0],position.y-freePoints[i][1])<([0,2].includes(i)?10:2),'Posición de la flecha avanzada más próxima al clic: rama '+(i+1)+' '+JSON.stringify(position));
  }
  await assertBranchPlacement(true);await assertNoCurrentOverlap();
