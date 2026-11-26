@@ -3110,7 +3110,7 @@
     flowToken++;stopFlow();if(S.pausedResume){S.pausedResume();S.pausedResume=null}
     $('currentBranchTargets').innerHTML='';$('meshSelection').innerHTML='';
     $('gameLayout').classList.toggle('network-mode',active.kind==='network');
-    $('circuit').setAttribute('viewBox',active.kind==='network'?'-60 0 820 430':'60 20 600 410');
+    $('circuit').setAttribute('viewBox',active.kind==='network'||active.kind==='multi'?'-60 0 820 430':'60 20 600 410');
     show('nodeEqPanel',false);show('advKCL',false);
     clearChallenge();S.phase=0;S.signs=[1,-1,-1];S.score=0;S.nodeDone=false;S.nodeSelected=null;S.nodeIds=[];S.nodeChoices=[];S.nodeSelectionConfirmed=false;
     S.meshDirections=[true,true];S.meshDirectionsConfirmed=false;S.loops=[null,null];S.scoredLoops=[false,false];S.loopBonusAwarded=false;S.loop=0;S.cw=true;
