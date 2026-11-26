@@ -510,7 +510,12 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   await page.locator('#circuit').scrollIntoViewIfNeeded();
   const points=await page.locator(selector).evaluate((group,{x,y,byLabel})=>{
    const svg=document.getElementById('circuit'),matrix=svg.getScreenCTM(),arrow=new DOMPoint(Number(group.dataset.arrowX),Number(group.dataset.arrowY)).matrixTransform(matrix);
-   const label=group.querySelector('.dirlabel').getBoundingClientRect(),start=byLabel?{x:byLabel==='padding'?label.x-8:label.x+label.width/2,y:label.y+label.height/2}:{x:arrow.x,y:arrow.y};
+   const label=group.querySelector('.dirlabel').getBoundingClientRect(),hit=group.querySelector('[data-current-label-hit]').getBoundingClientRect();
+   // Test the actual expanded touch target, not a fixed CSS-pixel offset
+   // which can fall outside the SVG hit rectangle on a narrow viewport.
+   const padding=label.left-hit.left;
+   if(byLabel==='padding'&&padding<=0)throw new Error('No expanded label hit area');
+   const start=byLabel?{x:byLabel==='padding'?label.left-padding/2:label.x+label.width/2,y:label.y+label.height/2}:{x:arrow.x,y:arrow.y};
    const target=new DOMPoint(x,y).matrixTransform(matrix);
    return {start,end:{x:target.x+start.x-arrow.x,y:target.y+start.y-arrow.y}};
   },{x,y,byLabel});
