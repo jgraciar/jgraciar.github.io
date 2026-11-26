@@ -100,6 +100,12 @@ const enterNodeEquation=async(page,id,equation)=>{
   await tokens.first().click();await leftSlot.click();
   await leftSlot.locator('[data-kcl-term]').focus();await page.keyboard.press('Delete');
   assert.equal(await leftSlot.locator('[data-kcl-term]').count(),0,'Supr retira la intensidad de la ecuación');
+  await tokens.first().click();await leftSlot.click();
+  const term=leftSlot.locator('[data-kcl-term]');
+  await term.dragTo(tokens.first());
+  assert.equal(await term.count(),0,'Arrastrar una intensidad al botón original la retira de la igualdad');
+  assert.equal(await tokens.first().getAttribute('aria-pressed'),'false');
+
 
   for(let i=0;i<await tokens.count();i++){
    const label=await tokens.nth(i).textContent();
