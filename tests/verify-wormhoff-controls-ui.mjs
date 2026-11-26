@@ -228,7 +228,7 @@ await page.route('**/wormhoff/',async route=>{
 });
 await page.reload();await page.selectOption('#exerciseSelect','r76');
 // Las ramas deben admitir flechas después del último componente, antes del nudo.
-for(const [branch,x,y] of [[1,350,228],[4,548,245]]){
+for(const [branch,x,y] of [[1,350,228],[4,626,245],[3,75,245]]){
  const target=page.locator('[data-current-branch="'+branch+'"]');
  await target.evaluate((el,{x,y})=>{
   const svg=document.getElementById('circuit'),p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());
@@ -240,7 +240,8 @@ for(const [branch,x,y] of [[1,350,228],[4,548,245]]){
  assert.equal(await arrow.isVisible(),true,'Flecha visible en el tramo solicitado');
  const point=await arrow.evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
  if(branch===1)assert(point.x>=338&&point.x<=362&&point.y>193&&point.y<245,'Flecha después del último componente y antes de C');
- else assert(point.x>535&&point.x<570&&point.y>=232&&point.y<=258,'Flecha entre R5 y D');
+ else if(branch===4)assert(point.x>576&&point.x<649&&Math.abs(point.y-245)<1,'Flecha entre R5 y D');
+ else assert(point.x>51&&point.x<123&&Math.abs(point.y-245)<1,'Flecha entre B y el primer componente');
 }
 await page.reload();await page.selectOption('#exerciseSelect','r76');
 await page.evaluate(()=>{
