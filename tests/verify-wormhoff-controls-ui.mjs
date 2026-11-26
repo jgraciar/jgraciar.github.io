@@ -782,7 +782,7 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
   await tap(...freePoints[i]);
   assert(await page.locator('#currentNameDialog').isVisible(),'Numeración rama '+(i+1)+' punto '+JSON.stringify(freePoints[i])+' elementos '+JSON.stringify(hit)+' aviso '+await page.locator('#currentPlacementNotice').textContent());
   await page.locator('#currentNumber').fill(String(i+1));await page.click('#currentNameForm button[type="submit"]');
-  const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY)}));
+  const position=await page.locator('#sixCurrentArrow'+i).evaluate(el=>({x:Number(el.dataset.arrowX),y:Number(el.dataset.arrowY),diagnostic:el.dataset.requestedBlockers,requested:window.wormhoffTest.A6.currentPositions[Number(el.dataset.currentIndex)]}));
   assert(Math.hypot(position.x-freePoints[i][0],position.y-freePoints[i][1])<([0,2].includes(i)?10:2),'Posición de la flecha avanzada más próxima al clic: rama '+(i+1)+' '+JSON.stringify(position));
  }
  await assertBranchPlacement(true);await assertNoCurrentOverlap();
