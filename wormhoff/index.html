@@ -1531,6 +1531,18 @@
       const bank=host.querySelector('.kcl-drag-bank');
       bank.addEventListener('dragover',event=>event.preventDefault());
       bank.addEventListener('drop',event=>{event.preventDefault();const value=event.dataTransfer.getData('text/plain');if(value!=='')remove(Number(value))});
+      // A drop on any original token also returns the dragged term to the bank.
+      tokens.forEach(token=>{
+        token.addEventListener('dragover',event=>{event.preventDefault();event.dataTransfer.dropEffect='move'});
+        token.addEventListener('drop',event=>{event.preventDefault();event.stopPropagation();const value=event.dataTransfer.getData('text/plain');if(value!=='')remove(Number(value))});
+      });
+      // Dropping a placed term outside either member also removes it.
+      host.addEventListener('dragend',event=>{
+        const i=termIndex(event.target)??(event.target.closest('[data-kcl-drag]')?Number(event.target.closest('[data-kcl-drag]').dataset.kclDrag):null);
+        if(i===null||assignments[i]===null||event.dataTransfer.dropEffect!=='none')return;
+        const target=document.elementFromPoint(event.clientX,event.clientY);
+        if(target&&host.contains(target)&&!target.closest('.kcl-live-side'))remove(i);
+      });
       host.querySelector('.kcl-live-expression').addEventListener('keydown',event=>{
         const i=termIndex(event.target);if(i!==null&&(event.key==='Delete'||event.key==='Backspace')){event.preventDefault();remove(i)}
       });
