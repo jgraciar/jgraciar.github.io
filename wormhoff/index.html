@@ -3895,7 +3895,7 @@
           // text to shift along the conductor while keeping the arrow fixed.
           if(horizontal){
             const base=positions.slice();
-            for(const shift of [12,-12,24,-24,36,-36,48,-48]){
+            for(const shift of [6,-6,12,-12,18,-18,24,-24,30,-30,36,-36,42,-42,48,-48]){
               for(const pos of base)positions.push({l:{...pos.l,x:pos.l.x+shift},v:pos.v?{...pos.v,x:pos.v.x+shift}:null});
             }
           }
