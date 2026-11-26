@@ -3901,18 +3901,18 @@
           const labelDistance=r=>Math.hypot(Math.max(r.x-c.x,0,c.x-r.x-r.w),Math.max(r.y-c.y,0,c.y-r.y-r.h));
           // Prefer nearby labels over distant lateral offsets. For vertical
           // conductors, also try a small longitudinal shift around node names.
-          if(!horizontal){
+          if(six&&!horizontal){
             const base=positions.slice();
             for(const shift of [8,-8,16,-16,24,-24]){
               for(const pos of base)positions.push({l:{...pos.l,y:pos.l.y+shift},v:pos.v?{...pos.v,y:pos.v.y+shift}:null});
             }
           }
-          positions.sort((a,b)=>labelDistance(a.l)-labelDistance(b.l));
-          let arrangement=positions.find(pos=>labelDistance(pos.l)<29&&[pos.l,pos.v].filter(Boolean).every(clear));
+          if(six)positions.sort((a,b)=>labelDistance(a.l)-labelDistance(b.l));
+          let arrangement=positions.find(pos=>(!six||labelDistance(pos.l)<29)&&[pos.l,pos.v].filter(Boolean).every(clear));
           if(!arrangement&&v){
             // The name and numerical result may use different sides or offsets.
             for(const pos of positions){
-              if(labelDistance(pos.l)>=29||!clear(pos.l))continue;
+              if((six&&labelDistance(pos.l)>=29)||!clear(pos.l))continue;
               const result=positions.map(p=>p.v).find(r=>r&&clear(r)&&!overlap(r,pos.l));
               if(result){arrangement={l:pos.l,v:result};break;}
             }
