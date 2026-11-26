@@ -444,7 +444,15 @@ for(const [mobile,reducedMotion] of [[false,'no-preference'],[true,'no-preferenc
  const tap=async(x,y)=>{
   await page.locator('#circuit').scrollIntoViewIfNeeded();
   const p=await page.locator('#circuit').evaluate((svg,[x,y])=>{const p=new DOMPoint(x,y).matrixTransform(svg.getScreenCTM());return {x:p.x,y:p.y}},[x,y]);
-  if(mobile)await page.touchscreen.tap(p.x,p.y);else await page.mouse.click(p.x,p.y);
+  if(mobile){
+   // CDP touch coordinates are not subject to Chromium's tap target adjustment.
+   // Keep the intended physical point and the original placement assertion.
+   const session=await context.newCDPSession(page);
+   try{
+    await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:p.x,y:p.y,radiusX:1,radiusY:1}]});
+    await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+   }finally{await session.detach();}
+  }else await page.mouse.click(p.x,p.y);
  };
  const tapMeshTurn=async index=>{
   const point=await page.locator(`[data-mesh-turn="${index}"] .mesh-turn-hit`).evaluate(el=>{const b=el.getBBox();return {x:b.x+b.width/2,y:b.y+b.height/2};});await tap(point.x,point.y);
