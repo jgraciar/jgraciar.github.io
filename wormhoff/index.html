@@ -3148,17 +3148,17 @@
   // Actividad resuelta 7.6. Grafo equivalente por contracción de conductores
   // y elementos en serie; conserva las seis ramas y las tres mallas independientes.
   const A6={stage:'dirs',simplifying:false,simplified:false,nodeIds:[],nodeChoices:[],nodeSelectionConfirmed:false,currentNumbers:Array(6).fill(null),currentPositions:Array(6).fill(null),meshDirections:[true,true,true],meshDirectionsConfirmed:false,signs:[1,1,1,1,1,1],loop:0,cw:true,pass:'R',done:[null,null,null],rowsR:[[],[],[]],rowsU:[[],[],[]],running:false,motionActive:false,manualPaused:false,waiting:null,runId:0,animReq:null,flowReq:null,score:0,steps:[],step:0};
-  const N6={A:[350,45]],B:[51,245]],C:[350,245]],D:[649,245]]};
-  let E6=[-112,0],-4,-6,12,-2], R6=[-121,3],2,2,5,3], NAMES6=['I₁','I₂','I₃','I₄','I₅','I₆'];
+  const N6={A:[350,45],B:[51,245],C:[350,245],D:[649,245]};
+  let E6=[10,0,-4,-6,12,-2], R6=[4,3,2,2,5,3], NAMES6=['I₁','I₂','I₃','I₄','I₅','I₆'];
   // Por convenio, cada fuente E se expresa como subida algebraica al recorrer
   // la rama en su sentido de referencia de origen a destino.
   const EDGES6=[
-    {from:'B',to:'A',p:[[51,245]],[51,145],'U'],[51,45]],[194,45],'R'],[350,45]]],src:0},
-    {from:'A',to:'C',p:[[350,45]],[350,145],'R'],[350,245]]],src:1},
-    {from:'A',to:'D',p:[[350,45]],[506,45],'R'],[649,45]],[649,145],'U'],[649,245]]],src:2},
-    {from:'B',to:'C',p:[[51,245]],[158,245],'R'],[270,245],'U'],[350,245]]],src:3},
-    {from:'C',to:'D',p:[[350,245]],[453,245],'U'],[568,245],'R'],[649,245]]],src:4},
-    {from:'B',to:'D',p:[[51,245]],[51,375]],[268,375],'U'],[508,375],'R'],[649,375]],[649,245]]],src:5}
+    {from:'B',to:'A',p:[[51,245],[51,145,'U'],[51,45],[194,45,'R'],[350,45]],src:0},
+    {from:'A',to:'C',p:[[350,45],[350,145,'R'],[350,245]],src:1},
+    {from:'A',to:'D',p:[[350,45],[506,45,'R'],[649,45],[649,145,'U'],[649,245]],src:2},
+    {from:'B',to:'C',p:[[51,245],[158,245,'R'],[270,245,'U'],[350,245]],src:3},
+    {from:'C',to:'D',p:[[350,245],[453,245,'U'],[568,245,'R'],[649,245]],src:4},
+    {from:'B',to:'D',p:[[51,245],[51,375],[268,375,'U'],[508,375,'R'],[649,375],[649,245]],src:5}
   ];
   // La topología cambia los componentes, nunca los controles ni las fases.
   const EDGES6_ORIGINAL=EDGES6.map(edge=>({...edge,p:edge.p.map(point=>point.slice())}));
