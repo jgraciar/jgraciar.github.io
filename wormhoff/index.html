@@ -3313,9 +3313,9 @@
     if(!$('sixLoops'))return;
     if(A6.stage!=='loops'){$('sixLoops').innerHTML='';$('meshTargets').innerHTML='';$('meshSelection').innerHTML='';return;}
     const faces=[
-      {x:141,y:86,w:199,h:128,topX:175,bottomX:250,sideY:108},
-      {x:360,y:86,w:199,h:128,topX:395,bottomX:465,sideY:108},
-      {x:141,y:237,w:418,h:106,topX:382,bottomX:380,sideY:292}
+      {x:N6.B[0]+12,y:N6.A[1]+12,w:N6.C[0]-N6.B[0]-24,h:N6.B[1]-N6.A[1]-24},
+      {x:N6.C[0]+12,y:N6.A[1]+12,w:N6.D[0]-N6.C[0]-24,h:N6.D[1]-N6.A[1]-24},
+      {x:N6.B[0]+12,y:N6.B[1]+12,w:N6.D[0]-N6.B[0]-24,h:EDGES6[5].p[1][1]-N6.B[1]-24}
     ];
     if(A6.stage==='loops'){
       drawMeshTargets(faces);drawSelectedMesh(A6.loop,faces[A6.loop],A6.done[A6.loop]?.cw??A6.cw);
