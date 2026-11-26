@@ -2250,7 +2250,9 @@
     });
     svg.addEventListener('pointermove',event=>{
       const drag=currentArrowDrag;if(!drag||event.pointerId!==drag.pointerId)return;
-      if(!drag.moved&&Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)<4)return;
+      // Measure the drag threshold in circuit units so zoom and mobile scaling do not suppress short moves.
+      const scale=Math.hypot(svg.getScreenCTM().a,svg.getScreenCTM().b);
+      if(!drag.moved&&Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)<Math.min(4,4*scale))return;
       clearTimeout(drag.longPressTimer);cancelCurrentLabelTap();drag.moved=true;svg.classList.add('dragging-current');event.preventDefault();
       const point=new DOMPoint(event.clientX,event.clientY).matrixTransform(svg.getScreenCTM().inverse());
       repositionCurrent(drag.index,drag.six,{x:point.x+drag.offsetX,y:point.y+drag.offsetY});
