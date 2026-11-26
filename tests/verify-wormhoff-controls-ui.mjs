@@ -55,6 +55,7 @@ algebraContext.S={phase:2,loops:[{cw:true},null],loop:0,cw:true,pass:'sources'};
 algebraContext.A6={stage:'loops',done:[null,{cw:true},null],loop:1,cw:true,pass:'U'};
 algebraContext.drawSelectedMesh=()=>{};algebraContext.drawMeshTargets=()=>{};algebraContext.bindMeshTurns=()=>{};algebraContext.meshTurnIcon=()=>'';
 vm.runInContext(
+ gameSource.slice(gameSource.indexOf('  const N6='),gameSource.indexOf('  // La topología cambia los componentes'))+'\n'+
  gameSource.slice(gameSource.indexOf('  function meshCompleteMark('),gameSource.indexOf('  function setTransportState('))+
  gameSource.slice(gameSource.indexOf('  function updateLoopsArrows('),gameSource.indexOf('  const fmt='))+
  gameSource.slice(gameSource.indexOf('  function sixMeshArrows('),gameSource.indexOf('  function sixText('))+
