@@ -1727,6 +1727,7 @@
   }
   function branchPoints(six,index){return six?EDGES6[index].p.filter(p=>p.length===2).map(p=>({x:p[0],y:p[1]})):BRANCHES[index].filter(p=>!p.component);}
   function branchClickPoint(event,six,index){
+    if(event?.circuitPoint)return event.circuitPoint;
     if(event&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY)&&(event.clientX||event.clientY)){
       const p=new DOMPoint(event.clientX,event.clientY).matrixTransform($('circuit').getScreenCTM().inverse());return {x:p.x,y:p.y};
     }
@@ -1806,15 +1807,17 @@
       // Preserve the actual touch position: Chromium may retarget the synthetic click
       // to a nearby point on a wide SVG hit area.
       let touch=null;
-      el.addEventListener('pointerdown',event=>{touch=event.pointerType==='touch'?{id:event.pointerId,x:event.clientX,y:event.clientY}:null;});
-      el.addEventListener('pointercancel',()=>{touch=null;});
+      // Capture the SVG position before the browser changes focus or scrolls.
+      el.addEventListener('pointerdown',event=>{
+        touch=event.pointerType==='touch'?branchClickPoint(event,six,Number(el.dataset.currentBranch)):null;
+      });
       el.addEventListener('touchstart',event=>{
-        const finger=event.changedTouches[0];if(finger&&event.touches.length===1)touch={clientX:finger.clientX,clientY:finger.clientY};
+        const finger=event.changedTouches[0];if(finger&&event.touches.length===1)touch=branchClickPoint(finger,six,Number(el.dataset.currentBranch));
       },{passive:true});
+      el.addEventListener('pointercancel',()=>{touch=null;});
       el.addEventListener('touchcancel',()=>{touch=null;});
-      el.addEventListener('pointerup',event=>{if(touch&&touch.id===event.pointerId)touch={clientX:touch.x,clientY:touch.y};});
       bindClickable(el,event=>{
-        const point=event&&touch&&Number.isFinite(touch.clientX)?touch:event;
+        const point=event&&touch?{circuitPoint:touch}:event;
         touch=null;
         openCurrentName(Number(el.dataset.currentBranch),six,point);
       });
