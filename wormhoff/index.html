@@ -909,10 +909,10 @@
 <style>.algebra-working-line.alg-solution{background:rgba(255,211,64,.18);border-left:3px solid #ffd340;color:inherit;padding:6px 10px;font-weight:700}</style><style>
 .kcl-drag-bank{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;padding:12px;border:1px solid var(--border);border-radius:10px;margin:10px 0}.kcl-drag-token{cursor:grab;touch-action:manipulation;font-weight:750}.kcl-drag-token.selected{outline:2px solid var(--cyan)}.kcl-drag-token.placed{opacity:.5}.kcl-live-expression{display:flex;align-items:stretch;justify-content:center;gap:10px;width:100%}.kcl-live-side.kcl-drop-side{min-width:110px;min-height:52px;display:flex;align-items:center;justify-content:center;gap:5px;border:1px dashed var(--border);border-radius:9px;padding:8px;flex-wrap:wrap;cursor:pointer}.kcl-live-equals{align-self:center;font-weight:800}.grid-setting{display:flex!important;align-items:center;gap:9px}.grid-setting input{width:18px;height:18px}
 [hidden]{display:none!important}
-#stagebar{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:7px}
+#stagebar{display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:7px;overflow-x:auto}
 #stagebar .stage{flex:1 1 0px;width:auto;max-width:100%;min-width:max-content;box-sizing:border-box}
 #stagebar .phase-link>span{white-space:nowrap}
-@media(max-width:280px){#stagebar .stage{min-width:0;flex-basis:100%}#stagebar .phase-link>span{white-space:normal}}
+
 #stagebar .phase-link{flex:0 1 auto;width:auto;white-space:normal}
 #stagebar .phase-link>span{overflow-wrap:normal}
 #stagebar .phase-complete{margin-right:5px}
