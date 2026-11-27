@@ -910,9 +910,11 @@
 .kcl-drag-bank{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;padding:12px;border:1px solid var(--border);border-radius:10px;margin:10px 0}.kcl-drag-token{cursor:grab;touch-action:manipulation;font-weight:750}.kcl-drag-token.selected{outline:2px solid var(--cyan)}.kcl-drag-token.placed{opacity:.5}.kcl-live-expression{display:flex;align-items:stretch;justify-content:center;gap:10px;width:100%}.kcl-live-side.kcl-drop-side{min-width:110px;min-height:52px;display:flex;align-items:center;justify-content:center;gap:5px;border:1px dashed var(--border);border-radius:9px;padding:8px;flex-wrap:wrap;cursor:pointer}.kcl-live-equals{align-self:center;font-weight:800}.grid-setting{display:flex!important;align-items:center;gap:9px}.grid-setting input{width:18px;height:18px}
 [hidden]{display:none!important}
 #stagebar{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:7px}
-#stagebar .stage{flex:0 1 auto;width:auto;max-width:100%;min-width:0}
+#stagebar .stage{flex:1 1 0px;width:auto;max-width:100%;min-width:max-content;box-sizing:border-box}
+#stagebar .phase-link>span{white-space:nowrap}
+@media(max-width:280px){#stagebar .stage{min-width:0;flex-basis:100%}#stagebar .phase-link>span{white-space:normal}}
 #stagebar .phase-link{flex:0 1 auto;width:auto;white-space:normal}
-#stagebar .phase-link>span{white-space:normal;overflow-wrap:normal}
+#stagebar .phase-link>span{overflow-wrap:normal}
 #stagebar .phase-complete{margin-right:5px}
 #stagebar .stage.active,#stagebar .stage.active.done{background:#ffcf33;color:#211900;border-color:#a66c00;box-shadow:inset 0 0 0 1px #a66c00}
 #stagebar .stage.active .phase-complete{color:#175500}
@@ -4892,14 +4894,14 @@
    @media(min-width:801px){
     #gameLayout{align-items:start}
     #circuitCard,#equationsCard{min-height:0;max-height:calc(100dvh - var(--stagebar-height,90px) - 28px);overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-gutter:stable}
-    #stagebar .stage{flex:0 1 auto;min-width:0;width:auto;box-sizing:border-box}
+    #stagebar .stage{flex:1 1 0px;min-width:max-content;width:auto;box-sizing:border-box}
     #stagebar .phase-link{flex:0 1 auto;min-width:0;white-space:nowrap}
     #stagebar .phase-link>span{white-space:nowrap;overflow-wrap:normal}
     #stagebar .phase-complete,#stagebar .phase-reset{flex-shrink:0}
    }
    @media(min-width:801px) and (max-width:1040px){
     #stagebar .phase-link{white-space:normal}
-    #stagebar .phase-link>span{white-space:normal}
+    #stagebar .phase-link>span{white-space:nowrap}
    }
    /* Densidad vertical: cabecera, fases, título del circuito y pie. */
    .shell{padding-top:10px;padding-bottom:16px}
