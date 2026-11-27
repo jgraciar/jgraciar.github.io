@@ -4892,14 +4892,12 @@
    @media(min-width:801px){
     #gameLayout{align-items:start}
     #circuitCard,#equationsCard{min-height:0;max-height:calc(100dvh - var(--stagebar-height,90px) - 28px);overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-gutter:stable}
-    #stagebar:not(.single-stage){grid-template-columns:repeat(3,minmax(0,1fr))}
-    #stagebar .stage{min-width:0;width:100%;box-sizing:border-box}
-    #stagebar .phase-link{flex:1;min-width:0;white-space:nowrap}
+    #stagebar .stage{flex:0 1 auto;min-width:0;width:auto;box-sizing:border-box}
+    #stagebar .phase-link{flex:0 1 auto;min-width:0;white-space:nowrap}
     #stagebar .phase-link>span{white-space:nowrap;overflow-wrap:normal}
     #stagebar .phase-complete,#stagebar .phase-reset{flex-shrink:0}
    }
    @media(min-width:801px) and (max-width:1040px){
-    #stagebar:not(.single-stage){grid-template-columns:repeat(2,minmax(0,1fr))}
     #stagebar .phase-link{white-space:normal}
     #stagebar .phase-link>span{white-space:normal}
    }
