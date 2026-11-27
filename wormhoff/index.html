@@ -1998,7 +1998,7 @@
       parts.push('<circle class="nod" cx="345" cy="74" r="5"/><circle class="nod" cx="345" cy="360" r="5"/><text class="txt" x="358" y="58">A</text><text class="txt" x="358" y="390">B</text>');
       $('staticCircuit').innerHTML=parts.join('');decorateComponentValues();bindSourcePolarityControls();
       $('boardTitle').textContent=topologyLabel(active);
-      $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
+      $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos · 2 mallas';
       $('boardSummary').textContent='R1 '+formatComponentValue(f[0])+' Ω · R2 '+formatComponentValue(f[1])+' Ω · R3 '+formatComponentValue(f[2])+' Ω · R4 '+formatComponentValue(f[3])+' Ω · E1 '+formatComponentValue(E[0])+' V · E2 '+formatComponentValue(E[1])+' V · E3 '+formatComponentValue(E[2])+' V';
       $('circuit').setAttribute('aria-label','Figura 4.51: dos mallas, tres fuentes y cuatro resistencias independientes');
       return;
@@ -2007,7 +2007,7 @@
       drawSlottedThreeBranchCircuit(parts);
       parts.push('<circle class="nod" cx="345" cy="74" r="5"/><circle class="nod" cx="345" cy="360" r="5"/><text class="txt" x="358" y="58">A</text><text class="txt" x="358" y="390">B</text>');
       $('staticCircuit').innerHTML=parts.join('');decorateComponentValues();bindSourcePolarityControls();
-      $('boardTitle').textContent=topologyLabel(active);$('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
+      $('boardTitle').textContent=topologyLabel(active);$('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos · 2 mallas';
       $('boardSummary').textContent='R: '+R.map(v=>formatNumber(v)+' Ω').join(' / ')+' · E: '+E.map(formatNumber).join(' / ')+' V';
       return;
     }
@@ -2033,7 +2033,7 @@
     parts.push('<circle class="nod" cx="345" cy="74" r="5"/><circle class="nod" cx="345" cy="360" r="5"/><text class="txt" x="358" y="58">A</text><text class="txt" x="358" y="390">B</text>');
     $('staticCircuit').innerHTML=parts.join('');decorateComponentValues();bindSourcePolarityControls();
     $('boardTitle').textContent=topologyLabel(active);
-    $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos';
+    $('boardBadge').textContent=symbolStandardLabel()+' · 3 ramas · 2 nudos · 2 mallas';
     $('boardSummary').textContent='R: '+(active.id==='f451'?active.components:R).map(r=>r===0?'fuente ideal':formatNumber(r)+' Ω').join(' / ')+' · E: '+E.map(formatNumber).join(' / ')+' V';
     $('circuit').setAttribute('aria-label',active.label+'; tres ramas con resistencias '+R.join(', ')+' ohmios y fuentes '+E.join(', ')+' voltios');
   }
