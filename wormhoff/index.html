@@ -4524,7 +4524,7 @@
     function sync(){
       let visible=0,transportVisible=0;
       for(const {button,marker,slot,target} of entries){
-        slot.hidden=!!marker.closest('.hide')||button.classList.contains('hide');
+        slot.hidden=!!marker.closest('.hide')||button.classList.contains('hide')||(button.id==='goMatrix'&&(active.kind==='multi'||active.kind==='network'||!allEquationsReady(false)))||(button.id==='advToMatrix'&&(active.kind!=='multi'||!allEquationsReady(true)));
         if(!slot.hidden){if(target===transport)transportVisible++;else visible++;}
       }
       const shortcutVisible=active.kind!=='network'&&(active.kind==='multi'?A6.simplified&&A6.stage==='loops':S.simplified&&S.phase===2)&&!(active.kind==='multi'?A6.simplifying:S.simplifying);
@@ -4637,8 +4637,12 @@
     const factor=actual.row[pivot]/row[pivot];if(!Number.isFinite(factor)||Math.abs(factor)<1e-12)return false;
     return [...row,b].every((v,i)=>Math.abs((i===row.length?actual.b:actual.row[i])-v*factor)<=1e-7*Math.max(1,Math.abs(v*factor)));
   }
+  function allEquationsReady(six){
+    const model=six?A6:S,loops=six?A6.done:S.loops;
+    return (six?A6.stage==='loops':S.phase===2)&&model.nodeIds?.length===requiredNodeEquations(six)&&loops.length===(six?3:2)&&loops.every(Boolean)&&!model.simplifying&&!model.simplified;
+  }
   function openSimplification(six){
-    const model=six?A6:S;if(!(six?A6.done:S.loops).every(Boolean)||(six?A6.stage!=='loops':S.phase!==2))return;
+    const model=six?A6:S;if(!allEquationsReady(six))return;
     model.simplifying=true;show('circuitControls',false);clearFX();setHeroGait(false);
     const demo=difficulty()===0,data=simplificationData(six).filter(e=>e.needsSimplification);
     $('simplificationRows').innerHTML=data.length?data.map((equation,i)=>'<section class="simplification-item'+(model.simplified?' verified':'')+'" data-simple-row="'+i+'"><h3>Malla '+(i+1)+'</h3><div class="mini">Ecuación original</div><div class="simplification-original">'+escapeHtml(equation.original)+'</div>'+(demo?'<div class="mini">Ecuación simplificada</div><div class="simplification-result">'+escapeHtml(equation.simplified)+'</div>':'<label>Ecuación simplificada<input class="simplification-answer" data-simple="'+i+'" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Ecuación simplificada de malla '+(i+1)+'" value="'+(model.simplified?escapeHtml(equation.simplified):'')+'" placeholder="…"></label><div class="simplification-result" data-simple-result="'+i+'"></div>')+'</section>').join(''):'<p class="message good">Las ecuaciones ya están simplificadas. Puedes continuar.</p>';
